@@ -1,0 +1,95 @@
+{% extends 'estructura/tabla.html' %}
+{% load static %}
+
+{% block title %}
+    Asociado
+{% endblock title %}
+
+{% block button %}
+{% endblock button %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
+    <li class="breadcrumb-item"><a href="#">Información</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'asociado:asociado' %}">Asociados</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Detalle Asociado</li>
+    <li class="breadcrumb-item active" aria-current="page">{{queryAsociado.nombre}} {{queryAsociado.apellido}}</li>
+{% endblock breadcrumb %}
+
+{% block submenu %}
+
+    {% include 'estructura/asociado/navbar.html' %}
+
+    <div class="row" style="display:flex; justify-content:flex-end; margin-right:25px; margin-top:15px">
+        <div class="col-sm-1">
+            <div class="btn-group" role="group" aria-label="Basic example">
+                <a href="{% url 'asociado:asociado' %}" class="btn btn-primary"><i class="fa-solid fa-arrow-left"></i></a>
+                <button class="btn btn-primary" onclick="abrir_modal_creacion('{% url 'asociado:crearBeneficiario' pkAsociado %}')"><i class="fa-solid fa-plus"></i></button>
+            </div>
+        </div>
+    </div> 
+
+    <div class="modal fade" id="creacion" role="dialog">
+    <!-- En este div se visualiza la informacion para la creacion de un nuevo registro de entrada -->
+    </div>
+
+{% endblock submenu %}
+
+{% block tablaencabezado %}
+    <tr>
+        <th>N°</th>
+        <th>Fecha Solicitud</th>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>N° Documento</th>
+        <th>Valor</th>
+        <th>Cuotas</th>
+        <th>Estado</th>
+        <th>Opciones</th>
+    </tr>
+{% endblock tablaencabezado %}
+
+{% block tablafilas %}
+    {% for obj in query %}
+        <tr>
+            <th>{{ forloop.counter }}</th>
+            <th>{{ obj.fechaSolicitud }}</th>
+            <th>{{ obj.asociado.nombre }}</th>
+            <th>{{ obj.asociado.apellido }}</th>
+            <th>{{ obj.asociado.numDocumento }}</th>
+            <th>{{ obj.valor }}</th>
+            <th>{{ obj.cuotas }}</th>
+            <th>{{ obj.estado }}</th>
+            <th><center><button class="btn btn-outline-primary" onclick="abrir_modal_edicion('{% url 'asociado:editarBeneficiario' pkAsociado obj.pk %}')"><i class="fa-solid fa-pen-to-square"></i></button></th>
+        </tr>
+    {% endfor %}
+
+    <div class="modal fade" id="creacion" role="dialog">
+        <!-- En este div se visualiza la informacion para la creacion de un nuevo registro de entrada -->
+    </div>
+  
+
+{% endblock tablafilas %}
+
+{% block extrajs %}
+
+<script type="text/javascript">
+    var $ = jQuery.noConflict()
+    function abrir_modal_creacion(url){
+        $('#creacion').load(url, function(){
+            $(this).modal('show');
+        });
+    }
+    var $ = jQuery.noConflict()
+    function abrir_modal_edicion(url){
+        $('#creacion').load(url, function(){
+            $(this).modal('show');
+        });
+    }
+</script>
+
+{% endblock extrajs %}  
+
+
+
+    

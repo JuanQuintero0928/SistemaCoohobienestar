@@ -1,0 +1,90 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block title %}
+    Configuración de parametros
+{% endblock title %}
+    
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Parametros</li>
+{% endblock breadcrumb %}
+
+{% block contenidoPagina %}
+    <div class="col-xl-2 col-md-2 mb-3">
+        {% comment %} <div class="card-body">
+            <div class="col-xl-12 col-md-12">
+                {% block colorpagina1 %}<div class="card text-white mb-3" style="border-color:white">{% endblock colorpagina1 %}
+                    <div class="card-body">
+                        <div class="h1 text-muted text-right mb-3 w-50 p-1">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div class="h6 text-muted text-right mb-4">
+                            <a href="{% url 'parametro:tipoAuxilio' %}" style="text-decoration:none">Tipo Auxilio</a>
+                        </div>
+                        <div class="progress progress-xs mt-3 mb-0">
+                            <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-info" style="width: 100%" role="progressbar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-12 col-md-12">
+                {% block colorpagina2 %}<div class="card text-white mb-3" style="border-color:white">{% endblock colorpagina2 %}
+                    <div class="card-body">
+                        <div class="h1 text-muted text-right mb-3 w-50 p-1">
+                            <i class="fa-solid fa-people-group"></i>
+                        </div>
+                        <div class="h6 text-muted text-right mb-4">
+                            <a href="{% url 'parametro:tarifa' %}" style="text-decoration:none">Tarifas</a>
+                        </div>
+                        <div class="progress progress-xs mt-3 mb-0">
+                            <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-success" style="width: 100%" role="progressbar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-12 col-md-12">
+                {% block colorpagina3 %}<div class="card text-white mb-3" style="border-color:white">{% endblock colorpagina3 %}
+                    <div class="card-body">
+                        <div class="h1 text-muted text-right mb-3 w-50 p-1">
+                            <i class="fa-solid fa-shield-dog"></i><i class="fa-solid fa-shield-cat"></i>
+                        </div>
+                        <div class="h6 text-muted text-right mb-4">
+                            <a href="{% url 'beneficiario:mascota' %}" style="text-decoration:none">Mascotas</a>
+                        </div>
+                        <div class="progress progress-xs mt-3 mb-0">
+                            <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-warning" style="width: 100%" role="progressbar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> {% endcomment %}
+        <div class="card">
+            <ul class="list-group list-group-flush">
+                {% block barraLateral %}
+                <li class="list-group-item"><a href="{% url 'parametro:pais' %}" style="text-decoration:none">Paises Repatriación</a></li>
+                <li class="list-group-item"><a href="{% url 'parametro:parentesco' %}" style="text-decoration:none">Parentesco</a></li>
+                <li class="list-group-item"><a href="{% url 'parametro:tarifa' %}" style="text-decoration:none">Tarifas</a></li>
+                <li class="list-group-item"><a href="{% url 'parametro:tipoAsociado' %}" style="text-decoration:none">Tipo Asociado</a></li>
+                <li class="list-group-item"><a href="{% url 'parametro:tipoAuxilio' %}" style="text-decoration:none">Tipo Auxilio</a></li>
+                {% endblock barraLateral %}
+            </ul>
+        </div>
+    </div>
+    <div class="col-xl-10 col-md-10">
+        <div class="card">
+            <div class="card-body">
+                {% block contenidoParametros %}
+
+                {% endblock contenidoParametros %}
+            </div>        
+        </div>
+    </div>
+
+
+{% endblock contenidoPagina %}
+
+
+
+
+    

@@ -1,0 +1,56 @@
+<div class="modal-dialog modal-sm" role="document">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          {% if queryMascota %}
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Eliminar Mascota</h1>
+          {% endif %}
+          {% if queryBeneficiario %}
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Eliminar Beneficiario</h1>
+          {% endif %}
+            <hr>
+          <h2 class="modal-title fs-5" id="exampleModalLabel"></h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          {% if queryMascota %}
+            <table class="table table-sm">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Tipo</th>
+                </tr>
+                <tr>
+                    <td>{{queryMascota.nombre}}</td>
+                    <td>{{queryMascota.tipo}}</td>
+                </tr>
+            </table>
+          {% endif %}
+          {% if queryBeneficiario %}
+            <table class="table table-sm">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Parentesco</th>
+                </tr>
+                <tr>
+                    <td>{{queryBeneficiario.nombre}}</td>
+                    <td>{{queryBeneficiario.parentesco}}</td>
+                </tr>
+            </table>
+          {% endif %}
+        </div>
+        <div class="modal-footer">
+          {% if queryMascota %}
+            <form action="{% url 'asociado:eliminarMascota' pkAsociado pk %}" method="post">
+            {% csrf_token %}
+          {% endif %}
+          {% if queryBeneficiario %}
+            <form action="{% url 'asociado:eliminarBeneficiario' pkAsociado pk %}" method="post">
+            {% csrf_token %}
+          {% endif %}
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+              <button  type="submit" class="btn btn-danger">Eliminar</a>
+            </form>
+          </div>
+      </div>
+    </div>
+  </div>

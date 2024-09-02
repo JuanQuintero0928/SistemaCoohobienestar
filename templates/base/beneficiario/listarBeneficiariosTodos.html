@@ -1,0 +1,65 @@
+{% extends 'estructura/tabla.html' %}
+{% load static %}
+
+{% block title %}
+    Beneficiarios
+{% endblock title %}
+
+{% block button %}
+    {% comment %} <a href="{% url 'asociado:crearAsociado' %}"><i class="fa-solid fa-plus"></i></a> {% endcomment %}
+{% endblock button %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'informacion:informacion' %}">Información</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Beneficiarios</li>
+{% endblock breadcrumb %}
+
+{% block submenu %}
+    <br>
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">Lista</a>
+        </li>
+        {% comment %} <li class="nav-item">
+            <a class="nav-link" href="#">Inventario</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#">Utilidades</a>
+        </li> {% endcomment %}
+    </ul>
+{% endblock submenu %}
+
+{% block tablaencabezado %}
+    <tr>
+        <th>N°</th>
+        <th>N° Documento Titular</th>
+        <th>Nombre Completo Titular</th>
+        <th>N° Documento Beneficiario</th>
+        <th>Nombre Completo Beneficiario</th>
+        <th>Parentesco</th>
+        <th>Fecha Nacimiento</th>
+        <th>Opciones</th>
+    </tr>
+{% endblock tablaencabezado %}
+
+{% block tablafilas %}
+    {% for obj in query %}
+        <tr>
+            <th>{{ forloop.counter }}</th>
+            <th>{{obj.asociado.numDocumento}}</th>
+            <th>{{obj.asociado.nombre}} {{obj.asociado.apellido}}</th>
+            <th>{{obj.numDocumento}}</th>
+            <th>{{ obj.nombre }} {{ obj.apellido }}</th>
+            <th>{{ obj.parentesco }}</th>
+            <th>{{ obj.fechaNacimiento }}</th>
+            <th><a href="{% url 'asociado:verAsociado' obj.pk %}"><i class="fa-solid fa-pen"></i></a></th>
+        </tr>
+    {% endfor %}  
+{% endblock tablafilas %}
+
+
+
+
+
+    

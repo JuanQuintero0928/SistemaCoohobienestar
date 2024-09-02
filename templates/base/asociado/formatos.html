@@ -1,0 +1,183 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% comment %} {% block body %}
+    <body class="sb-nav-fixed" onload="addEventListener('{% static 'img/form.jpg' %'})">
+{% endblock body %} {% endcomment %}
+
+{% block title%}    
+    Asociado
+{% endblock title %}
+    
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
+    <li class="breadcrumb-item"><a href="#">Información</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'asociado:asociado' %}">Asociados</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Detalle Asociado</li>
+    <li class="breadcrumb-item active" aria-current="page">{{ query.nombre }} {{ query.apellido }}</li>
+
+{% endblock breadcrumb %}
+
+{% block contenidoPagina %}
+    
+    {% include 'estructura/asociado/navbar.html' %}
+
+    <div class="modal fade" id="creacion" role="dialog">
+        <!-- En este div se visualiza la informacion para la creacion de un nuevo registro de entrada -->
+    </div>
+    <div class="row">
+        {% if mensaje %}
+            
+        {% else %}
+            <div class="card mb-4" style="border:0px">
+                <div class="row" style="display:flex; justify-content:flex-end; margin-right:25px; margin-top:15px">
+                    <div class="col-sm-1">
+                        <div class="btn-group" role="group" aria-label="Basic example">
+                            <a href="{% url 'asociado:asociado' %}" class="btn btn-primary"><i class="fa-solid fa-arrow-left"></i></a>  
+                        </div>
+                    </div>
+                </div> 
+            </div> 
+                
+            <div class="card" style="width: 18rem; margin-right:20px; margin-bottom:10px">
+                <div class="card-body">
+                    <center>
+                        <h5 class="card-title">Formato Vinculación y Actualización de Datos</h5>
+                        <button type="button" class="btn btn-danger" onclick="llamarPDF(1,'{% static 'img/Registro_page_0001.jpg'%}')"><i class="fa-regular fa-file-pdf"></i></button>
+                    </center>
+                </div>
+            </div>
+            <div class="card" style="width: 18rem; margin-right:20px; margin-bottom:10px">
+                <div class="card-body">
+                    <center>
+                        <h5 class="card-title">Formato Actualización Servicios Exequiales</h5>
+                        <button type="button" class="btn btn-danger" onclick="llamarPDF(2,'{% static 'img/Formato_Servicios_Exequiales_page_0001.jpg' %}')"><i class="fa-regular fa-file-pdf"></i></button>
+                    </center>
+                </div>
+            </div>
+            <div class="card" style="width: 18rem; margin-right:20px; margin-bottom:10px">
+                <div class="card-body">
+                    <center>
+                        <h5 class="card-title">Formato Solicitud Bienestar Social</h5>
+                        <button class="btn btn-danger" onclick="abrir_modal_creacion('{% url 'asociado:modalFormato' pkAsociado 3 %}')"><i class="fa-regular fa-file-pdf"></i></button>
+                    </center>
+                </div>
+            </div>
+            <div class="card" style="width: 18rem; margin-right:20px; margin-bottom:10px">
+                <div class="card-body">
+                    <center>
+                        <h5 class="card-title">Formato Extracto de Pago</h5>
+                        <button class="btn btn-danger" onclick="abrir_modal_creacion('{% url 'asociado:modalFormato' pkAsociado 4 %}')"><i class="fa-regular fa-file-pdf"></i></button>
+                        {% comment %} <button type="button" class="btn btn-danger" onclick="llamarPDF(4,'{% static 'img/Formato_ExtractoPago_page_0001.jpg'%}')"><i class="fa-regular fa-file-pdf"></i></button> {% endcomment %}
+                    </center>
+                </div>
+            </div>
+
+            {% comment %} <form> {% endcomment %}
+            <form style="display:none">
+                <h2>Tabla Asociado</h2>
+                <input type="date" id="id_fechaIngreso" value="{{fIngresoFormateada}}">
+                <input type="date" id="id_fechaActual" value="{{fechaActual}}">
+                <input type="text" id="id_tPersona" value="{{query.tPersona}}">
+                <input type="text" id="id_actualizacion" value="{{actualizacion}}">
+                <input type="text" id="id_nombre" value="{{query.nombre}}">
+                <input type="text" id="id_apellido" value="{{query.apellido}}">
+                <input type="text" id="id_tipoDocumento" value="{{query.tipoDocumento}}">
+                <input type="text" id="id_numDocumento" value="{{query.numDocumento}}">
+                <input type="date" id="id_fechaExpedicion" value="{{fExpedicionFormateada}}">
+                <input type="text" id="id_mpioDoc" value="{{query.mpioDoc}}">
+                <input type="text" id="id_nacionalidad" value="{{query.nacionalidad}}">
+                <input type="text" id="id_genero" value="{{query.genero}}">
+                <input type="text" id="id_estadoCivil" value="{{query.estadoCivil}}">
+                <input type="text" id="id_email" value="{{query.email}}">
+                <input type="text" id="id_numResidencia" value="{{query.numResidencia}}">
+                <input type="text" id="id_numCelular" value="{{query.numCelular}}">
+                <input type="text" id="id_envioInfoCorreo" value="{{query.envioInfoCorreo}}">
+                <input type="text" id="id_envioInfoMensaje" value="{{query.envioInfoMensaje}}">
+                <input type="text" id="id_envioInfoWhatsapp" value="{{query.envioInfoWhatsapp}}">
+                <input type="text" id="id_nivelEducativo" value="{{query.nivelEducativo}}">
+                <input type="text" id="id_tituloPregrado" value="{{query.tituloPregrado}}">
+                <input type="text" id="id_tituloPosgrado" value="{{query.tituloPosgrado}}">
+                <h2>Tabla Nacimiento</h2>
+                <input type="date" id="id_fechaNacimiento" value="{{fNacimientoFormateada}}">
+                <input type="text" id="id_dtoNacimiento" value="{{queryNac.dtoNacimiento}}">
+                <input type="text" id="id_mpioNacimiento" value="{{queryNac.mpioNacimiento}}">
+                <h2>Tabla Residencia</h2>
+                <input type="text" id="id_tipoVivienda" value="{{queryResidencia.tipoVivienda}}">
+                <input type="number" id="id_estrato" value="{{queryResidencia.estrato}}">
+                <input type="text" id="id_direccion" value="{{queryResidencia.direccion}}">
+                <input type="text" id="id_barrio" value="{{queryResidencia.barrio}}">
+                <input type="text" id="id_deptoResidencia" value="{{queryResidencia.deptoResidencia}}">
+                <input type="text" id="id_mpioResidencia" value="{{queryResidencia.mpioResidencia}}">
+                <h2>Tabla Laboral</h2>
+                <input type="text" id="id_ocupacion" value="{{queryLaboral.ocupacion}}">
+                <input type="text" id="id_nombreEmpresa" value="{{queryLaboral.nombreEmpresa}}">
+                <input type="text" id="id_cargo" value="{{queryLaboral.cargo}}">
+                <input type="text" id="id_nomRepresenLegal" value="{{queryLaboral.nomRepresenLegal}}">
+                <input type="text" id="id_numDocRL" value="{{queryLaboral.numDocRL}}">
+                <input type="date" id="id_fechaInicio" value="{{fInicioLab}}">
+                <input type="date" id="id_fechaTerminacion" value="{{fTerminacionLab}}">
+                <input type="text" id="id_direccionLab" value="{{queryLaboral.direccion}}">
+                <input type="text" id="id_mpioTrabajo" value="{{queryLaboral.mpioTrabajo}}">
+                <input type="text" id="id_dptoTrabajo" value="{{queryLaboral.dptoTrabajo}}">
+                <input type="text" id="id_telefono" value="{{queryLaboral.telefono}}">
+                <input type="text" id="id_admRP" value="{{queryLaboral.admRP}}">
+                <input type="text" id="id_pep" value="{{queryLaboral.pep}}">
+                <input type="text" id="id_activEcono" value="{{queryLaboral.activEcono}}">
+                <input type="text" id="id_ciiu" value="{{queryLaboral.ciiu}}">
+                <input type="text" id="id_banco" value="{{queryLaboral.banco}}">
+                <input type="text" id="id_numCuenta" value="{{queryLaboral.numCuenta}}">
+                <input type="text" id="id_tipoCuenta" value="{{queryLaboral.tipoCuenta}}">
+                <h2>Tabla Financiera</h2>
+                <input type="text" id="id_ingresosActPrin" value="{{objFinanciera.ingresosActPrin}}">
+                <input type="text" id="id_otroIngreso1" value="{{objFinanciera.otroIngreso1}}">
+                <input type="text" id="id_otroIngreso2" value="{{objFinanciera.otroIngreso2}}">
+                <input type="text" id="id_egresos" value="{{objFinanciera.egresos}}">
+                <input type="text" id="id_activos" value="{{objFinanciera.activos}}">
+                <input type="text" id="id_pasivos" value="{{objFinanciera.pasivos}}">
+                <input type="text" id="id_patrimonio" value="{{objFinanciera.patrimonio}}">
+                <h2>Tabla Referencia Familiar</h2>
+                <input type="text" id="id_nombreRF" value="{{objReferencia.nombre}}">
+                <input type="text" id="id_parentesco" value="{{objReferencia.parentesco}}">
+                <input type="text" id="id_numContacto" value="{{objReferencia.numContacto}}">           
+                <h2>Tabla Parametro Asociado</h2>
+                <input type="text" id="id_autorizaciondcto" value="{{objParametroAsociado.autorizaciondcto}}">           
+                <input type="text" id="id_empresa" value="{{objParametroAsociado.empresa}}">
+                <h2>Tabla Beneficiarios</h2>
+                {% for beneficiarios in objBeneficiario %}
+                    <input type="text" id="id_nombreBenef_{{forloop.counter}}" value="{{beneficiarios.nombre}} {{beneficiarios.apellido}}">           
+                    <input type="text" id="id_apellidoBenef_{{forloop.counter}}" value="{{beneficiarios.tipoDocumento}}">
+                    <input type="text" id="id_numDocume_{{forloop.counter}}" value="{{beneficiarios.numDocumento}}">
+                    <input type="text" id="id_parentesco_{{forloop.counter}}" value="{{beneficiarios.parentesco}}">
+                    <input type="text" id="id_paisRepatriacion_{{forloop.counter}}" value="{{beneficiarios.paisRepatriacion}}">
+                    <input type="date" id="id_NacBen_{{forloop.counter}}" value="{{beneficiarios.fechaNacimiento|date:"Y-m-d"}}">
+                {% endfor %}
+                <input type="text" id="id_cuentaBeneficiario" value="{{cuentaBeneficiario}}">
+                <h2>Tabla Mascotas</h2>
+                {% for mascota in objMascota %}
+                    <input type="text" id="id_nombreMasc_{{forloop.counter}}" value="{{mascota.nombre}}">           
+                    <input type="text" id="id_tipoMasc_{{forloop.counter}}" value="{{mascota.tipo}}">
+                    <input type="text" id="id_raza_{{forloop.counter}}" value="{{mascota.raza}}">
+                    <input type="date" id="id_nacMasc_{{forloop.counter}}" value="{{mascota.fechaNacimiento|date:"Y-m-d"}}">
+                    <input type="text" id="id_vacunas_{{forloop.counter}}" value="{{mascota.vacunasCompletas}}">
+                {% endfor %}
+                <input type="text" id="id_cuentaMascota" value="{{cuentaMascota}}">
+            </form>
+            
+        {% endif %}
+    <div>
+
+{% endblock contenidoPagina %}
+
+{% block extrajs %}
+    <script src="{% static 'js/function.js' %}"></script>
+    <script type="text/javascript">
+
+        var $ = jQuery.noConflict()
+        function abrir_modal_creacion(url){
+            $('#creacion').load(url, function(){
+                $(this).modal('show');
+            });
+        }
+    </script>
+{% endblock extrajs %}

@@ -1,0 +1,42 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block contenidoPagina %}
+    <div class="card mb-4" style="border:0px">
+        {% block submenu %}
+
+        {% endblock submenu %}
+        <div class="card-body">
+            <table id="datatablesSimple">
+                <thead>
+                    
+                    {% block tablaencabezado %}
+                        <tr>
+                            <th>Neeeame</th>
+                            <th>Position</th>
+                            <th>Office</th>
+                            <th>Age</th>
+                            <th>Start date</th>
+                            <th>Salary</th>
+                        </tr>
+                    {% endblock tablaencabezado %}
+                        
+                </thead>
+                <tbody>
+                    
+                    {% block tablafilas %}
+                        <tr>
+                            <td>Tiger Nixon</td>
+                            <td>System Architect</td>
+                            <td>Edinburgh</td>
+                            <td>61</td>
+                            <td>2011/04/25</td>
+                            <td>$320,800</td>
+                        </tr>
+                    {% endblock tablafilas %}
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock contenidoPagina %}

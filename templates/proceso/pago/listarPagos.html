@@ -1,0 +1,58 @@
+{% extends 'estructura/tabla.html' %}
+{% load static %}
+
+{% block title %}
+    Pagos
+{% endblock title %}
+
+{% block button %}
+    
+{% endblock button %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
+    <li class="breadcrumb-item"><a href="#">Procesos</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Pagos</li>
+{% endblock breadcrumb %}
+
+{% block submenu %}
+    <br>
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'proceso:asociadoPago' %}">Realizar Pago</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">Lista</a>
+        </li>
+    </ul>
+{% endblock submenu %}
+
+{% block tablaencabezado %}
+    <tr>
+        <th>N°</th>
+        <th>Asociado</th>
+        <th>N° Documento</th>
+        <th>Mes Pago</th>
+        <th>Valor Pago</th>
+        <th>Diferencia</th>
+        <th>Forma Pago</th>
+        <th>Tipo Asociado</th>
+        <th>Opciones</th>
+    </tr>
+{% endblock tablaencabezado %}
+
+{% block tablafilas %}
+    {% for obj in query %}
+        <tr>
+            <th>{{ forloop.counter }}</th>
+            <th>{{ obj.asociado.nombre }} {{obj.asociado.apellido}}</th>
+            <th>{{ obj.asociado.numDocumento }}</th>
+            <th>{{ obj.mesPago }}</th>
+            <th>{{ obj.valorPago  }}</th>
+            <th>{{ obj.diferencia }}</th>
+            <th>{{ obj.formaPago }}</th>
+            <th>{{ obj.asociado.tAsociado.concepto }}</th>
+            <th><a href="#"><i class="fa-solid fa-pen"></i></a></th>
+        </tr>
+    {% endfor %}  
+{% endblock tablafilas %}

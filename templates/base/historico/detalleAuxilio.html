@@ -1,0 +1,106 @@
+<div class="modal-dialog modal-xl" role="document">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-2" id="exampleModalLabel">Detalle Auxilio</h1>
+          <hr>
+          <h2 class="modal-title fs-5" id="exampleModalLabel">{{query.nombre}} {{query.apellido}}</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form class="row g-3" action="{% url 'asociado:detalleAuxilio' pkAsociado pk %}" method="post">
+                {%csrf_token%}
+                <div class="col-3">
+                    <label for="id_fechaSolicitud" class="form-label">Fecha Solicitud</label>
+                    <input name="fechaSolicitud" class="form form-control" id="id_fechaSolicitud" type="date" value="{{obj.fechaSolicitud|date:"Y-m-d"}}" disabled>
+                </div>
+                <div class="col-5">
+                    <label for="id_tipoAuxilio" class="form-label">Tipo Auxilio</label>
+                    <input name="tipoAuxilio" class="form form-control" id="id_tipoAuxilio" type="text" value="{{obj.tipoAuxilio}}" disabled>
+                </div>
+                <div class="col-2">
+                    <label for="id_valor" class="form-label">Valor</label>
+                    <input name="valor" class="form form-control" id="id_valor" type="number" value="{{obj.valor}}" disabled>
+                </div>
+                <div class="col-2">
+                    <label for="id_estado" class="form-label">Estado</label>
+                    <select name="estado" class="form-select" id="id_estado">
+                        <option value="REVISION" {% if "REVISION" == obj.estado %}selected {% endif %}>REVISION</option>
+                        <option value="OTORGADO" {% if "OTORGADO" == obj.estado %}selected {% endif %}>OTORGADO</option>
+                        <option value="DENEGADO" {% if "DENEGADO" == obj.estado %}selected {% endif %}>DENEGADO</option>
+                    </select>
+                </div>
+                {% if obj.estado == 'OTORGADO' %}
+                    <div class="col-3">
+                        <label for="id_fechaDesembolso" class="form-label">Fecha Desembolso</label>
+                        <input name="fechaDesembolso" class="form form-control" id="id_fechaDesembolso" type="date" value="{{obj.fechaDesembolso|date:"Y-m-d"}}">
+                    </div>
+                {% endif %}
+                {% comment %} se valida si tipo auxilio es igual a educativo, para mostrar el formulario {% endcomment %}
+                {% if obj.tipoAuxilio.pk == 3 %}
+                    <hr>
+                    <center><h4>SE SOLICITA PARA</h4></center>
+                    <div class="col-6">
+                        <label for="id_nombre" class="form-label">Nombre Completo *</label>
+                        <input name="nombre" class="form form-control input-form" id="id_nombre" type="text" {% if obj.nombre %}value="{{ obj.nombre }}" {% endif %} required>
+                    </div>
+                    <div class="col-3">
+                        <label for="id_numDoc" class="form-label">Número Documento *</label>
+                        <input name="numDoc" class="form form-control" id="id_numDoc" type="number" {% if obj.numDoc %}value="{{ obj.numDoc }}" {% endif %} required>
+                    </div>
+                    <div class="col-3">
+                        <label for="id_parentesco" class="form-label">Parentesco *</label>
+                        <select name="parentesco" class="form-select" id="id_parentesco">
+                            <option value="0" selected>&nbsp;</option>
+                            {% for parentesco in objParentesco %}
+                                <option value="{{parentesco.pk}}" {% if parentesco.pk == obj.parentesco.pk %}selected {% endif %}>{{parentesco.nombre}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label for="id_nivelEducativo" class="form-label">Nivel Educativo *</label>
+                        <input name="nivelEducativo" class="form form-control input-form" id="id_nivelEducativo" type="text" {% if obj.nivelEducativo %}value="{{ obj.nivelEducativo }}" {% endif %} required>
+                    </div>
+                {% endif %}
+                <hr>
+                <center><h4>ANEXOS</h4></center>
+                <div class="col-6">
+                    <label for="id_anexoOne" class="form-label">Anexo 1</label>
+                    <input name="anexoOne" class="form form-control input-form" id="id_anexoOne" type="text" {% if obj.anexoOne %}value="{{ obj.anexoOne }}" {% endif %}>
+                </div>
+                <div class="col-6">
+                    <label for="id_anexoTwo" class="form-label">Anexo 2</label>
+                    <input name="anexoTwo" class="form form-control input-form" id="id_anexoTwo" type="text" {% if obj.anexoTwo %}value="{{ obj.anexoTwo }}" {% endif %}>
+                </div>
+                <div class="col-6">
+                    <label for="id_anexoThree" class="form-label">Anexo 3</label>
+                    <input name="anexoThree" class="form form-control input-form" id="id_anexoThree" type="text" {% if obj.anexoThree %}value="{{ obj.anexoThree }}" {% endif %}>
+                </div>
+                <div class="col-6">
+                    <label for="id_anexoFour" class="form-label">Anexo 4</label>
+                    <input name="anexoFour" class="form form-control input-form" id="id_anexoFour" type="text" {% if obj.anexoFour %}value="{{ obj.anexoFour }}" {% endif %}>
+                </div>
+                <div class="col-6">
+                    <label for="id_anexoFive" class="form-label">Anexo 5</label>
+                    <input name="anexoFive" class="form form-control input-form" id="id_anexoFive" type="text" {% if obj.anexoFive %}value="{{ obj.anexoFive }}" {% endif %}>
+                </div>
+                <div class="col-6">
+                    <label for="id_anexoSix" class="form-label">Anexo 6</label>
+                    <input name="anexoSix" class="form form-control input-form" id="id_anexoSix" type="text" {% if obj.anexoSix %}value="{{ obj.anexoSix }}" {% endif %}>
+                </div>
+                <div class="col-6">
+                    <label for="id_anexoSeven" class="form-label">Anexo 7</label>
+                    <input name="anexoSeven" class="form form-control input-form" id="id_anexoSeven" type="text" {% if obj.anexoSeven %}value="{{ obj.anexoSeven }}" {% endif %}>
+                </div>
+                <div class="col-6">
+                    <label for="id_anexoEight" class="form-label">Anexo 8</label>
+                    <input name="anexoEight" class="form form-control input-form" id="id_anexoEight" type="text" {% if obj.anexoEight %}value="{{ obj.anexoEight }}" {% endif %}>
+                </div>
+                <div class="col-3">
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk">Guardar</i></button>
+                </div>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>

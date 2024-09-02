@@ -1,0 +1,70 @@
+{% extends 'estructura/tabla.html' %}
+{% load static %}
+
+{% block title %}
+    Pagos
+{% endblock title %}
+
+{% block button %}
+    
+{% endblock button %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
+    <li class="breadcrumb-item"><a href="#">Procesos</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Pagos</li>
+{% endblock breadcrumb %}
+
+{% block submenu %}
+    <br>
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">Realizar Pago</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'proceso:historicoPagos' %}">Lista</a>
+        </li>
+    </ul>
+{% endblock submenu %}
+
+{% block tablaencabezado %}
+    <tr>
+        <th>N°</th>
+        <th>Asociado</th>
+        <th>N° Documento</th>
+        <th>Tarifa Asociado</th>
+        <th>Tipo Asociado</th>
+        <th>Opciones</th>
+    </tr>
+{% endblock tablaencabezado %}
+
+{% block tablafilas %}
+    {% for obj in query %}
+        <tr>
+            <th>{{ forloop.counter }}</th>
+            <th>{{ obj.asociado.nombre }} {{obj.asociado.apellido}}</th>
+            <th>{{ obj.asociado.numDocumento }}</th>
+            <th>{{ obj.total }}</th>
+            <th>{{ obj.asociado.tAsociado.concepto }}</th>
+            <th><center><button class="btn btn-outline-primary" onclick="abrir_modal_creacion('{% url 'proceso:crearPagoAsociado' obj.asociado.id %}')"><i class="fa-solid fa-pen-to-square"></i></button></th>
+        </tr>
+    {% endfor %}
+
+    <div class="modal fade" id="creacion" role="dialog">
+        <!-- En este div se visualiza la informacion para la creacion de un nuevo registro de entrada -->
+    </div>
+
+{% endblock tablafilas %}
+
+{% block extrajs %}
+
+<script type="text/javascript">
+    var $ = jQuery.noConflict()
+    function abrir_modal_creacion(url){
+        $('#creacion').load(url, function(){
+            $(this).modal('show');
+        });
+    }
+</script>
+
+{% endblock extrajs %} 

@@ -1,0 +1,32 @@
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a  {% if vista == 1 %} class="nav-link active" aria-current="page" {% else %} class="nav-link" {% endif %} href="{% url 'asociado:verAsociado' pkAsociado %}">Información</a>
+    </li>
+    <li class="nav-item">
+        <a {% if vista == 2 %} class="nav-link active" aria-current="page" {% else %} class="nav-link" {% endif %} href="{% url 'asociado:beneficiario' pkAsociado %}">Beneficiarios</a>
+    </li>
+    <li class="nav-item">
+        <a {% if vista == 3 %} class="nav-link active" aria-current="page" {% else %} class="nav-link" {% endif %} href="{% url 'asociado:mascota' pkAsociado %}">Mascotas</a>
+    </li>
+    <li class="nav-item">
+        <a {% if vista == 4 %} class="nav-link active" aria-current="page" {% else %} class="nav-link" {% endif %} href="{% url 'asociado:historicoAuxilio' pkAsociado %}">Auxilios</a>
+    </li>
+    <li class="nav-item">
+        <a {% if vista == 5 %} class="nav-link active" aria-current="page" {% else %} class="nav-link" {% endif %} href="{% url 'asociado:historicoCredito' pkAsociado %}">Creditos</a>
+    </li>
+    <li class="nav-item">
+        <a {% if vista == 6 %} class="nav-link active" aria-current="page" {% else %} class="nav-link" {% endif %} href="{% url 'asociado:seguroVida' pkAsociado %}">Seguro Vida</a>
+    </li>
+    <li class="nav-item">
+        <a {% if vista == 7 %} class="nav-link active" aria-current="page" {% else %} class="nav-link" {% endif %} href="{% url 'asociado:coohoperativitos' pkAsociado %}">Coohoperativitos</a>
+    </li>
+    <li class="nav-item">
+        <a {% if vista == 8 %} class="nav-link active" aria-current="page" {% else %} class="nav-link" {% endif %} href="{% url 'asociado:tarifaAsociado' pkAsociado %}">Tarifas</a>
+    </li>
+    <li class="nav-item">
+        <a {% if vista == 9 %} class="nav-link active" aria-current="page" {% else %} class="nav-link" {% endif %} href="{% url 'asociado:historialPagos' pkAsociado %}">Historial Pagos</a>
+    </li>
+    <li class="nav-item">
+        <a {% if vista == 10 %} class="nav-link active" aria-current="page" {% else %} class="nav-link" {% endif %} href="{% url 'asociado:descargarFormatos' pkAsociado %}">Formatos</a>
+    </li>
+</ul>

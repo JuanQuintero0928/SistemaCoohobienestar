@@ -1,0 +1,64 @@
+{% load static %}
+
+{% block content %}
+
+{% if formato == 3 %}
+  <div class="modal-dialog modal-xl" role="document">
+{% elif formato == 4 %}
+  <div class="modal-dialog modal-md" role="document">
+{% endif %}
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">
+            {% if formato == 3 %}
+              Descargar Formato Bienestar Social
+            {% elif formato == 4%}
+              Descarga Formato Extracto
+            {% endif %}
+          </h1>
+          <hr>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          {% if formato == 3 %}
+            <table class="table table-hover">
+              <tr>
+                <th>N°</th>
+                <th>Fecha Solicitud</th>
+                <th>Tipo Auxilio</th>
+                <th>Valor</th>
+                <th>Estado</th>
+                <th>Opciones</th>
+              </tr>
+              {% for aux in objAuxilio %}
+                <tr>
+                  <th>{{ forloop.counter }}</th>
+                  <th>{{ aux.fechaSolicitud }}</th>
+                  <th>{{ aux.tipoAuxilio }}</th>
+                  <th>{{ aux.valor }}</th>
+                  <th>{{ aux.estado }}</th>
+                  <th>
+                    <a href="{% url 'asociado:generarFormato' pkAsociado aux.pk 3 %}" type="button" class="btn btn-danger" ><i class="fa-regular fa-file-pdf"></i></a>
+                  </th>  
+                </tr>
+              {% endfor %}
+            </table>
+          {% elif formato == 4 %}
+            <form action="{% url 'asociado:generarFormato' pkAsociado 1 4 %}" method="get">
+            {%csrf_token%}
+                <label for="id_mes" class="form-label">Mes descarga Extracto</label>
+                <select name="mes" class="form-select" id="id_mes">
+                    {% for mes in objMes %}
+                        <option value="{{mes.pk}}">{{mes.concepto}}</option>
+                    {% endfor %}
+                </select>
+                <hr>
+                <button type="submit" class="btn btn-danger" ><i class="fa-regular fa-file-pdf"></i></button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endblock content %}

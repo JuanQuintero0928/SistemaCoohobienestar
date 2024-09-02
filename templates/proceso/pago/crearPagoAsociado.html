@@ -1,0 +1,175 @@
+<div class="modal-dialog modal-md" role="document">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Generar Pago:</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form action="{% url 'proceso:crearPagoAsociado' pkAsociado %}" method="post">
+                {% csrf_token %}
+                {% comment %} input completo {% endcomment %}
+                <div class="input-group mb-3">
+                  <span class="input-group-text" id="basic-addon3">Mes</span>
+                  <select name="mesPago" id="mesPago" class="form-select" aria-label="Default select example" required>
+                    <option value="0" selected>&nbsp;</option>
+                    {% for mes in queryMes %}
+                      <option value="{{mes.pk}}">{{ mes.concepto }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                {% comment %} input completo {% endcomment %}
+                <div class="input-group mb-3">
+                  <span class="input-group-text" id="basic-addon3">Forma de Pago</span>
+                  <select name="formaPago" id="formaPago" class="form-select" aria-label="Default select example" required>
+                    <option value="0" selected>&nbsp;</option>
+                    {% for pago in queryPago %}
+                      <option value="{{pago.pk}}">{{ pago.formaPago }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                {% comment %} input completo {% endcomment %}
+                <div class="input-group mb-3">
+                  <span class="input-group-text" id="basic-addon3">Valor Total</span>
+                  <span class="input-group-text">$</span>
+                  <input type="text" class="form-control" id="valorPago" name="valorPago" value="{{ query.total }}" type="number" disabled>
+                  <span class="input-group-text">
+                    <a class="btn btn-outline-dark btn-sm" id="btn_editar" onclick="editarCasillasPago('editar1')" style="border:0px"><i class="fa-solid fa-pen"></i></a>
+                    <a class="btn btn-outline-danger btn-sm" id="btn_no_editar" onclick="editarCasillasPago('no_editar1')" style="border:0px" hidden><i class="fa-solid fa-xmark"></i></a>
+                  </span>
+                </div>
+                <hr>
+                <h2 class="modal-title fs-5" id="exampleModalLabel">Detallado</h2>
+                <hr>
+                {% comment %} input completo 2 {% endcomment %}
+                <div class="input-group mb-3">
+                  <span class="input-group-text" id="basic-addon3">Aporte</span>
+                  <span class="input-group-text">$</span>
+                  <input type="text" class="form-control" id="aportePago" name="aportePago" value="{{ query.cuotaAporte }}" type="number" disabled>
+                  <span class="input-group-text">
+                    <a class="btn btn-outline-dark btn-sm" id="btn_editar2" onclick="editarCasillasPago('editar2')" style="border:0px"><i class="fa-solid fa-pen"></i></a>
+                    <a class="btn btn-outline-danger btn-sm" id="btn_no_editar2" onclick="editarCasillasPago('no_editar2')" style="border:0px" hidden><i class="fa-solid fa-xmark"></i></a>
+                  </span>
+                </div>
+                {% comment %} input completo {% endcomment %}
+                <div class="input-group mb-3">
+                  <span class="input-group-text" id="basic-addon3">Bienestar Social</span>
+                  <span class="input-group-text">$</span>
+                  <input type="text" class="form-control" id="bSocialPago" name="bSocialPago" value="{{ query.cuotaBSocial }}" type="number" disabled>
+                  <span class="input-group-text">
+                    <a class="btn btn-outline-dark btn-sm" id="btn_editar3" onclick="editarCasillasPago('editar3')" style="border:0px"><i class="fa-solid fa-pen"></i></a>
+                    <a class="btn btn-outline-danger btn-sm" id="btn_no_editar3" onclick="editarCasillasPago('no_editar3')" style="border:0px" hidden><i class="fa-solid fa-xmark"></i></a>
+                  </span>
+                </div>
+                {% if query.cuotaMascota != 0 %}
+                  {% comment %} input completo {% endcomment %}
+                  <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon3">Mascota</span>
+                    <span class="input-group-text">$</span>
+                    <input type="text" class="form-control" id="mascotaPago" name="mascotaPago" value="{{ query.cuotaMascota }}" type="number" disabled>
+                    <span class="input-group-text">
+                      <a class="btn btn-outline-dark btn-sm" id="btn_editar4" onclick="editarCasillasPago('editar4')" style="border:0px"><i class="fa-solid fa-pen"></i></a>
+                      <a class="btn btn-outline-danger btn-sm" id="btn_no_editar4" onclick="editarCasillasPago('no_editar4')" style="border:0px" hidden><i class="fa-solid fa-xmark"></i></a>
+                    </span>
+                  </div>
+                {% else %}
+                  <input type="text" class="form-control" id="mascotaPago" name="mascotaPago" value="{{ query.cuotaMascota }}" type="number" hidden>
+                {% endif %}
+                {% if query.cuotaRepatriacion != 0 %}
+                  {% comment %} input completo {% endcomment %}
+                  <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon3">Repatriación</span>
+                    <span class="input-group-text">$</span>
+                    <input type="text" class="form-control" id="repatriacionPago" name="repatriacionPago" value="{{ query.cuotaRepatriacion }}" type="number" disabled>
+                    <span class="input-group-text">
+                      <a class="btn btn-outline-dark btn-sm" id="btn_editar5" onclick="editarCasillasPago('editar5')" style="border:0px"><i class="fa-solid fa-pen"></i></a>
+                      <a class="btn btn-outline-danger btn-sm" id="btn_no_editar5" onclick="editarCasillasPago('no_editar5')" style="border:0px" hidden><i class="fa-solid fa-xmark"></i></a>
+                    </span>
+                  </div>
+                {% else %}
+                  <input type="text" class="form-control" id="repatriacionPago" name="repatriacionPago" value="{{ query.cuotaRepatriacion }}" type="number" hidden>
+                {% endif %}
+                {% if query.cuotaSeguroVida != 0 %}
+                  {% comment %} input completo {% endcomment %}
+                  <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon3">Seguro Vida</span>
+                    <span class="input-group-text">$</span>
+                    <input type="text" class="form-control" id="seguroVidaPago" name="seguroVidaPago" value="{{ query.cuotaSeguroVida }}" type="number" disabled>
+                    <span class="input-group-text">
+                      <a class="btn btn-outline-dark btn-sm" id="btn_editar6" onclick="editarCasillasPago('editar6')" style="border:0px"><i class="fa-solid fa-pen"></i></a>
+                      <a class="btn btn-outline-danger btn-sm" id="btn_no_editar6" onclick="editarCasillasPago('no_editar6')" style="border:0px" hidden><i class="fa-solid fa-xmark"></i></a>
+                    </span>
+                  </div>
+                {% else %}
+                  <input type="text" class="form-control" id="seguroVidaPago" name="seguroVidaPago" value="{{ query.cuotaSeguroVida }}" type="number" hidden>
+                {% endif %}
+                {% if query.cuotaAdicionales != 0 %}
+                  {% comment %} input completo {% endcomment %}
+                  <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon3">Adicionales</span>
+                    <span class="input-group-text">$</span>
+                    <input type="text" class="form-control" id="adicionalesPago" name="adicionalesPago" value="{{ query.cuotaAdicionales }}" type="number" disabled>
+                    <span class="input-group-text">
+                      <a class="btn btn-outline-dark btn-sm" id="btn_editar7" onclick="editarCasillasPago('editar7')" style="border:0px"><i class="fa-solid fa-pen"></i></a>
+                      <a class="btn btn-outline-danger btn-sm" id="btn_no_editar7" onclick="editarCasillasPago('no_editar7')" style="border:0px" hidden><i class="fa-solid fa-xmark"></i></a>
+                    </span>
+                  </div>
+                {% else %}
+                  <input type="text" class="form-control" id="adicionalesPago" name="adicionalesPago" value="{{ query.cuotaAdicionales }}" type="number" hidden>
+                {% endif %}
+                {% if query.cuotaCoohopAporte != 0 %}
+                  {% comment %} input completo {% endcomment %}
+                  <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon3">Coohoperativitos</span>
+                    <span class="input-group-text">$</span>
+                    <input type="text" class="form-control" id="coohopAporte" name="coohopAporte" value="{{ query.cuotaCoohopAporte }}" type="number" disabled>
+                    <span class="input-group-text">
+                      <a class="btn btn-outline-dark btn-sm" id="btn_editar8" onclick="editarCasillasPago('editar8')" style="border:0px"><i class="fa-solid fa-pen"></i></a>
+                      <a class="btn btn-outline-danger btn-sm" id="btn_no_editar8" onclick="editarCasillasPago('no_editar8')" style="border:0px" hidden><i class="fa-solid fa-xmark"></i></a>
+                    </span>
+                  </div>
+                {% else %}
+                  <input type="text" class="form-control" id="coohopAporte" name="coohopAporte" value="{{ query.cuotaCoohopAporte }}" type="number" hidden>
+                {% endif %}
+                {% if query.cuotaCoohopBsocial != 0 %}
+                  {% comment %} input completo {% endcomment %}
+                  <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon3">Coohoperativitos B. Social</span>
+                    <span class="input-group-text">$</span>
+                    <input type="text" class="form-control" id="coohopBsocial" name="coohopBsocial" value="{{ query.cuotaCoohopBsocial }}" type="number" disabled>
+                    <span class="input-group-text">
+                      <a class="btn btn-outline-dark btn-sm" id="btn_editar9" onclick="editarCasillasPago('editar9')" style="border:0px"><i class="fa-solid fa-pen"></i></a>
+                      <a class="btn btn-outline-danger btn-sm" id="btn_no_editar9" onclick="editarCasillasPago('no_editar9')" style="border:0px" hidden><i class="fa-solid fa-xmark"></i></a>
+                    </span>
+                  </div>
+                {% else %}
+                  <input type="text" class="form-control" id="coohopBsocial" name="coohopBsocial" value="{{ query.cuotaCoohopBsocial }}" type="number" hidden>
+                {% endif %}
+                {% comment %} input completo {% endcomment %}
+                <div class="input-group mb-3">
+                  <span class="input-group-text" id="basic-addon3">Diferencia</span>
+                  <span class="input-group-text">$</span>
+                  <input type="text" class="form-control" id="diferencia" value="0" name="diferencia" type="number" disabled>
+                  <span class="input-group-text">
+                    <a class="btn btn-outline-dark btn-sm" id="btn_editar10" onclick="editarCasillasPago('editar10')" style="border:0px"><i class="fa-solid fa-pen"></i></a>
+                    <a class="btn btn-outline-danger btn-sm" id="btn_no_editar10" onclick="editarCasillasPago('no_editar10')" style="border:0px" hidden><i class="fa-solid fa-xmark"></i></a>
+                  </span>
+                </div>
+                {% if diferencia > 0 or diferencia < 0 %}
+                  <hr>
+                  <h2 class="modal-title fs-5" id="exampleModalLabel">Saldos</h2>
+                  <hr>
+                  <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon3" {% if diferencia < 0 %}  style="color:#DF5B68" {% else %} style="color:#198754" {% endif %} ><b>{% if diferencia > 0 %}Saldo a Favor{% else %}Saldo a Pagar{% endif %}</b></span>
+                    <span class="input-group-text">$</span>
+                    <input type="text" class="form-control" id="diferencia" value="{{diferencia}}" name="diferencia" type="number" disabled>
+                    
+                  </div>
+                {% endif %}
+                <hr>
+                <button type="submit" class="btn btn-primary" onclick="editarCasillasPago('habilitar')"><i class="fa-solid fa-floppy-disk"></i></button>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>

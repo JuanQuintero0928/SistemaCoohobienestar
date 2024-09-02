@@ -1,0 +1,111 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block title %}
+    Asociado
+{% endblock title %}
+    
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
+    <li class="breadcrumb-item"><a href="#">Información</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'asociado:asociado' %}">Asociados</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Detalle Asociado</li>
+    <li class="breadcrumb-item active" aria-current="page">{{ query.asociado.nombre }} {{ query.asociado.apellido }}</li>
+{% endblock breadcrumb %}
+
+{% block contenidoPagina %}
+
+    {% include 'estructura/asociado/navbar.html' %}
+
+    <div class="card mb-4" style="border:0px">
+        <div class="row" style="display:flex; justify-content:flex-end; margin-right:25px; margin-top:15px">
+            <div class="col-sm-1">
+                <div class="btn-group" role="group" aria-label="Basic example">
+                    <a href="{% url 'asociado:asociado' %}" class="btn btn-primary"><i class="fa-solid fa-arrow-left"></i></a>
+                    {% if update %}
+                        <button class="btn btn-primary" onclick="abrir_modal_creacion('{% url 'asociado:editarResidencia' pkAsociado pk %}')"><i class="fa-solid fa-pen-to-square"></i></button>
+                    {% endif %}
+                </div>
+            </div>
+        </div> 
+        {% comment %} contenido {% endcomment %}
+    </div>
+    <table class="table table-hover">
+        <tr>
+            <th>Nombre Asociado</th>
+            <th>{{ query.asociado.nombre }} {{query.asociado.apellido}}</th>
+        </tr>
+        <tr>
+            <th>Aporte</th>
+            <th>{{ query.cuotaAporte }}</th>
+        </tr>
+        <tr>
+            <th>Bienestar Social</th>
+            <th>{{ query.cuotaBSocial }}</th>   
+        </tr>
+        {% if query.cuotaMascota != 0 %}
+            <tr>
+                <th>Mascota</th>
+                <th>{{ query.cuotaMascota }}</th>
+            </tr>
+        {% endif %}
+        {% if query.cuotaRepatriacion != 0 %}
+            <tr>
+                <th>Repatriacion</th>
+                <th>{{ query.cuotaRepatriacion }}</th>
+                </tr>
+            <tr>
+        {% endif %}
+        {% if query.cuotaSeguroVida != 0 %}
+            <tr>
+                <th>Seguro Vida</th>
+                <th>{{ query.cuotaSeguroVida }}</th>
+            </tr>
+        {% endif %}
+        {% if query.cuotaCoohopAporte != 0 %}
+            <tr>
+                <th>Coohoperativitos Aporte</th>
+                <th>{{ query.cuotaCoohopAporte }}</th>
+            </tr>
+        {% endif %}
+        {% if query.cuotaCoohopAporte != 0 %}
+            <tr>
+                <th>Coohoperativitos Bienestar Social</th>
+                <th>{{ query.cuotaCoohopBsocial }}</th>
+            </tr>
+        {% endif %}
+        {% if query.cuotaAdicionales != 0 %}
+            <tr>
+                <th>Adicionales</th>
+                <th>{{ query.cuotaAdicionales }}</th>
+            </tr>
+        {% endif %}   
+        <tr>
+            <th>Total</th>
+                <th>{{ query.total }}</th>
+            </tr>
+    </table>
+
+    <div class="modal fade" id="creacion" role="dialog">
+    <!-- En este div se visualiza la informacion para la creacion de un nuevo registro de entrada -->
+    </div>
+
+
+{% endblock contenidoPagina %}
+
+{% block extrajs %}
+
+<script type="text/javascript">
+    var $ = jQuery.noConflict()
+    function abrir_modal_creacion(url){
+        $('#creacion').load(url, function(){
+            $(this).modal('show');
+        });
+    }
+</script>
+
+{% endblock extrajs %} 
+
+
+
+    

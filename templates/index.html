@@ -1,0 +1,153 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+    <!-- HEADER -->
+    {% include 'estructura/head.html' %}
+    <body class="sb-nav-fixed">
+    
+        <!-- NAVBAR SUPERIOR-->
+        {% include 'estructura/navbar.html' %}
+        
+        <div id="layoutSidenav">
+
+            <!-- SIDEBAR LATERAL -->
+            {% include 'estructura/sidebar.html' %}
+
+            <div id="layoutSidenav_content" style="background:#e4e5e6">
+
+                <!-- ESPACIO BREADCRUMB -->
+                <div class="m-0 row justify-content-between" style="background:white">
+                    <div class="col-xl-12 col-md-12" style="border-bottom: solid 1px; border-color: #a4b7c1; padding-top: 8px;">
+
+                        <!-- BREADCRUMB -->
+                        <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                            {% block breadcrumb %}    
+                                <li class="breadcrumb-item"><a href="#">Inicio</a></li>
+                            {% endblock breadcrumb %} 
+                            </ol>
+                        </nav>
+
+                    </div>
+                </div>
+                
+                {% block contenedorPrincipal %}
+                <main>
+
+                    <div class="container-fluid px-4" style="margin-top:30px">
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="card mb-1">
+                                    <div class="card-header">
+                                        <div class="row">
+                                            <div class="col-md-11">
+                                                <h1>
+                                                    {% block title %}
+                                                        Dashboard
+                                                    {% endblock title %}
+                                                </h1>
+                                            </div>
+                                            <div class="col-md-1 m-0 row justify-content-center align-items-center">
+                                                {% block button %}
+                                                        
+                                                {% endblock button %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        {% include 'estructura/message.html' %}  
+                                        {% block contenidoPagina %}
+                                            <div id="carouselExample" class="carousel slide">
+                                                <div class="carousel-inner">
+
+                                                    {% comment %} FILA 1 {% endcomment %}
+                                                    <div class="row">
+                                                        <div class="col-md-3">
+                                                            <div class="card text-center">
+                                                                <div class="card-header">
+                                                                    <h3>TOTAL ASOCIADOS</h3>
+                                                                </div>
+                                                                <div class="card-body">
+                                                                    <h1 class="card-title">{{total}}</h1>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="card text-center">
+                                                                <div class="card-header">
+                                                                    <h3>ACTIVOS</h3>
+                                                                </div>
+                                                                <div class="card-body">
+                                                                    <h1 class="card-title">{{activos}}</h1>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="card text-center">
+                                                                <div class="card-header">
+                                                                    <h3>INACTIVOS</h3>
+                                                                </div>
+                                                                <div class="card-body">
+                                                                    <h1 class="card-title">{{inactivos}}</h1>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="card text-center">
+                                                                <div class="card-header">
+                                                                    <h3>RETIRADOS</h3>
+                                                                </div>
+                                                                <div class="card-body">
+                                                                    <h1 class="card-title">{{retirado}}</h1>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    {% comment %} FILA 1 {% endcomment %}
+                                                    <hr>
+                                                    <div class="row">
+                                                        
+                                                        
+                                                    </div>
+
+
+
+
+                                                </div>
+                                                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+                                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                <span class="visually-hidden">Previous</span>
+                                                </button>
+                                                <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+                                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                <span class="visually-hidden">Next</span>
+                                                </button>
+                                            </div>
+                                        {% endblock contenidoPagina %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+                {% endblock contenedorPrincipal %}
+
+                {% block contenedorSecundario %}
+                                    
+                {% endblock contenedorSecundario %}
+
+                
+                <!-- FOOTER -->
+                {% include 'estructura/footer.html' %}
+
+            </div>
+        </div>
+
+        <!-- EXTRAJS -->
+        {% include 'estructura/extrajs.html' %}
+        {% block extrajs %}
+        {% endblock extrajs %}
+    </body>
+</html>
