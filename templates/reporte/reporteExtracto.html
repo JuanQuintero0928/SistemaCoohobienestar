@@ -1,0 +1,42 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block title %}
+    Generar Extractos
+{% endblock title %}
+    
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Reportes</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Generar Extractos</li>
+{% endblock breadcrumb %}
+
+{% block contenidoPagina %}
+
+    <div class="col-xl-12 col-md-12 mb-12">
+        <div class="row">
+            <div class="col-xl-5 col-md-5 mb-5">
+                contenedor
+            </div>
+            <div class="col-xl-5 col-md-5 mb-5">
+            
+        </div>
+
+        </div>
+        
+        <div class="card-body">
+            <form action="{% url 'reportes:formatoExtracto' %}" method="POST">
+                {%csrf_token%}
+                <button type="submit">Generar</button>
+            </form>
+        </div>
+
+
+
+{% endblock contenidoPagina %}
+
+
+
+
+    
+

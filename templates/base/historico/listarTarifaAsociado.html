@@ -22,8 +22,8 @@
             <div class="col-sm-1">
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <a href="{% url 'asociado:asociado' %}" class="btn btn-primary"><i class="fa-solid fa-arrow-left"></i></a>
-                    {% if update %}
-                        <button class="btn btn-primary" onclick="abrir_modal_creacion('{% url 'asociado:editarResidencia' pkAsociado pk %}')"><i class="fa-solid fa-pen-to-square"></i></button>
+                    {% if adicional == False %}
+                        <button class="btn btn-primary" onclick="abrir_modal_creacion('{% url 'asociado:crearAdicional' pkAsociado %}')"><i class="fa-solid fa-plus"></i></button>
                     {% endif %}
                 </div>
             </div>
@@ -77,7 +77,10 @@
         {% if query.cuotaAdicionales != 0 %}
             <tr>
                 <th>Adicionales</th>
-                <th>{{ query.cuotaAdicionales }}</th>
+                <th>{{ query.cuotaAdicionales }}
+                <a type="button" onclick="abrir_modal_creacion('{% url 'asociado:editarAdicional' pkAsociado query.pk %}')" style="margin-left:40px"><i class="fa-solid fa-pen"></i></a>
+                
+                </th>
             </tr>
         {% endif %}   
         <tr>

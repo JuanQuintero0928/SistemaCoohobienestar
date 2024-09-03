@@ -533,7 +533,6 @@ async function llamarPDF(numFormato, url) {
             let cuotaMes6 = document.getElementById('id_cuotaMes6').value;
             let totalConcepto6 = document.getElementById('id_totalConcepto6').value;
             let pagoTotal = document.getElementById('id_pagoTotal').value;
-            let vista = document.getElementById('id_vista').value;
             let mensaje = document.getElementById('id_mensaje').value;
             // Obtenemos la informacion del model Beneficiarios, del template formatos.html por medio de su id
             let cuentaBeneficiariosF4 = document.getElementById('id_cuentaBeneficiario').value;
@@ -544,6 +543,7 @@ async function llamarPDF(numFormato, url) {
                 let repatriacion = (document.getElementById('id_paisRepatriacion_'+i).value);
                 arrayBeneficiariosF4.push([nombre, parentesco, repatriacion]);
             }
+            console.log(arrayBeneficiariosF4)
             // Obtenemos la informacion del model Mascota, del template formatos.html por medio de su id
             let cuentaMascotaF4 = document.getElementById('id_cuentaMascota').value;
             let arrayMascotasF4 = [];
@@ -553,7 +553,7 @@ async function llamarPDF(numFormato, url) {
                     arrayMascotasF4.push([nombreMasc]);
                 }
             }
-            generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF4, direccionF4, numCelularF4, concepto1, cuotaVencida, cuotaMes1, totalConcepto1, concepto2, cuotaMes2, totalConcepto2, concepto3, cuotaMes3, totalConcepto3, concepto4, cuotaMes4, totalConcepto4, concepto5, cuotaMes5, totalConcepto5, concepto6, cuotaMes6, totalConcepto6, pagoTotal, cuentaBeneficiariosF4, arrayBeneficiariosF4, arrayMascotasF4, vista, saldo, mensaje)
+            generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF4, direccionF4, numCelularF4, concepto1, cuotaVencida, cuotaMes1, totalConcepto1, concepto2, cuotaMes2, totalConcepto2, concepto3, cuotaMes3, totalConcepto3, concepto4, cuotaMes4, totalConcepto4, concepto5, cuotaMes5, totalConcepto5, concepto6, cuotaMes6, totalConcepto6, pagoTotal, cuentaBeneficiariosF4, arrayBeneficiariosF4, arrayMascotasF4, saldo, mensaje)
     }
 }
 
@@ -1149,7 +1149,7 @@ async function generarPDFf3(url, fechaHoyF3, nombreF3, apellidoF3, tipoDocumento
 
 // Formato 4
 // Formato Extracto
-async function generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF4, direccionF4, numCelularF4, concepto1, cuotaVencida, cuotaMes1, totalConcepto1, concepto2, cuotaMes2, totalConcepto2, concepto3, cuotaMes3, totalConcepto3, concepto4, cuotaMes4, totalConcepto4, concepto5, cuotaMes5, totalConcepto5, concepto6, cuotaMes6, totalConcepto6, pagoTotal, cuentaBeneficiariosF4, arrayBeneficiariosF4, arrayMascotasF4, vista, saldo, mensaje) {
+async function generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF4, direccionF4, numCelularF4, concepto1, cuotaVencida, cuotaMes1, totalConcepto1, concepto2, cuotaMes2, totalConcepto2, concepto3, cuotaMes3, totalConcepto3, concepto4, cuotaMes4, totalConcepto4, concepto5, cuotaMes5, totalConcepto5, concepto6, cuotaMes6, totalConcepto6, pagoTotal, cuentaBeneficiariosF4, arrayBeneficiariosF4, arrayMascotasF4, saldo, mensaje) {
     console.log(url)
     const image = await loadImage(url);
     const pdf = new jsPDF('p', 'pt', 'legal');

@@ -1,0 +1,120 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coohobienestar</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+
+        .loader {
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            font-size: 24px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="loader"></div>
+        <div class="loading-text">Cargando...</div>
+    </div>
+</body>
+</html>
+
+<script src="{% static 'js/function.js' %}"></script>
+        <script src="{% static 'lib/jspdf/1.3.4/jspdf.min.js' %}"></script>
+
+
+{% if lista %}
+    {% for asoc in lista %}
+        <form style="display:display" id="formExtracto{{forloop.counter}}">
+            
+            <input type="text" id="id_formato" value="{{asoc.formato}}">
+            <input type="date" id="id_fechaCorte" value="{{asoc.fechaCorte|date:"Y-m-d"}}">
+            <input type="text" id="id_nombre" value="{{asoc.objAsoc.nombre}} {{objAsoc.apellido}}">
+            <input type="text" id="id_numDoc" value="{{asoc.objAsoc.numDocumento}}">
+            <input type="text" id="id_mpioResidencia" value="{{asoc.objResidencia.mpioResidencia}}">
+            <input type="text" id="id_direccion" value="{{asoc.objResidencia.direccion}}">
+            <input type="text" id="id_numCelular" value="{{asoc.objAsoc.numCelular}}">
+            {% comment %} Valores a pagar {% endcomment %}
+            {% comment %} Cuota Periodica {% endcomment %}
+            <input type="text" id="id_concepto1" value="CUOTA {{asoc.mes.concepto}}">
+            <input type="text" id="id_saldo" value="{{asoc.saldo}}">
+            <input type="text" id="id_cuotaVencida" value="{{asoc.cuotaVencida}}">
+            <input type="text" id="id_cuotaMes" value="{{cuotaPeriodica}}">
+            <input type="text" id="id_totalConcepto1" value="{{asoc.valorVencido}}">
+            {% comment %} Cuota Mascota {% endcomment %}
+            <input type="text" id="id_concepto2" value="MASCOTA">
+            <input type="text" id="id_cuotaMes2" value="{{asoc.objTarifaAsociado.cuotaMascota}}">
+            <input type="text" id="id_totalConcepto2" {% if asoc.valorVencido == 0 %} value="0" {% else %} value="{{asoc.valorVencidoMasc}}"{% endif %}>
+            {% comment %} Cuota Repatriacion {% endcomment %}
+            <input type="text" id="id_concepto3" value="REPATRIACION">
+            <input type="text" id="id_cuotaMes3" value="{{asoc.objTarifaAsociado.cuotaRepatriacion}}">
+            <input type="text" id="id_totalConcepto3" {% if asoc.valorVencido == 0 %} value="0" {% else %} value="{{asoc.valorVencidoRep}}" {% endif %}>
+            {% comment %} Cuota Seguro Vida {% endcomment %}
+            <input type="text" id="id_concepto4" value="SEGURO VIDA">
+            <input type="text" id="id_cuotaMes4" value="{{asoc.objTarifaAsociado.cuotaSeguroVida}}">
+            <input type="text" id="id_totalConcepto4" {% if asoc.valorVencido == 0 %} value="0" {% else %} value="{{asoc.valorVencidoSeg}}" {% endif %}>
+            {% comment %} Cuota Adicionales {% endcomment %}
+            <input type="text" id="id_concepto5" value="ADICIONALES">
+            <input type="text" id="id_cuotaMes5" value="{{asoc.objTarifaAsociado.cuotaAdicionales}}">
+            <input type="text" id="id_totalConcepto5" {% if asoc.valorVencido == 0 %} value="0" {% else %} value="{{asoc.valorVencidoAdic}}" {% endif %}>
+            {% comment %} Cuota Coohoperativitos {% endcomment %}
+            <input type="text" id="id_concepto6" value="COOHOPERATIVITOS">
+            <input type="text" id="id_cuotaMes6" value="{{asoc.cuotaCoohop}}">
+            <input type="text" id="id_totalConcepto6" {% if asoc.valorVencido == 0 %} value="0" {% else %} value="{{asoc.valorVencidoCoohop}}" {% endif %}>
+            <input type="text" id="id_pagoTotal" value="{{asoc.pagoTotal}}">
+            <input type="text" id="id_mensaje" value="{{asoc.mensaje}}">
+            <h2>Tabla Beneficiarios</h2>
+            {% for beneficiarios in asoc.objBeneficiario %}
+                <input type="text" id="id_nombreBenef_{{forloop.counter}}" value="{{beneficiarios.nombre}} {{beneficiarios.apellido}}">           
+                <input type="text" id="id_parentesco_{{forloop.counter}}" value="{{beneficiarios.parentesco}}">
+                <input type="text" id="id_paisRepatriacion_{{forloop.counter}}" value="{{beneficiarios.paisRepatriacion}}">
+            {% endfor %}
+            <input type="text" id="id_cuentaBeneficiario" value="{{asoc.cuentaBeneficiario}}">
+            <h2>Tabla Mascotas</h2>
+            {% for mascota in asoc.objMascota %}
+                <input type="text" id="id_nombreMasc_{{forloop.counter}}" value="{{mascota.nombre}}">           
+            {% endfor %}
+            <input type="text" id="id_cuentaMascota" value="{{asoc.cuentaMascota}}">
+        </form>
+
+        <script>
+            llamarPDF(4, '{% static 'img/Formato_ExtractoPago_page_0001.jpg'%}');
+            
+            async function eliminarFormulario() {
+                var formulario = document.getElementById("formExtracto{{forloop.counter}}");
+                formulario.remove();
+            }
+
+            eliminarFormulario();
+        </script>
+        
+    {% endfor %}
+
+{% endif %}
+
