@@ -46,10 +46,12 @@
 </html>
 
 <script src="{% static 'js/function.js' %}"></script>
-        <script src="{% static 'lib/jspdf/1.3.4/jspdf.min.js' %}"></script>
-
+<script src="{% static 'lib/jspdf/1.3.4/jspdf.min.js' %}"></script>
 
 {% if lista %}
+    <script>
+        let arrayExtracto = [];
+    </script>
     {% for asoc in lista %}
         <form style="display:display" id="formExtracto{{forloop.counter}}">
             
@@ -98,23 +100,87 @@
             <input type="text" id="id_cuentaBeneficiario" value="{{asoc.cuentaBeneficiario}}">
             <h2>Tabla Mascotas</h2>
             {% for mascota in asoc.objMascota %}
-                <input type="text" id="id_nombreMasc_{{forloop.counter}}" value="{{mascota.nombre}}">           
+                <input type="text" id="id_nombreMasc_{{forloop.counter}}" value="{{mascota.nombre}}">
+                <input type="text" id="id_tipoMasc_{{forloop.counter}}" value="{{mascota.tipo}}">          
             {% endfor %}
             <input type="text" id="id_cuentaMascota" value="{{asoc.cuentaMascota}}">
         </form>
 
         <script>
-            llamarPDF(4, '{% static 'img/Formato_ExtractoPago_page_0001.jpg'%}');
+            // variables de iniciacion de cuentas de beneficiarios y mascotas
+            let cuentaBeneficiarios{{forloop.counter}} = (document.getElementById('id_cuentaBeneficiario').value);
+            let cuentaMascota{{forloop.counter}} = (document.getElementById('id_cuentaMascota').value);
             
+            // array que almacena los beneficiarios
+            let arrayBeneficiarios{{forloop.counter}} = [];
+            for(let i = 1; i <= cuentaBeneficiarios{{forloop.counter}} ; i++){
+                let nombre = (document.getElementById('id_nombreBenef_'+i).value);
+                let parentesco = (document.getElementById('id_parentesco_'+i).value);
+                let repatriacion = (document.getElementById('id_paisRepatriacion_'+i).value);
+                arrayBeneficiarios{{forloop.counter}}.push([nombre, parentesco, repatriacion]);
+            }
+            // array que almacena las mascotas
+            let arrayMascotas{{forloop.counter}} = [];
+            if(cuentaMascota{{forloop.counter}} > 0){
+                for(let i = 1; i <= cuentaMascota{{forloop.counter}} ; i++){
+                    let nombreMasc = (document.getElementById('id_nombreMasc_'+i).value);
+                    let tipoMasc = (document.getElementById('id_tipoMasc_'+i).value);
+                    arrayMascotas{{forloop.counter}}.push([nombreMasc, tipoMasc]);
+                }
+            }
+            
+            let id_cuota{{forloop.counter}} = document.getElementById('id_concepto1').value
+            let id_fechaCorte{{forloop.counter}} = document.getElementById('id_fechaCorte').value
+            let id_mascota{{forloop.counter}} = document.getElementById('id_concepto2').value
+            let id_repatriacion{{forloop.counter}} = document.getElementById('id_concepto3').value
+            let id_seguro{{forloop.counter}} = document.getElementById('id_concepto4').value
+            let id_adicional{{forloop.counter}} = document.getElementById('id_concepto5').value
+            let id_coohop{{forloop.counter}} = document.getElementById('id_concepto6').value
+            let totalmascota{{forloop.counter}} = document.getElementById('id_totalConcepto2').value
+            let totalrepatriacion{{forloop.counter}} = document.getElementById('id_totalConcepto3').value
+            let totalseguro{{forloop.counter}} = document.getElementById('id_totalConcepto4').value
+            let totaladicional{{forloop.counter}} = document.getElementById('id_totalConcepto5').value
+            let totalcoohp{{forloop.counter}} = document.getElementById('id_totalConcepto6').value
+
+
+            // array que almacena todos los elementos de un beneficiario
+            arrayExtracto.push(['{{asoc.objAsoc.nombre}} {{asoc.objAsoc.apellido}}', '{{asoc.objAsoc.numDocumento}}', id_fechaCorte{{forloop.counter}}, '{{asoc.objResidencia.mpioResidencia}}', '{{asoc.objAsoc.numCelular}}', '{{asoc.objResidencia.direccion}}', arrayBeneficiarios{{forloop.counter}}, arrayMascotas{{forloop.counter}},
+
+             id_cuota{{forloop.counter}},'{{asoc.saldo}}', '{{asoc.cuotaVencida}}', '{{asoc.cuotaPeriodica}}', '{{asoc.valorVencido}}',
+             
+             id_mascota{{forloop.counter}}, '{{asoc.objTarifaAsociado.cuotaMascota}}', totalmascota{{forloop.counter}}, 
+             
+             id_repatriacion{{forloop.counter}},'{{asoc.objTarifaAsociado.cuotaRepatriacion}}', totalrepatriacion{{forloop.counter}},
+             
+             id_seguro{{forloop.counter}},'{{asoc.objTarifaAsociado.cuotaSeguroVida}}',totalseguro{{forloop.counter}},
+             
+             id_adicional{{forloop.counter}},'{{asoc.objTarifaAsociado.cuotaAdicionales}}',totaladicional{{forloop.counter}},
+             
+             id_coohop{{forloop.counter}},'{{asoc.cuotaCoohop}}',totalcoohp{{forloop.counter}},
+             
+             '{{asoc.pagoTotal}}', '{{asoc.mensaje}} ']);
+
+            eliminarFormulario();
+            
+            // funcion que elimina el contenido actual del formualirio, para no remplazar la informacion
             async function eliminarFormulario() {
                 var formulario = document.getElementById("formExtracto{{forloop.counter}}");
                 formulario.remove();
             }
-
-            eliminarFormulario();
         </script>
         
     {% endfor %}
 
 {% endif %}
+
+<script>
+    // funcion que envia toda la informacion de todos los asociados, para generar el pdf
+    console.log(arrayExtracto);
+    generarPDFf5('{% static 'img/Formato_ExtractoPago_page_0001.jpg'%}', arrayExtracto, '{{mes.concepto}}');
+    setTimeout(function() { 
+        // Redirige o carga contenido aquí después del tiempo de espera
+        window.location.replace("{% url 'reportes:formatoExtracto' %}");
+    }, 1000); // 1 segundos de espera
+</script>
+
 

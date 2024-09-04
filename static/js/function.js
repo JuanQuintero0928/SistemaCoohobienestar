@@ -553,8 +553,9 @@ async function llamarPDF(numFormato, url) {
                     arrayMascotasF4.push([nombreMasc]);
                 }
             }
-            generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF4, direccionF4, numCelularF4, concepto1, cuotaVencida, cuotaMes1, totalConcepto1, concepto2, cuotaMes2, totalConcepto2, concepto3, cuotaMes3, totalConcepto3, concepto4, cuotaMes4, totalConcepto4, concepto5, cuotaMes5, totalConcepto5, concepto6, cuotaMes6, totalConcepto6, pagoTotal, cuentaBeneficiariosF4, arrayBeneficiariosF4, arrayMascotasF4, saldo, mensaje)
-    }
+            let pdf = generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF4, direccionF4, numCelularF4, concepto1, cuotaVencida, cuotaMes1, totalConcepto1, concepto2, cuotaMes2, totalConcepto2, concepto3, cuotaMes3, totalConcepto3, concepto4, cuotaMes4, totalConcepto4, concepto5, cuotaMes5, totalConcepto5, concepto6, cuotaMes6, totalConcepto6, pagoTotal, cuentaBeneficiariosF4, arrayBeneficiariosF4, arrayMascotasF4, saldo, mensaje)
+            return pdf;   
+        }
 }
 
 
@@ -1283,8 +1284,6 @@ async function generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF
         filaB += 20;
     }
 
-
-
     // pago pse
     pdf.textWithLink('                ', 430, 875, {url:"https://bit.ly/3XBQdEE"});
     // sede google maps
@@ -1302,5 +1301,184 @@ async function generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF
     
     // se cierra el onload del image
     };
-
 }
+
+
+// Formato 5
+// Formato Extracto TODOS
+async function generarPDFf5(url, arrayExtracto, mes) {
+    
+    const image = await loadImage(url);
+    const pdf = new jsPDF('p', 'pt', 'legal');
+    pdf.addImage(image, 'PNG', 0, 0, 613, 1010);
+
+    for(let i = 0; i < arrayExtracto.length ; i++){
+        
+        pdf.setFontSize(12);
+        // renglon 0
+        pdf.text(arrayExtracto[i][0], 34,151);
+        pdf.text(arrayExtracto[i][1], 239,151);
+        pdf.setFontSize(11);
+        pdf.text(arrayExtracto[i][3], 335,151);
+
+        var arrFechaCorte = arrayExtracto[i][2].split("-");
+        pdf.text(arrFechaCorte[2]+'/', 471,151);
+        pdf.text(arrFechaCorte[1]+'/', 486,151);
+        pdf.text(arrFechaCorte[0], 502,151);
+
+        pdf.text(arrayExtracto[i][5], 105,172);
+        pdf.text(arrayExtracto[i][4], 437,172);
+
+        // valores a pagar
+        pdf.setFontSize(9);
+        
+        // inicia posicion 8
+        // concepto
+        pdf.text(arrayExtracto[i][8], 30,285);
+        // fecha
+        pdf.text(arrFechaCorte[2]+'/', 177,285);
+        pdf.text(arrFechaCorte[1]+'/', 190,285);
+        pdf.text(arrFechaCorte[0], 204,285);
+        // validacion saldo
+        if(arrayExtracto[i][9] != 0){
+            pdf.text(arrayExtracto[i][9], 252,285);
+        }
+        //cuota vencida 
+        pdf.text(arrayExtracto[i][10], 324,285);
+        // cuota Mes
+        pdf.text(arrayExtracto[i][11], 382,285);
+        // pdf.text('0', 452,285); interes de mora
+        pdf.text(arrayExtracto[i][12], 520,285);
+
+        let fila = 305
+        // inicia posicion 13
+        if(arrayExtracto[i][14] > 0){
+            pdf.text(arrayExtracto[i][13], 30,fila);
+            pdf.text(arrFechaCorte[2]+'/', 177,fila);
+            pdf.text(arrFechaCorte[1]+'/', 190,fila);
+            pdf.text(arrFechaCorte[0], 204,fila);
+            // pdf.text('saldo', 248,fila);
+            pdf.text(arrayExtracto[i][10], 324,fila);
+            pdf.text(arrayExtracto[i][14], 382,fila);
+            // pdf.text('interes mora', 452,fila);
+            pdf.text(arrayExtracto[i][15], 520,fila);
+            fila = fila + 20
+        }
+        // inicia posicion 16
+        if(arrayExtracto[i][17] > 0){
+            pdf.text(arrayExtracto[i][16], 30,fila);
+            pdf.text(arrFechaCorte[2]+'/', 177,fila);
+            pdf.text(arrFechaCorte[1]+'/', 190,fila);
+            pdf.text(arrFechaCorte[0], 204,fila);
+            // pdf.text('saldo', 248,fila);
+            pdf.text(arrayExtracto[i][10], 324,fila);
+            pdf.text(arrayExtracto[i][17], 382,fila);
+            // pdf.text('interes mora', 452,fila);
+            pdf.text(arrayExtracto[i][18], 520,fila);
+            fila = fila + 20
+        }
+        // inicia posicion 19
+        if(arrayExtracto[i][20] > 0){
+            pdf.text(arrayExtracto[i][19], 30,fila);
+            pdf.text(arrFechaCorte[2]+'/', 177,fila);
+            pdf.text(arrFechaCorte[1]+'/', 190,fila);
+            pdf.text(arrFechaCorte[0], 204,fila);
+            // pdf.text('saldo', 248,fila);
+            pdf.text(arrayExtracto[i][10], 324,fila);
+            pdf.text(arrayExtracto[i][20], 382,fila);
+            // pdf.text('interes mora', 452,fila);
+            pdf.text(arrayExtracto[i][21], 520,fila);
+            fila = fila + 20
+        }
+        // inicia posicion 22
+        if(arrayExtracto[i][23] > 0){
+            pdf.text(arrayExtracto[i][22], 30,fila);
+            pdf.text(arrFechaCorte[2]+'/', 177,fila);
+            pdf.text(arrFechaCorte[1]+'/', 190,fila);
+            pdf.text(arrFechaCorte[0], 204,fila);
+            // pdf.text('saldo', 248,fila);
+            pdf.text(arrayExtracto[i][10], 324,fila);
+            pdf.text(arrayExtracto[i][23], 382,fila);
+            // pdf.text('interes mora', 452,fila);
+            pdf.text(arrayExtracto[i][24], 520,fila);
+            fila = fila + 20
+        }
+        // inicia posicion 25
+        if(arrayExtracto[i][26] > 0){
+            pdf.text(arrayExtracto[i][25], 30,fila);
+            pdf.text(arrFechaCorte[2]+'/', 177,fila);
+            pdf.text(arrFechaCorte[1]+'/', 190,fila);
+            pdf.text(arrFechaCorte[0], 204,fila);
+            // pdf.text('saldo', 248,fila);
+            pdf.text(arrayExtracto[i][10], 324,fila);
+            pdf.text(arrayExtracto[i][26], 382,fila);
+            // pdf.text('interes mora', 452,fila);
+            pdf.text(arrayExtracto[i][27], 520,fila);
+            fila = fila + 20
+        }
+    
+
+        // valor total a pagar
+        pdf.setTextColor(255,255,255)
+        pdf.setFont(undefined, "bold");
+        pdf.setFontSize(12)
+        // inicia posicion 28
+        pdf.text(arrayExtracto[i][28], 523,439);
+        // observaciones
+        pdf.setTextColor(0,0,0);
+        pdf.setFont(undefined, "normal");
+
+        pdf.setFontSize(10)
+        pdf.text(arrayExtracto[i][29], 30,460);
+
+        let filaB = 570;
+        // se lista beneficiarios, inicia posicion 6
+        for(let j = 0;j < arrayExtracto[i][6].length; j++){
+            pdf.text(arrayExtracto[i][6][j][0], 30,filaB);
+            if(arrayExtracto[i][6][j][2] != 'None'){
+                pdf.text(arrayExtracto[i][6][j][2], 332,filaB);
+            }
+            pdf.text(arrayExtracto[i][6][j][1], 515,filaB);
+            filaB = filaB + 20;
+            
+        }
+
+        // var perro = new Image()
+        // perro.src = '/static/img/icons/huella.png';
+        // perro.onload = () => {
+
+        // se lista mascotas, inicia posicion 7
+        for(let j = 0; j < arrayExtracto[i][7].length; j++){
+            pdf.text(arrayExtracto[i][7][j][0], 30,filaB);
+            pdf.text(arrayExtracto[i][7][j][1], 450,filaB);
+            pdf.text('MASCOTA', 515,filaB);
+            filaB += 20;
+        }
+
+        // pago pse
+        pdf.textWithLink('                ', 430, 875, {url:"https://bit.ly/3XBQdEE"});
+        // sede google maps
+        pdf.textWithLink('                                    ', 38, 927, {url:"https://goo.gl/maps/Jzk8Jkupy8KKgzgk6"});
+        // WhatsApp
+        pdf.textWithLink('                           ', 169, 927, {url:"https://api.whatsapp.com/send/?phone=573135600507&text=Hola%2C+me+gustar%C3%ADa+obtener+m%C3%A1s+informaci%C3%B3n.&type=phone_number&app_absent=0"});
+        // contacto
+        pdf.textWithLink('                                                  ', 274, 927, {url:"mailto:contacto@coohobienestar.org"});
+        // icono instagram
+        pdf.textWithLink('           ', 480, 927, {url:"https://www.instagram.com/coohobienestar/"});
+        // icono facebook
+        pdf.textWithLink('           ', 527, 927, {url:"https://www.facebook.com/ccoohobienestar/"});
+        
+        if(i+1 < arrayExtracto.length){
+            pdf.addPage();
+            const image2 = await loadImage('/static/img/Formato_ExtractoPago_page_0001.jpg');
+            pdf.addImage(image2, 'PNG', 0, 0, 613, 1010);
+        }
+
+
+    }
+    pdf.save('Extractos_'+mes+'.pdf');    
+
+    
+}
+
+

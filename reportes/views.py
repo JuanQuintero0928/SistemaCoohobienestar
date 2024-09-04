@@ -224,162 +224,165 @@ class ReporteExcelPago(TemplateView):
 class FormatoExtracto(ListView):
     def get(self, request, *args, **kwargs):
         template_name = 'reporte/reporteExtracto.html'
-        return render(request, template_name)
+        mes = MesTarifa.objects.all()
+        return render(request, template_name, {'mes':mes})
 
 
     def post(self, request, *args, **kwargs):
         template_name = 'reporte/generarExtracto.html'
         
-        objAsoc = Asociado.objects.all()
-        print(objAsoc)
+        objAsoc = Asociado.objects.filter(estadoAsociado = 'ACTIVO')
+        mesExtracto = request.POST['mesExtracto']
         asociados = []
         for asociado in objAsoc:
-            print(asociado.nombre)
-            objResidencia = Residencia.objects.get(asociado = asociado.pk)
-            # Formato 4
-            mes = MesTarifa.objects.get(pk = 9)
-            fechaCorte = timedelta(15) + mes.fechaInicio
-            objTarifaAsociado = TarifaAsociado.objects.get(asociado = asociado.pk)
-            # query del ultimo pago hecho por el asociado
-            objHistorialPago = HistorialPagos.objects.filter(asociado = asociado.pk).last()     
-            cuotaPeriodica = objTarifaAsociado.cuotaAporte + objTarifaAsociado.cuotaBSocial
-            cuotaCoohop = objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial
-            # variables iniciacion
-            saldo = 0
-            valorVencido = 0
-            valorVencidoMasc = 0
-            valorVencidoRep = 0
-            valorVencidoSeg = 0
-            valorVencidoAdic = 0
-            valorVencidoCoohop = 0
-            mensaje = ""
-            # query mostrar beneficiarios y mascotas
-            objBeneficiario = Beneficiario.objects.filter(asociado = asociado.pk)
-            cuentaBeneficiario = len(objBeneficiario)
-            objMascota = Mascota.objects.filter(asociado = asociado.pk)
-            cuentaMascota = len(objMascota)
-            # query que suma la diferencia de pagos
-            querySaldoTotal = HistorialPagos.objects.filter(asociado = asociado.pk).aggregate(total=Sum('diferencia'))
-            for valor in querySaldoTotal.values():
-                # variable que guarda la diferencia en los saldos(0=esta al dia, > a 0, saldo favor, < a 0, saldo pendiente)
-                saldoDiferencia = valor
-            
-            # Entra al try cuando un asociado no ha realizado ningun pago y no existe informacion en la query
-            try:
-                # condicional si esta atrasado
-                if mes.pk > objHistorialPago.mesPago.pk:
-                    cuotaVencida = mes.pk - objHistorialPago.mesPago.pk
-                    if objTarifaAsociado.cuotaMascota > 0:
-                        valorVencidoMasc = cuotaVencida * objTarifaAsociado.cuotaMascota
-                    if objTarifaAsociado.cuotaRepatriacion > 0:
-                        valorVencidoRep = cuotaVencida * objTarifaAsociado.cuotaRepatriacion
-                    if objTarifaAsociado.cuotaSeguroVida > 0:
-                        valorVencidoSeg = cuotaVencida * objTarifaAsociado.cuotaSeguroVida
-                    if objTarifaAsociado.cuotaAdicionales > 0:
-                        valorVencidoAdic = cuotaVencida * objTarifaAsociado.cuotaAdicionales
-                    if objTarifaAsociado.cuotaCoohopAporte > 0:
-                        valorVencidoCoohop = cuotaVencida * (objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial)
+            parametro = ParametroAsociado.objects.get(asociado = asociado.pk)
+            mes = MesTarifa.objects.get(pk = mesExtracto)
+            # se valida si el primer mes de pago es igual o mayor a la seleccion del form
+            if mes.pk >= parametro.primerMes.pk:
+                objResidencia = Residencia.objects.get(asociado = asociado.pk)
+                # Formato 4
+                fechaCorte = timedelta(15) + mes.fechaInicio
+                objTarifaAsociado = TarifaAsociado.objects.get(asociado = asociado.pk)
+                # query del ultimo pago hecho por el asociado
+                objHistorialPago = HistorialPagos.objects.filter(asociado = asociado.pk).last()     
+                cuotaPeriodica = objTarifaAsociado.cuotaAporte + objTarifaAsociado.cuotaBSocial
+                cuotaCoohop = objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial
+                # variables iniciacion
+                saldo = 0
+                valorVencido = 0
+                valorVencidoMasc = 0
+                valorVencidoRep = 0
+                valorVencidoSeg = 0
+                valorVencidoAdic = 0
+                valorVencidoCoohop = 0
+                mensaje = ""
+                # query mostrar beneficiarios y mascotas
+                objBeneficiario = Beneficiario.objects.filter(asociado = asociado.pk)
+                cuentaBeneficiario = len(objBeneficiario)
+                objMascota = Mascota.objects.filter(asociado = asociado.pk)
+                cuentaMascota = len(objMascota)
+                # query que suma la diferencia de pagos
+                querySaldoTotal = HistorialPagos.objects.filter(asociado = asociado.pk).aggregate(total=Sum('diferencia'))
+                for valor in querySaldoTotal.values():
+                    # variable que guarda la diferencia en los saldos(0=esta al dia, > a 0, saldo favor, < a 0, saldo pendiente)
+                    saldoDiferencia = valor
                 
-                    if saldoDiferencia > 0:
-                        # saldo a favor
-                        valorVencido = (cuotaPeriodica * cuotaVencida) - saldoDiferencia
-                        pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
-                        mensaje = "Tiene un saldo a favor de $" + str(saldoDiferencia)
-                    elif saldoDiferencia < 0:
-                        # saldo a pagar
-                        valorVencido = (cuotaPeriodica * cuotaVencida) - saldoDiferencia
-                        pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
-                        mensaje = "Tiene un saldo pendiente por pagar de $" + str((saldoDiferencia*-1))
-                    else:
-                        # saldo en 0
-                        valorVencido = (cuotaPeriodica * cuotaVencida)
-                        pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
-                    asociados.append({'pkAsociado':asociado.pk, 'fechaCorte':fechaCorte,'objAsoc':asociado, 'objResidencia':objResidencia, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':5, 'saldo':saldo, 'mensaje':mensaje})
+                # Entra al try cuando un asociado no ha realizado ningun pago y no existe informacion en la query
+                try:
+                    # condicional si esta atrasado
+                    if mes.pk > objHistorialPago.mesPago.pk:
+                        cuotaVencida = mes.pk - objHistorialPago.mesPago.pk
+                        if objTarifaAsociado.cuotaMascota > 0:
+                            valorVencidoMasc = cuotaVencida * objTarifaAsociado.cuotaMascota
+                        if objTarifaAsociado.cuotaRepatriacion > 0:
+                            valorVencidoRep = cuotaVencida * objTarifaAsociado.cuotaRepatriacion
+                        if objTarifaAsociado.cuotaSeguroVida > 0:
+                            valorVencidoSeg = cuotaVencida * objTarifaAsociado.cuotaSeguroVida
+                        if objTarifaAsociado.cuotaAdicionales > 0:
+                            valorVencidoAdic = cuotaVencida * objTarifaAsociado.cuotaAdicionales
+                        if objTarifaAsociado.cuotaCoohopAporte > 0:
+                            valorVencidoCoohop = cuotaVencida * (objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial)
                     
-                # condicional si esta al dia
-                elif mes.pk == objHistorialPago.mesPago.pk:
-                    cuotaVencida = 0
-                    valorMensual = objTarifaAsociado.cuotaAporte + objTarifaAsociado.cuotaBSocial + objTarifaAsociado.cuotaMascota + objTarifaAsociado.cuotaRepatriacion + objTarifaAsociado.cuotaSeguroVida + objTarifaAsociado.cuotaAdicionales + objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial                
-                
-                    # se valida si en el ultimo pago no hay diferencia
-                    if saldoDiferencia == 0:
-                        # no existen saldos
-                        saldo = valorMensual
-                    elif saldoDiferencia > 0:
-                        # existe saldo positivo
-                        saldo = valorMensual + saldoDiferencia
-                    else:
-                        # existe saldo negativo, al estar negativo en la bd, se suma lo que debe
-                        saldo = valorMensual + saldoDiferencia
+                        if saldoDiferencia > 0:
+                            # saldo a favor
+                            valorVencido = (cuotaPeriodica * cuotaVencida) - saldoDiferencia
+                            pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
+                            mensaje = "Tiene un saldo a favor de $" + str(saldoDiferencia)
+                        elif saldoDiferencia < 0:
+                            # saldo a pagar
+                            valorVencido = (cuotaPeriodica * cuotaVencida) - saldoDiferencia
+                            pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
+                            mensaje = "Tiene un saldo pendiente por pagar de $" + str((saldoDiferencia*-1))
+                        else:
+                            # saldo en 0
+                            valorVencido = (cuotaPeriodica * cuotaVencida)
+                            pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
+                        asociados.append({'pkAsociado':asociado.pk, 'fechaCorte':fechaCorte,'objAsoc':asociado, 'objResidencia':objResidencia, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':5, 'saldo':saldo, 'mensaje':mensaje})
+                        
+                    # condicional si esta al dia
+                    elif mes.pk == objHistorialPago.mesPago.pk:
+                        cuotaVencida = 0
+                        valorMensual = objTarifaAsociado.cuotaAporte + objTarifaAsociado.cuotaBSocial + objTarifaAsociado.cuotaMascota + objTarifaAsociado.cuotaRepatriacion + objTarifaAsociado.cuotaSeguroVida + objTarifaAsociado.cuotaAdicionales + objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial                
                     
-                    # comparamos el valor que va en la casilla saldo frente a lo que realmente paga el asociado
-                    if saldo == valorMensual:
-                        # si es igual, se muestra 0 en el extracto a pagar
+                        # se valida si en el ultimo pago no hay diferencia
+                        if saldoDiferencia == 0:
+                            # no existen saldos
+                            saldo = valorMensual
+                        elif saldoDiferencia > 0:
+                            # existe saldo positivo
+                            saldo = valorMensual + saldoDiferencia
+                        else:
+                            # existe saldo negativo, al estar negativo en la bd, se suma lo que debe
+                            saldo = valorMensual + saldoDiferencia
+                        
+                        # comparamos el valor que va en la casilla saldo frente a lo que realmente paga el asociado
+                        if saldo == valorMensual:
+                            # si es igual, se muestra 0 en el extracto a pagar
+                            pagoTotal = 0
+                            valorVencido = 0
+                        elif saldo > valorMensual:
+                            # si saldo es mayor, es porque tiene un saldo a favor, se muestra 0 y se envia mensaje
+                            valorVencido = 0
+                            pagoTotal = 0
+                            dif = saldo - valorMensual
+                            mensaje = 'Tiene un saldo a favor de ' + str(dif) + '.'
+                        else:
+                            # si saldo es menor, es porque tiene un saldo pendiente x pagar, se muestra el valor y se envia mensaje
+                            valorVencido = valorMensual - saldo
+                            pagoTotal = valorMensual - saldo
+                            dif = valorMensual - saldo
+                            mensaje = 'Tiene un saldo pendiente por pagar de ' + str(dif) + '.'
+                        asociados.append({'pkAsociado':asociado.pk, 'fechaCorte':fechaCorte,'objAsoc':asociado, 'objResidencia':objResidencia, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':5, 'saldo':saldo, 'mensaje':mensaje})
+                    
+                    # condicional si esta adelantado
+                    else:
+                        cuotaVencida = 0
                         pagoTotal = 0
-                        valorVencido = 0
-                    elif saldo > valorMensual:
-                        # si saldo es mayor, es porque tiene un saldo a favor, se muestra 0 y se envia mensaje
-                        valorVencido = 0
-                        pagoTotal = 0
-                        dif = saldo - valorMensual
-                        mensaje = 'Tiene un saldo a favor de ' + str(dif) + '.'
-                    else:
-                        # si saldo es menor, es porque tiene un saldo pendiente x pagar, se muestra el valor y se envia mensaje
-                        valorVencido = valorMensual - saldo
-                        pagoTotal = valorMensual - saldo
-                        dif = valorMensual - saldo
-                        mensaje = 'Tiene un saldo pendiente por pagar de ' + str(dif) + '.'
-                    asociados.append({'pkAsociado':asociado.pk, 'fechaCorte':fechaCorte,'objAsoc':asociado, 'objResidencia':objResidencia, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':5, 'saldo':saldo, 'mensaje':mensaje})
-                
-                # condicional si esta adelantado
-                else:
-                    cuotaVencida = 0
-                    pagoTotal = 0
-                    # obtenemos el valor total que tiene pago el asociado, desde el mes seleccionado en la query hasta el pago en la bd
-                    query = HistorialPagos.objects.filter(mesPago__gte = mes.pk, asociado = asociado.pk).aggregate(total=Sum('valorPago'))
-                    for valor in query.values():
-                        saldoActual = valor
-                    
-                    valorMensual = (objTarifaAsociado.cuotaAporte + objTarifaAsociado.cuotaBSocial + objTarifaAsociado.cuotaMascota + objTarifaAsociado.cuotaRepatriacion + objTarifaAsociado.cuotaSeguroVida + objTarifaAsociado.cuotaAdicionales + objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial) * ((objHistorialPago.mesPago.pk - mes.pk)+1)
-                    
-                    if saldoDiferencia > 0:
-                        saldo = valorMensual + saldoDiferencia
-                    elif saldoDiferencia < 0:
-                        saldo = valorMensual + saldoDiferencia
-                    else:
-                        saldo = valorMensual
+                        # obtenemos el valor total que tiene pago el asociado, desde el mes seleccionado en la query hasta el pago en la bd
+                        query = HistorialPagos.objects.filter(mesPago__gte = mes.pk, asociado = asociado.pk).aggregate(total=Sum('valorPago'))
+                        for valor in query.values():
+                            saldoActual = valor
+                        
+                        valorMensual = (objTarifaAsociado.cuotaAporte + objTarifaAsociado.cuotaBSocial + objTarifaAsociado.cuotaMascota + objTarifaAsociado.cuotaRepatriacion + objTarifaAsociado.cuotaSeguroVida + objTarifaAsociado.cuotaAdicionales + objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial) * ((objHistorialPago.mesPago.pk - mes.pk)+1)
+                        
+                        if saldoDiferencia > 0:
+                            saldo = valorMensual + saldoDiferencia
+                        elif saldoDiferencia < 0:
+                            saldo = valorMensual + saldoDiferencia
+                        else:
+                            saldo = valorMensual
 
-                    mensaje = "Tiene Pago hasta el mes de " + objHistorialPago.mesPago.concepto + "."
-                    
-                    asociados.append({'pkAsociado':asociado.pk, 'fechaCorte':fechaCorte,'objAsoc':asociado, 'objResidencia':objResidencia, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':5, 'saldo':saldo, 'mensaje':mensaje})
-            
-            # si no hay pagos en la bd
-            except Exception as e:
-                valorVencidoMasc = objTarifaAsociado.cuotaMascota
-                valorVencidoRep = objTarifaAsociado.cuotaRepatriacion
-                valorVencidoSeg = objTarifaAsociado.cuotaSeguroVida
-                valorVencidoAdic = objTarifaAsociado.cuotaAdicionales
-                valorVencidoCoohop = objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial
-                # obtenemos el parametro del primer mes q debe pagar
-                objParametroAsoc = ParametroAsociado.objects.get(asociado = asociado.pk)
-                cuotaVencida = mes.pk - objParametroAsoc.primerMes.pk
-                cuotaVencida += 1
-                if cuotaVencida == 0:
-                    # mes seleccionado igual al parametro.primerMes
-                    valorVencido = cuotaPeriodica
-                    pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
-                elif cuotaVencida > 0:
-                    # mes adelantado al parametro.primerMes
-                    valorVencido = cuotaPeriodica * cuotaVencida
-                    valorVencidoMasc = objTarifaAsociado.cuotaMascota * cuotaVencida
-                    valorVencidoRep = objTarifaAsociado.cuotaRepatriacion * cuotaVencida
-                    valorVencidoSeg = objTarifaAsociado.cuotaSeguroVida * cuotaVencida
-                    valorVencidoAdic = objTarifaAsociado.cuotaAdicionales * cuotaVencida
-                    valorVencidoCoohop = (objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial) * cuotaVencida
-                    pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
-                else:
-                    pass
-                asociados.append({'pkAsociado':asociado.pk, 'fechaCorte':fechaCorte,'objAsoc':asociado, 'objResidencia':objResidencia, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':5, 'saldo':saldo})
+                        mensaje = "Tiene Pago hasta el mes de " + objHistorialPago.mesPago.concepto + "."
+                        
+                        asociados.append({'pkAsociado':asociado.pk, 'fechaCorte':fechaCorte,'objAsoc':asociado, 'objResidencia':objResidencia, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':5, 'saldo':saldo, 'mensaje':mensaje})
+                
+                # si no hay pagos en la bd
+                except Exception as e:
+                    valorVencidoMasc = objTarifaAsociado.cuotaMascota
+                    valorVencidoRep = objTarifaAsociado.cuotaRepatriacion
+                    valorVencidoSeg = objTarifaAsociado.cuotaSeguroVida
+                    valorVencidoAdic = objTarifaAsociado.cuotaAdicionales
+                    valorVencidoCoohop = objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial
+                    # obtenemos el parametro del primer mes q debe pagar
+                    objParametroAsoc = ParametroAsociado.objects.get(asociado = asociado.pk)
+                    cuotaVencida = mes.pk - objParametroAsoc.primerMes.pk
+                    cuotaVencida += 1
+                    if cuotaVencida == 0:
+                        # mes seleccionado igual al parametro.primerMes
+                        valorVencido = cuotaPeriodica
+                        pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
+                    elif cuotaVencida > 0:
+                        # mes adelantado al parametro.primerMes
+                        valorVencido = cuotaPeriodica * cuotaVencida
+                        valorVencidoMasc = objTarifaAsociado.cuotaMascota * cuotaVencida
+                        valorVencidoRep = objTarifaAsociado.cuotaRepatriacion * cuotaVencida
+                        valorVencidoSeg = objTarifaAsociado.cuotaSeguroVida * cuotaVencida
+                        valorVencidoAdic = objTarifaAsociado.cuotaAdicionales * cuotaVencida
+                        valorVencidoCoohop = (objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial) * cuotaVencida
+                        pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
+                    else:
+                        pass
+                    asociados.append({'pkAsociado':asociado.pk, 'fechaCorte':fechaCorte,'objAsoc':asociado, 'objResidencia':objResidencia, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':5, 'saldo':saldo})
 
         print(asociados)                      
-        return render(request, template_name, {'lista':asociados})
+        return render(request, template_name, {'lista':asociados, 'mes':mes})
