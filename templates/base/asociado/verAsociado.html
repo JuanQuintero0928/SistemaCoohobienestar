@@ -317,6 +317,8 @@
                                                 <a class="btn btn-danger" onclick="editarInputActualizacion2('no_editar')" id="btn-noeditar2" hidden><i class="fa-solid fa-ban"></i></a>  
                                                 <button type="submit" class="btn btn-primary" id="btn-guardar2" {% if laboral == 'no' %} hidden {% endif %}><i class="fa-solid fa-floppy-disk"></i></button>
                                             </div>
+                                        {% else %}
+                                            <button type="submit" class="btn btn-primary" id="btn-guardar2"><i class="fa-solid fa-floppy-disk"></i></button>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -488,6 +490,8 @@
                                                 <a class="btn btn-danger" onclick="editarInputActualizacion3('no_editar')" id="btn-noeditar3" hidden><i class="fa-solid fa-ban"></i></a>  
                                                 <button type="submit" class="btn btn-primary" id="btn-guardar3" {% if laboral == 'no' %} hidden {% endif %}><i class="fa-solid fa-floppy-disk"></i></button>
                                             </div>
+                                        {% else %}
+                                            <button type="submit" class="btn btn-primary" id="btn-guardar3"><i class="fa-solid fa-floppy-disk"></i></button>
                                         {% endif %}
                                     </div>
                                 </div>

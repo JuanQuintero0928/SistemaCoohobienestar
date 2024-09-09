@@ -24,28 +24,27 @@
 {% endblock barraLateral %}
 
 {% block contenidoParametros %}
-    <div class="card-body">
-        <table id="datatablesSimple">
-            <thead>
+
+    <table id="datatablesSimple">
+        <thead>
+            <tr>
+                <th>N°</th>
+                <th>Nombre</th>
+                <th>Valor</th>
+                <th>Opciones</th>
+            </tr>    
+        </thead>
+        <tbody>
+            {% for obj in query %}
                 <tr>
-                    <th>N°</th>
-                    <th>Nombre</th>
-                    <th>Valor</th>
-                    <th>Opciones</th>
-                </tr>    
-            </thead>
-            <tbody>
-                {% for obj in query %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{ obj.nombre }}</td>
-                        <td>{{ obj.valor }}</td>
-                        <td>Editar</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ obj.nombre }}</td>
+                    <td>{{ obj.valor }}</td>
+                    <td>Editar</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock contenidoParametros %}
 
 

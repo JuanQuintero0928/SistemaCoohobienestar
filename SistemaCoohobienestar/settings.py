@@ -29,9 +29,7 @@ SECRET_KEY = 'django-insecure-u(ohm$tqnmg08)lyhiog4y+9o@dppbre-)xdx0t8dc7%8t_-(u
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    'production.eba-zyxssqde.us-east-2.elasticbeanstalk.com'
-]
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -139,6 +137,6 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# SESSION_COOKIE_AGE = 600
+SESSION_COOKIE_AGE = 600
 
-# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
