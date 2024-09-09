@@ -29,7 +29,9 @@ SECRET_KEY = 'django-insecure-u(ohm$tqnmg08)lyhiog4y+9o@dppbre-)xdx0t8dc7%8t_-(u
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'sistemacooho-production.eba-p2tipzps.us-east-2.elasticbeanstalk.com'
+]
 
 
 # Application definition
@@ -46,7 +48,8 @@ INSTALLED_APPS = [
     'dashboard.apps.DashboardConfig',
     'departamento.apps.DepartamentoConfig',
     'parametro.apps.ParametroConfig',
-    'historico.apps.HistoricoConfig'
+    'historico.apps.HistoricoConfig',
+    'sistemacoohobienestar'
 ]
 
 MIDDLEWARE = [
