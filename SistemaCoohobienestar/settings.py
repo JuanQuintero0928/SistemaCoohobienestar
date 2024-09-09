@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'departamento.apps.DepartamentoConfig',
     'parametro.apps.ParametroConfig',
     'historico.apps.HistoricoConfig',
-    'sistemacoohobienestar'
+    'SistemaCoohobienestar'
 ]
 
 MIDDLEWARE = [
