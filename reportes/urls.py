@@ -8,5 +8,6 @@ urlpatterns = [
     path('verPagosPorFecha/', login_required(VerPagosFecha.as_view()), name='verPagosPorFecha'),
     path('generarPagoExcel/', login_required(ReporteExcelPago.as_view()), name='generarPagoExcel'),
     path('formatoExtracto/', login_required(FormatoExtracto.as_view()), name='formatoExtracto'),
-
+    path('descuentosNomina/', login_required(VerDescuentosNomina.as_view()), name='descuentosNomina'),
+    
 ]

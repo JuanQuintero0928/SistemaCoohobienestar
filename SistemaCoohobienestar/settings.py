@@ -88,6 +88,14 @@ WSGI_APPLICATION = 'SistemaCoohobienestar.wsgi.application'
 
 DATABASES = {
     'default': env.db('DJANGO_DB_URL')
+    # "default": {
+    #     "ENGINE": "django.db.backends.postgresql_psycopg2",
+    #     "NAME": "coohobienestar",
+    #     "USER": "user_cooho",
+    #     "PASSWORD": "1q2w3e4r",
+    #     "PORT": 5432,
+    #     "HOST": "localhost",
+    # }
 }
 
 
@@ -130,11 +138,11 @@ LOGOUT_REDIRECT_URL = reverse_lazy('dashboard')
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = 'static'
+# STATIC_ROOT = 'static'
 
-# STATICFILES_DIRS = [
-#     BASE_DIR /  "static/"
-# ]
+STATICFILES_DIRS = [
+    BASE_DIR /  "static/"
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

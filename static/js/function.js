@@ -1157,11 +1157,10 @@ async function generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF
     pdf.addImage(image, 'PNG', 0, 0, 613, 1010);
 
   
-    pdf.setFontSize(12);
     // renglon 0
-    pdf.text(nombreF4, 34,151);
+    pdf.setFontSize(9);
+    pdf.text(nombreF4, 29,151);
     pdf.text(numDocF4, 239,151);
-    pdf.setFontSize(11);
     pdf.text(mpioResidenciaF4, 335,151);
 
     var arrFechaCorte = fechaCorte.split("-");
@@ -1314,11 +1313,10 @@ async function generarPDFf5(url, arrayExtracto, mes) {
 
     for(let i = 0; i < arrayExtracto.length ; i++){
         
-        pdf.setFontSize(12);
         // renglon 0
-        pdf.text(arrayExtracto[i][0], 34,151);
+        pdf.setFontSize(9);
+        pdf.text(arrayExtracto[i][0], 29,151);
         pdf.text(arrayExtracto[i][1], 239,151);
-        pdf.setFontSize(11);
         pdf.text(arrayExtracto[i][3], 335,151);
 
         var arrFechaCorte = arrayExtracto[i][2].split("-");

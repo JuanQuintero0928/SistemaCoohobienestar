@@ -1,6 +1,6 @@
 from django.db import models
-from parametro.models import MesTarifa, FormaPago, TipoAuxilio
 from asociado.models import Asociado
+from parametro.models import MesTarifa, FormaPago, TipoAuxilio
 from beneficiario.models import Parentesco
 
 # Create your models here.
@@ -57,30 +57,6 @@ class HistoricoCredito(models.Model):
         verbose_name_plural = 'Historial de Creditos'
         ordering = ['pk']
 
-    def __str__(self):
-        return f"{self.id}"
-
-class TarifaAsociado(models.Model):
-    id = models.AutoField(primary_key=True)
-    asociado = models.ForeignKey(Asociado, on_delete=models.RESTRICT, blank=False, null=False)
-    cuotaAporte = models.IntegerField('Aporte', blank=False, null=False)
-    cuotaBSocial = models.IntegerField('Bienestar Social', blank=False, null=False)
-    cuotaMascota = models.IntegerField('Mascota', blank=True, null=True)
-    cuotaRepatriacion = models.IntegerField('Repatriacion', blank=True, null=True)
-    cuotaSeguroVida = models.IntegerField('Seguro Vida', blank=True, null=True)
-    cuotaAdicionales = models.IntegerField('Adicionales', blank=True, null=True)
-    cuotaCoohopAporte = models.IntegerField('Coohoperativito Aporte', blank=True, null=True)
-    cuotaCoohopBsocial = models.IntegerField('Coohoperativito Bienestar Social', blank=True, null=True)
-    total = models.IntegerField('Total', blank=False, null=False)
-    estadoRegistro = models.BooleanField('Estado')
-    fechaCreacion = models.DateTimeField(auto_now_add=True)
-    fechaModificacion = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = 'Tarifa Por Asociado'
-        verbose_name_plural = 'Tarifa Por Asociado'
-        ordering = ['pk']
-    
     def __str__(self):
         return f"{self.id}"
 

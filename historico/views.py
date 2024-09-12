@@ -7,8 +7,7 @@ from django.db.models import Sum
 
 from .models import HistoricoAuxilio, HistorialPagos
 from parametro.models import MesTarifa, FormaPago
-from asociado.models import Asociado, ParametroAsociado
-from historico.models import TarifaAsociado
+from asociado.models import Asociado, ParametroAsociado, TarifaAsociado
 
 from .form import HistorialPagoForm
 

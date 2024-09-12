@@ -1,3 +1,4 @@
+from tabnanny import check
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, CreateView, UpdateView, TemplateView
 from django.http import HttpResponseRedirect, HttpResponse
@@ -8,11 +9,11 @@ from django.db.models import Sum
 from zoneinfo import ZoneInfo
 from datetime import date, datetime, timedelta
 
-from asociado.models import Asociado, Financiera, Laboral, Nacimiento, ParametroAsociado, Residencia
+from asociado.models import Asociado, Financiera, Laboral, Nacimiento, ParametroAsociado, Residencia, TarifaAsociado
 from beneficiario.models import Mascota, Beneficiario
-from historico.models import HistorialPagos, HistoricoAuxilio, TarifaAsociado
+from historico.models import HistorialPagos, HistoricoAuxilio
 from funciones.function import fechaUtc, separarFecha
-from parametro.models import MesTarifa
+from parametro.models import MesTarifa, TipoAsociado
 
 #Libreria para generar el Excel
 from openpyxl import Workbook
@@ -382,7 +383,26 @@ class FormatoExtracto(ListView):
                         pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
                     else:
                         pass
-                    asociados.append({'pkAsociado':asociado.pk, 'fechaCorte':fechaCorte,'objAsoc':asociado, 'objResidencia':objResidencia, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':5, 'saldo':saldo})
-
-        print(asociados)                      
+                    asociados.append({'pkAsociado':asociado.pk, 'fechaCorte':fechaCorte,'objAsoc':asociado, 'objResidencia':objResidencia, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':5, 'saldo':saldo})                     
         return render(request, template_name, {'lista':asociados, 'mes':mes})
+    
+class VerDescuentosNomina(ListView):
+    template_name = 'reporte/dctosNomina.html'
+    
+    def get(self, request, *args, **kwargs):
+        empresas = TipoAsociado.objects.all()
+        return render(request, self.template_name, {'empresas':empresas})
+    
+    def post(self, request, *args, **kwargs):
+        variable = request.POST.getlist('variable')
+        empresas = TipoAsociado.objects.all()
+        array = []
+        arrayEmp = []
+        for empresa in empresas:
+            if len(request.POST.getlist('select'+str(empresa.pk))) == 1:
+                query = ParametroAsociado.objects.filter(empresa = empresa.pk)
+                # query = ParametroAsociado.objects.select_related('asociado').filter(empresa = empresa.pk)
+                array.append(query)
+                arrayEmp.append(empresa.pk)
+        return render(request, self.template_name,{'array':array, 'post':'yes', 'empresas':empresas, 'arrayEmp':arrayEmp})
+        

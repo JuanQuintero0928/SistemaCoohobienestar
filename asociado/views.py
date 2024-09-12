@@ -6,9 +6,9 @@ from django.urls import reverse_lazy
 from django.db.models import Sum
 from datetime import datetime, date, timedelta
 
-from .models import Asociado, Residencia, Nacimiento, Laboral, Financiera, ReferenciaFamiliar, ParametroAsociado
+from .models import Asociado, Residencia, Nacimiento, Laboral, Financiera, ReferenciaFamiliar, ParametroAsociado, TarifaAsociado
 from beneficiario.models import Beneficiario, Mascota, Coohoperativitos, Parentesco
-from historico.models import HistoricoAuxilio, HistoricoCredito, TarifaAsociado, HistoricoSeguroVida, HistorialPagos
+from historico.models import HistoricoAuxilio, HistoricoCredito, HistoricoSeguroVida, HistorialPagos
 from departamento.models import Departamento, Municipio, PaisRepatriacion
 from parametro.models import Tarifas, TipoAsociado, TipoAuxilio, ServicioFuneraria, MesTarifa
 from beneficiario.form import BeneficiarioForm, MascotaForm, CoohoperativitoForm
@@ -130,6 +130,7 @@ class CrearAsociado(CreateView):
         objParametro.funeraria = ServicioFuneraria.objects.get(pk = 1)
         objParametro.estadoRegistro = True
         objParametro.primerMes = MesTarifa.objects.get(fechaInicio__gte = obj.fechaIngreso, fechaFinal__lte = obj.fechaIngreso)
+        objParametro.tarifaAsociado = objTarifaAsoc.pk
         objParametro.save()  
         messages.info(request, 'Asociado Creado Correctamente')
         return HttpResponseRedirect(reverse_lazy('asociado:verAsociado', args=[obj.pk]))           

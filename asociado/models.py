@@ -1,6 +1,7 @@
 from django.db import models
 from departamento.models import Departamento, Municipio
 from parametro.models import TipoAsociado, ServicioFuneraria, MesTarifa
+# from historico.models import TarifaAsociado
 
 # Create your models here.
 
@@ -199,6 +200,30 @@ class ReferenciaFamiliar(models.Model):
     def __str__(self):
         return  f"{self.asociado}"
 
+class TarifaAsociado(models.Model):
+    id = models.AutoField(primary_key=True)
+    asociado = models.ForeignKey(Asociado, on_delete=models.RESTRICT, blank=False, null=False)
+    cuotaAporte = models.IntegerField('Aporte', blank=False, null=False)
+    cuotaBSocial = models.IntegerField('Bienestar Social', blank=False, null=False)
+    cuotaMascota = models.IntegerField('Mascota', blank=True, null=True)
+    cuotaRepatriacion = models.IntegerField('Repatriacion', blank=True, null=True)
+    cuotaSeguroVida = models.IntegerField('Seguro Vida', blank=True, null=True)
+    cuotaAdicionales = models.IntegerField('Adicionales', blank=True, null=True)
+    cuotaCoohopAporte = models.IntegerField('Coohoperativito Aporte', blank=True, null=True)
+    cuotaCoohopBsocial = models.IntegerField('Coohoperativito Bienestar Social', blank=True, null=True)
+    total = models.IntegerField('Total', blank=False, null=False)
+    estadoRegistro = models.BooleanField('Estado')
+    fechaCreacion = models.DateTimeField(auto_now_add=True)
+    fechaModificacion = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Tarifa Por Asociado'
+        verbose_name_plural = 'Tarifa Por Asociado'
+        ordering = ['pk']
+    
+    def __str__(self):
+        return f"{self.id}"
+
 class ParametroAsociado(models.Model):
     id = models.AutoField(primary_key=True)
     asociado = models.ForeignKey(Asociado, on_delete=models.RESTRICT, blank=False, null=False)
@@ -206,6 +231,7 @@ class ParametroAsociado(models.Model):
     autorizaciondcto = models.BooleanField('Estado', blank=True, null=True)
     funeraria = models.ForeignKey(ServicioFuneraria, on_delete=models.RESTRICT, blank=False, null=False)
     primerMes = models.ForeignKey(MesTarifa, on_delete=models.RESTRICT, blank=True, null=True)
+    tarifaAsociado = models.ForeignKey(TarifaAsociado, on_delete=models.RESTRICT, blank=True, null=True)
     estadoRegistro = models.BooleanField('Estado')
     fechaCreacion = models.DateTimeField(auto_now_add=True)
     fechaModificacion = models.DateTimeField(auto_now=True)
@@ -216,3 +242,4 @@ class ParametroAsociado(models.Model):
     
     def __str__(self):
         return  f"{self.asociado}"
+    
