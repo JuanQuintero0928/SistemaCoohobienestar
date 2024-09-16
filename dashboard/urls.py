@@ -4,4 +4,5 @@ from .views import *
 
 urlpatterns = [
     path('', login_required(Informacion.as_view()), name='informacion'),
+
 ]

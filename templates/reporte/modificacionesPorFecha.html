@@ -7,7 +7,7 @@
     
 {% block breadcrumb %}
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Reportes</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'reportes:informacionReporte' %}">Reportes</a></li>
     <li class="breadcrumb-item active" aria-current="page">Reporte Funeraria Por Fecha</li>
 {% endblock breadcrumb %}
 
@@ -22,17 +22,17 @@
                         <div class="col-xl-6 col-md-6 mb-6">
                             <label>Fecha Inicial</label>
                             {% if post %}
-                                <input class="form-control" type="date" value="{{ fechaIncialF }}" name="fechaInicial">
+                                <input class="form-control" type="date" value="{{ fechaIncialF }}" name="fechaInicial" required>
                             {% else %}
-                                <input class="form-control" type="date" name="fechaInicial">
+                                <input class="form-control" type="date" name="fechaInicial" required>
                             {% endif %}
                             </div>
                         <div class="col-xl-6 col-md-6 mb-6">
                             <label>Fecha Final</label>
                             {% if post %}
-                                <input class="form-control" type="date" value="{{ fechaFinalF }}" name="fechaFinal">
+                                <input class="form-control" type="date" value="{{ fechaFinalF }}" name="fechaFinal" required>
                             {% else %}
-                                <input class="form-control" type="date" name="fechaFinal">
+                                <input class="form-control" type="date" name="fechaFinal" required>
                             {% endif %}
                         </div>
                     </div>
@@ -60,24 +60,70 @@
         </div>
         
     {% if post %}
-    <div class="card-body">
-            <h1>Beneficiarios</h1>
-            <table class="table table-striped table-hover">
-                <thead>    
-                    <tr>
-                        <th>N°</th>
-                        <th>N° Documento Titular</th>
-                        <th>Nombre Completo Titular</th>
-                        <th>N° Documento Beneficiario</th>
-                        <th>Nombre Completo Beneficiario</th>
-                        <th>Parentesco</th>
-                        <th>Fecha Nacimiento</th>
-                        <th>Novedad</th>
-                        <th>Fecha Retiro</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if queryB %}
+        <div class="card-body">
+            <hr>
+            {% if queryAsociado %}
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th colspan="5" style="background-color:#00000059; color:white">
+                                <center><h3>NOVEDADES ASOCIADOS</h3>
+                            </th>
+                        </tr>   
+                        <tr>
+                            <th>N°</th>
+                            <th>N° Documento Titular</th>
+                            <th>Nombre Completo Titular</th>
+                            <th>Novedad</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for obj in queryAsociado %}
+                            <tr>
+                                <th>{{ forloop.counter }}</th>
+                                <th>{{obj.numDocumento}}</th>
+                                <th>{{obj.nombre}} {{obj.apellido}}</th>
+                                {% if obj.fechaRetiro %}
+                                    <th>Retiro</th>
+                                    <th>{{obj.fechaRetiro}}</th>
+                                {% else %}
+                                    <th>Ingreso</th>
+                                    <th>{{obj.fechaIngreso}}</th>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                        {% comment %} {% else %}
+                            <tr>
+                                <th colspan="9"><center>No existen datos en la consulta.</th> 
+                            </tr>
+                        {% endif %}  {% endcomment %}
+                    </tbody>
+                </table>
+            {% endif %}
+            {% if queryB %}
+                <hr>
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th colspan="10" style="background-color:#00000059; color:white">
+                                <center><h3>NOVEDADES BENEFICIARIOS</h3>
+                            </th>
+                        </tr>    
+                        <tr>
+                            <th>N°</th>
+                            <th>N° Documento Titular</th>
+                            <th>Nombre Completo Titular</th>
+                            <th>N° Documento Beneficiario</th>
+                            <th>Nombre Completo Beneficiario</th>
+                            <th>Parentesco</th>
+                            <th>Fecha Nacimiento</th>
+                            <th>Repatriación</th>
+                            <th>Novedad</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
                         {% for obj in queryB %}
                             <tr>
                                 <th>{{ forloop.counter }}</th>
@@ -87,6 +133,13 @@
                                 <th>{{obj.nombre}} {{obj.apellido}}</th>
                                 <th>{{obj.parentesco}}</th>
                                 <th>{{obj.fechaNacimiento}}</th>
+
+                                {% if obj.paisRepatriacion != None %}
+                                    <th>{{obj.paisRepatriacion}}</th>
+                                {% else %}
+                                    <th></th>
+                                {% endif %}
+
                                 {% if obj.fechaCreacion == obj.fechaModificacion %}
                                     <th>Ingreso</th>
                                 {% elif obj.fechaCreacion != obj.fechaModificacion %}
@@ -96,37 +149,38 @@
                                         <th>Retiro</th>
                                     {% endif %}
                                 {% endif %}
-                                <th>
-                                    {% if obj.fechaRetiro != None %}
-                                        {{obj.fechaRetiro}}
-                                    {% else %}
-
-                                    {% endif %}
-                                </th>
+                                {% if obj.fechaRetiro != None %}
+                                    <th>{{obj.fechaRetiro}}</th>
+                                {% elif obj.fechaCreacion == obj.fechaModificacion %}
+                                    <th>{{obj.fechaIngreso}}</th>
+                                {% else %}
+                                    <th>{{obj.fechaModificacion}}</th>
+                                {% endif %}
                             </tr>
                         {% endfor %}
-                    {% else %}
-                        <tr>
-                            <th colspan="9"><center>No existen datos en la consulta.</th> 
-                        </tr>
-                    {% endif %} 
-                </tbody>
-            </table>
-            <h1>Mascotas</h1>
-            <table class="table table-striped table-hover">
-                <thead>    
+                    </tbody>
+                </table>
+            {% endif %}
+            {% if queryM %}
+                <hr>
+                <table class="table table-striped table-bordered">
+                    <thead>
                     <tr>
-                        <th>N°</th>
-                        <th>N° Documento Titular</th>
-                        <th>Nombre Completo Titular</th>
-                        <th>Nombre Mascota</th>
-                        <th>Tipo</th>
-                        <th>Novedad</th>
-                        <th>Fecha Retiro</th>
+                        <th colspan="7" style="background-color:#00000059; color:white">
+                            <center><h3>NOVEDADES MASCOTAS</h3>
+                        </th>
                     </tr>
-                </thead>
-                <tbody>
-                    {% if queryM %}
+                        <tr>
+                            <th>N°</th>
+                            <th>N° Documento Titular</th>
+                            <th>Nombre Completo Titular</th>
+                            <th>Nombre Mascota</th>
+                            <th>Tipo</th>
+                            <th>Novedad</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
                         {% for obj in queryM %}
                             <tr>
                                 <th>{{ forloop.counter }}</th>
@@ -143,24 +197,19 @@
                                         <th>Retiro</th>
                                     {% endif %}
                                 {% endif %}
-                                <th>
-                                    {% if obj.fechaRetiro != None %}
-                                        {{obj.fechaRetiro}}
-                                    {% else %}
-
-                                    {% endif %}
-                                </th>
+                                {% if obj.fechaRetiro != None %}
+                                    <th>{{obj.fechaRetiro}}</th>
+                                {% elif obj.fechaCreacion == obj.fechaModificacion %}
+                                    <th>{{obj.fechaIngreso}}</th>
+                                {% else %}
+                                    <th>{{obj.fechaModificacion}}</th>
+                                {% endif %}
                             </tr>
                         {% endfor %}
-                    {% else %}
-                        <tr>
-                            <th colspan="7"><center>No existen datos en la consulta.</th> 
-                        </tr>
-                    {% endif %} 
-                </tbody>
-            </table>
-        </div>        
-    </div>
+                    </tbody>
+                </table>
+            {% endif %}      
+        </div>
     {% endif %}
 
 

@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-u(ohm$tqnmg08)lyhiog4y+9o@dppbre-)xdx0t8dc7%8t_-(u
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'sistemacooho-production.eba-p2tipzps.us-east-2.elasticbeanstalk.com'
+    # 'sistemacooho-production.eba-p2tipzps.us-east-2.elasticbeanstalk.com'
 ]
 
 
@@ -88,14 +88,6 @@ WSGI_APPLICATION = 'SistemaCoohobienestar.wsgi.application'
 
 DATABASES = {
     'default': env.db('DJANGO_DB_URL')
-    # "default": {
-    #     "ENGINE": "django.db.backends.postgresql_psycopg2",
-    #     "NAME": "coohobienestar",
-    #     "USER": "user_cooho",
-    #     "PASSWORD": "1q2w3e4r",
-    #     "PORT": 5432,
-    #     "HOST": "localhost",
-    # }
 }
 
 
@@ -149,6 +141,6 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-SESSION_COOKIE_AGE = 600
+SESSION_COOKIE_AGE = 3600
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True

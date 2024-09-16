@@ -24,10 +24,10 @@ class BeneficiarioForm(forms.ModelForm):
                     'style':'text-transform: uppercase;'
                 }
             ),
-            'numDocumento': forms.TextInput(
+            'numDocumento': forms.NumberInput(
                 attrs={ 
                     'class':'form-control',
-                    'maxlength':'10'
+                    'min':10
                 }
             ),
             'fechaNacimiento': forms.DateInput(

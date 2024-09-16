@@ -2,12 +2,12 @@
 {% load static %}
 
 {% block title %}
-    Componentes Información
+    Componentes Reportes
 {% endblock title %}
     
 {% block breadcrumb %}
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Información</li>
+    <li class="breadcrumb-item active" aria-current="page">Reportes</li>
 {% endblock breadcrumb %}
 
 {% block contenidoPagina %}
@@ -19,10 +19,10 @@
     <div class="card text-white mb-3">
         <div class="card-body">
             <div class="h1 text-muted text-right mb-3 w-50 p-1">
-                <i class="fa-solid fa-user"></i>
+                <i class="fa-solid fa-calendar-days"></i>
             </div>
             <div class="h6 text-muted text-right mb-4">
-                <a href="{% url 'asociado:asociado' %}" style="text-decoration:none">Asociados</a>
+                <a href="{% url 'reportes:verModificacionesPorFecha' %}" style="text-decoration:none">Reporte Funeraria Por Fecha</a>
             </div>
             <div class="progress progress-xs mt-3 mb-0">
                 <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-info" style="width: 100%" role="progressbar"></div>
@@ -34,10 +34,10 @@
     <div class="card text-white mb-3">
         <div class="card-body">
             <div class="h1 text-muted text-right mb-3 w-50 p-1">
-                <i class="fa-solid fa-people-group"></i>
+                <i class="fa-solid fa-coins"></i>
             </div>
             <div class="h6 text-muted text-right mb-4">
-                <a href="{% url 'beneficiario:beneficiario' %}" style="text-decoration:none">Beneficiarios</a>
+                <a href="{% url 'reportes:verPagosPorFecha' %}" style="text-decoration:none">Reporte Pagos Por Fecha</a>
             </div>
             <div class="progress progress-xs mt-3 mb-0">
                 <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-success" style="width: 100%" role="progressbar"></div>
@@ -49,10 +49,10 @@
     <div class="card text-white mb-3">
         <div class="card-body">
             <div class="h1 text-muted text-right mb-3 w-50 p-1">
-                <i class="fa-solid fa-shield-dog"></i><i class="fa-solid fa-shield-cat"></i>
+                <i class="fa-solid fa-building"></i> <i class="fa-solid fa-person"></i>
             </div>
             <div class="h6 text-muted text-right mb-4">
-                <a href="{% url 'beneficiario:mascota' %}" style="text-decoration:none">Mascotas</a>
+                <a href="{% url 'reportes:descuentosNomina' %}" style="text-decoration:none">Reporte Descuentos Nomina</a>
             </div>
             <div class="progress progress-xs mt-3 mb-0">
                 <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-warning" style="width: 100%" role="progressbar"></div>
@@ -60,7 +60,23 @@
         </div>
     </div>
 </div>
+    <div class="col-xl-2 col-md-2">
+        <div class="card text-white mb-3">
+            <div class="card-body">
+                <div class="h1 text-muted text-right mb-3 w-50 p-1">
+                    <i class="fa-solid fa-file-pdf"></i>
+                </div>
+                <div class="h6 text-muted text-right mb-4">
+                    <a href="{% url 'reportes:formatoExtracto' %}" style="text-decoration:none">Descarga Extractos</a>
+                </div>
+                <div class="progress progress-xs mt-3 mb-0">
+                    <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-danger" style="width: 100%" role="progressbar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 <div>
+
 {% comment %} <div class="col-xl-2 col-md-2">
     <div class="card text-white mb-3">
         <div class="card-body">

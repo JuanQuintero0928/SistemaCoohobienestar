@@ -1,5 +1,5 @@
 {% extends 'index.html' %}
-{% load static %}
+{% load static %}   
 
 {% block title%}    
     Asociado
@@ -69,11 +69,11 @@
                 {% comment %} Fila 1 {% endcomment %}
                 <div class="col-md-6">
                     <label for="id_nombre" class="form-label">Nombres *</label>
-                    <input type="text" class="form-control input-form" name="nombre" id="id_nombre" required>
+                    <input type="text" class="form-control input-form" name="nombre" id="id_nombre" maxlength="30" required>
                 </div>
                 <div class="col-md-6">
                     <label for="id_apellido" class="form-label">Apellidos *</label>
-                    <input type="text" class="form-control input-form" name="apellido" id="id_apellido" required>
+                    <input type="text" class="form-control input-form" name="apellido" maxlength="30" id="id_apellido" required>
                 </div>
 
                 {% comment %} Fila 2 {% endcomment %}
@@ -89,7 +89,7 @@
                 </div>
                 <div class="col-3">
                     <label for="id_numDocumento" class="form-label">Número Documento *</label>
-                    <input type="number" class="form-control" name="numDocumento" id="id_numDocumento" min="0" maxlength="10" required>
+                    <input type="number" class="form-control" name="numDocumento" id="id_numDocumento" min="0" required>
                 </div>
                 <div class="col-3">
                     <label for="id_fechaExpedicion" class="form-label">Fecha Expedición *</label>
@@ -98,7 +98,6 @@
                 <div class="col-3">
                     <label for="id_mpioDoc" class="form-label">Lugar Expedición *</label>
                     <select name="mpioDoc" class="form-select" id="id_mpioDoc" required>
-                        <option value="0" selected>&nbsp;</option>
                         {% for mcpio in query_mpio %}
                             <option value="{{mcpio.pk}}">{{mcpio.nombre}}</option>
                         {% endfor %}
@@ -108,7 +107,7 @@
                 {% comment %} Fila 3 {% endcomment %}
                 <div class="col-2">
                     <label for="id_nacionalidad" class="form-label">Nacionalidad *</label>
-                    <input type="text" class="form-control input-form" name="nacionalidad" id="id_nacionalidad" required>
+                    <input type="text" class="form-control input-form" name="nacionalidad" maxlength="30" id="id_nacionalidad" required>
                 </div>
                 <div class="col-2">
                     <label for="id_fechaNacimiento" class="form-label">Fecha Nacimiento *</label>
@@ -117,7 +116,6 @@
                 <div class="col-3">
                     <label for="id_dtoNacimiento" class="form-label">Departamento Nacimiento *</label>
                     <select name="dtoNacimiento" class="form-select" id="id_dtoNacimiento" required>
-                        <option value="0" selected>&nbsp;</option>
                         {% for dpto in query_dpto %}
                             <option value="{{dpto.pk}}">{{dpto.nombre}}</option>
                         {% endfor %}
@@ -126,9 +124,8 @@
                 <div class="col-3">
                     <label for="id_mpioNacimiento" class="form-label">Municipio Nacimiento *</label>
                     <select name="mpioNacimiento" class="form-select" id="id_mpioNacimiento" required>
-                        <option value="0" selected>&nbsp;</option>
                         {% for mcpio in query_mpio %}
-                            <option value="{{mcpio.pk}}">{{mcpio.nombre}}</option>
+                            <option value="{{mcpio.pk}}" data-chained="{{mcpio.departamento.pk}}">{{mcpio.nombre}}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -169,16 +166,15 @@
                 {% comment %} Fila 5 {% endcomment %}
                 <div class="col-4">
                     <label for="id_direccion" class="form-label">Dirección *</label>
-                    <input type="select" class="form-control input-form" name="direccion" id="id_direccion" required>
+                    <input type="select" class="form-control input-form" name="direccion" maxlength="50" id="id_direccion" required>
                 </div>
                 <div class="col-4">
                     <label for="id_barrio" class="form-label">Barrio o Condominio *</label>
-                    <input type="text" class="form-control input-form" name="barrio" id="id_barrio" required>
+                    <input type="text" class="form-control input-form" name="barrio" maxlength="50" id="id_barrio" required>
                 </div>
                 <div class="col-4">
                     <label for="id_deptoResidencia" class="form-label">Departamento *</label>
-                    <select name="deptoResidencia" class="form-select" id="id_deptoResidencia">
-                        <option value="0" selected>&nbsp;</option>
+                    <select name="deptoResidencia" class="form-select" id="id_deptoResidencia" required>
                         {% for dpto in query_dpto %}
                             <option value="{{dpto.pk}}">{{dpto.nombre}}</option>
                         {% endfor %}
@@ -188,16 +184,15 @@
                 {% comment %} Fila 6 {% endcomment %}
                 <div class="col-3">
                     <label for="id_mpioResidencia" class="form-label">Municipio *</label>
-                    <select name="mpioResidencia" class="form-select" id="id_mpioResidencia">
-                        <option value="0" selected>&nbsp;</option>
+                    <select name="mpioResidencia" class="form-select" id="id_mpioResidencia" required>
                         {% for mcpio in query_mpio %}
-                            <option value="{{mcpio.pk}}">{{mcpio.nombre}}</option>
+                            <option value="{{mcpio.pk}}" data-chained="{{mcpio.departamento.pk}}">{{mcpio.nombre}}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="col-3">
                     <label for="id_email" class="form-label">Correo Electronico *</label>
-                    <input type="email" class="form-control" name="email" id="id_email" autocomplete="off" required>
+                    <input type="email" class="form-control input-email" name="email" id="id_email" autocomplete="off" lowercase required>
                 </div>
                 <div class="col-3">
                     <label for="id_numResidencia" class="form-label">Telefono Residencia</label>
@@ -226,11 +221,6 @@
                     <label for="id_envioInfoWhatsapp" class="form-label">WhatsApp</label>
                     <input type="checkbox" name="envioInfoWhatsapp" id="id_envioInfoWhatsapp">
                 </div>
-                <div class="col-3">
-                    <label for="id_envioInfoOtro" class="form-label">Otro</label>
-                    <input type="text" class="form-control input-form" name="envioInfoOtro" id="id_envioInfoOtro">
-                </div>
-
                 {% comment %} Fila 9 {% endcomment %}
                 <hr>
                 <div class="col-4">
@@ -248,25 +238,29 @@
                 </div>
                 <div class="col-4">
                     <label for="id_tituloPregrado" class="form-label">Titulo Obtenido de Pregrado</label>
-                    <input type="text" class="form-control input-form" name="tituloPregrado" id="id_tituloPregrado">
+                    <input type="text" class="form-control input-form" name="tituloPregrado" maxlength="100" id="id_tituloPregrado">
                 </div>
                 <div class="col-4">
                     <label for="id_tituloPosgrado" class="form-label">Titulo Obtenido de Posgrado</label>
-                    <input type="text" class="form-control input-form" name="tituloPosgrado" id="id_tituloPosgrado">
+                    <input type="text" class="form-control input-form" name="tituloPosgrado" maxlength="100" id="id_tituloPosgrado">
                 </div>
                 <hr>
                 <center><h3>REFERENCIA FAMILIAR</h3></center>
                 <div class="col-4">
-                    <label for="id_nombreRF" class="form-label">Nombre Familiar de Contacto</label>
-                    <input type="text" class="form-control input-form" name="nombreRF" id="id_nombreRF">
+                    <label for="id_nombreRF" class="form-label">Nombre Familiar de Contacto *</label>
+                    <input type="text" class="form-control input-form" name="nombreRF" maxlength="50" id="id_nombreRF" required>
                 </div>
                 <div class="col-4">
-                    <label for="id_parentesco" class="form-label">Parentesco</label>
-                    <input type="text" class="form-control input-form" name="parentesco" id="id_parentesco">
+                    <label for="id_parentesco" class="form-label">Parentesco *</label>
+                    <select name="parentesco" class="form-select" id="id_parentesco">
+                        {% for parent in query_parentesco %}
+                            <option value="{{parent.nombre}}">{{parent.nombre}}</option>
+                        {% endfor %}
+                    </select>
                 </div>
                 <div class="col-4">
-                    <label for="id_numContacto" class="form-label">Teléfono de Familiar</label>
-                    <input type="text" class="form-control" name="numContacto" id="id_numContacto">
+                    <label for="id_numContacto" class="form-label">Teléfono de Familiar *</label>
+                    <input type="number" class="form-control" name="numContacto" min="0" id="id_numContacto" required>
                 </div>
                 <hr>
                 <div class="col-4">
@@ -281,6 +275,9 @@
 {% endblock contenidoPagina %}
 
 {% block extrajs %}
+
+    <script src="{% static 'lib/jquery-chained/jquery.chained.min.js' %}"></script>
+
     <script type="text/javascript">
         var $ = jQuery.noConflict()
         function abrir_modal_creacion(url){
@@ -288,5 +285,37 @@
                 $(this).modal('show');
             });
         }
+        
+        $("#id_mpioNacimiento").chained("#id_dtoNacimiento");
+        $("#id_mpioResidencia").chained("#id_deptoResidencia");
+
+        {% comment %} prueba {% endcomment %}
+        {% comment %} $(function () {
+           $('select[id="id_dtoNacimiento"]').on('change', function () {
+                var id = $(this).val();
+                $.ajax({
+                    url: window.location.pathname,
+                    type: 'GET',
+                    data: {
+                        'action': 'search_mpio_id',
+                        'id': id
+                    },
+                    dataType: 'json',
+                }).done(function (data) {
+                    console.log(data);
+                    if (!data.hasOwnProperty('error')) {
+                        console.log(data);
+                        return false;
+                    }
+                    message_error(data.error);
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    alert(textStatus + ' : ' + errorThrown);
+                }).always(function (data) {
+
+                });
+            }); 
+        });{% endcomment %}
+
     </script>
+
 {% endblock extrajs %} 
