@@ -165,9 +165,6 @@ class VerAsociado(ListView):
             objNac = Nacimiento.objects.get(asociado = kwargs['pkAsociado'])
             objReferencia = ReferenciaFamiliar.objects.get(asociado = kwargs['pkAsociado'])
             objParentesco = Parentesco.objects.all()
-            fExpedicionFormateada =objAsociado.fechaExpedicion.strftime("%Y-%m-%d")
-            fNacimientoFormateada =objNac.fechaNacimiento.strftime("%Y-%m-%d")
-            fIngresoFormateada =objAsociado.fechaIngreso.strftime("%Y-%m-%d")
             objEmpresa = TipoAsociado.objects.all()
             objServFuneraria = ServicioFuneraria.objects.all()
             objParametroAsociado = ParametroAsociado.objects.get(asociado = kwargs['pkAsociado'])
@@ -182,9 +179,9 @@ class VerAsociado(ListView):
             else:
                 fTerminacionLab = "--"
             objFinanciero = Financiera.objects.get(asociado = kwargs['pkAsociado'])
-            return render(request, self.template_name, {'laboral':'no', 'pkAsociado':kwargs['pkAsociado'], 'query_dpto':query_dpto, 'query_mpio':query_mpio, 'objAsociado':objAsociado, 'objResidencia':objResidencia, 'objNac':objNac, 'objFinanciero': objFinanciero, 'objLaboral':objLaboral, 'objParentesco':objParentesco, 'objReferencia':objReferencia, 'fIngresoFormateada':fIngresoFormateada, 'fExpedicionFormateada':fExpedicionFormateada, 'fNacimientoFormateada':fNacimientoFormateada, 'objEmpresa':objEmpresa, 'objServFuneraria':objServFuneraria, 'objParametroAsociado':objParametroAsociado, 'fInicioLab':fInicioLab, 'fTerminacionLab':fTerminacionLab, 'objMes':objMes, 'vista':1})
+            return render(request, self.template_name, {'laboral':'no', 'pkAsociado':kwargs['pkAsociado'], 'query_dpto':query_dpto, 'query_mpio':query_mpio, 'objAsociado':objAsociado, 'objResidencia':objResidencia, 'objNac':objNac, 'objFinanciero': objFinanciero, 'objLaboral':objLaboral, 'objParentesco':objParentesco, 'objReferencia':objReferencia, 'objEmpresa':objEmpresa, 'objServFuneraria':objServFuneraria, 'objParametroAsociado':objParametroAsociado, 'fInicioLab':fInicioLab, 'fTerminacionLab':fTerminacionLab, 'objMes':objMes, 'vista':1})
         except Exception as e:
-            return render(request, self.template_name, {'laboral':'yes', 'pkAsociado':kwargs['pkAsociado'], 'query_dpto':query_dpto, 'query_mpio':query_mpio, 'objAsociado':objAsociado, 'objParentesco':objParentesco, 'objResidencia':objResidencia, 'objNac':objNac,'objReferencia':objReferencia,'fIngresoFormateada':fIngresoFormateada, 'fExpedicionFormateada':fExpedicionFormateada, 'fNacimientoFormateada':fNacimientoFormateada, 'objEmpresa':objEmpresa, 'objServFuneraria':objServFuneraria, 'objParametroAsociado':objParametroAsociado, 'objMes':objMes, 'vista':1})
+            return render(request, self.template_name, {'laboral':'yes', 'pkAsociado':kwargs['pkAsociado'], 'query_dpto':query_dpto, 'query_mpio':query_mpio, 'objAsociado':objAsociado, 'objParentesco':objParentesco, 'objResidencia':objResidencia, 'objNac':objNac,'objReferencia':objReferencia, 'objEmpresa':objEmpresa, 'objServFuneraria':objServFuneraria, 'objParametroAsociado':objParametroAsociado, 'objMes':objMes, 'vista':1})
 
 class EditarAsociado(UpdateView):
     template_name = 'base/asociado/editarAsociado.html'

@@ -141,7 +141,6 @@ function editarInputActualizacion(dato){
             document.getElementById('id_envioInfoCorreo').disabled = false;
             document.getElementById('id_envioInfoMensaje').disabled = false;
             document.getElementById('id_envioInfoWhatsapp').disabled = false;
-            document.getElementById('id_envioInfoOtro').disabled = false;
             document.getElementById('id_nivelEducativo').disabled = false;
             document.getElementById('id_tituloPregrado').disabled = false;
             document.getElementById('id_tituloPosgrado').disabled = false;
@@ -181,7 +180,6 @@ function editarInputActualizacion(dato){
             document.getElementById('id_envioInfoCorreo').disabled = true;
             document.getElementById('id_envioInfoMensaje').disabled = true;
             document.getElementById('id_envioInfoWhatsapp').disabled = true;
-            document.getElementById('id_envioInfoOtro').disabled = true;
             document.getElementById('id_nivelEducativo').disabled = true;
             document.getElementById('id_tituloPregrado').disabled = true;
             document.getElementById('id_tituloPosgrado').disabled = true;

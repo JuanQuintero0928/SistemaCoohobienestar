@@ -289,33 +289,6 @@
         $("#id_mpioNacimiento").chained("#id_dtoNacimiento");
         $("#id_mpioResidencia").chained("#id_deptoResidencia");
 
-        {% comment %} prueba {% endcomment %}
-        {% comment %} $(function () {
-           $('select[id="id_dtoNacimiento"]').on('change', function () {
-                var id = $(this).val();
-                $.ajax({
-                    url: window.location.pathname,
-                    type: 'GET',
-                    data: {
-                        'action': 'search_mpio_id',
-                        'id': id
-                    },
-                    dataType: 'json',
-                }).done(function (data) {
-                    console.log(data);
-                    if (!data.hasOwnProperty('error')) {
-                        console.log(data);
-                        return false;
-                    }
-                    message_error(data.error);
-                }).fail(function (jqXHR, textStatus, errorThrown) {
-                    alert(textStatus + ' : ' + errorThrown);
-                }).always(function (data) {
-
-                });
-            }); 
-        });{% endcomment %}
-
-    </script>
+        </script>
 
 {% endblock extrajs %} 

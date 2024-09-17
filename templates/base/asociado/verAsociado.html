@@ -48,7 +48,7 @@
                             </div>
                             <div class="col-md-2">
                                 <label for="id_fechaIngreso" class="form-label">Fecha Ingreso *</label>
-                                <input type="date" value="{{fIngresoFormateada}}" class="form-control" name="fechaIngreso" id="id_fechaIngreso" required disabled>
+                                <input type="date" value="{{objAsociado.fechaIngreso|date:"Y-m-d"}}" class="form-control" name="fechaIngreso" id="id_fechaIngreso" required disabled>
                             </div>
                             <div class="col-md-2">
                                 <label for="id_tAsociado" class="form-label">Tipo Asociado *</label>
@@ -105,7 +105,7 @@
                             </div>
                             <div class="col-3">
                                 <label for="id_fechaExpedicion" class="form-label">Fecha Expedición *</label>
-                                <input type="date" value="{{fExpedicionFormateada}}" class="form-control" name="fechaExpedicion" id="id_fechaExpedicion" required disabled>
+                                <input type="date" value="{{objAsociado.fechaExpedicion|date:"Y-m-d"}}" class="form-control" name="fechaExpedicion" id="id_fechaExpedicion" required disabled>
                             </div>
                             <div class="col-3">
                                 <label for="id_mpioDoc" class="form-label">Lugar Expedición *</label>
@@ -123,7 +123,7 @@
                             </div>
                             <div class="col-2">
                                 <label for="id_fechaNacimiento" class="form-label">Fecha Nacimiento *</label>
-                                <input type="date" value="{{fNacimientoFormateada}}" class="form-control" name="fechaNacimiento" id="id_fechaNacimiento" required disabled>
+                                <input type="date" value="{{objNac.fechaNacimiento|date:"Y-m-d"}}" class="form-control" name="fechaNacimiento" id="id_fechaNacimiento" required disabled>
                             </div>
                             <div class="col-3">
                                 <label for="id_dtoNacimiento" class="form-label">Departamento Nacimiento *</label>
@@ -137,7 +137,7 @@
                                 <label for="id_mpioNacimiento" class="form-label">Municipio Nacimiento *</label>
                                 <select name="mpioNacimiento" class="form-select" id="id_mpioNacimiento" required disabled>
                                     {% for mcpio in query_mpio %}
-                                        <option value="{{mcpio.pk}}" {% if mcpio.pk == objAsociado.mpioDoc.pk %} selected {% endif %}>{{mcpio.nombre}}</option>
+                                        <option value="{{mcpio.pk}}" data-chained="{{mcpio.departamento.pk}}" {% if mcpio.pk == objAsociado.mpioDoc.pk %} selected {% endif %}>{{mcpio.nombre}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -198,7 +198,7 @@
                                 <label for="id_mpioResidencia" class="form-label">Municipio *</label>
                                 <select name="mpioResidencia" class="form-select" id="id_mpioResidencia" disabled>
                                     {% for mcpio in query_mpio %}
-                                        <option value="{{mcpio.pk}}" {% if mcpio.pk == objResidencia.mpioResidencia.pk %} selected{% endif %}>{{mcpio.nombre}}</option>
+                                        <option value="{{mcpio.pk}}" data-chained="{{mcpio.departamento.pk}}" {% if mcpio.pk == objResidencia.mpioResidencia.pk %} selected{% endif %}>{{mcpio.nombre}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -222,7 +222,7 @@
 
                             {% comment %} Fila 8 {% endcomment %}
                             <div class="col-3">
-                                <label for="id_envioInfoCorreo" class="form-label">Correo Electronico *</label>
+                                <label for="id_envioInfoCorreo" class="form-label">Correo Electronico</label>
                                 {% if objAsociado.envioInfoCorreo == True %}
                                     <input type="checkbox" name="envioInfoCorreo" id="id_envioInfoCorreo" checked disabled>
                                 {% else %}
@@ -276,7 +276,7 @@
                             </div>
                             <div class="col-4">
                                 <label for="id_parentesco" class="form-label">Parentesco *</label>
-                                <select name="parentesco" class="form-select" id="id_parentesco" {% if laboral == 'no' %} disabled {% endif %}>
+                                <select name="parentesco" class="form-select" id="id_parentesco" disabled>
                                     <option value="0" selected>&nbsp;</option>
                                     {% for parent in objParentesco %}
                                         <option value="{{parent.nombre}}" {% if parent.nombre == objReferencia.parentesco %} selected {% endif %}>{{parent.nombre}}</option>
@@ -362,15 +362,6 @@
                                 <input type="text" value="{{objLaboral.direccion}}" class="form-control input-form" name="direccion" id="id_direccion2" maxlength="100" {% if laboral == 'no' %} disabled {% endif %}>
                             </div>
                             <div class="col-3">
-                                <label for="id_mpioTrabajo" class="form-label">Municipio</label>
-                                <select name="mpioTrabajo" class="form-select" id="id_mpioTrabajo" {% if laboral == 'no' %} disabled {% endif %}>
-                                    <option value="0" selected>&nbsp;</option>
-                                    {% for mcpio in query_mpio %}
-                                        <option value="{{mcpio.pk}}"{% if mcpio.pk == objLaboral.mpioTrabajo.pk %} selected {% endif %}>{{mcpio.nombre}}</option>
-                                    {% endfor %}
-                                </select>  
-                            </div>
-                            <div class="col-3">
                                 <label for="id_dptoTrabajo" class="form-label">Departamento</label>
                                 <select name="dptoTrabajo" class="form-select" id="id_dptoTrabajo" {% if laboral == 'no' %} disabled {% endif %}>
                                     <option value="0" selected>&nbsp;</option>
@@ -378,6 +369,15 @@
                                         <option value="{{dpto.pk}}" {% if dpto.pk == objLaboral.dptoTrabajo.pk %} selected {% endif %}>{{dpto.nombre}}</option>
                                     {% endfor %}
                                 </select>
+                            </div>
+                            <div class="col-3">
+                                <label for="id_mpioTrabajo" class="form-label">Municipio</label>
+                                <select name="mpioTrabajo" class="form-select" id="id_mpioTrabajo" {% if laboral == 'no' %} disabled {% endif %}>
+                                    <option value="0" selected>&nbsp;</option>
+                                    {% for mcpio in query_mpio %}
+                                        <option value="{{mcpio.pk}}" data-chained="{{mcpio.departamento.pk}}" {% if mcpio.pk == objLaboral.mpioTrabajo.pk %} selected {% endif %}>{{mcpio.nombre}}</option>
+                                    {% endfor %}
+                                </select>  
                             </div>
                             <div class="col-3">
                                 <label for="id_telefono" class="form-label">Telefono</label>
@@ -551,6 +551,9 @@
 {% endblock contenidoPagina %}
 
 {% block extrajs %}
+
+    <script src="{% static 'lib/jquery-chained/jquery.chained.min.js' %}"></script>
+
     <script type="text/javascript">
         var $ = jQuery.noConflict()
         function abrir_modal_creacion(url){
@@ -558,5 +561,16 @@
                 $(this).modal('show');
             });
         }
+        
+        $("#id_mpioNacimiento").chained("#id_dtoNacimiento");
+        $("#id_mpioResidencia").chained("#id_deptoResidencia");
+        $("#id_mpioTrabajo").chained("#id_dptoTrabajo");
+
+        document.getElementById('id_mpioNacimiento').disabled = true;
+        document.getElementById('id_mpioResidencia').disabled = true;
+        {% if laboral == 'no' %} 
+            document.getElementById('id_mpioTrabajo').disabled = true;
+        {% endif %}
     </script>
+
 {% endblock extrajs %} 
