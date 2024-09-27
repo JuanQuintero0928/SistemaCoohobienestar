@@ -22,17 +22,17 @@
                         <div class="col-xl-6 col-md-6 mb-6">
                             <label>Fecha Inicial</label>
                             {% if post %}
-                                <input class="form-control" type="date" value="{{ fechaIncialF }}" name="fechaInicial">
+                                <input class="form-control" type="date" value="{{ fechaIncialF }}" name="fechaInicial" required>
                             {% else %}
-                                <input class="form-control" type="date" name="fechaInicial">
+                                <input class="form-control" type="date" name="fechaInicial" required>
                             {% endif %}
                             </div>
                         <div class="col-xl-6 col-md-6 mb-6">
                             <label>Fecha Final</label>
                             {% if post %}
-                                <input class="form-control" type="date" value="{{ fechaFinalF }}" name="fechaFinal">
+                                <input class="form-control" type="date" value="{{ fechaFinalF }}" name="fechaFinal" required>
                             {% else %}
-                                <input class="form-control" type="date" name="fechaFinal">
+                                <input class="form-control" type="date" name="fechaFinal" required>
                             {% endif %}
                         </div>
                     </div>

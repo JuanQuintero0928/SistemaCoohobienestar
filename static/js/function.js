@@ -157,6 +157,7 @@ function editarInputActualizacion(dato){
             document.getElementById('id_parentesco').disabled = false;
             document.getElementById('id_numContacto').disabled = false;
             document.getElementById('btn-guardar').hidden = false;
+            document.getElementById('id_fechaRetiro').disabled = false;
         break
         case "no_editar":
             document.getElementById('btn-noeditar').hidden = true;
@@ -196,6 +197,7 @@ function editarInputActualizacion(dato){
             document.getElementById('id_parentesco').disabled = true;
             document.getElementById('id_numContacto').disabled = true;
             document.getElementById('btn-guardar').hidden = true;
+            document.getElementById('btn-fechaRetiro').hidden = true;
         break
     } 
 }
@@ -978,17 +980,6 @@ async function generarPDFf2(url, actualizacionF2, tPersonaF2, fechaHoyF2, nombre
     var nomCompleto = nombreF2 + " " + apellidoF2
     pdf.text(nomCompleto, 160 ,912);
     pdf.text(numDocumentoF2, 160 ,935);
-    
-
-
-
-
-
-
-
-
-
-
 
     pdf.save('Formato_Servicios_Exequiales_'+numDocumentoF2+'.pdf');
 

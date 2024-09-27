@@ -45,13 +45,13 @@
     {% for obj in query %}
         <tr>
             <th>{{ forloop.counter }}</th>
-            <th>{{ obj.asociado.nombre }} {{obj.asociado.apellido}}</th>
-            <th>{{ obj.asociado.numDocumento }}</th>
-            <th>{{ obj.mesPago }}</th>
+            <th>{{ obj.asociado__nombre }} {{obj.asociado__apellido}}</th>
+            <th>{{ obj.asociado__numDocumento }}</th>
+            <th>{{ obj.mesPago__concepto }}</th>
             <th>{{ obj.valorPago  }}</th>
             <th>{{ obj.diferencia }}</th>
-            <th>{{ obj.formaPago }}</th>
-            <th>{{ obj.asociado.tAsociado.concepto }}</th>
+            <th>{{ obj.formaPago__formaPago }}</th>
+            <th>{{ obj.asociado__tAsociado__concepto }}</th>
             <th><a href="#"><i class="fa-solid fa-pen"></i></a></th>
         </tr>
     {% endfor %}  

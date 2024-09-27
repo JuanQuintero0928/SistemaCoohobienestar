@@ -66,7 +66,13 @@
                                     <option value="RETIRO" {% if objAsociado.estadoAsociado == 'RETIRO' %} selected {% endif %}>RETIRO</option>
                                 </select>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-2">
+                                {% if objAsociado.fechaRetiro %}
+                                    <label for="id_fechaRetiro" class="form-label">Fecha Retiro *</label>
+                                    <input type="date" value="{{objAsociado.fechaRetiro|date:"Y-m-d"}}" class="form-control" name="fechaRetiro" id="id_fechaRetiro" required disabled>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-2">
                                 <div class="row" style="display:flex; justify-content:flex-end; margin-right:100px; margin-top:15px">
                                     <div class="col-sm-1">
                                         <div class="btn-group" role="group" aria-label="Basic example">
@@ -111,7 +117,7 @@
                                 <label for="id_mpioDoc" class="form-label">Lugar Expedición *</label>
                                 <select name="mpioDoc" class="form-select" id="id_mpioDoc" required disabled>
                                     {% for mcpio in query_mpio %}
-                                        <option value="{{mcpio.pk}}" {% if mcpio.pk == objAsociado.mpioDoc.pk %} selected {% endif %}>{{mcpio.nombre}}</option>
+                                        <option value="{{mcpio.id}}" {% if mcpio.id == objAsociado.mpioDoc.pk %} selected {% endif %}>{{mcpio.nombre}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -129,7 +135,7 @@
                                 <label for="id_dtoNacimiento" class="form-label">Departamento Nacimiento *</label>
                                 <select name="dtoNacimiento" class="form-select" id="id_dtoNacimiento" required disabled>
                                     {% for dpto in query_dpto %}
-                                        <option value="{{dpto.pk}}" {% if dpto.pk == objNac.dtoNacimiento.pk %} selected {% endif %}>{{dpto.nombre}}</option>
+                                        <option value="{{dpto.id}}" {% if dpto.id == objNac.dtoNacimiento.pk %} selected {% endif %}>{{dpto.nombre}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -137,7 +143,7 @@
                                 <label for="id_mpioNacimiento" class="form-label">Municipio Nacimiento *</label>
                                 <select name="mpioNacimiento" class="form-select" id="id_mpioNacimiento" required disabled>
                                     {% for mcpio in query_mpio %}
-                                        <option value="{{mcpio.pk}}" data-chained="{{mcpio.departamento.pk}}" {% if mcpio.pk == objAsociado.mpioDoc.pk %} selected {% endif %}>{{mcpio.nombre}}</option>
+                                        <option value="{{mcpio.id}}" data-chained="{{mcpio.departamento}}" {% if mcpio.id == objAsociado.mpioDoc.pk %} selected {% endif %}>{{mcpio.nombre}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -188,7 +194,7 @@
                                 <label for="id_deptoResidencia" class="form-label">Departamento *</label>
                                 <select name="deptoResidencia" class="form-select" id="id_deptoResidencia" disabled>
                                     {% for dpto in query_dpto %}
-                                        <option value="{{dpto.pk}}" {% if dpto.pk == objResidencia.deptoResidencia.pk %}selected{% endif %}>{{dpto.nombre}}</option>
+                                        <option value="{{dpto.id}}" {% if dpto.id == objResidencia.deptoResidencia.pk %}selected{% endif %}>{{dpto.nombre}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -198,7 +204,7 @@
                                 <label for="id_mpioResidencia" class="form-label">Municipio *</label>
                                 <select name="mpioResidencia" class="form-select" id="id_mpioResidencia" disabled>
                                     {% for mcpio in query_mpio %}
-                                        <option value="{{mcpio.pk}}" data-chained="{{mcpio.departamento.pk}}" {% if mcpio.pk == objResidencia.mpioResidencia.pk %} selected{% endif %}>{{mcpio.nombre}}</option>
+                                        <option value="{{mcpio.id}}" data-chained="{{mcpio.departamento}}" {% if mcpio.id == objResidencia.mpioResidencia.pk %} selected{% endif %}>{{mcpio.nombre}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -349,11 +355,11 @@
                             </div>
                             <div class="col-3">
                                 <label for="id_fechaInicio" class="form-label">Fecha Inicio</label>
-                                <input type="date" value="{{fInicioLab}}" class="form-control" name="fechaInicio" id="id_fechaInicio" {% if laboral == 'no' %} disabled {% endif %}>
+                                <input type="date" value="{{objLaboral.fechaInicio|date:"Y-m-d"}}" class="form-control" name="fechaInicio" id="id_fechaInicio" {% if laboral == 'no' %} disabled {% endif %}>
                             </div>
                             <div class="col-3">
                                 <label for="id_fechaTerminacion" class="form-label">Fecha Terminación</label>
-                                <input type="date" value="{{fTerminacionLab}}" class="form-control" name="fechaTerminacion" id="id_fechaTerminacion" {% if laboral == 'no' %} disabled {% endif %}>
+                                <input type="date" value="{{objLaboral.fechaTerminacion|date:"Y-m-d"}}" class="form-control" name="fechaTerminacion" id="id_fechaTerminacion" {% if laboral == 'no' %} disabled {% endif %}>
                             </div>
 
                             {% comment %} Fila 3 {% endcomment %}
@@ -366,7 +372,7 @@
                                 <select name="dptoTrabajo" class="form-select" id="id_dptoTrabajo" {% if laboral == 'no' %} disabled {% endif %}>
                                     <option value="0" selected>&nbsp;</option>
                                     {% for dpto in query_dpto %}
-                                        <option value="{{dpto.pk}}" {% if dpto.pk == objLaboral.dptoTrabajo.pk %} selected {% endif %}>{{dpto.nombre}}</option>
+                                        <option value="{{dpto.id}}" {% if dpto.id == objLaboral.dptoTrabajo.pk %} selected {% endif %}>{{dpto.nombre}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -375,7 +381,7 @@
                                 <select name="mpioTrabajo" class="form-select" id="id_mpioTrabajo" {% if laboral == 'no' %} disabled {% endif %}>
                                     <option value="0" selected>&nbsp;</option>
                                     {% for mcpio in query_mpio %}
-                                        <option value="{{mcpio.pk}}" data-chained="{{mcpio.departamento.pk}}" {% if mcpio.pk == objLaboral.mpioTrabajo.pk %} selected {% endif %}>{{mcpio.nombre}}</option>
+                                        <option value="{{mcpio.id}}" data-chained="{{mcpio.departamento}}" {% if mcpio.id == objLaboral.mpioTrabajo.pk %} selected {% endif %}>{{mcpio.nombre}}</option>
                                     {% endfor %}
                                 </select>  
                             </div>
@@ -503,7 +509,7 @@
                                 <label for="id_servFuneraria" class="form-label">Servicio Funeraria</label>
                                 <select name="servFuneraria" class="form-select" id="id_servFuneraria" {% if laboral == 'no' %} disabled {% endif %}>
                                     {% for serFuneria in objServFuneraria %}
-                                        <option value="{{serFuneria.pk}}" {% if objParametroAsociado.funeraria.pk == serFuneria.pk %} selected {% endif %}>{{serFuneria.concepto}}</option>
+                                        <option value="{{serFuneria.pk}}" {% if objParametroAsociado.funeraria == serFuneria.pk %} selected {% endif %}>{{serFuneria.concepto}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -516,7 +522,7 @@
                                 <label for="id_empresaDcto" class="form-label" hidden></label>
                                 <select name="empresaDcto" class="form-select" id="id_empresaDcto" {% if laboral == 'no' %} disabled {% endif %}>
                                     {% for empresas in objEmpresa %}
-                                        <option value="{{empresas.pk}}" {% if objParametroAsociado.empresa.pk == empresas.pk %} selected {% endif %}>{{empresas.concepto}}</option>
+                                        <option value="{{empresas.pk}}" {% if objParametroAsociado.empresa == empresas.pk %} selected {% endif %}>{{empresas.concepto}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -533,7 +539,7 @@
                                     <label for="id_primerMes" class="form-label">Mes inicio de pago</label>
                                     <select name="primesMes" class="form-select" id="id_primerMes" {% if laboral == 'no' %} disabled {% endif %}>
                                         {% for mes in objMes %}
-                                            <option value="{{mes.pk}}" {% if objParametroAsociado.primerMes.pk == mes.pk %} selected {% endif %}>{{mes.concepto}}</option>
+                                            <option value="{{mes.pk}}" {% if objParametroAsociado.primerMes == mes.pk %} selected {% endif %}>{{mes.concepto}}</option>
                                         {% endfor %}
                                     </select>
                                 </div>

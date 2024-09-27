@@ -33,7 +33,7 @@ class Asociado(models.Model):
     class estadoAsociadoOp(models.TextChoices):
         activo = 'ACTIVO', 'ACTIVO'
         inactivo = 'INACTIVO', 'INACTIVO'
-        retirado = 'RETIRADO', 'RETIRADO'
+        retiro = 'RETIRO', 'RETIRO'
 
     class nivelEducativoOp(models.TextChoices):
         primaria = 'PRIMARIA', 'PRIMARIA'

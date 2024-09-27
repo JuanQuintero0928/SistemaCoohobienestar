@@ -127,7 +127,7 @@ LOGOUT_REDIRECT_URL = reverse_lazy('dashboard')
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = 'static'
+# STATIC_ROOT = 'static'
 
 STATICFILES_DIRS = [
     BASE_DIR /  "static/"

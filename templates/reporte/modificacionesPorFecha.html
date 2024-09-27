@@ -62,7 +62,7 @@
     {% if post %}
         <div class="card-body">
             <hr>
-            {% if queryAsociado %}
+            {% if asociadoRetiro or asociadoIngreso %}
                 <table class="table table-striped table-bordered">
                     <thead>
                         <tr>
@@ -79,25 +79,24 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for obj in queryAsociado %}
+                        {% for obj in asociadoRetiro %}
                             <tr>
                                 <th>{{ forloop.counter }}</th>
                                 <th>{{obj.numDocumento}}</th>
                                 <th>{{obj.nombre}} {{obj.apellido}}</th>
-                                {% if obj.fechaRetiro %}
-                                    <th>Retiro</th>
-                                    <th>{{obj.fechaRetiro}}</th>
-                                {% else %}
-                                    <th>Ingreso</th>
-                                    <th>{{obj.fechaIngreso}}</th>
-                                {% endif %}
+                                <th>Retiro</th>
+                                <th>{{obj.fechaRetiro|date:"d-m-Y"}}</th>            
                             </tr>
                         {% endfor %}
-                        {% comment %} {% else %}
+                        {% for obj in asociadoIngreso %}
                             <tr>
-                                <th colspan="9"><center>No existen datos en la consulta.</th> 
+                                <th>{{ forloop.counter }}</th>
+                                <th>{{obj.numDocumento}}</th>
+                                <th>{{obj.nombre}} {{obj.apellido}}</th>
+                                <th>Ingreso</th>
+                                <th>{{obj.fechaIngreso|date:"d-m-Y"}}</th>            
                             </tr>
-                        {% endif %}  {% endcomment %}
+                        {% endfor %}
                     </tbody>
                 </table>
             {% endif %}

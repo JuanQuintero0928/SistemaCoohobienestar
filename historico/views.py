@@ -1,8 +1,6 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView, CreateView, UpdateView
-from django.http import HttpResponseRedirect
+from django.shortcuts import render, redirect
+from django.views.generic import ListView, CreateView
 from django.contrib import messages
-from django.urls import reverse_lazy
 from django.db.models import Sum
 
 from .models import HistoricoAuxilio, HistorialPagos
@@ -10,9 +8,6 @@ from parametro.models import MesTarifa, FormaPago
 from asociado.models import Asociado, ParametroAsociado, TarifaAsociado
 
 from .form import HistorialPagoForm
-
-
-
 
 # Create your views here.
 
@@ -25,13 +20,13 @@ class VerHistoricoAuxilio(ListView):
 class VerHistoricoPagos(ListView):
     def get(self, request, *args, **kwargs):
         template_name = 'proceso/pago/listarPagos.html'
-        query = HistorialPagos.objects.all()
+        query = HistorialPagos.objects.values('id','asociado__nombre','asociado__apellido','asociado__numDocumento','mesPago__concepto','valorPago','diferencia','formaPago__formaPago','asociado__tAsociado__concepto')
         return render(request, template_name, {'query':query})
 
 class VerAsociadoPagos(ListView):
     def get(self, request, *args, **kwargs):
         template_name = 'proceso/pago/realizarPago.html'
-        query = TarifaAsociado.objects.all()
+        query = TarifaAsociado.objects.values('id','asociado__nombre','asociado__id','asociado__apellido','asociado__numDocumento','total','asociado__tAsociado__concepto')
         return render(request, template_name, {'query':query})
     
 class CrearPagoAsociado(CreateView):

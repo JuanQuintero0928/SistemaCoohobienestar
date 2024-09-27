@@ -42,11 +42,11 @@
     {% for obj in query %}
         <tr>
             <th>{{ forloop.counter }}</th>
-            <th>{{ obj.asociado.nombre }} {{obj.asociado.apellido}}</th>
-            <th>{{ obj.asociado.numDocumento }}</th>
+            <th>{{ obj.asociado__nombre }} {{obj.asociado__apellido}}</th>
+            <th>{{ obj.asociado__numDocumento }}</th>
             <th>{{ obj.total }}</th>
-            <th>{{ obj.asociado.tAsociado.concepto }}</th>
-            <th><center><button class="btn btn-outline-primary" onclick="abrir_modal_creacion('{% url 'proceso:crearPagoAsociado' obj.asociado.id %}')"><i class="fa-solid fa-pen-to-square"></i></button></th>
+            <th>{{ obj.asociado__tAsociado__concepto }}</th>
+            <th><center><button class="btn btn-outline-primary" onclick="abrir_modal_creacion('{% url 'proceso:crearPagoAsociado' obj.asociado__id %}')"><i class="fa-solid fa-pen-to-square"></i></button></th>
         </tr>
     {% endfor %}
 
