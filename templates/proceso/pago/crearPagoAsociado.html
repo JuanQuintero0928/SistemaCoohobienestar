@@ -10,6 +10,11 @@
                 {% csrf_token %}
                 {% comment %} input completo {% endcomment %}
                 <div class="input-group mb-3">
+                  <span class="input-group-text" id="basic-addon3">Fecha Pago</span>
+                  <input type="date" name="fechaPago" id="fechaPago" class="form-control" aria-label="Default select example" required>
+                </div>
+                {% comment %} input completo {% endcomment %}
+                <div class="input-group mb-3">
                   <span class="input-group-text" id="basic-addon3">Mes</span>
                   <select name="mesPago" id="mesPago" class="form-select" aria-label="Default select example" required>
                     <option value="0" selected>&nbsp;</option>
@@ -33,6 +38,7 @@
                   <span class="input-group-text" id="basic-addon3">Valor Total</span>
                   <span class="input-group-text">$</span>
                   <input type="text" class="form-control" id="valorPago" name="valorPago" value="{{ query.total }}" type="number" disabled>
+                  <input type="text" class="form-control" id="valorPagoVerificacion" name="valorPagoVerificacion" value="{{ query.total }}" type="number" hidden>
                   <span class="input-group-text">
                     <a class="btn btn-outline-dark btn-sm" id="btn_editar" onclick="editarCasillasPago('editar1')" style="border:0px"><i class="fa-solid fa-pen"></i></a>
                     <a class="btn btn-outline-danger btn-sm" id="btn_no_editar" onclick="editarCasillasPago('no_editar1')" style="border:0px" hidden><i class="fa-solid fa-xmark"></i></a>
@@ -145,16 +151,7 @@
                 {% else %}
                   <input type="text" class="form-control" id="coohopBsocial" name="coohopBsocial" value="{{ query.cuotaCoohopBsocial }}" type="number" hidden>
                 {% endif %}
-                {% comment %} input completo {% endcomment %}
-                <div class="input-group mb-3">
-                  <span class="input-group-text" id="basic-addon3">Diferencia</span>
-                  <span class="input-group-text">$</span>
-                  <input type="text" class="form-control" id="diferencia" value="0" name="diferencia" type="number" disabled>
-                  <span class="input-group-text">
-                    <a class="btn btn-outline-dark btn-sm" id="btn_editar10" onclick="editarCasillasPago('editar10')" style="border:0px"><i class="fa-solid fa-pen"></i></a>
-                    <a class="btn btn-outline-danger btn-sm" id="btn_no_editar10" onclick="editarCasillasPago('no_editar10')" style="border:0px" hidden><i class="fa-solid fa-xmark"></i></a>
-                  </span>
-                </div>
+            
                 {% if diferencia > 0 or diferencia < 0 %}
                   <hr>
                   <h2 class="modal-title fs-5" id="exampleModalLabel">Saldos</h2>
@@ -163,7 +160,6 @@
                     <span class="input-group-text" id="basic-addon3" {% if diferencia < 0 %}  style="color:#DF5B68" {% else %} style="color:#198754" {% endif %} ><b>{% if diferencia > 0 %}Saldo a Favor{% else %}Saldo a Pagar{% endif %}</b></span>
                     <span class="input-group-text">$</span>
                     <input type="text" class="form-control" id="diferencia" value="{{diferencia}}" name="diferencia" type="number" disabled>
-                    
                   </div>
                 {% endif %}
                 <hr>

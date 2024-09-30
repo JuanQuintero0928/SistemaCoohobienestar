@@ -30,8 +30,9 @@
 {% block tablaencabezado %}
     <tr>
         <th>N°</th>
-        <th>Asociado</th>
         <th>N° Documento</th>
+        <th>Asociado</th>
+        <th>Fecha Pago</th>
         <th>Mes Pago</th>
         <th>Valor Pago</th>
         <th>Diferencia</th>
@@ -45,14 +46,37 @@
     {% for obj in query %}
         <tr>
             <th>{{ forloop.counter }}</th>
-            <th>{{ obj.asociado__nombre }} {{obj.asociado__apellido}}</th>
             <th>{{ obj.asociado__numDocumento }}</th>
+            <th>{{ obj.asociado__nombre }} {{obj.asociado__apellido}}</th>
+            <th>{{ obj.fechaPago|date:"d-m-Y" }}</th>
             <th>{{ obj.mesPago__concepto }}</th>
             <th>{{ obj.valorPago  }}</th>
             <th>{{ obj.diferencia }}</th>
             <th>{{ obj.formaPago__formaPago }}</th>
             <th>{{ obj.asociado__tAsociado__concepto }}</th>
-            <th><a href="#"><i class="fa-solid fa-pen"></i></a></th>
+            <th>
+                <center><button class="btn btn-outline-primary" onclick="abrir_modal_creacion('{% url 'asociado:detallePago' obj.asociado__id obj.id %}')"><i class="fa-solid fa-eye"></i></button>
+                <button class="btn btn-outline-primary" onclick="abrir_modal_creacion('{% url 'proceso:editarPagoAsociado' obj.id obj.asociado__id %}')"><i class="fa-solid fa-pen-to-square"></i></button>
+            </th>
         </tr>
-    {% endfor %}  
+    {% endfor %}
+
+    <div class="modal fade" id="creacion" role="dialog">
+        <!-- En este div se visualiza la informacion para la creacion de un nuevo registro de entrada -->
+    </div>
+
 {% endblock tablafilas %}
+
+
+{% block extrajs %}
+
+<script type="text/javascript">
+    var $ = jQuery.noConflict()
+    function abrir_modal_creacion(url){
+        $('#creacion').load(url, function(){
+            $(this).modal('show');
+        });
+    }
+</script>
+
+{% endblock extrajs %} 

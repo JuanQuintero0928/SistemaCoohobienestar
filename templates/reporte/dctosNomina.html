@@ -43,29 +43,29 @@
                 </div>
             </form>
             
-                {% if post %}
-                    <form action="{% url 'reportes:excelDescuentosNomina' %}" method="get">
-                        {% for empresa in empresas %}
-                            {% if empresa.pk != 1 %}
-                                <div class="form-check form-check-inline" style="display:none">
-                                        <input name="select{{empresa.pk}}" class="form-check-input" type="checkbox" id="inlineCheckbox{{empresa.pk}}" value="{{empresa.pk}}" 
-                                        {% for check in arrayEmp %}
-                                            {% if check == empresa.pk %}
-                                                checked
-                                            {% endif %}
-                                        {% endfor %}
-                                            >
-                                    <label class="form-check-label" for="inlineCheckbox{{empresa.pk}}">{{empresa.concepto}}</label>
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-                        <div class="row" style="margin-top:10px">
-                            <div class="col-xl-3 col-md-3 mb-3">
-                                <button type="submit" class="btn btn-success"><i class="fa-solid fa-file-excel"></i></button>
+            {% if post %}
+                <form action="{% url 'reportes:excelDescuentosNomina' %}" method="get">
+                    {% for empresa in empresas %}
+                        {% if empresa.pk != 1 %}
+                            <div class="form-check form-check-inline" style="display:none">
+                                    <input name="select{{empresa.pk}}" class="form-check-input" type="checkbox" id="inlineCheckbox{{empresa.pk}}" value="{{empresa.pk}}" 
+                                    {% for check in arrayEmp %}
+                                        {% if check == empresa.pk %}
+                                            checked
+                                        {% endif %}
+                                    {% endfor %}
+                                        >
+                                <label class="form-check-label" for="inlineCheckbox{{empresa.pk}}">{{empresa.concepto}}</label>
                             </div>
+                        {% endif %}
+                    {% endfor %}
+                    <div class="row" style="margin-top:10px">
+                        <div class="col-xl-3 col-md-3 mb-3">
+                            <button type="submit" class="btn btn-success"><i class="fa-solid fa-file-excel"></i></button>
                         </div>
-                    </form>
-                {% endif %}
+                    </div>
+                </form>
+            {% endif %}
            
         </div>
     </div>

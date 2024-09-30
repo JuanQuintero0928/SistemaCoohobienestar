@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, CreateView
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db.models import Sum
 
@@ -20,7 +21,7 @@ class VerHistoricoAuxilio(ListView):
 class VerHistoricoPagos(ListView):
     def get(self, request, *args, **kwargs):
         template_name = 'proceso/pago/listarPagos.html'
-        query = HistorialPagos.objects.values('id','asociado__nombre','asociado__apellido','asociado__numDocumento','mesPago__concepto','valorPago','diferencia','formaPago__formaPago','asociado__tAsociado__concepto')
+        query = HistorialPagos.objects.values('id','asociado__id','asociado__nombre','asociado__apellido','asociado__numDocumento','mesPago__concepto','valorPago','diferencia','formaPago__formaPago','asociado__tAsociado__concepto', 'fechaPago')
         return render(request, template_name, {'query':query})
 
 class VerAsociadoPagos(ListView):
@@ -35,15 +36,18 @@ class CrearPagoAsociado(CreateView):
         template_name = 'proceso/pago/crearPagoAsociado.html'
         queryValor = TarifaAsociado.objects.get(asociado = kwargs['pkAsociado'])
         queryParamAsoc = ParametroAsociado.objects.get(asociado = kwargs['pkAsociado'])
-        queryMes = MesTarifa.objects.filter(pk__gte = queryParamAsoc.primerMes.pk)
+        queryHistorial = HistorialPagos.objects.filter(asociado = kwargs['pkAsociado']).exists()
+        if queryHistorial:
+            queryUltPago = HistorialPagos.objects.filter(asociado = kwargs['pkAsociado']).last()
+            queryMes = MesTarifa.objects.filter(pk__gt = queryUltPago.mesPago.pk)
+        else:
+            queryMes = MesTarifa.objects.filter(pk__gte = queryParamAsoc.primerMes.pk)
         queryPago = FormaPago.objects.all()
         queryHistorial = HistorialPagos.objects.filter(asociado = kwargs['pkAsociado']).aggregate(total=Sum('diferencia'))
         for valor in queryHistorial.values():
             diferencia = valor
-        print(type(diferencia))
-        print(diferencia)
         return render(request, template_name, {'pkAsociado':kwargs['pkAsociado'], 'query':queryValor, 'queryMes':queryMes, 'queryPago':queryPago, 'diferencia':diferencia})
-   
+
     def post(self, request, *args, **kwargs):
         mesPago = int(request.POST['mesPago'])
         formaPago = int(request.POST['formaPago'])
@@ -51,6 +55,7 @@ class CrearPagoAsociado(CreateView):
             messages.warning(request, "Digite completamente el formulario, fecha y forma de pago.")
             return redirect('proceso:asociadoPago')
         else:
+            fechaPago = request.POST['fechaPago']
             valorPago = int(request.POST['valorPago'])
             aportePago = int(request.POST['aportePago'])
             bSocialPago = int(request.POST['bSocialPago'])
@@ -60,40 +65,61 @@ class CrearPagoAsociado(CreateView):
             adicionalesPago = int(request.POST['adicionalesPago'])
             coohopAporte = int(request.POST['coohopAporte'])
             coohopBsocial = int(request.POST['coohopBsocial'])
-            diferencia = int(request.POST['diferencia'])
-            obj = HistorialPagos()
-            obj.asociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
-            # se realiza la validacion si el asociado ya habia pagado el mes seleccionado
-            validacion = HistorialPagos.objects.filter(asociado = kwargs['pkAsociado']).only('mesPago')
-            for mes in validacion:
-                if mesPago == mes.mesPago.pk:
-                    messages.warning(request, f"{mes.mesPago}" + ' ya se encuentra registrado para el asociado ' + obj.asociado.nombre + ' ' + obj.asociado.apellido + ', por favor validar la información.')
-                    return redirect('proceso:asociadoPago')
+            
             # se realiza validacion en caso que el usuario pague menos del valor establecido
-            verificacion = aportePago + bSocialPago + mascotaPago + repatriacionPago + seguroVidaPago + adicionalesPago + coohopAporte + coohopBsocial + diferencia
-            if valorPago == verificacion:
-                # guarda la diferencia
-                if diferencia != None:
-                    obj.diferencia = diferencia
-                obj.mesPago = MesTarifa.objects.get(pk = mesPago)
-                obj.valorPago = valorPago
-                obj.aportePago = aportePago
-                obj.bSocialPago = bSocialPago
-                obj.mascotaPago = mascotaPago
-                obj.repatriacionPago = repatriacionPago
-                obj.seguroVidaPago = seguroVidaPago
-                obj.adicionalesPago = adicionalesPago
-                obj.coohopAporte = coohopAporte
-                obj.coohopBsocial = coohopBsocial
-                obj.formaPago = FormaPago.objects.get(pk = formaPago)
-                obj.estadoRegistro = True
-                obj.save()
-                messages.info(request, 'Pago Registrado Correctamente')
-                return redirect('proceso:asociadoPago')
-            else:
-                messages.warning(request, "Los valores no coinciden, valor pago es: $" + str(valorPago) + ", y valor modificado: $" + str(verificacion))
-                return redirect('proceso:asociadoPago')
-                
+            valorPagoVerificacion = int(request.POST['valorPagoVerificacion'])
+            valorPago = int(request.POST['valorPago'])
+            obj = HistorialPagos()
+            diferencia = 0
+            # se valida si el valor pago es igual al valor real que debe pagar
+            if valorPago != valorPagoVerificacion:
+                diferencia = valorPago - valorPagoVerificacion
+            obj.asociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
+            obj.mesPago = MesTarifa.objects.get(pk = mesPago)
+            obj.fechaPago = fechaPago
+            obj.valorPago = valorPago
+            obj.aportePago = aportePago
+            obj.bSocialPago = bSocialPago
+            obj.mascotaPago = mascotaPago
+            obj.repatriacionPago = repatriacionPago
+            obj.seguroVidaPago = seguroVidaPago
+            obj.adicionalesPago = adicionalesPago
+            obj.coohopAporte = coohopAporte
+            obj.coohopBsocial = coohopBsocial
+            obj.diferencia = diferencia
+            obj.formaPago = FormaPago.objects.get(pk = formaPago)
+            obj.estadoRegistro = True
+            obj.userCreacion = User.objects.get(pk = request.user.pk)
+            obj.save()
+            messages.info(request, 'Pago Registrado Correctamente')
+            return redirect('proceso:asociadoPago')                
+
+class EditarPago(ListView):
+    def get(self, request, *args, **kwargs):
+        template_name = 'proceso/pago/editarPagoAsociado.html'
+        queryPago = HistorialPagos.objects.get(pk = kwargs['pk'])
+        queryMes = MesTarifa.objects.all()
+        queryFormaPago = FormaPago.objects.all()
+        return render(request, template_name, {'queryPago':queryPago, 'queryFormaPago':queryFormaPago, 'queryMes':queryMes, 'pk':kwargs['pk'], 'pkAsociado':kwargs['pkAsociado']})
+    
+    def post(self, request, *args, **kwargs):
+        objHistorico = HistorialPagos.objects.get(pk = kwargs['pk'])
+        objTarifa = TarifaAsociado.objects.get(asociado = kwargs['pkAsociado'])
+        valorPago = int(request.POST['valorPago'])
+        # se valida si el valor pago es igual al valor real que debe pagar
+        if valorPago != objTarifa.total:
+            diferencia = valorPago - objTarifa.total
+            objHistorico.diferencia = diferencia
+        else:
+            objHistorico.diferencia = 0
+        objHistorico.mesPago = MesTarifa.objects.get(pk = request.POST['mesPago'])
+        objHistorico.formaPago = FormaPago.objects.get(pk = request.POST['formaPago'])
+        objHistorico.fechaPago = request.POST['fechaPago']
+        objHistorico.valorPago = request.POST['valorPago']
+        objHistorico.userModificacion = User.objects.get(pk = request.user.pk)
+        objHistorico.save()
+        messages.info(request, 'Pago Modificado Correctamente')
+        return redirect('proceso:historicoPagos')
 
 # backup clase
 class CrearPagoAsociadoBackup(CreateView):

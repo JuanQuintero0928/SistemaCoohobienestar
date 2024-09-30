@@ -57,11 +57,16 @@ class ReporteExcelFecha(TemplateView):
         fechaInicial = separarFecha(fechaInicialForm, 'inicial')
         fechaFinal = separarFecha(fechaFinalForm, 'final')
         # consulta por rango de fecha inicial y final
-        queryAsociado = Asociado.objects.annotate(
-            fecha_solo = TruncDate('fechaModificacion')).filter(
-            fechaModificacion__range=[fechaInicial, fechaFinal]
+        # queryAsociado = Asociado.objects.annotate(
+        #     fecha_solo = TruncDate('fechaModificacion')).filter(
+        #     fechaModificacion__range=[fechaInicial, fechaFinal]
+        # )
+        asociadoRetiro = Asociado.objects.filter(
+            fechaRetiro__range=[fechaInicialForm,fechaFinalForm]
         )
-    
+        asociadoIngreso = Asociado.objects.filter(
+            fechaIngreso__range=[fechaInicialForm,fechaFinalForm]
+        )
         queryMascota = Mascota.objects.annotate(
             fecha_solo = TruncDate('fechaModificacion')).filter(
             fechaModificacion__range=[fechaInicial, fechaFinal]
@@ -70,21 +75,47 @@ class ReporteExcelFecha(TemplateView):
             fecha_solo = TruncDate('fechaModificacion')).filter(
             fechaModificacion__range=[fechaInicial, fechaFinal]
         )
+
+        # Estilos
+        bold_font = Font(bold=True, size=16, color="FFFFFF")  # Fuente en negrita, tamaño 12 y color blanco
+        bold_font2 = Font(bold=True, size=12, color="000000")  # Fuente en negrita, tamaño 12 y color negro
+        alignment_center = Alignment(horizontal="center", vertical="center")  # Alineación al centro
+        fill = PatternFill(start_color="85B84C", end_color="85B84C", fill_type="solid")  # Relleno verde sólido
+
         wb = Workbook() #Creamos la instancia del Workbook
         ws = wb.active
         ws.title = 'Mascotas'
         titulo1 = f"Reporte de Novedades Mascota Funeraria desde {fechaInicialForm} - {fechaFinalForm}"
         ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
         ws.merge_cells('A1:G1')
+        ws['A1'].font = bold_font
+        ws['A1'].alignment = alignment_center
+        ws['A1'].fill = fill
 
         ws['A2'] = 'Número registro'
         ws['B2'] = 'Mascota'
-        ws['C2'] = 'tipo'
-        ws['D2'] = 'raza'
-        ws['E2'] = 'fechaNacimiento'
+        ws['C2'] = 'Tipo'
+        ws['D2'] = 'Raza'
+        ws['E2'] = 'Fecha Nacimiento'
         ws['F2'] = 'Novedad'
-        ws['G2'] = 'Fecha'
+        ws['G2'] = 'Fecha Novedad'
      
+        bold_font2 = Font(bold=True)
+        center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+
+        for col in range(1,8):
+            cell = ws.cell(row=2, column=col)
+            cell.font = bold_font2
+            cell.alignment = center_alignment
+
+        ws.column_dimensions['A'].width = 11
+        ws.column_dimensions['B'].width = 14
+        ws.column_dimensions['C'].width = 14
+        ws.column_dimensions['D'].width = 14
+        ws.column_dimensions['E'].width = 14
+        ws.column_dimensions['F'].width = 12
+        ws.column_dimensions['G'].width = 14
+        
         #Inicia el primer registro en la celda numero 3
         cont = 3
         i = 1
@@ -109,13 +140,17 @@ class ReporteExcelFecha(TemplateView):
             cont+=1
         
         # se crea una nueva hoja
-        wb.create_sheet('Beneficiarios')
+        wb.create_sheet('Beneficiarios')  
         # se selecciona la hoja creada
         ws2 = wb['Beneficiarios']
         titulo2 = f"Reporte de Novedades Beneficiarios Funeraria desde {fechaInicialForm} - {fechaFinalForm}"
         ws2['A1'] = titulo2    #Casilla en la que queremos poner la informacion
-        ws2.merge_cells('A1:I1')
-        ws2['A2'] = 'Número registro'
+        ws2.merge_cells('A1:H1')
+        ws2['A1'].font = bold_font
+        ws2['A1'].alignment = alignment_center
+        ws2['A1'].fill = fill
+
+        ws2['A2'] = 'Número Registro'
         ws2['B2'] = 'Nombre'
         ws2['C2'] = 'Tipo Documento'
         ws2['D2'] = 'Número Documento'
@@ -123,7 +158,25 @@ class ReporteExcelFecha(TemplateView):
         ws2['F2'] = 'Parentesco'
         ws2['G2'] = 'Pais Repatriacion'
         ws2['H2'] = 'Novedad'
-        ws2['I2'] = 'Fecha'
+
+        bold_font2 = Font(bold=True)
+        center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+
+        for col in range(1,9):
+            cell = ws2.cell(row=2, column=col)
+            cell.font = bold_font2
+            cell.alignment = center_alignment
+
+        ws2.column_dimensions['A'].width = 11
+        ws2.column_dimensions['B'].width = 30
+        ws2.column_dimensions['C'].width = 12
+        ws2.column_dimensions['D'].width = 12
+        ws2.column_dimensions['E'].width = 12
+        ws2.column_dimensions['F'].width = 13
+        ws2.column_dimensions['G'].width = 16
+        ws2.column_dimensions['H'].width = 12
+        ws2.column_dimensions['I'].width = 12
+
 
         #Inicia el primer registro en la celda numero 3
         cont = 3
@@ -142,53 +195,78 @@ class ReporteExcelFecha(TemplateView):
                 ws2.cell(row = cont, column = 7).value = ''
             if beneficiario.fechaCreacion == beneficiario.fechaModificacion:
                 ws2.cell(row = cont, column = 8).value = 'Ingreso'
-                ws2.cell(row = cont, column = 9).value = beneficiario.fechaIngreso
             elif beneficiario.fechaCreacion != beneficiario.fechaModificacion:
                 if beneficiario.estadoRegistro == True:
                     ws2.cell(row = cont, column = 8).value = 'Modificación'
-                    ws2.cell(row = cont, column = 9).value = beneficiario.fecha_solo
                 else:
                     ws2.cell(row = cont, column = 8).value = 'Retiro'
-                    ws2.cell(row = cont, column = 9).value = str(beneficiario.fechaRetiro)
             i+=1
             cont+=1
         
         # se crea una nueva hoja
         wb.create_sheet('Asociados')
         # se selecciona la hoja creada
-        ws2 = wb['Asociados']
+        ws3 = wb['Asociados']
         titulo2 = f"Reporte de Novedades Asociados Funeraria desde {fechaInicialForm} - {fechaFinalForm}"
-        ws2['A1'] = titulo2    #Casilla en la que queremos poner la informacion
-        ws2.merge_cells('A1:G1')
-        ws2['A2'] = 'Número registro'
-        ws2['B2'] = 'Nombre'
-        ws2['C2'] = 'Tipo Documento'
-        ws2['D2'] = 'Número Documento'
-        ws2['E2'] = 'Fecha Nacimiento'
-        ws2['F2'] = 'Novedad'
-        ws2['G2'] = 'Fecha'
+        ws3['A1'] = titulo2    #Casilla en la que queremos poner la informacion
+        ws3.merge_cells('A1:G1')
+
+        ws3['A1'].font = bold_font
+        ws3['A1'].alignment = alignment_center
+        ws3['A1'].fill = fill
+
+        ws3['A2'] = 'Número registro'
+        ws3['B2'] = 'Nombre'
+        ws3['C2'] = 'Tipo Documento'
+        ws3['D2'] = 'Número Documento'
+        ws3['E2'] = 'Fecha Nacimiento'
+        ws3['F2'] = 'Novedad'
+        ws3['G2'] = 'Fecha'
+
+        bold_font2 = Font(bold=True)
+        center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+
+        for col in range(1,8):
+            cell = ws3.cell(row=2, column=col)
+            cell.font = bold_font2
+            cell.alignment = center_alignment
+
+        ws3.column_dimensions['A'].width = 11
+        ws3.column_dimensions['B'].width = 30
+        ws3.column_dimensions['C'].width = 12
+        ws3.column_dimensions['D'].width = 12
+        ws3.column_dimensions['E'].width = 12
+        ws3.column_dimensions['F'].width = 12
+        ws3.column_dimensions['G'].width = 12
 
         #Inicia el primer registro en la celda numero 3
         cont = 3
         i = 1
-        for asociado in queryAsociado:
+        for asociado in asociadoRetiro:
             #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
             obj = Nacimiento.objects.get(asociado = asociado.pk)
-            ws2.cell(row = cont, column = 1).value = i                    
-            ws2.cell(row = cont, column = 2).value = f'{asociado.nombre}' + ' ' + f'{asociado.apellido}'
-            ws2.cell(row = cont, column = 3).value = asociado.tipoDocumento
-            ws2.cell(row = cont, column = 4).value = int(asociado.numDocumento)
-            ws2.cell(row = cont, column = 5).value = obj.fechaNacimiento
-            if asociado.fechaCreacion == asociado.fechaModificacion:
-                ws2.cell(row = cont, column = 6).value = 'Ingreso'
-                ws2.cell(row = cont, column = 7).value = asociado.fechaIngreso
-            elif asociado.fechaCreacion != asociado.fechaModificacion:
-                if asociado.estadoRegistro == True:
-                    ws2.cell(row = cont, column = 6).value = 'Modificación'
-                    ws2.cell(row = cont, column = 7).value = asociado.fecha_solo
-                else:
-                    ws2.cell(row = cont, column = 6).value = 'Retiro'
-                    ws2.cell(row = cont, column = 7).value = asociado.fechaRetiro
+            ws3.cell(row = cont, column = 1).value = i                    
+            ws3.cell(row = cont, column = 2).value = f'{asociado.nombre}' + ' ' + f'{asociado.apellido}'
+            ws3.cell(row = cont, column = 3).value = asociado.tipoDocumento
+            ws3.cell(row = cont, column = 4).value = int(asociado.numDocumento)
+            ws3.cell(row = cont, column = 5).value = obj.fechaNacimiento
+            ws3.cell(row = cont, column = 6).value = 'RETIRO'
+            ws3.cell(row = cont, column = 7).value = asociado.fechaRetiro
+            i+=1
+            cont+=1
+        
+        cont = 3
+        i = 1
+        for asociado in asociadoIngreso:
+            #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
+            obj = Nacimiento.objects.get(asociado = asociado.pk)
+            ws3.cell(row = cont, column = 1).value = i                    
+            ws3.cell(row = cont, column = 2).value = f'{asociado.nombre}' + ' ' + f'{asociado.apellido}'
+            ws3.cell(row = cont, column = 3).value = asociado.tipoDocumento
+            ws3.cell(row = cont, column = 4).value = int(asociado.numDocumento)
+            ws3.cell(row = cont, column = 5).value = obj.fechaNacimiento
+            ws3.cell(row = cont, column = 6).value = 'INGRESO'
+            ws3.cell(row = cont, column = 7).value = asociado.fechaIngreso
             i+=1
             cont+=1
 
@@ -255,7 +333,7 @@ class ReporteExcelPago(TemplateView):
         ws['A1'].alignment = alignment_center
         ws['A1'].fill = fill
 
-        ws['A2'] = 'numero registro'
+        ws['A2'] = 'Número Registro'
         ws['B2'] = 'Número Documento'
         ws['C2'] = 'Nombre Completo'
         ws['D2'] = 'Mes Pago'
