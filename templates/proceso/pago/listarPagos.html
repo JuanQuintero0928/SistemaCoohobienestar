@@ -59,6 +59,8 @@
                 <button class="btn btn-outline-primary" onclick="abrir_modal_creacion('{% url 'proceso:editarPagoAsociado' obj.id obj.asociado__id %}')"><i class="fa-solid fa-pen-to-square"></i></button>
             </th>
         </tr>
+    {% empty %}
+        
     {% endfor %}
 
     <div class="modal fade" id="creacion" role="dialog">
