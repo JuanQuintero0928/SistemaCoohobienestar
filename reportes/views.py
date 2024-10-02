@@ -425,9 +425,9 @@ class FormatoExtracto(ListView):
                     # Formato 4
                     fechaCorte = timedelta(15) + mes.fechaInicio
                     objTarifaAsociado = TarifaAsociado.objects.get(asociado = asociado.pk)
+                    cuotaPeriodica = objTarifaAsociado.cuotaAporte + objTarifaAsociado.cuotaBSocial
                     # query del ultimo pago hecho por el asociado
                     objHistorialPago = HistorialPagos.objects.filter(asociado = asociado.pk).last()     
-                    cuotaPeriodica = objTarifaAsociado.cuotaAporte + objTarifaAsociado.cuotaBSocial
                     cuotaCoohop = objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial
                     # variables iniciacion
                     saldo = 0
