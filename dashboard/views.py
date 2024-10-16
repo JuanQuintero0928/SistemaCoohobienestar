@@ -1,9 +1,12 @@
 from django.shortcuts import render
 from django.views.generic import ListView
 from asociado.models import Asociado
-from historico.models import HistorialPagos
+from django.http import HttpResponse
 
 # Create your views here.
+
+def health_check(request):
+    return HttpResponse("OK", status=200)
 
 class Dashboard(ListView):
     def get(self, request, *args, **kwargs):
