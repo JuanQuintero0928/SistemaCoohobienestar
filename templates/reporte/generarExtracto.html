@@ -53,6 +53,7 @@
 {% if lista %}
     <script>
         let arrayExtracto = [];
+        let arrayExtracto2 = [];
     </script>
     {% for asoc in lista %}
         <form style="display:none" id="formExtracto{{forloop.counter}}">
@@ -163,6 +164,8 @@
              '{{asoc.pagoTotal}}', '{{asoc.mensaje}} ']);
 
             eliminarFormulario();
+
+            arrayExtracto2.push(['{{asoc.objAsoc.nombre}} {{asoc.objAsoc.apellido}}', '{{asoc.objAsoc.numDocumento}}'])
             
             // funcion que elimina el contenido actual del formualirio, para no remplazar la informacion
             async function eliminarFormulario() {
@@ -181,6 +184,8 @@
     async function generarYRedirigir() {
         await generarPDFf5('{% static 'img/Formato_ExtractoPago_page_0001.jpg'%}', arrayExtracto, '{{mes.concepto}}');
         
+        await generarTxt(arrayExtracto2);
+    
         window.location.replace("{% url 'reportes:formatoExtracto' %}");
     }
 

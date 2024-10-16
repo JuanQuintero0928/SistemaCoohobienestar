@@ -99,7 +99,7 @@
                     <label for="id_mpioDoc" class="form-label">Lugar Expedición *</label>
                     <select name="mpioDoc" class="form-select" id="id_mpioDoc" required>
                         {% for mcpio in query_mpio %}
-                            <option value="{{mcpio.pk}}">{{mcpio.nombre}}</option>
+                            <option value="{{mcpio.pk}}">{{mcpio.nombre}} - {{mcpio.departamento.nombre}}</option>
                         {% endfor %}
                     </select>
                 </div>

@@ -1250,7 +1250,8 @@ async function generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF
     pdf.setFontSize(10)
     pdf.text(mensaje, 30,460);
 
-    let filaB = 570;
+    pdf.setFontSize(8)
+    let filaB = 567;
     // se lista beneficiarios
     for(let i = 0;i < arrayBeneficiariosF4.length; i++){
         pdf.text(arrayBeneficiariosF4[i][0], 30,filaB);
@@ -1258,7 +1259,7 @@ async function generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF
             pdf.text(arrayBeneficiariosF4[i][2], 332,filaB);
         }
         pdf.text(arrayBeneficiariosF4[i][1], 515,filaB);
-        filaB = filaB + 20;
+        filaB = filaB + 13;
     }
 
     var perro = new Image()
@@ -1418,7 +1419,8 @@ async function generarPDFf5(url, arrayExtracto, mes) {
         pdf.setFontSize(10)
         pdf.text(arrayExtracto[i][29], 30,460);
 
-        let filaB = 570;
+        pdf.setFontSize(8)
+        let filaB = 567;
         // se lista beneficiarios, inicia posicion 6
         for(let j = 0;j < arrayExtracto[i][6].length; j++){
             pdf.text(arrayExtracto[i][6][j][0], 30,filaB);
@@ -1426,7 +1428,7 @@ async function generarPDFf5(url, arrayExtracto, mes) {
                 pdf.text(arrayExtracto[i][6][j][2], 332,filaB);
             }
             pdf.text(arrayExtracto[i][6][j][1], 515,filaB);
-            filaB = filaB + 20;
+            filaB = filaB + 13;
             
         }
 
@@ -1465,6 +1467,26 @@ async function generarPDFf5(url, arrayExtracto, mes) {
     }
     pdf.save('Extractos_'+mes+'.pdf');    
 
+    
+}
+
+async function generarTxt(arrayExtracto2) {
+    // Contenido del archivo
+    const texto = arrayExtracto2.join('\n');
+
+    // Crear un Blob con el contenido
+    const blob = new Blob([texto], { type: "text/plain" });
+
+    // Crear un enlace temporal para la descarga
+    const enlace = document.createElement("a");
+    enlace.href = URL.createObjectURL(blob);
+    enlace.download = "archivo.txt"; // Nombre del archivo
+
+    // Simular un clic para descargar el archivo
+    enlace.click();
+
+    // Limpiar el URL Object creado
+    URL.revokeObjectURL(enlace.href);
     
 }
 

@@ -33,121 +33,121 @@ class CrearAsociado(CreateView):
         return render(request, self.template_name, {'query_dpto':self.query_dpto,'query_mpio':self.query_mpio, 'query_tAsociado': self.query_tAsociado, 'query_parentesco':self.query_parentesco, 'create':'yes'})
     
     def post(self, request, *args, **kwargs):
-        try:
-            numDoc = request.POST['numDocumento']
-            query = Asociado.objects.filter(numDocumento = numDoc).count()
-            if query == 0:
-                # se guarda informacion en el modelo ASOCIADO
-                obj = Asociado()
-                obj.tPersona = request.POST['tPersona']
-                obj.tAsociado = TipoAsociado.objects.get(pk = request.POST['tAsociado'])
-                obj.estadoAsociado = request.POST['estadoAsociado']
-                obj.nombre = request.POST['nombre'].upper()
-                obj.apellido = request.POST['apellido'].upper()
-                obj.tipoDocumento = request.POST['tipoDocumento']
-                obj.numDocumento = request.POST['numDocumento']
-                obj.fechaExpedicion = request.POST['fechaExpedicion']
-                obj.mpioDoc = Municipio.objects.get(pk = int(request.POST['mpioDoc']))
-                obj.nacionalidad = request.POST['nacionalidad'].upper()
-                obj.genero = request.POST['genero']
-                obj.estadoCivil = request.POST['estadoCivil']
-                obj.email = request.POST['email'].lower()
-                if request.POST['numResidencia'] != "":
-                    obj.numResidencia = request.POST['numResidencia']
-                obj.numCelular = request.POST['numCelular']
-                
-                envioCorreo = request.POST.getlist('envioInfoCorreo')
-                envioMensaje = request.POST.getlist('envioInfoMensaje')
-                envioWhatsapp = request.POST.getlist('envioInfoWhatsapp')
+        # try:
+        numDoc = request.POST['numDocumento']
+        query = Asociado.objects.filter(numDocumento = numDoc).count()
+        if query == 0:
+            # se guarda informacion en el modelo ASOCIADO
+            obj = Asociado()
+            obj.tPersona = request.POST['tPersona']
+            obj.tAsociado = TipoAsociado.objects.get(pk = request.POST['tAsociado'])
+            obj.estadoAsociado = request.POST['estadoAsociado']
+            obj.nombre = request.POST['nombre'].upper()
+            obj.apellido = request.POST['apellido'].upper()
+            obj.tipoDocumento = request.POST['tipoDocumento']
+            obj.numDocumento = request.POST['numDocumento']
+            obj.fechaExpedicion = request.POST['fechaExpedicion']
+            obj.mpioDoc = Municipio.objects.get(pk = int(request.POST['mpioDoc']))
+            obj.nacionalidad = request.POST['nacionalidad'].upper()
+            obj.genero = request.POST['genero']
+            obj.estadoCivil = request.POST['estadoCivil']
+            obj.email = request.POST['email'].lower()
+            if request.POST['numResidencia'] != "":
+                obj.numResidencia = request.POST['numResidencia']
+            obj.numCelular = request.POST['numCelular']
+            
+            envioCorreo = request.POST.getlist('envioInfoCorreo')
+            envioMensaje = request.POST.getlist('envioInfoMensaje')
+            envioWhatsapp = request.POST.getlist('envioInfoWhatsapp')
 
-                if len(envioCorreo) == 1:
-                    obj.envioInfoCorreo = True
-                else:
-                    obj.envioInfoCorreo = False
-                if len(envioMensaje) == 1:
-                    obj.envioInfoMensaje = True
-                else:
-                    obj.envioInfoMensaje = False
-                if len(envioWhatsapp) == 1:
-                    obj.envioInfoWhatsapp = True
-                else:
-                    obj.envioInfoWhatsapp = False
-                obj.nivelEducativo = request.POST['nivelEducativo']
-                if request.POST['tituloPregrado'] != "":
-                    obj.tituloPregrado = request.POST['tituloPregrado'].upper()
-                if request.POST['tituloPosgrado'] != "":
-                    obj.tituloPosgrado = request.POST['tituloPosgrado'].upper()
-                obj.fechaIngreso = request.POST['fechaIngreso']
-                obj.estadoRegistro = True
-                obj.save()
-                # se guarda informacion en el modelo RESIDENCIA
-                objResidencia = Residencia()
-                objResidencia.asociado = Asociado.objects.get(pk = obj.pk)
-                objResidencia.tipoVivienda = request.POST['tipoVivienda'].upper()
-                objResidencia.estrato = request.POST['estrato']
-                objResidencia.direccion = request.POST['direccion'].upper()
-                objResidencia.barrio = request.POST['barrio'].upper()
-                objResidencia.deptoResidencia = Departamento.objects.get(pk = request.POST['deptoResidencia'])
-                objResidencia.mpioResidencia = Municipio.objects.get(pk = request.POST['mpioResidencia'])
-                objResidencia.estadoRegistro = True
-                objNac = Nacimiento()
-                objNac.asociado = Asociado.objects.get(pk = obj.pk)
-                objNac.fechaNacimiento = request.POST['fechaNacimiento']
-                objNac.dtoNacimiento = Departamento.objects.get(pk = request.POST['dtoNacimiento'])
-                objNac.mpioNacimiento = Municipio.objects.get(pk = request.POST['mpioNacimiento'])
-                # se guerda informacion en el modelo REFERENCIA FAMILIAR
-                objReferencia = ReferenciaFamiliar()
-                objReferencia.asociado = Asociado.objects.get(pk = obj.pk)
-                objReferencia.nombre = request.POST['nombreRF']
-                objReferencia.parentesco = request.POST['parentesco']
-                objReferencia.numContacto = request.POST['numContacto']
-                objReferencia.estadoRegistro = True
-                # se pone valor quemado en la busqueda con el pk, se busca tarifa de aportes y bienestar social
-                objTarifaAporte = Tarifas.objects.get(pk = 1)
-                objTarifaBSocial = Tarifas.objects.get(pk = 2)
-                objTarifaAsoc = TarifaAsociado()
-                objTarifaAsoc.asociado = Asociado.objects.get(pk = obj.pk)
-                objTarifaAsoc.cuotaAporte = objTarifaAporte.valor
-                objTarifaAsoc.cuotaBSocial = objTarifaBSocial.valor
-                objTarifaAsoc.total = objTarifaAporte.valor + objTarifaBSocial.valor
-                objTarifaAsoc.cuotaMascota = 0
-                objTarifaAsoc.cuotaRepatriacion = 0    
-                objTarifaAsoc.cuotaSeguroVida = 0
-                objTarifaAsoc.cuotaAdicionales = 0
-                objTarifaAsoc.cuotaCoohopAporte = 0
-                objTarifaAsoc.cuotaCoohopBsocial = 0
-                objTarifaAsoc.estadoRegistro = True
-                # se guarda informacion en el modelo PARAMETROASOCIADO
-                objParametro = ParametroAsociado()
-                objParametro.asociado = Asociado.objects.get(pk = obj.pk)
-                # se realiza validacion, si tipoAsociado es = independiente, no se realiza autorizacion de dcto, si es difernte se pone empresa y activa autorizacion
-                if obj.tAsociado.pk == 1:
-                    objParametro.autorizaciondcto = False
-                else:
-                    objParametro.autorizaciondcto = True
-                    objParametro.empresa = TipoAsociado.objects.get(pk = request.POST['tAsociado'])
-                # se selecciona de manera predeterminada la funeraria , = jardines
-                objParametro.funeraria = ServicioFuneraria.objects.get(pk = 1)
-                objParametro.estadoRegistro = True
-                print(obj.fechaIngreso)
-                objParametro.primerMes = MesTarifa.objects.get(fechaInicio__lte = obj.fechaIngreso, fechaFinal__gte = obj.fechaIngreso)
-                objParametro.tarifaAsociado = objTarifaAsoc.pk
-                
-                # Si no hay errores se guarda toda la informacion
-                objResidencia.save()
-                objNac.save()
-                objReferencia.save()
-                objTarifaAsoc.save()
-                objParametro.save()
-
-                messages.info(request, 'Asociado Creado Correctamente')
-                return HttpResponseRedirect(reverse_lazy('asociado:verAsociado', args=[obj.pk]))
+            if len(envioCorreo) == 1:
+                obj.envioInfoCorreo = True
             else:
-                messages.warning(request, 'El asociado con cedula '+ numDoc + ' ya existe en la base de datos.')
-                return HttpResponseRedirect(reverse_lazy('asociado:asociado'))
-        except Exception as e:
-            messages.warning(request, 'Hubo un problema al guardar la información.')
-            return HttpResponseRedirect(reverse_lazy('asociado:asociado'))          
+                obj.envioInfoCorreo = False
+            if len(envioMensaje) == 1:
+                obj.envioInfoMensaje = True
+            else:
+                obj.envioInfoMensaje = False
+            if len(envioWhatsapp) == 1:
+                obj.envioInfoWhatsapp = True
+            else:
+                obj.envioInfoWhatsapp = False
+            obj.nivelEducativo = request.POST['nivelEducativo']
+            if request.POST['tituloPregrado'] != "":
+                obj.tituloPregrado = request.POST['tituloPregrado'].upper()
+            if request.POST['tituloPosgrado'] != "":
+                obj.tituloPosgrado = request.POST['tituloPosgrado'].upper()
+            obj.fechaIngreso = request.POST['fechaIngreso']
+            obj.estadoRegistro = True
+            obj.save()
+            # se guarda informacion en el modelo RESIDENCIA
+            objResidencia = Residencia()
+            objResidencia.asociado = Asociado.objects.get(pk = obj.pk)
+            objResidencia.tipoVivienda = request.POST['tipoVivienda'].upper()
+            objResidencia.estrato = request.POST['estrato']
+            objResidencia.direccion = request.POST['direccion'].upper()
+            objResidencia.barrio = request.POST['barrio'].upper()
+            objResidencia.deptoResidencia = Departamento.objects.get(pk = request.POST['deptoResidencia'])
+            objResidencia.mpioResidencia = Municipio.objects.get(pk = request.POST['mpioResidencia'])
+            objResidencia.estadoRegistro = True
+            objNac = Nacimiento()
+            objNac.asociado = Asociado.objects.get(pk = obj.pk)
+            objNac.fechaNacimiento = request.POST['fechaNacimiento']
+            objNac.dtoNacimiento = Departamento.objects.get(pk = request.POST['dtoNacimiento'])
+            objNac.mpioNacimiento = Municipio.objects.get(pk = request.POST['mpioNacimiento'])
+            # se guerda informacion en el modelo REFERENCIA FAMILIAR
+            objReferencia = ReferenciaFamiliar()
+            objReferencia.asociado = Asociado.objects.get(pk = obj.pk)
+            objReferencia.nombre = request.POST['nombreRF']
+            objReferencia.parentesco = request.POST['parentesco']
+            objReferencia.numContacto = request.POST['numContacto']
+            objReferencia.estadoRegistro = True
+            # se pone valor quemado en la busqueda con el pk, se busca tarifa de aportes y bienestar social
+            objTarifaAporte = Tarifas.objects.get(pk = 1)
+            objTarifaBSocial = Tarifas.objects.get(pk = 2)
+            objTarifaAsoc = TarifaAsociado()
+            objTarifaAsoc.asociado = Asociado.objects.get(pk = obj.pk)
+            objTarifaAsoc.cuotaAporte = objTarifaAporte.valor
+            objTarifaAsoc.cuotaBSocial = objTarifaBSocial.valor
+            objTarifaAsoc.total = objTarifaAporte.valor + objTarifaBSocial.valor
+            objTarifaAsoc.cuotaMascota = 0
+            objTarifaAsoc.cuotaRepatriacion = 0    
+            objTarifaAsoc.cuotaSeguroVida = 0
+            objTarifaAsoc.cuotaAdicionales = 0
+            objTarifaAsoc.cuotaCoohopAporte = 0
+            objTarifaAsoc.cuotaCoohopBsocial = 0
+            objTarifaAsoc.estadoRegistro = True
+            # se guarda informacion en el modelo PARAMETROASOCIADO
+            objParametro = ParametroAsociado()
+            objParametro.asociado = Asociado.objects.get(pk = obj.pk)
+            # se realiza validacion, si tipoAsociado es = independiente, no se realiza autorizacion de dcto, si es difernte se pone empresa y activa autorizacion
+            if obj.tAsociado.pk == 1:
+                objParametro.autorizaciondcto = False
+            else:
+                objParametro.autorizaciondcto = True
+                objParametro.empresa = TipoAsociado.objects.get(pk = request.POST['tAsociado'])
+            # se selecciona de manera predeterminada la funeraria , = jardines
+            objParametro.funeraria = ServicioFuneraria.objects.get(pk = 1)
+            objParametro.estadoRegistro = True
+            print(obj.fechaIngreso)
+            objParametro.primerMes = MesTarifa.objects.get(fechaInicio__lte = obj.fechaIngreso, fechaFinal__gte = obj.fechaIngreso)
+            objParametro.tarifaAsociado = objTarifaAsoc.pk
+            
+            # Si no hay errores se guarda toda la informacion
+            objResidencia.save()
+            objNac.save()
+            objReferencia.save()
+            objTarifaAsoc.save()
+            objParametro.save()
+
+            messages.info(request, 'Asociado Creado Correctamente')
+            return HttpResponseRedirect(reverse_lazy('asociado:verAsociado', args=[obj.pk]))
+        else:
+            messages.warning(request, 'El asociado con cedula '+ numDoc + ' ya existe en la base de datos.')
+            return HttpResponseRedirect(reverse_lazy('asociado:asociado'))
+        # except Exception as e:
+        #     messages.warning(request, 'Hubo un problema al guardar la información.')
+        #     return HttpResponseRedirect(reverse_lazy('asociado:asociado'))          
         
 class VerAsociado(ListView):
     template_name = 'base/asociado/verAsociado.html'
@@ -169,7 +169,7 @@ class VerAsociado(ListView):
             objLaboral = Laboral.objects.get(asociado = kwargs['pkAsociado'])
             objFinanciero = Financiera.objects.get(asociado = kwargs['pkAsociado'])
             return render(request, self.template_name, {'laboral':'no', 'pkAsociado':kwargs['pkAsociado'], 'query_dpto':query_dpto, 'query_mpio':query_mpio, 'objAsociado':objAsociado, 'objResidencia':objResidencia, 'objNac':objNac, 'objFinanciero': objFinanciero, 'objLaboral':objLaboral, 'objParentesco':objParentesco, 'objReferencia':objReferencia, 'objEmpresa':objEmpresa, 'objServFuneraria':objServFuneraria, 'objParametroAsociado':objParametroAsociado, 'objMes':objMes, 'vista':1})
-        except objLaboral.DoesNotExist:
+        except Laboral.DoesNotExist:
             return render(request, self.template_name, {'laboral':'yes', 'pkAsociado':kwargs['pkAsociado'], 'query_dpto':query_dpto, 'query_mpio':query_mpio, 'objAsociado':objAsociado, 'objParentesco':objParentesco, 'objResidencia':objResidencia, 'objNac':objNac,'objReferencia':objReferencia, 'objEmpresa':objEmpresa, 'objServFuneraria':objServFuneraria, 'objParametroAsociado':objParametroAsociado, 'objMes':objMes, 'vista':1})
 
 class EditarAsociado(UpdateView):
@@ -292,8 +292,10 @@ class CrearLaboral(CreateView):
         if int(request.POST['dptoTrabajo']) != 0:
             obj.dptoTrabajo = Departamento.objects.get(pk = request.POST['dptoTrabajo'])
             obj.mpioTrabajo = Municipio.objects.get(pk = request.POST['mpioTrabajo'])
-        if request.POST['telefono'] != "":
+        if request.POST['telefono'] != "" and request.POST['telefono'] != "0":
+            print("entra")
             obj.telefono = request.POST['telefono']
+            print(obj.telefono)
         obj.admRP = request.POST['admRP']
         obj.pep = request.POST['pep']
         obj.activEcono = request.POST['activEcono'].upper()
@@ -346,16 +348,15 @@ class EditarLaboral(CreateView):
         else:
             obj.fechaTerminacion = None
         obj.direccion = request.POST['direccion'].upper()
-        if int(request.POST['mpioTrabajo']) != 0:
-            obj.mpioTrabajo = Municipio.objects.get(pk = request.POST['mpioTrabajo'])
-        else:
-            obj.mpioTrabajo = None
         if int(request.POST['dptoTrabajo']) != 0:
             obj.dptoTrabajo = Departamento.objects.get(pk = request.POST['dptoTrabajo'])
+            obj.mpioTrabajo = Municipio.objects.get(pk = request.POST['mpioTrabajo'])
         else:
             obj.dptoTrabajo = None
-        if request.POST['telefono'] != "":
+            obj.mpioTrabajo = None
+        if request.POST['telefono'] != "" and request.POST['telefono'] != "0":
             obj.telefono = request.POST['telefono']
+            print(obj.telefono)
         else:
             obj.telefono = None
         obj.admRP = request.POST['admRP']

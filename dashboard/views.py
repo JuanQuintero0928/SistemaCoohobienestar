@@ -11,7 +11,7 @@ class Dashboard(ListView):
         query = Asociado.objects.all().count()
         queryActivos = Asociado.objects.filter(estadoAsociado = 'ACTIVO').count()
         queryInactivos = Asociado.objects.filter(estadoAsociado = 'INACTIVO').count()
-        queryRetirados = Asociado.objects.filter(estadoAsociado = 'RETIRADO').count()
+        queryRetirados = Asociado.objects.filter(estadoAsociado = 'RETIRO').count()
     
         return render(request, template_name, {'total':query, 'activos':queryActivos, 'inactivos':queryInactivos, 'retirado':queryRetirados})
        

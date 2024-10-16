@@ -387,22 +387,22 @@
                             </div>
                             <div class="col-3">
                                 <label for="id_telefono" class="form-label">Telefono</label>
-                                <input type="number" value="{{objLaboral.telefono}}" class="form-control" name="telefono" id="id_telefono" min="0" {% if laboral == 'no' %} disabled {% endif %}>   
+                                <input type="number" value="{{objLaboral.telefono}}" class="form-control" name="telefono" id="id_telefono" min="0" max="9999999999" {% if laboral == 'no' %} disabled {% endif %}>   
                             </div>
 
                             {% comment %} Fila 4 {% endcomment %}
                             <div class="col-2">
                                 <label for="id_admRP" class="form-label">¿Administra Recursos Públicos?</label>
                                 <select name="admRP" class="form-select" id="id_admRP" {% if laboral == 'no' %} disabled {% endif %}>
-                                    <option value="SI" {%if objLaboral.admRP == 'SI' %} selected {% endif %}>SI</option>
                                     <option value="NO" {%if objLaboral.admRP == 'NO' %} selected {% endif %}>NO</option>
+                                    <option value="SI" {%if objLaboral.admRP == 'SI' %} selected {% endif %}>SI</option>
                                 </select>
                             </div>
                             <div class="col-4">
                                 <label for="id_pep" class="form-label">¿Esta catalogado como PEP? (Persona Expuesta Publicamente?</label>
                                 <select name="pep" class="form-select" id="id_pep" {% if laboral == 'no' %} disabled {% endif %}>
-                                    <option value="SI" {%if objLaboral.pep == 'SI' %} selected {% endif %}>SI</option>
                                     <option value="NO" {%if objLaboral.pep == 'NO' %} selected {% endif %}>NO</option>
+                                    <option value="SI" {%if objLaboral.pep == 'SI' %} selected {% endif %}>SI</option>
                                 </select>
                             </div>
                             <div class="col-3">
