@@ -117,6 +117,7 @@ class CrearAsociado(CreateView):
             objTarifaAsoc.cuotaCoohopAporte = 0
             objTarifaAsoc.cuotaCoohopBsocial = 0
             objTarifaAsoc.estadoRegistro = True
+            objTarifaAsoc.save()
             # se guarda informacion en el modelo PARAMETROASOCIADO
             objParametro = ParametroAsociado()
             objParametro.asociado = Asociado.objects.get(pk = obj.pk)
@@ -129,7 +130,6 @@ class CrearAsociado(CreateView):
             # se selecciona de manera predeterminada la funeraria , = jardines
             objParametro.funeraria = ServicioFuneraria.objects.get(pk = 1)
             objParametro.estadoRegistro = True
-            print(obj.fechaIngreso)
             objParametro.primerMes = MesTarifa.objects.get(fechaInicio__lte = obj.fechaIngreso, fechaFinal__gte = obj.fechaIngreso)
             objParametro.tarifaAsociado = objTarifaAsoc.pk
             
@@ -137,7 +137,6 @@ class CrearAsociado(CreateView):
             objResidencia.save()
             objNac.save()
             objReferencia.save()
-            objTarifaAsoc.save()
             objParametro.save()
 
             messages.info(request, 'Asociado Creado Correctamente')

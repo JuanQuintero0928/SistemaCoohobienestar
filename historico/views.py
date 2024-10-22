@@ -3,6 +3,7 @@ from django.views.generic import ListView, CreateView
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db.models import Sum
+from django.core.paginator import Paginator
 
 from .models import HistoricoAuxilio, HistorialPagos
 from parametro.models import MesTarifa, FormaPago
@@ -21,8 +22,25 @@ class VerHistoricoAuxilio(ListView):
 class VerHistoricoPagos(ListView):
     def get(self, request, *args, **kwargs):
         template_name = 'proceso/pago/listarPagos.html'
-        query = HistorialPagos.objects.values('id','asociado__id','asociado__nombre','asociado__apellido','asociado__numDocumento','mesPago__concepto','valorPago','diferencia','formaPago__formaPago','asociado__tAsociado__concepto', 'fechaPago')
-        return render(request, template_name, {'query':query})
+        
+        # Capturar el valor de búsqueda del formulario
+        num_documento = request.GET.get('numDocumento')
+
+        # Consulta para obtener los registros
+        query = HistorialPagos.objects.select_related(
+            'asociado', 'mesPago', 'formaPago', 'asociado__tAsociado'
+        ).all()
+        
+        # Filtrar por numDocumento si se ingresó algo en el campo de búsqueda
+        if num_documento:
+            query = query.filter(asociado__numDocumento__icontains=num_documento)
+
+        # Configurar el paginador
+        paginator = Paginator(query, 10)  # Muestra 10 registros por página
+        page_number = request.GET.get('page')  # Obtén el número de página de la URL
+        page_obj = paginator.get_page(page_number)  # Obtén la página actual
+        
+        return render(request, template_name, {'page_obj': page_obj})
 
 class VerAsociadoPagos(ListView):
     def get(self, request, *args, **kwargs):

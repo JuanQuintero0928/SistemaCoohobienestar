@@ -126,9 +126,13 @@ LOGOUT_REDIRECT_URL = reverse_lazy('dashboard')
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
-# STATIC_ROOT = 'static'
+# Define la URL para los archivos estáticos
+STATIC_URL = '/static/'
 
+# Define el directorio donde Django recopilará todos los archivos estáticos en producción
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Define los directorios adicionales donde buscar archivos estáticos en desarrollo
 STATICFILES_DIRS = [
     BASE_DIR /  "static/"
 ]
