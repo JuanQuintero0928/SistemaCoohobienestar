@@ -131,7 +131,7 @@ class CrearAsociado(CreateView):
             objParametro.funeraria = ServicioFuneraria.objects.get(pk = 1)
             objParametro.estadoRegistro = True
             objParametro.primerMes = MesTarifa.objects.get(fechaInicio__lte = obj.fechaIngreso, fechaFinal__gte = obj.fechaIngreso)
-            objParametro.tarifaAsociado = objTarifaAsoc.pk
+            objParametro.tarifaAsociado = TarifaAsociado.objects.get(pk = objTarifaAsoc.pk)
             
             # Si no hay errores se guarda toda la informacion
             objResidencia.save()
@@ -894,7 +894,7 @@ class EditarSeguroVida(UpdateView):
 class VerCoohoperativitos(ListView):
     def get(self, request, *args, **kwargs):
         template_name = 'base/beneficiario/listarCoohoperativitos.html'
-        queryCoohoperativitos = Coohoperativitos.objects.filter(asociado = kwargs['pkAsociado'])
+        queryCoohoperativitos = Coohoperativitos.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro=True)
         queryAsociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
         return render(request, template_name, {'updateAsociado':'yes','pkAsociado':kwargs['pkAsociado'],'query':queryCoohoperativitos, 'queryAsociado':queryAsociado ,'vista':7})
 
@@ -911,8 +911,8 @@ class CrearCoohoperativito(UpdateView):
         if formulario.is_valid():
             obj = Coohoperativitos()
             obj.asociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
-            obj.nombre = formulario.cleaned_data['nombre']
-            obj.apellido = formulario.cleaned_data['apellido']
+            obj.nombre = formulario.cleaned_data['nombre'].upper()
+            obj.apellido = formulario.cleaned_data['apellido'].upper()
             obj.tipoDocumento = formulario.cleaned_data['tipoDocumento']
             obj.numDocumento = formulario.cleaned_data['numDocumento']
             obj.estadoRegistro = True
@@ -948,14 +948,40 @@ class EditarCoohoperativito(UpdateView):
         formulario = CoohoperativitoForm(request.POST)
         if formulario.is_valid():
             obj = Coohoperativitos.objects.get(pk = kwargs['pk'])
-            obj.nombre = formulario.cleaned_data['nombre']
-            obj.apellido = formulario.cleaned_data['apellido']
+            obj.nombre = formulario.cleaned_data['nombre'].upper()
+            obj.apellido = formulario.cleaned_data['apellido'].upper()
             obj.tipoDocumento = formulario.cleaned_data['tipoDocumento']
             obj.numDocumento = formulario.cleaned_data['numDocumento']
             obj.fechaIngreso = formulario.cleaned_data['fechaIngreso']
             obj.save()
             messages.info(request, 'Registro Modificado Correctamente')
             return HttpResponseRedirect(reverse_lazy('asociado:coohoperativitos', args=[kwargs['pkAsociado']]))
+
+class EliminarCoohoperativito(UpdateView):
+    model = Coohoperativitos
+    template_name = 'base/beneficiario/eliminar.html'
+
+    def get(self, request, *args, **kwargs):
+        queryCoohop = Coohoperativitos.objects.get(pk = kwargs['pk'])
+        tarifaCooh = Tarifas.objects.filter(id__in=[5,6]).aggregate(total_valor=Sum('valor')) 
+        return render(request, self.template_name, {'pkAsociado':kwargs['pkAsociado'],'pk':kwargs['pk'], 'queryCoohop':queryCoohop, 'tarifaCooh':tarifaCooh})
+
+    def post(self, request, *args, **kwargs):
+        obj = Coohoperativitos.objects.get(pk = kwargs['pk'])
+        obj.estadoRegistro = False
+        obj.fechaRetiro = date.today()
+        obj.save()
+        # Valor quemado de la b social coohoperativios, pk = 5
+        objTarifaBsocial = Tarifas.objects.get(pk = 5)
+        # Valor quemado del aporte coohoperativios, pk = 6
+        objTarifaAporte = Tarifas.objects.get(pk = 6)
+        objTarifaAsoc = TarifaAsociado.objects.get(asociado = kwargs['pkAsociado'])
+        objTarifaAsoc.cuotaCoohopAporte = objTarifaAsoc.cuotaCoohopAporte - objTarifaAporte.valor
+        objTarifaAsoc.cuotaCoohopBsocial = objTarifaAsoc.cuotaCoohopBsocial - objTarifaBsocial.valor
+        objTarifaAsoc.total = objTarifaAsoc.total - objTarifaBsocial.valor - objTarifaAporte.valor
+        objTarifaAsoc.save()
+        messages.info(request, 'Registro Eliminado Correctamente')
+        return HttpResponseRedirect(reverse_lazy('asociado:coohoperativitos', args=[kwargs['pkAsociado']]))
 
 class VerHistorialPagos(ListView):
     def get(self, request, *args, **kwargs):

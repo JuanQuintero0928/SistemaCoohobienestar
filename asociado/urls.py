@@ -31,6 +31,7 @@ urlpatterns = [
     path('coohoperativitos/<int:pkAsociado>/', login_required(VerCoohoperativitos.as_view()), name='coohoperativitos'),
     path('crearCoohoperativito/<int:pkAsociado>/', login_required(CrearCoohoperativito.as_view()), name='crearCoohoperativito'),
     path('editarCoohoperativito/<int:pkAsociado>/<int:pk>', login_required(EditarCoohoperativito.as_view()), name='editarCoohoperativito'),
+    path('eliminarCoohoperativito/<int:pkAsociado>/<int:pk>', login_required(EliminarCoohoperativito.as_view()), name='eliminarCoohoperativito'),
     path('historialPagos/<int:pkAsociado>', login_required(VerHistorialPagos.as_view()), name='historialPagos'),
     path('detallePago/<int:pkAsociado>/<int:pk>', login_required(DetalleHistorialPago.as_view()), name='detallePago'),
     path('descargarFormatos/<int:pkAsociado>', login_required(DescargarFormatos.as_view()), name='descargarFormatos'),
