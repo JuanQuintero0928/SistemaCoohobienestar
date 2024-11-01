@@ -24,7 +24,7 @@
         <div class="col-sm-1">
             <div class="btn-group" role="group" aria-label="Basic example">
                 <a href="{% url 'asociado:asociado' %}" class="btn btn-primary"><i class="fa-solid fa-arrow-left"></i></a>
-                <button class="btn btn-primary" onclick="abrir_modal_creacion('{% url 'asociado:crearBeneficiario' pkAsociado %}')"><i class="fa-solid fa-plus"></i></button>
+                <button class="btn btn-primary" onclick="abrir_modal_creacion('{% url 'proceso:crearPagoAsociado' pkAsociado 1 %}')"><i class="fa-solid fa-plus"></i></button>
             </div>
         </div>
     </div> 
@@ -51,12 +51,15 @@
     {% for obj in query %}
         <tr>
             <th>{{ forloop.counter }}</th>
-            <th>{{ obj.fechaCreacion }}</th>
+            <th>{{ obj.fechaPago|date:"d/m/Y" }}</th>
             <th>{{ obj.valorPago }}</th>
             <th>{{ obj.formaPago }}</th>
             <th>{{ obj.mesPago }}</th>
             <th>{{ obj.diferencia }}</th>
-            <th><center><button class="btn btn-outline-primary" onclick="abrir_modal_edicion('{% url 'asociado:detallePago' pkAsociado obj.pk %}')"><i class="fa-solid fa-eye"></i></button></th>
+            <th>
+                <center><button class="btn btn-outline-primary" onclick="abrir_modal_edicion('{% url 'asociado:detallePago' pkAsociado obj.pk %}')"><i class="fa-solid fa-eye"></i></button>
+                <button class="btn btn-outline-primary" onclick="abrir_modal_creacion('{% url 'proceso:editarPagoAsociado' obj.pk pkAsociado 1 %}')"><i class="fa-solid fa-pen-to-square"></i></button>
+            </th>
         </tr>
     {% endfor %}
 

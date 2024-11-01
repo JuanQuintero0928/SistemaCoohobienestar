@@ -2,24 +2,24 @@
 {% load static %}
 
 {% block title %}
-    Pagos Por Fecha
+    Conciliación Bancaria
 {% endblock title %}
     
 {% block breadcrumb %}
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
     <li class="breadcrumb-item"><a href="{% url 'reportes:informacionReporte' %}">Reportes</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Reporte Pagos Por Fecha</li>
+    <li class="breadcrumb-item active" aria-current="page">Conciliación Bancaria</li>
 {% endblock breadcrumb %}
 
 {% block contenidoPagina %}
 
     <div class="col-xl-12 col-md-12 mb-12">
         <div class="row">
-            <div class="col-xl-5 col-md-5 mb-5">
-                <form action="{% url 'reportes:verPagosPorFecha' %}" method="post">
+            <div class="col-xl-7 col-md-7 mb-7">
+                <form action="{% url 'reportes:verConciliacionBancaria' %}" method="post">
                     {% csrf_token %}
                     <div class="row">
-                        <div class="col-xl-6 col-md-6 mb-6">
+                        <div class="col-xl-4 col-md-4 mb-4">
                             <label>Fecha Inicial</label>
                             {% if post %}
                                 <input class="form-control" type="date" value="{{ fechaIncialF }}" name="fechaInicial" required>
@@ -27,12 +27,28 @@
                                 <input class="form-control" type="date" name="fechaInicial" required>
                             {% endif %}
                             </div>
-                        <div class="col-xl-6 col-md-6 mb-6">
+                        <div class="col-xl-4 col-md-4 mb-4">
                             <label>Fecha Final</label>
                             {% if post %}
                                 <input class="form-control" type="date" value="{{ fechaFinalF }}" name="fechaFinal" required>
                             {% else %}
                                 <input class="form-control" type="date" name="fechaFinal" required>
+                            {% endif %}
+                        </div>
+                        <div class="col-xl-4 col-md-4 mb-4">
+                            <label>Banco</label>
+                            {% if post %}
+                                <select name="banco" class="form-select" id="id_banco" required>
+                                    {% for item in formaPago %}
+                                        <option value="{{ item.id }}" {% if item.id == banco %}selected{% endif %}>{{ item.formaPago }}</option>
+                                    {% endfor %}
+                                </select>
+                            {% else %}
+                                <select name="banco" class="form-select" id="id_banco" required>
+                                    {% for item in formaPago %}
+                                        <option value="{{ item.id }}">{{ item.formaPago }}</option>
+                                    {% endfor %}
+                                </select>
                             {% endif %}
                         </div>
                     </div>
@@ -45,9 +61,10 @@
             </div>
             <div class="col-xl-5 col-md-5 mb-5">
             {% if post %}
-                <form action="{% url 'reportes:generarPagoExcel' %}" method="get">
+                <form action="{% url 'reportes:excelConciliacionBancaria' %}" method="get">
                     <input class="form-control" type="date" value="{{ fechaIncialF }}" name="fechaInicial" hidden>
                     <input class="form-control" type="date" value="{{ fechaFinalF }}" name="fechaFinal" hidden>
+                    <input class="form-control" type="text" value="{{ banco }}" name="banco" hidden>
                     <div class="row" style="margin-top:10px">
                         <div class="col-xl-3 col-md-3 mb-3">
                             <button type="submit" class="btn btn-success"><i class="fa-solid fa-file-excel"></i></button>
@@ -68,10 +85,9 @@
                         <th>N°</th>
                         <th>N° Documento Titular</th>
                         <th>Nombre Completo Titular</th>
-                        <th>Mes Pago</th>
                         <th>Valor Pago</th>
-                        <th>Diferencia</th>
-                        <th>Fecha Pago</th>
+                        <th>Movimiento</th>
+                        <th>Fecha Movimiento</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -79,12 +95,11 @@
                         {% for pagos in query %}
                             <tr>
                                 <th>{{ forloop.counter }}</th>
-                                <th>{{ pagos.asociado.numDocumento }}</th>
-                                <th>{{ pagos.asociado.nombre }} {{ pagos.asociado.apellido }}</th>
-                                <th>{{ pagos.mesPago }}</th>
-                                <th>{{ pagos.valorPago }}</th>
-                                <th>{{ pagos.diferencia }}</th>
-                                <th>{{ pagos.fechaCreacion }}</th> 
+                                <th>{{pagos.asociado__numDocumento}}</th>
+                                <th>{{ pagos.asociado__nombre }} {{pagos.asociado__apellido}}</th>
+                                <th>{{ pagos.total_pagado }}</th>
+                                <th>{{ pagos.formaPago_id__formaPago }}</th>
+                                <th>{{ pagos.fechaPago|date:"d/m/Y" }}</th>
                             </tr>
                         {% endfor %}
                     {% else %}
@@ -101,9 +116,3 @@
 
 
 {% endblock contenidoPagina %}
-
-
-
-
-    
-

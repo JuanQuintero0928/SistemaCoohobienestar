@@ -15,51 +15,51 @@
 
 
 <div class="row">
-<div class="col-xl-2 col-md-2">
-    <div class="card text-white mb-3">
-        <div class="card-body">
-            <div class="h1 text-muted text-right mb-3 w-50 p-1">
-                <i class="fa-solid fa-calendar-days"></i>
-            </div>
-            <div class="h6 text-muted text-right mb-4">
-                <a href="{% url 'reportes:verModificacionesPorFecha' %}" style="text-decoration:none">Reporte Funeraria Por Fecha</a>
-            </div>
-            <div class="progress progress-xs mt-3 mb-0">
-                <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-info" style="width: 100%" role="progressbar"></div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="col-xl-2 col-md-2">
-    <div class="card text-white mb-3">
-        <div class="card-body">
-            <div class="h1 text-muted text-right mb-3 w-50 p-1">
-                <i class="fa-solid fa-coins"></i>
-            </div>
-            <div class="h6 text-muted text-right mb-4">
-                <a href="{% url 'reportes:verPagosPorFecha' %}" style="text-decoration:none">Reporte Pagos Por Fecha</a>
-            </div>
-            <div class="progress progress-xs mt-3 mb-0">
-                <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-success" style="width: 100%" role="progressbar"></div>
+    <div class="col-xl-2 col-md-2">
+        <div class="card text-white mb-3">
+            <div class="card-body">
+                <div class="h1 text-muted text-right mb-3 w-50 p-1">
+                    <i class="fa-solid fa-calendar-days"></i>
+                </div>
+                <div class="h6 text-muted text-right mb-4">
+                    <a href="{% url 'reportes:verModificacionesPorFecha' %}" style="text-decoration:none">Reporte Funeraria Por Fecha</a>
+                </div>
+                <div class="progress progress-xs mt-3 mb-0">
+                    <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-info" style="width: 100%" role="progressbar"></div>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<div class="col-xl-2 col-md-2">
-    <div class="card text-white mb-3">
-        <div class="card-body">
-            <div class="h1 text-muted text-right mb-3 w-50 p-1">
-                <i class="fa-solid fa-building"></i> <i class="fa-solid fa-person"></i>
-            </div>
-            <div class="h6 text-muted text-right mb-4">
-                <a href="{% url 'reportes:descuentosNomina' %}" style="text-decoration:none">Reporte Descuentos Nomina</a>
-            </div>
-            <div class="progress progress-xs mt-3 mb-0">
-                <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-warning" style="width: 100%" role="progressbar"></div>
+    <div class="col-xl-2 col-md-2">
+        <div class="card text-white mb-3">
+            <div class="card-body">
+                <div class="h1 text-muted text-right mb-3 w-50 p-1">
+                    <i class="fa-solid fa-coins"></i>
+                </div>
+                <div class="h6 text-muted text-right mb-4">
+                    <a href="{% url 'reportes:verPagosPorFecha' %}" style="text-decoration:none">Reporte Pagos Por Fecha</a>
+                </div>
+                <div class="progress progress-xs mt-3 mb-0">
+                    <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-success" style="width: 100%" role="progressbar"></div>
+                </div>
             </div>
         </div>
     </div>
-</div>
+    <div class="col-xl-2 col-md-2">
+        <div class="card text-white mb-3">
+            <div class="card-body">
+                <div class="h1 text-muted text-right mb-3 w-50 p-1">
+                    <i class="fa-solid fa-building"></i> <i class="fa-solid fa-person"></i>
+                </div>
+                <div class="h6 text-muted text-right mb-4">
+                    <a href="{% url 'reportes:descuentosNomina' %}" style="text-decoration:none">Reporte Descuentos Nomina</a>
+                </div>
+                <div class="progress progress-xs mt-3 mb-0">
+                    <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-warning" style="width: 100%" role="progressbar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="col-xl-2 col-md-2">
         <div class="card text-white mb-3">
             <div class="card-body">
@@ -75,7 +75,23 @@
             </div>
         </div>
     </div>
-<div>
+    <div class="col-xl-2 col-md-2">
+        <div class="card text-white mb-3">
+            <div class="card-body">
+                <div class="h1 text-muted text-right mb-3 w-50 p-1">
+                    <i class="fa-solid fa-building-columns"></i>
+                </div>
+                <div class="h6 text-muted text-right mb-4">
+                    <a href="{% url 'reportes:verConciliacionBancaria' %}" style="text-decoration:none">Conciliación Bancaria</a>
+                </div>
+                <div class="progress progress-xs mt-3 mb-0">
+                    <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-info" style="width: 100%" role="progressbar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 {% comment %} <div class="col-xl-2 col-md-2">
     <div class="card text-white mb-3">

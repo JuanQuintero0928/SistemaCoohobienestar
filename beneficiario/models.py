@@ -10,7 +10,7 @@ class Parentesco(models.Model):
 
     class Meta:
         verbose_name = 'Parentesco'
-        ordering = ['pk']
+        ordering = ['nombre']
     
     def __str__(self):
         return self.nombre
@@ -21,6 +21,7 @@ class tipoDocumentoOp(models.TextChoices):
     tarjetaIdentidad = 'TARJETA IDENTIDAD', 'Tarjeta Identidad'
     cedulaExtranjera = 'CEDULA EXTRANJERA', 'Cedula Extranjera'
     pasaporte = 'PASAPORTE', 'Pasaporte'
+    ppt = 'PPT', 'PPT'
 
 class Beneficiario(models.Model):
     id = models.AutoField(primary_key=True)

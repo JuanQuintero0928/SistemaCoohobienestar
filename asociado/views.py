@@ -26,7 +26,7 @@ class CrearAsociado(CreateView):
     query_dpto = Departamento.objects.all()
     query_mpio = Municipio.objects.all()
     query_tAsociado = TipoAsociado.objects.all()
-    query_parentesco = Parentesco.objects.all()
+    query_parentesco = Parentesco.objects.all().order_by('nombre')
     template_name = 'base/asociado/crearAsociado.html'
 
     def get(self, request, *args, **kwargs):
@@ -159,7 +159,7 @@ class VerAsociado(ListView):
             objResidencia = Residencia.objects.get(asociado = kwargs['pkAsociado'])
             objNac = Nacimiento.objects.get(asociado = kwargs['pkAsociado'])
             objReferencia = ReferenciaFamiliar.objects.get(asociado = kwargs['pkAsociado'])
-            objParentesco = Parentesco.objects.all()
+            objParentesco = Parentesco.objects.all().order_by('nombre')
             objEmpresa = TipoAsociado.objects.all()
             objServFuneraria = ServicioFuneraria.objects.all()
             # objParametroAsociado = ParametroAsociado.objects.get(asociado = kwargs['pkAsociado'])
@@ -577,6 +577,13 @@ class EliminarBeneficiario(UpdateView):
         obj = Beneficiario.objects.get(pk = kwargs['pk'])
         obj.estadoRegistro = False
         obj.fechaRetiro = date.today()
+        if obj.repatriacion == True:
+            obj.repatriacion = False
+            objTarifa = TarifaAsociado.objects.get(asociado = kwargs['pkAsociado'])
+            tarifaRepatriacion = Tarifas.objects.get(pk = 4)
+            objTarifa.cuotaRepatriacion = 0
+            objTarifa.total = objTarifa.total - tarifaRepatriacion.valor
+            objTarifa.save()
         obj.save()
         messages.info(request, 'Registro Eliminado Correctamente')
         return HttpResponseRedirect(reverse_lazy('asociado:beneficiario', args=[kwargs['pkAsociado']]))
@@ -709,7 +716,7 @@ class DetalleAuxilio(ListView):
         obj = HistoricoAuxilio.objects.get(pk = kwargs['pk'])
         objParentesco = None
         if obj.tipoAuxilio.pk == 3:
-            objParentesco = Parentesco.objects.all()
+            objParentesco = Parentesco.objects.all().order_by('nombre')
         return render(request, template_name, {'obj':obj, 'objParentesco':objParentesco, 'pkAsociado':kwargs['pkAsociado'], 'pk': kwargs['pk']})
 
     def post(self, request, *args, **kwargs):
@@ -988,7 +995,6 @@ class VerHistorialPagos(ListView):
         template_name = 'base/historico/listarHistorialPago.html'
         queryPagos = HistorialPagos.objects.filter(asociado = kwargs['pkAsociado'])
         queryAsociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
-        print(queryAsociado)
         return render(request, template_name, {'updateAsociado':'yes','pkAsociado':kwargs['pkAsociado'],'query':queryPagos, 'queryAsociado':queryAsociado, 'vista':9})
     
 class DetalleHistorialPago(ListView):

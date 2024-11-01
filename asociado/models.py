@@ -17,6 +17,7 @@ class Asociado(models.Model):
         tarjetaIdentidad = 'TARJETA IDENTIDAD', 'TARJETA IDENTIDAD'
         cedulaExtranjera = 'CEDULA EXTRANJERA', 'CEDULA EXTRANJERA'
         pasaporte = 'PASAPORTE', 'PASAPORTE'
+        ppt = 'PPT', 'PPT'
     
     class generoOp(models.TextChoices):
         masculino = 'MASCULINO', 'MASCULINO'

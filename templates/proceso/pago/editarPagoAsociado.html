@@ -6,7 +6,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <form action="{% url 'proceso:editarPagoAsociado' pk pkAsociado %}" method="post">
+            <form action="{% url 'proceso:editarPagoAsociado' pk pkAsociado vista %}" method="post">
                 {% csrf_token %}
                 {% comment %} input completo {% endcomment %}
                 <div class="input-group mb-3">
@@ -38,7 +38,7 @@
                 <div class="input-group mb-3">
                   <span class="input-group-text" id="basic-addon3">Valor Total</span>
                   <span class="input-group-text">$</span>
-                  <input type="text" class="form-control" value="{{queryPago.valorPago}}" id="valorPago" name="valorPago" value="{{ query.cuota }}" type="number" disabled>
+                  <input type="number" class="form-control" value="{{queryPago.valorPago}}" id="valorPago" name="valorPago" value="{{ query.cuota }}" type="number" disabled>
                   <span class="input-group-text">
                     <a class="btn btn-outline-dark btn-sm" id="btn_editar" onclick="editarCasillasPago('editar1')" style="border:0px"><i class="fa-solid fa-pen"></i></a>
                     <a class="btn btn-outline-danger btn-sm" id="btn_no_editar" onclick="editarCasillasPago('no_editar1')" style="border:0px" hidden><i class="fa-solid fa-xmark"></i></a>
@@ -55,11 +55,13 @@
                   <div class="input-group mb-3">
                     <span class="input-group-text" id="basic-addon3" {% if diferencia < 0 %}  style="color:#DF5B68" {% else %} style="color:#198754" {% endif %} ><b>{% if diferencia > 0 %}Saldo a Favor{% else %}Saldo a Pagar{% endif %}</b></span>
                     <span class="input-group-text">$</span>
-                    <input type="text" class="form-control" id="diferencia" value="{{diferencia}}" name="diferencia" type="number" disabled>
+                    <input type="number" class="form-control" id="diferencia" value="{{diferencia}}" name="diferencia" type="number" disabled>
                     
                   </div>
                 {% endif %}
                 <hr>
+                <!-- Campo oculto para num_documento -->
+                <input type="hidden" name="num_documento" value="{{ queryPago.asociado.numDocumento }}">
                 <button type="submit" class="btn btn-primary" onclick="editarCasillasPago('habilitar')"><i class="fa-solid fa-floppy-disk"></i></button>
             </form>
         </div>

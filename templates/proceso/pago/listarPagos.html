@@ -31,7 +31,7 @@
 <form method="GET" action="{% url 'proceso:historicoPagos' %}">
     <div class="row">
         <div class="col-md-3">
-            <input class="form-control" type="text" name="numDocumento" placeholder="Buscar por Documento" value="{{ request.GET.numDocumento }}">
+            <input class="form-control" type="text" name="numDocumento" placeholder="Buscar" value="{{ request.GET.numDocumento }}">
         </div>
         <div class="col-md-3">
             <button class="btn btn-primary" type="submit">Buscar</button>
@@ -69,7 +69,7 @@
             <td>{{ pago.fechaPago|date:"d-m-Y" }}</td>
             <th>
                 <center><button class="btn btn-outline-primary" onclick="abrir_modal_creacion('{% url 'asociado:detallePago' pago.asociado.id pago.id %}')"><i class="fa-solid fa-eye"></i></button>
-                <button class="btn btn-outline-primary" onclick="abrir_modal_creacion('{% url 'proceso:editarPagoAsociado' pago.id pago.asociado.id %}')"><i class="fa-solid fa-pen-to-square"></i></button>
+                <button class="btn btn-outline-primary" onclick="abrir_modal_creacion('{% url 'proceso:editarPagoAsociado' pago.id pago.asociado.id 2 %}')"><i class="fa-solid fa-pen-to-square"></i></button>
             </th>
         </tr>
         {% endfor %}

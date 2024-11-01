@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import ListView
 from django.core.paginator import Paginator
+from django.db.models import Q
 
 from .models import Beneficiario, Mascota
 
@@ -23,7 +24,13 @@ class ListarBeneficiarios(ListView):
         
         # Filtrar por numDocumento si se ingresó algo en el campo de búsqueda
         if num_documento:
-            query = query.filter(asociado__numDocumento__icontains=num_documento)
+            query = query.filter(
+                Q(asociado__numDocumento__icontains=num_documento) |
+                Q(asociado__apellido__icontains=num_documento) |
+                Q(asociado__nombre__icontains=num_documento) |
+                Q(nombre__icontains=num_documento) |
+                Q(apellido__icontains=num_documento)
+                )
 
         # Configurar el paginador
         paginator = Paginator(query, 10)  # Muestra 10 registros por página
@@ -49,7 +56,12 @@ class ListarMascotas(ListView):
         
         # Filtrar por numDocumento si se ingresó algo en el campo de búsqueda
         if num_documento:
-            query = query.filter(asociado__numDocumento__icontains=num_documento)
+            query = query.filter(
+                Q(asociado__numDocumento__icontains=num_documento) |
+                Q(asociado__nombre__icontains=num_documento) |
+                Q(asociado__apellido__icontains=num_documento) |
+                Q(nombre__icontains=num_documento)
+            )
 
         # Configurar el paginador
         paginator = Paginator(query, 10)  # Muestra 10 registros por página

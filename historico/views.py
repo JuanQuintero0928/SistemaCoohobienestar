@@ -1,14 +1,16 @@
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
+from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, CreateView
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db.models import Sum
 from django.core.paginator import Paginator
+from django.db.models import Q
 
 from .models import HistoricoAuxilio, HistorialPagos
 from parametro.models import MesTarifa, FormaPago
 from asociado.models import Asociado, ParametroAsociado, TarifaAsociado
-
 from .form import HistorialPagoForm
 
 # Create your views here.
@@ -33,7 +35,11 @@ class VerHistoricoPagos(ListView):
         
         # Filtrar por numDocumento si se ingresó algo en el campo de búsqueda
         if num_documento:
-            query = query.filter(asociado__numDocumento__icontains=num_documento)
+            query = query.filter(
+                Q(asociado__numDocumento__icontains=num_documento) |
+                Q(asociado__apellido__icontains=num_documento) |
+                Q(asociado__nombre__icontains=num_documento)
+                )
 
         # Configurar el paginador
         paginator = Paginator(query, 10)  # Muestra 10 registros por página
@@ -64,7 +70,7 @@ class CrearPagoAsociado(CreateView):
         queryHistorial = HistorialPagos.objects.filter(asociado = kwargs['pkAsociado']).aggregate(total=Sum('diferencia'))
         for valor in queryHistorial.values():
             diferencia = valor
-        return render(request, template_name, {'pkAsociado':kwargs['pkAsociado'], 'query':queryValor, 'queryMes':queryMes, 'queryPago':queryPago, 'diferencia':diferencia})
+        return render(request, template_name, {'pkAsociado':kwargs['pkAsociado'], 'vista':kwargs['vista'] ,'query':queryValor, 'queryMes':queryMes, 'queryPago':queryPago, 'diferencia':diferencia})
 
     def post(self, request, *args, **kwargs):
         mesPago = int(request.POST['mesPago'])
@@ -110,7 +116,10 @@ class CrearPagoAsociado(CreateView):
             obj.userCreacion = User.objects.get(pk = request.user.pk)
             obj.save()
             messages.info(request, 'Pago Registrado Correctamente')
-            return redirect('proceso:asociadoPago')                
+            if kwargs['vista'] == 1:
+                return HttpResponseRedirect(reverse_lazy('asociado:historialPagos', args=[kwargs['pkAsociado']]))
+            else:
+                return redirect('proceso:asociadoPago')                
 
 class EditarPago(ListView):
     def get(self, request, *args, **kwargs):
@@ -118,7 +127,7 @@ class EditarPago(ListView):
         queryPago = HistorialPagos.objects.get(pk = kwargs['pk'])
         queryMes = MesTarifa.objects.all()
         queryFormaPago = FormaPago.objects.all()
-        return render(request, template_name, {'queryPago':queryPago, 'queryFormaPago':queryFormaPago, 'queryMes':queryMes, 'pk':kwargs['pk'], 'pkAsociado':kwargs['pkAsociado']})
+        return render(request, template_name, {'queryPago':queryPago, 'queryFormaPago':queryFormaPago, 'queryMes':queryMes, 'pk':kwargs['pk'], 'pkAsociado':kwargs['pkAsociado'], 'vista':kwargs['vista']})
     
     def post(self, request, *args, **kwargs):
         objHistorico = HistorialPagos.objects.get(pk = kwargs['pk'])
@@ -137,7 +146,21 @@ class EditarPago(ListView):
         objHistorico.userModificacion = User.objects.get(pk = request.user.pk)
         objHistorico.save()
         messages.info(request, 'Pago Modificado Correctamente')
-        return redirect('proceso:historicoPagos')
+
+        # Recupera el valor de num_documento del POST
+        num_documento = request.POST.get('num_documento', '')
+        # Inicializar la URL por defecto
+        url = reverse('proceso:historicoPagos')
+
+        # Ajusta la URL según el valor de vista
+        if kwargs['vista'] == 1:
+            url = reverse('asociado:historialPagos', args=[kwargs['pkAsociado']])
+        
+        # Añadir el filtro de num_documento como parámetro en la URL
+        if num_documento:
+            url += f'?numDocumento={num_documento}'
+
+        return HttpResponseRedirect(url)
 
 # backup clase
 class CrearPagoAsociadoBackup(CreateView):
@@ -198,10 +221,8 @@ class CrearPagoAsociado2(CreateView):
         # se realiza la consulta del ultimo pago realizado por el asociado, 
         queryUltimoPago = HistorialPagos.objects.filter(asociado = kwargs['pkAsociado']).last()
         if queryUltimoPago:
-            print(queryUltimoPago.mesPago.pk)
             # se realiza la consulta del mes siguiente que debe pagar el asociado, solo muestra un registro
             mesSiguientePago = MesTarifa.objects.filter(pk__gt = queryUltimoPago.mesPago.pk).first()
-            print(mesSiguientePago)
         else:
             mesSiguientePago = MesTarifa.objects.get(pk = 1)
         form_class = HistorialPagoForm(initial={'mesPago':mesSiguientePago,
@@ -217,7 +238,6 @@ class CrearPagoAsociado2(CreateView):
    
     def post(self, request, *args, **kwargs):
         formulario = HistorialPagoForm(request.POST)
-        print(formulario)
         if formulario.is_valid():
             obj = HistorialPagos()
             obj.asociado = Asociado.objects.get(pk = kwargs['pkAsociado'])

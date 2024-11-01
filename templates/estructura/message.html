@@ -2,22 +2,32 @@
 {% block alertas %}
 {% for message in messages%}
   {% if message.tags == 'error'%}
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" id="alert-message">
       <strong>Error!</strong> {{ message }}
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
   {% endif%}
   {% if message.tags == 'warning'%}
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <div class="alert alert-warning alert-dismissible fade show" role="alert" id="alert-message">
       <strong>Advertencia!</strong> {{ message }}
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
   {% endif%}
   {% if message.tags == 'info' %}
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <div class="alert alert-success alert-dismissible fade show" role="alert" id="alert-message">
       <strong>Exitoso!</strong> {{ message }}
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
   {% endif%}
 {% endfor %}
 {% endblock alertas %}
+
+<script>
+  // Espera 5 segundos (5000 milisegundos) y luego elimina el mensaje del DOM
+  setTimeout(function() {
+      var alertMessage = document.getElementById("alert-message");
+      if (alertMessage) {
+          alertMessage.remove(); // Elimina completamente el elemento del DOM
+      }
+  }, 5000); // 5000 milisegundos = 5 segundos
+</script>

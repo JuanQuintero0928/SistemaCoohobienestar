@@ -27,7 +27,7 @@
 <form method="GET" action="{% url 'beneficiario:mascota' %}">
     <div class="row">
         <div class="col-md-3">
-            <input class="form-control" type="text" name="numDocumento" placeholder="Buscar por Documento" value="{{ request.GET.numDocumento }}">
+            <input class="form-control" type="text" name="numDocumento" placeholder="Buscar" value="{{ request.GET.numDocumento }}">
         </div>
         <div class="col-md-3">
             <button class="btn btn-primary" type="submit">Buscar</button>

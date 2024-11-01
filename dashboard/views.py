@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.conf.urls import handler404
+from django.conf import settings
 from django.views.generic import ListView
 from asociado.models import Asociado
 
