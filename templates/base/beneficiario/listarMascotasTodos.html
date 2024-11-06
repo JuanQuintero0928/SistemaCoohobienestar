@@ -1,5 +1,6 @@
 {% extends 'index.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}
     Mascotas
@@ -54,7 +55,7 @@
         {% for obj in page_obj.object_list %}
         <tr>
             <td>{{ forloop.counter }}</td>
-            <td>{{obj.asociado.numDocumento}}</td>
+            <td>{{obj.asociado.numDocumento|intcomma}}</td>
             <td>{{obj.asociado.nombre}} {{obj.asociado.apellido}}</td>
             <td>{{obj.tipo}}</td>
             <td>{{ obj.nombre }}</td>

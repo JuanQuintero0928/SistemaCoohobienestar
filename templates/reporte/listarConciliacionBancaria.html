@@ -1,5 +1,6 @@
 {% extends 'index.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}
     Conciliación Bancaria
@@ -95,9 +96,9 @@
                         {% for pagos in query %}
                             <tr>
                                 <th>{{ forloop.counter }}</th>
-                                <th>{{pagos.asociado__numDocumento}}</th>
+                                <th>{{pagos.asociado__numDocumento|intcomma}}</th>
                                 <th>{{ pagos.asociado__nombre }} {{pagos.asociado__apellido}}</th>
-                                <th>{{ pagos.total_pagado }}</th>
+                                <th>${{ pagos.total_pagado|intcomma }}</th>
                                 <th>{{ pagos.formaPago_id__formaPago }}</th>
                                 <th>{{ pagos.fechaPago|date:"d/m/Y" }}</th>
                             </tr>

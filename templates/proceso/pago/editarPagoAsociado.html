@@ -17,9 +17,9 @@
                 <div class="input-group mb-3">
                   <span class="input-group-text" id="basic-addon3">Mes</span>
                   <select name="mesPago" id="mesPago" class="form-select" aria-label="Default select example" required>
-                    <option value="0" selected>&nbsp;</option>
+                    <option value="{{queryPago.mesPago.pk}}" selected>{{queryPago.mesPago}}</option>
                     {% for mes in queryMes %}
-                      <option value="{{mes.pk}}" {% if mes.pk == queryPago.mesPago.pk %} selected {% endif %}>{{ mes.concepto }}</option>
+                      <option value="{{mes.pk}}">{{ mes.concepto }}</option>
                     {% endfor %}
                   </select>
                 </div>

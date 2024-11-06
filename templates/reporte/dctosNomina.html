@@ -1,5 +1,6 @@
 {% extends 'index.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}
     Reporte Descuentos por Nomina
@@ -86,10 +87,10 @@
                         {% for query in asociado %}
                             <tr>
                                 <th>{{ forloop.counter }}</th>
-                                <th>{{ query.asociado.numDocumento }}</th>
+                                <th>{{ query.asociado.numDocumento|intcomma }}</th>
                                 <th>{{ query.asociado.nombre }} {{query.asociado.apellido}}</th>
                                 <th>{{ query.empresa.concepto}}</th>
-                                <th>{{ query.tarifaAsociado.total}}</th>
+                                <th>${{ query.tarifaAsociado.total|intcomma}}</th>
                                 <th></th>                                 
                             </tr>
                         {% endfor %}

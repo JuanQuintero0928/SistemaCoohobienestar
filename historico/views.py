@@ -4,13 +4,13 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, CreateView
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.db.models import Sum
+from django.db.models import Sum, F, Q, Subquery
 from django.core.paginator import Paginator
-from django.db.models import Q
 
 from .models import HistoricoAuxilio, HistorialPagos
 from parametro.models import MesTarifa, FormaPago
 from asociado.models import Asociado, ParametroAsociado, TarifaAsociado
+from beneficiario.models import Mascota
 from .form import HistorialPagoForm
 
 # Create your views here.
@@ -26,19 +26,21 @@ class VerHistoricoPagos(ListView):
         template_name = 'proceso/pago/listarPagos.html'
         
         # Capturar el valor de búsqueda del formulario
-        num_documento = request.GET.get('numDocumento')
+        busqueda = request.GET.get('numDocumento')
+        if busqueda:
+            valorBuscado = int(busqueda.replace('.', ''))
 
         # Consulta para obtener los registros
         query = HistorialPagos.objects.select_related(
             'asociado', 'mesPago', 'formaPago', 'asociado__tAsociado'
         ).all()
         
-        # Filtrar por numDocumento si se ingresó algo en el campo de búsqueda
-        if num_documento:
+        # Filtrar por numDocumento,nombre y apellido si se ingresó algo en el campo de búsqueda
+        if busqueda:
             query = query.filter(
-                Q(asociado__numDocumento__icontains=num_documento) |
-                Q(asociado__apellido__icontains=num_documento) |
-                Q(asociado__nombre__icontains=num_documento)
+                Q(asociado__numDocumento__icontains=valorBuscado) |
+                Q(asociado__apellido__icontains=valorBuscado) |
+                Q(asociado__nombre__icontains=valorBuscado)
                 )
 
         # Configurar el paginador
@@ -53,7 +55,95 @@ class VerAsociadoPagos(ListView):
         template_name = 'proceso/pago/realizarPago.html'
         query = TarifaAsociado.objects.values('id','asociado__nombre','asociado__id','asociado__apellido','asociado__numDocumento','total','asociado__tAsociado__concepto')
         return render(request, template_name, {'query':query})
-    
+
+class ModalPago(ListView):
+    def get(self, request, *args, **kwargs):
+        template_name = 'proceso/pago/modalPago.html'
+        queryValor = TarifaAsociado.objects.get(asociado = kwargs['pkAsociado'])
+        queryParamAsoc = ParametroAsociado.objects.get(asociado = kwargs['pkAsociado'])
+        queryHistorial = HistorialPagos.objects.filter(asociado = kwargs['pkAsociado']).exists()
+
+        # Obtener la suma de los adicionales del asociado, se suma todo menos el aporte y el bSocial
+        queryTarifa = TarifaAsociado.objects.filter(asociado = kwargs['pkAsociado']).aggregate(
+            total_tarifa_asociado=Sum(
+                F('cuotaMascota') + 
+                F('cuotaRepatriacion') + 
+                F('cuotaSeguroVida') + 
+                F('cuotaAdicionales') + 
+                F('cuotaCoohopAporte') + 
+                F('cuotaCoohopBsocial')
+            )
+        )
+        # if queryValor.cuotaMascota != 0:
+        #     mascotaIngreso = Mascota.objects.filter(asociado=kwargs['pkAsociado']).values_list('fechaIngreso', flat=True)
+        #     print(mascotaIngreso)
+        total_tarifa_asociado = queryTarifa['total_tarifa_asociado'] or 0  # Se obtiene el valor de la suma a 0 si no hay datos
+        if queryHistorial:
+            mesesPagados = HistorialPagos.objects.filter(asociado = kwargs['pkAsociado']).values('mesPago')
+            queryMes = MesTarifa.objects.exclude(pk__in=Subquery(mesesPagados)).annotate(total=F('aporte') + F('bSocial') + total_tarifa_asociado)
+            for mes in queryMes:
+                print(mes.pk, mes.total, mes.fechaInicio, mes.fechaFinal)
+        else:
+            queryMes = MesTarifa.objects.filter(pk__gte = queryParamAsoc.primerMes.pk).annotate(total=F('aporte') + F('bSocial') + total_tarifa_asociado)
+        
+        queryPago = FormaPago.objects.all()
+
+        queryHistorial = HistorialPagos.objects.filter(asociado = kwargs['pkAsociado']).aggregate(total=Sum('diferencia'))
+        total_diferencia = queryHistorial['total'] or 0  # Se obtiene el valor de la suma a 0 si no hay datos
+        return render(request, template_name, {'pkAsociado':kwargs['pkAsociado'], 'vista':kwargs['vista'] ,'query':queryValor, 'queryMes':queryMes, 'queryPago':queryPago, 'diferencia':total_diferencia})
+
+    def post(self, request, *args, **kwargs):
+        fechaPago = request.POST['fechaPago']
+        formaPago = request.POST['formaPago']
+        valorPago = int(request.POST['valorPago'])
+        tarifaAsociado = TarifaAsociado.objects.get(asociado = kwargs['pkAsociado'])
+        diferencia = request.POST['diferencia']
+        valorDiferencia = int(diferencia.replace('.', ''))
+
+        # creamos un array para guardar los pagos que se marcaron como activos
+        datos_pagos = []
+
+        # obtenemos los switchs que se marcaron como activos en el modal
+        switches_activos = request.POST.getlist('switches')
+        # saber el tamaño de los botones marcados
+        cantidadSwitches = len(switches_activos)
+        
+        # Se recorre los switch activos, con el pk del mes activo
+        for contador, pk in enumerate(switches_activos, start=1):
+            valorMes = MesTarifa.objects.get(pk = pk).aporte + MesTarifa.objects.get(pk = pk).bSocial + tarifaAsociado.cuotaMascota + tarifaAsociado.cuotaRepatriacion + tarifaAsociado.cuotaSeguroVida + tarifaAsociado.cuotaAdicionales + tarifaAsociado.cuotaCoohopAporte + tarifaAsociado.cuotaCoohopBsocial
+            pago = {
+                    'asociado': Asociado.objects.get(pk = kwargs['pkAsociado']),
+                    'mesPago': MesTarifa.objects.get(pk = pk),
+                    'fechaPago': fechaPago,
+                    'formaPago': FormaPago.objects.get(pk = formaPago),
+                    'aportePago': MesTarifa.objects.get(pk = pk).aporte,
+                    'bSocialPago': MesTarifa.objects.get(pk = pk).bSocial,
+                    'mascotaPago': tarifaAsociado.cuotaMascota,
+                    'repatriacionPago': tarifaAsociado.cuotaRepatriacion,
+                    'seguroVidaPago': tarifaAsociado.cuotaSeguroVida,
+                    'adicionalesPago': tarifaAsociado.cuotaAdicionales,
+                    'coohopAporte': tarifaAsociado.cuotaCoohopAporte,
+                    'coohopBsocial': tarifaAsociado.cuotaCoohopBsocial,
+                    'diferencia': valorDiferencia if cantidadSwitches == contador else 0,
+                    'valorPago':  valorMes if contador < cantidadSwitches else valorMes + valorDiferencia,
+                    'estadoRegistro': True,
+                    'userCreacion': User.objects.get(pk = request.user.pk),
+                }
+            datos_pagos.append(pago)
+
+        # Crear cada registro en un bucle
+        for data in datos_pagos:
+            HistorialPagos.objects.create(**data)
+        
+        messages.info(request, 'Pago Registrado Correctamente')
+        url = reverse('proceso:asociadoPago')
+
+        # Ajusta la URL según el valor de vista
+        if kwargs['vista'] == 1:
+            url = reverse('asociado:historialPagos', args=[kwargs['pkAsociado']])
+
+        return HttpResponseRedirect(url)
+
 class CrearPagoAsociado(CreateView):
 
     def get(self, request, *args, **kwargs):
@@ -125,24 +215,26 @@ class EditarPago(ListView):
     def get(self, request, *args, **kwargs):
         template_name = 'proceso/pago/editarPagoAsociado.html'
         queryPago = HistorialPagos.objects.get(pk = kwargs['pk'])
-        queryMes = MesTarifa.objects.all()
+        mesesPagados = HistorialPagos.objects.filter(asociado = kwargs['pkAsociado']).values('mesPago')
+        queryMes = MesTarifa.objects.exclude(pk__in=Subquery(mesesPagados))
         queryFormaPago = FormaPago.objects.all()
         return render(request, template_name, {'queryPago':queryPago, 'queryFormaPago':queryFormaPago, 'queryMes':queryMes, 'pk':kwargs['pk'], 'pkAsociado':kwargs['pkAsociado'], 'vista':kwargs['vista']})
     
     def post(self, request, *args, **kwargs):
+
+        mesPago = request.POST['mesPago']
+
         objHistorico = HistorialPagos.objects.get(pk = kwargs['pk'])
         objTarifa = TarifaAsociado.objects.get(asociado = kwargs['pkAsociado'])
+        valorMes = MesTarifa.objects.get(pk = mesPago).aporte + MesTarifa.objects.get(pk = mesPago).bSocial + objTarifa.cuotaMascota + objTarifa.cuotaRepatriacion + objTarifa.cuotaSeguroVida + objTarifa.cuotaAdicionales + objTarifa.cuotaCoohopAporte + objTarifa.cuotaCoohopBsocial
+
         valorPago = int(request.POST['valorPago'])
-        # se valida si el valor pago es igual al valor real que debe pagar
-        if valorPago != objTarifa.total:
-            diferencia = valorPago - objTarifa.total
-            objHistorico.diferencia = diferencia
-        else:
-            objHistorico.diferencia = 0
-        objHistorico.mesPago = MesTarifa.objects.get(pk = request.POST['mesPago'])
+        
+        objHistorico.mesPago = MesTarifa.objects.get(pk = mesPago)
         objHistorico.formaPago = FormaPago.objects.get(pk = request.POST['formaPago'])
         objHistorico.fechaPago = request.POST['fechaPago']
         objHistorico.valorPago = request.POST['valorPago']
+        objHistorico.diferencia = valorPago - valorMes
         objHistorico.userModificacion = User.objects.get(pk = request.user.pk)
         objHistorico.save()
         messages.info(request, 'Pago Modificado Correctamente')

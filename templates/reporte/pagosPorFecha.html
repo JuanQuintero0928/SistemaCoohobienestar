@@ -1,5 +1,6 @@
 {% extends 'index.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}
     Pagos Por Fecha
@@ -79,12 +80,12 @@
                         {% for pagos in query %}
                             <tr>
                                 <th>{{ forloop.counter }}</th>
-                                <th>{{ pagos.asociado.numDocumento }}</th>
+                                <th>{{ pagos.asociado.numDocumento|intcomma }}</th>
                                 <th>{{ pagos.asociado.nombre }} {{ pagos.asociado.apellido }}</th>
                                 <th>{{ pagos.mesPago }}</th>
-                                <th>{{ pagos.valorPago }}</th>
-                                <th>{{ pagos.diferencia }}</th>
-                                <th>{{ pagos.fechaCreacion }}</th> 
+                                <th>${{ pagos.valorPago|intcomma }}</th>
+                                <th>${{ pagos.diferencia|intcomma }}</th>
+                                <th>{{ pagos.fechaPago|date:"d/m/Y" }}</th> 
                             </tr>
                         {% endfor %}
                     {% else %}

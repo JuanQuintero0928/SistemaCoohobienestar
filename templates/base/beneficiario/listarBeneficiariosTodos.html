@@ -1,5 +1,6 @@
 {% extends 'index.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}
     Beneficiarios
@@ -53,9 +54,9 @@
         {% for beneficiario in page_obj.object_list %}
         <tr>
             <td>{{ forloop.counter }}</td>
-            <td>{{beneficiario.asociado.numDocumento}}</td>
+            <td>{{beneficiario.asociado.numDocumento|intcomma}}</td>
             <td>{{beneficiario.asociado.nombre}} {{beneficiario.asociado.apellido}}</td>
-            <td>{{beneficiario.numDocumento}}</td>
+            <td>{{beneficiario.numDocumento|intcomma}}</td>
             <td>{{ beneficiario.nombre }} {{ beneficiario.apellido }}</td>
             <td>{{ beneficiario.parentesco }}</td>
             <td>{{ beneficiario.fechaNacimiento|date:"d-m-Y" }}</td>

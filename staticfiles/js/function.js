@@ -1168,7 +1168,10 @@ async function generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF
     pdf.text(arrFechaCorte[1]+'/', 190,285);
     pdf.text(arrFechaCorte[0], 204,285);
     if(saldo != 0){
-        pdf.text(saldo, 252,285);
+        console.log(saldo);
+        const saldoFormateado = saldo.toLocaleString('es-ES'); 
+        pdf.text(saldoFormateado, 252,285);
+        console.log(saldoFormateado);
     }
 
     pdf.text(cuotaVencida, 324,285);

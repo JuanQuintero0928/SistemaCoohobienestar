@@ -1,5 +1,6 @@
 {% extends 'index.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}
     Modificaciones Por Fecha
@@ -82,7 +83,7 @@
                         {% for obj in asociadoRetiro %}
                             <tr>
                                 <th>{{ forloop.counter }}</th>
-                                <th>{{obj.numDocumento}}</th>
+                                <th>{{obj.numDocumento|intcomma}}</th>
                                 <th>{{obj.nombre}} {{obj.apellido}}</th>
                                 <th>Retiro</th>
                                 <th>{{obj.fechaRetiro|date:"d/m/Y"}}</th>            
@@ -91,7 +92,7 @@
                         {% for obj in asociadoIngreso %}
                             <tr>
                                 <th>{{ forloop.counter }}</th>
-                                <th>{{obj.numDocumento}}</th>
+                                <th>{{obj.numDocumento|intcomma}}</th>
                                 <th>{{obj.nombre}} {{obj.apellido}}</th>
                                 <th>Ingreso</th>
                                 <th>{{obj.fechaIngreso|date:"d/m/Y"}}</th>            
@@ -126,9 +127,9 @@
                         {% for obj in queryB %}
                             <tr>
                                 <th>{{ forloop.counter }}</th>
-                                <th>{{obj.asociado.numDocumento}}</th>
+                                <th>{{obj.asociado.numDocumento|intcomma}}</th>
                                 <th>{{obj.asociado.nombre}} {{obj.asociado.apellido}}</th>
-                                <th>{{obj.numDocumento}}</th>
+                                <th>{{obj.numDocumento|intcomma}}</th>
                                 <th>{{obj.nombre}} {{obj.apellido}}</th>
                                 <th>{{obj.parentesco}}</th>
                                 <th>{{obj.fechaNacimiento|date:"d/m/Y"}}</th>
@@ -183,7 +184,7 @@
                         {% for obj in queryM %}
                             <tr>
                                 <th>{{ forloop.counter }}</th>
-                                <th>{{obj.asociado.numDocumento}}</th>
+                                <th>{{obj.asociado.numDocumento|intcomma}}</th>
                                 <th>{{obj.asociado.nombre}} {{obj.asociado.apellido}}</th>
                                 <th>{{obj.nombre}}</th>
                                 <th>{{ obj.tipo }}</th>
