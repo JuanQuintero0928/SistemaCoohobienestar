@@ -98,7 +98,7 @@ class CrearAsociado(CreateView):
             # se guerda informacion en el modelo REFERENCIA FAMILIAR
             objReferencia = ReferenciaFamiliar()
             objReferencia.asociado = Asociado.objects.get(pk = obj.pk)
-            objReferencia.nombre = request.POST['nombreRF']
+            objReferencia.nombre = request.POST['nombreRF'].upper()
             objReferencia.parentesco = request.POST['parentesco']
             objReferencia.numContacto = request.POST['numContacto']
             objReferencia.estadoRegistro = True
@@ -130,17 +130,27 @@ class CrearAsociado(CreateView):
             # se selecciona de manera predeterminada la funeraria , = jardines
             objParametro.funeraria = ServicioFuneraria.objects.get(pk = 1)
             objParametro.estadoRegistro = True
-            objParametro.primerMes = MesTarifa.objects.get(fechaInicio__lte = obj.fechaIngreso, fechaFinal__gte = obj.fechaIngreso)
-            objParametro.tarifaAsociado = TarifaAsociado.objects.get(pk = objTarifaAsoc.pk)
-            
-            # Si no hay errores se guarda toda la informacion
-            objResidencia.save()
-            objNac.save()
-            objReferencia.save()
-            objParametro.save()
+            try:
+                objParametro.tarifaAsociado = TarifaAsociado.objects.get(pk = objTarifaAsoc.pk)
+                objParametro.primerMes = MesTarifa.objects.get(fechaInicio__lte = obj.fechaIngreso, fechaFinal__gte = obj.fechaIngreso)
+        
+                # Si no hay errores se guarda toda la informacion
+                objResidencia.save()
+                objNac.save()
+                objReferencia.save()
+                objParametro.save()
 
-            messages.info(request, 'Asociado Creado Correctamente')
-            return HttpResponseRedirect(reverse_lazy('asociado:verAsociado', args=[obj.pk]))
+                messages.info(request, 'Asociado Creado Correctamente')
+                return HttpResponseRedirect(reverse_lazy('asociado:verAsociado', args=[obj.pk]))
+            except MesTarifa.DoesNotExist:
+                objParametro.primerMes = MesTarifa.objects.get(pk = 1)
+
+                objResidencia.save()
+                objNac.save()
+                objReferencia.save()
+                objParametro.save()
+                messages.info(request, 'Asociado Creado Correctamente')
+                return HttpResponseRedirect(reverse_lazy('asociado:verAsociado', args=[obj.pk]))
         else:
             messages.warning(request, 'El asociado con cedula '+ numDoc + ' ya existe en la base de datos.')
             return HttpResponseRedirect(reverse_lazy('asociado:asociado'))
