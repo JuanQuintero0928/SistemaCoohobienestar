@@ -7,10 +7,12 @@ from django.contrib import messages
 from django.db.models import Sum, F, Q, Subquery
 from django.core.paginator import Paginator
 
-from .models import HistoricoAuxilio, HistorialPagos
-from parametro.models import MesTarifa, FormaPago
+import asociado
+
+from .models import HistoricoAuxilio, HistorialPagos, HistoricoSeguroVida
+from parametro.models import MesTarifa, FormaPago, Tarifas
 from asociado.models import Asociado, ParametroAsociado, TarifaAsociado
-from beneficiario.models import Mascota
+from beneficiario.models import Mascota, Beneficiario, Coohoperativitos
 from .form import HistorialPagoForm
 
 # Create your views here.
@@ -144,6 +146,7 @@ class ModalPago(ListView):
 
         return HttpResponseRedirect(url)
 
+# no se usa
 class CrearPagoAsociado(CreateView):
 
     def get(self, request, *args, **kwargs):
@@ -226,12 +229,45 @@ class EditarPago(ListView):
 
         objHistorico = HistorialPagos.objects.get(pk = kwargs['pk'])
         objTarifa = TarifaAsociado.objects.get(asociado = kwargs['pkAsociado'])
-        valorMes = MesTarifa.objects.get(pk = mesPago).aporte + MesTarifa.objects.get(pk = mesPago).bSocial + objTarifa.cuotaMascota + objTarifa.cuotaRepatriacion + objTarifa.cuotaSeguroVida + objTarifa.cuotaAdicionales + objTarifa.cuotaCoohopAporte + objTarifa.cuotaCoohopBsocial
+        # valorMes = MesTarifa.objects.get(pk = mesPago).aporte + MesTarifa.objects.get(pk = mesPago).bSocial + objTarifa.cuotaMascota + objTarifa.cuotaRepatriacion + objTarifa.cuotaSeguroVida + objTarifa.cuotaAdicionales + objTarifa.cuotaCoohopAporte + objTarifa.cuotaCoohopBsocial
+        infoMes = MesTarifa.objects.get(pk=mesPago)
+        valorMes = infoMes.aporte + infoMes.bSocial
 
-        valorPago = int(request.POST['valorPago'])
+        if objTarifa.cuotaMascota != 0:
+            mascotas = Mascota.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True, fechaIngreso__lte = infoMes.fechaFinal)
+            # valor quemado de mascotas
+            tarifaMascota = Tarifas.objects.get(pk = 3)
+            for masc in mascotas:
+                valorMes+= tarifaMascota.valor
+
+        if objTarifa.cuotaRepatriacion != 0:
+            repatriaciones = Beneficiario.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True, repatriacion = True, fechaIngreso__lte = infoMes.fechaFinal)
+            # valor quemado de repatriaciones
+            tarifaRepatriacion = Tarifas.objects.get(pk = 4)
+            for repat in repatriaciones:
+                valorMes+= tarifaRepatriacion.valor
+
+        if objTarifa.cuotaSeguroVida != 0:
+            seguroVida = HistoricoSeguroVida.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True, fechaIngreso__lte = infoMes.fechaFinal)
+            for seguro in seguroVida:
+                valorMes+= seguro.valorPago
+
+        if objTarifa.cuotaAdicionales != 0:
+            adicionales = TarifaAsociado.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True, fechaInicioAdicional__lte = infoMes.fechaFinal)
+            for adicional in adicionales:
+                valorMes+= adicional.cuotaAdicionales
+
+        if objTarifa.cuotaCoohopAporte != 0:
+            coohopAporte = Coohoperativitos.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True, fechaIngreso__lte = infoMes.fechaFinal)
+            # valor quemado de coohop ap
+            tarifaCoohopAporte = Tarifas.objects.get(pk = 5)
+            tarifaCoohopBSocial = Tarifas.objects.get(pk = 6)
+            for coohop in coohopAporte:
+                valorMes+= tarifaCoohopAporte.valor + tarifaCoohopBSocial.valor
         
         objHistorico.mesPago = MesTarifa.objects.get(pk = mesPago)
         objHistorico.formaPago = FormaPago.objects.get(pk = request.POST['formaPago'])
+        valorPago = int(request.POST['valorPago'])
         objHistorico.fechaPago = request.POST['fechaPago']
         objHistorico.valorPago = request.POST['valorPago']
         objHistorico.diferencia = valorPago - valorMes

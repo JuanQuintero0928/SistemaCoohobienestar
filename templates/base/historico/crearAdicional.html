@@ -19,10 +19,14 @@
                     <div class="input-group mb-3">
                         <span class="input-group-text" id="basic-addon3">Valor Adicional</span>
                         <span class="input-group-text">$</span>
-                        <input type="number" class="form-control" name="cuotaAdicionales" {% if update %} value="{{query.cuotaAdicionales}}" {% endif %} min="0" max="20000">
+                        <input type="number" class="form-control" name="cuotaAdicionales" {% if update %} value="{{query.cuotaAdicionales}}" {% endif %} min="0" max="20000" required>
                         {% if update %}
                             <input type="number" class="form-control" name="adicionalAnterior" value="{{query.cuotaAdicionales}}" hidden>
                         {% endif %}
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon3">Fecha Inicio Adicional</span>
+                        <input type="date" class="form-control" name="fechaInicioAdicional" {% if update %} value="{{query.fechaInicioAdicional|date:'Y-m-d'}}" {% endif %} required>
                     </div>
                     
                     {% csrf_token %}

@@ -791,8 +791,10 @@ class CrearAdicionalAsociado(ListView):
 
     def post(self, request, *args, **kwargs):
         cuotaAdicional = request.POST['cuotaAdicionales']
+        fechaInicioAdicional = request.POST['fechaInicioAdicional']
         objTarifa = TarifaAsociado.objects.get(asociado = kwargs['pkAsociado'])
         objTarifa.cuotaAdicionales = cuotaAdicional
+        objTarifa.fechaInicioAdicional = fechaInicioAdicional
         objTarifa.total = objTarifa.total + int(cuotaAdicional)
         objTarifa.save()
         messages.info(request, 'Información Registrada Correctamente')
@@ -807,9 +809,11 @@ class EditarAdicionalAsociado(ListView):
     def post(self, request, *args, **kwargs):
         cuotaAdicional = request.POST['cuotaAdicionales']
         valorAnterior = request.POST['adicionalAnterior']
+        fechaInicioAdicional = request.POST['fechaInicioAdicional']
         objTarifa = TarifaAsociado.objects.get(asociado = kwargs['pkAsociado'])
         objTarifa.cuotaAdicionales = cuotaAdicional
         objTarifa.total = objTarifa.total + int(cuotaAdicional) - int(valorAnterior)
+        objTarifa.fechaInicioAdicional = fechaInicioAdicional
         objTarifa.save()
         messages.info(request, 'Registo Modificado Correctamente')
         return HttpResponseRedirect(reverse_lazy('asociado:tarifaAsociado', args=[kwargs['pkAsociado']]))

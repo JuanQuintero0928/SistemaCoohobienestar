@@ -43,6 +43,7 @@
         <th>Raza</th>
         <th>Fecha Nacimiento</th>
         <th>Vacunas Completas</th>
+        <th>Fecha Ingreso</th>
         <th>Opciones</th>
     </tr>
 {% endblock tablaencabezado %}
@@ -54,8 +55,9 @@
             <th>{{ obj.nombre }}</th>
             <th>{{ obj.tipo }}</th>
             <th>{{ obj.raza }}</th>
-            <th>{{ obj.fechaNacimiento }}</th>
+            <th>{{ obj.fechaNacimiento|date:"d/m/Y" }}</th>
             <th>{{ obj.vacunasCompletas }}</th>
+            <th>{{ obj.fechaIngreso|date:"d/m/Y" }}</th>
             <th><center><button class="btn btn-outline-primary" onclick="abrir_modal_edicion('{% url 'asociado:editarMascota' pkAsociado obj.pk %}')"><i class="fa-solid fa-pen-to-square"></i></button>
             <button class="btn btn-outline-primary" onclick="abrir_modal_eliminacion('{% url 'asociado:eliminarMascota' pkAsociado obj.pk %}')"><i class="fa-solid fa-trash"></i></button></th>
         </tr>

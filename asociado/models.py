@@ -211,6 +211,7 @@ class TarifaAsociado(models.Model):
     cuotaRepatriacion = models.IntegerField('Repatriacion', blank=True, null=True)
     cuotaSeguroVida = models.IntegerField('Seguro Vida', blank=True, null=True)
     seguroVidaIngreso = models.ForeignKey(MesTarifa, on_delete=models.RESTRICT, blank=True, null=True, related_name='seguroVidaIngreso')
+    fechaInicioAdicional = models.DateField('Fecha Inicio Adicional', blank=True, null=True)
     cuotaAdicionales = models.IntegerField('Adicionales', blank=True, null=True)
     adicionalIngreso = models.ForeignKey(MesTarifa, on_delete=models.RESTRICT, blank=True, null=True, related_name='adicionalIngreso')
     cuotaCoohopAporte = models.IntegerField('Coohoperativito Aporte', blank=True, null=True)
