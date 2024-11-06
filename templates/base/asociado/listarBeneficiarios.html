@@ -1,5 +1,6 @@
 {% extends 'estructura/tabla.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}
     Asociado
@@ -58,7 +59,7 @@
             <th>{{ obj.nombre }}</th>
             <th>{{ obj.apellido }}</th>
             <th>{{ obj.tipoDocumento }}</th>
-            <th>{{ obj.numDocumento }}</th>
+            <th>{{ obj.numDocumento|intcomma }}</th>
             <th>{{ obj.fechaNacimiento }}</th>
             <th>{{ obj.parentesco }}</th>
             {% if obj.repatriacion is False %}
@@ -66,7 +67,7 @@
             {% else %}
                 <th>{{ obj.paisRepatriacion }}</th>
             {% endif %}
-            <th><center><button class="btn btn-outline-primary" onclick="abrir_modal_edicion('{% url 'asociado:editarBeneficiario' pkAsociado obj.pk %}')"><i class="fa-solid fa-pen-to-square"></i></button>
+            <th><center><button class="btn btn-outline-primary" onclick="abrir_modal_edicion('{% url 'asociado:editarBeneficiario' pkAsociado obj.pk %}')" data-bs-target="#staticBackdrop"><i class="fa-solid fa-pen-to-square"></i></button>
             <button class="btn btn-outline-primary" onclick="abrir_modal_eliminacion('{% url 'asociado:eliminarBeneficiario' pkAsociado obj.pk %}')"><i class="fa-solid fa-trash"></i></button></th>
         </tr>
     {% endfor %}

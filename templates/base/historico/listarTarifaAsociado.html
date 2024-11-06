@@ -1,5 +1,6 @@
 {% extends 'index.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}
     Asociado
@@ -37,47 +38,47 @@
         </tr>
         <tr>
             <th>Aporte</th>
-            <th>{{ query.cuotaAporte }}</th>
+            <th>${{ query.cuotaAporte|intcomma }}</th>
         </tr>
         <tr>
             <th>Bienestar Social</th>
-            <th>{{ query.cuotaBSocial }}</th>   
+            <th>${{ query.cuotaBSocial|intcomma }}</th>   
         </tr>
         {% if query.cuotaMascota != 0 %}
             <tr>
                 <th>Mascota</th>
-                <th>{{ query.cuotaMascota }}</th>
+                <th>${{ query.cuotaMascota|intcomma }}</th>
             </tr>
         {% endif %}
         {% if query.cuotaRepatriacion != 0 %}
             <tr>
                 <th>Repatriacion</th>
-                <th>{{ query.cuotaRepatriacion }}</th>
+                <th>${{ query.cuotaRepatriacion|intcomma }}</th>
                 </tr>
             <tr>
         {% endif %}
         {% if query.cuotaSeguroVida != 0 %}
             <tr>
                 <th>Seguro Vida</th>
-                <th>{{ query.cuotaSeguroVida }}</th>
+                <th>${{ query.cuotaSeguroVida|intcomma }}</th>
             </tr>
         {% endif %}
         {% if query.cuotaCoohopAporte != 0 %}
             <tr>
                 <th>Coohoperativitos Aporte</th>
-                <th>{{ query.cuotaCoohopAporte }}</th>
+                <th>${{ query.cuotaCoohopAporte|intcomma }}</th>
             </tr>
         {% endif %}
         {% if query.cuotaCoohopAporte != 0 %}
             <tr>
                 <th>Coohoperativitos Bienestar Social</th>
-                <th>{{ query.cuotaCoohopBsocial }}</th>
+                <th>${{ query.cuotaCoohopBsocial|intcomma }}</th>
             </tr>
         {% endif %}
         {% if query.cuotaAdicionales != 0 %}
             <tr>
                 <th>Adicionales</th>
-                <th>{{ query.cuotaAdicionales }}
+                <th>${{ query.cuotaAdicionales|intcomma }}</th>
                 <a type="button" onclick="abrir_modal_creacion('{% url 'asociado:editarAdicional' pkAsociado query.pk %}')" style="margin-left:40px"><i class="fa-solid fa-pen"></i></a>
                 
                 </th>
@@ -85,7 +86,7 @@
         {% endif %}   
         <tr>
             <th>Total</th>
-                <th>{{ query.total }}</th>
+                <th>${{ query.total|intcomma }}</th>
             </tr>
     </table>
 

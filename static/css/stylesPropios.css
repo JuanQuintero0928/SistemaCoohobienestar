@@ -5,3 +5,8 @@
 .input-email{
   text-transform: lowercase;
 }
+
+.modal-blur {
+  filter: blur(4px);
+  opacity: 0.5;
+}

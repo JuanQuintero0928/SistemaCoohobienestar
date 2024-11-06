@@ -1,5 +1,6 @@
 {% extends 'index.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}
     Beneficiarios
@@ -27,7 +28,7 @@
 <form method="GET" action="{% url 'beneficiario:beneficiario' %}">
     <div class="row">
         <div class="col-md-3">
-            <input class="form-control" type="text" name="numDocumento" placeholder="Buscar por Documento" value="{{ request.GET.numDocumento }}">
+            <input class="form-control" type="text" name="numDocumento" placeholder="Buscar" value="{{ request.GET.numDocumento }}">
         </div>
         <div class="col-md-3">
             <button class="btn btn-primary" type="submit">Buscar</button>
@@ -53,9 +54,9 @@
         {% for beneficiario in page_obj.object_list %}
         <tr>
             <td>{{ forloop.counter }}</td>
-            <td>{{beneficiario.asociado.numDocumento}}</td>
+            <td>{{beneficiario.asociado.numDocumento|intcomma}}</td>
             <td>{{beneficiario.asociado.nombre}} {{beneficiario.asociado.apellido}}</td>
-            <td>{{beneficiario.numDocumento}}</td>
+            <td>{{beneficiario.numDocumento|intcomma}}</td>
             <td>{{ beneficiario.nombre }} {{ beneficiario.apellido }}</td>
             <td>{{ beneficiario.parentesco }}</td>
             <td>{{ beneficiario.fechaNacimiento|date:"d-m-Y" }}</td>

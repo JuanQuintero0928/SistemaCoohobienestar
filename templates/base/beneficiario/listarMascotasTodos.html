@@ -1,5 +1,6 @@
 {% extends 'index.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}
     Mascotas
@@ -27,7 +28,7 @@
 <form method="GET" action="{% url 'beneficiario:mascota' %}">
     <div class="row">
         <div class="col-md-3">
-            <input class="form-control" type="text" name="numDocumento" placeholder="Buscar por Documento" value="{{ request.GET.numDocumento }}">
+            <input class="form-control" type="text" name="numDocumento" placeholder="Buscar" value="{{ request.GET.numDocumento }}">
         </div>
         <div class="col-md-3">
             <button class="btn btn-primary" type="submit">Buscar</button>
@@ -54,7 +55,7 @@
         {% for obj in page_obj.object_list %}
         <tr>
             <td>{{ forloop.counter }}</td>
-            <td>{{obj.asociado.numDocumento}}</td>
+            <td>{{obj.asociado.numDocumento|intcomma}}</td>
             <td>{{obj.asociado.nombre}} {{obj.asociado.apellido}}</td>
             <td>{{obj.tipo}}</td>
             <td>{{ obj.nombre }}</td>

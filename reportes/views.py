@@ -1,3 +1,4 @@
+from tkinter.tix import Form
 from django.shortcuts import render
 from django.views.generic import ListView, TemplateView
 from django.http import HttpResponse
@@ -10,7 +11,7 @@ from asociado.models import Asociado, Nacimiento, ParametroAsociado, Residencia,
 from beneficiario.models import Mascota, Beneficiario
 from historico.models import HistorialPagos
 from funciones.function import separarFecha
-from parametro.models import MesTarifa, TipoAsociado
+from parametro.models import FormaPago, MesTarifa, TipoAsociado
 
 #Libreria para generar el Excel
 from openpyxl import Workbook
@@ -289,7 +290,6 @@ class VerPagosFecha(ListView):
         fechaInicial = separarFecha(fechaInicialForm, 'inicial')
         fechaFinal = separarFecha(fechaFinalForm, 'final')
         # consulta por rango de fecha inicial y final
-        # consulta por rango de fecha inicial y final
         queryHistorial = HistorialPagos.objects.filter(
             fechaCreacion__range=[fechaInicial, fechaFinal]
         )
@@ -410,7 +410,7 @@ class FormatoExtracto(ListView):
     def post(self, request, *args, **kwargs):
         template_name = 'reporte/generarExtracto.html'
         
-        objAsoc = Asociado.objects.filter(estadoAsociado = 'ACTIVO')
+        objAsoc = Asociado.objects.filter(estadoAsociado = 'RETIRO')
         mesExtracto = request.POST['mesExtracto']
         asociados = []
         for asociado in objAsoc:
@@ -648,6 +648,118 @@ class ExcelDescuentosNomina(TemplateView):
                 cont+=1
 
         nombre_archivo = f"Reporte_Descuento_Nomina.xlsx"
+        response = HttpResponse(content_type = "application/ms-excel")
+        content = "attachment; filename = {0}".format(nombre_archivo)
+        response['Content-Disposition'] = content
+        wb.save(response)
+        return response
+    
+class VerConciliacionBancaria(ListView):
+    def get(self, request, *args, **kwargs):
+        template_name = 'reporte/listarConciliacionBancaria.html'
+        formaPago = FormaPago.objects.all().order_by('formaPago')
+        return render(request, template_name, {'formaPago': formaPago})
+    
+    def post(self, request, *args, **kwargs):
+        formaPago = FormaPago.objects.all().order_by('formaPago')
+        fechaInicialForm = request.POST['fechaInicial']
+        fechaFinalForm = request.POST['fechaFinal']
+        banco = int(request.POST['banco'])
+        # funcion que separa año, mes y dia de la fecha ingresada por el usuario.
+        fechaInicial = separarFecha(fechaInicialForm, 'inicial')
+        fechaFinal = separarFecha(fechaFinalForm, 'final')
+        # consulta por rango de fecha inicial y final
+        queryHistorial = HistorialPagos.objects.filter(
+            fechaPago__range=[fechaInicial, fechaFinal],
+            formaPago_id=banco
+            ).values('asociado__id',
+                 'asociado__nombre',
+                 'asociado__apellido',
+                 'asociado__numDocumento',
+                 'formaPago_id__formaPago',
+                'fechaPago',
+            ).annotate(total_pagado=Sum('valorPago')).order_by('fechaPago')
+        template_name = 'reporte/listarConciliacionBancaria.html'
+        return render(request, template_name, {'query':queryHistorial,'post':'post', 'fechaIncialF':fechaInicialForm, 'fechaFinalF':fechaFinalForm, 'formaPago':formaPago, 'banco':banco})
+
+class ExcelConciliacionBancaria(TemplateView):
+    def get(self, request, *args, **kwargs):
+        fechaInicialForm = request.GET['fechaInicial']
+        fechaFinalForm = request.GET['fechaFinal']
+        banco = int(request.GET['banco'])
+        # funcion que separa año, mes y dia de la fecha ingresada por el usuario.
+        fechaInicial = separarFecha(fechaInicialForm, 'inicial')
+        fechaFinal = separarFecha(fechaFinalForm, 'final')
+        # consulta por rango de fecha inicial y final
+        queryHistorial = HistorialPagos.objects.filter(
+            fechaPago__range=[fechaInicial, fechaFinal],
+            formaPago_id=banco
+            ).values('asociado__id',
+                 'asociado__nombre',
+                 'asociado__apellido',
+                 'asociado__numDocumento',
+                 'formaPago_id__formaPago',
+                'fechaPago',
+            ).annotate(total_pagado=Sum('valorPago')).order_by('fechaPago')
+
+        # Estilos
+        bold_font = Font(bold=True, size=16, color="FFFFFF")  # Fuente en negrita, tamaño 12 y color blanco
+        bold_font2 = Font(bold=True, size=12, color="000000")  # Fuente en negrita, tamaño 12 y color negro
+        alignment_center = Alignment(horizontal="center", vertical="center")  # Alineación al centro
+        fill = PatternFill(start_color="85B84C", end_color="85B84C", fill_type="solid")  # Relleno verde sólido
+
+        wb = Workbook() #Creamos la instancia del Workbook
+        ws = wb.active
+        ws.title = 'Conciliación Bancaria'
+        titulo1 = f"Conciliación Bancaria"
+        ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
+        ws.merge_cells('A1:F1')
+        ws['A1'].font = bold_font
+        ws['A1'].alignment = alignment_center
+        ws['A1'].fill = fill
+
+        ws['A2'] = 'Número registro'
+        ws['B2'] = 'Número Documento'
+        ws['C2'] = 'Nombre Completo'
+        ws['D2'] = 'Movimiento'
+        ws['E2'] = 'Valor'
+        ws['F2'] = 'Fecha Movimiento'
+     
+        bold_font2 = Font(bold=True)
+        center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+
+        for col in range(1,7):
+            cell = ws.cell(row=2, column=col)
+            cell.font = bold_font2
+            cell.alignment = center_alignment
+
+        ws.column_dimensions['A'].width = 11
+        ws.column_dimensions['B'].width = 14
+        ws.column_dimensions['C'].width = 36
+        ws.column_dimensions['D'].width = 25
+        ws.column_dimensions['E'].width = 14
+        ws.column_dimensions['F'].width = 14
+
+        #Inicia el primer registro en la celda numero 3
+        cont = 3
+        i = 1
+        
+        for query in queryHistorial:
+
+            fecha_pago = query['fechaPago']
+            fecha_formateada = fecha_pago.strftime("%d/%m/%Y") if fecha_pago else ""
+            #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
+            ws.cell(row = cont, column = 1).value = i                    
+            ws.cell(row = cont, column = 2).value = int(query['asociado__numDocumento'])
+            ws.cell(row = cont, column = 3).value = f'{query['asociado__nombre']}' + ' ' + f'{query['asociado__apellido']}'
+            ws.cell(row = cont, column = 4).value = query['formaPago_id__formaPago']
+            ws.cell(row = cont, column = 5).value = query['total_pagado']
+            ws.cell(row = cont, column = 6).value = fecha_formateada
+        
+            i+=1
+            cont+=1
+
+        nombre_archivo = f"Reporte_Conciliacion_Bancaria.xlsx"
         response = HttpResponse(content_type = "application/ms-excel")
         content = "attachment; filename = {0}".format(nombre_archivo)
         response['Content-Disposition'] = content

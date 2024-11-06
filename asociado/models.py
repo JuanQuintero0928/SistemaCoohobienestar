@@ -1,3 +1,4 @@
+import re
 from django.db import models
 from departamento.models import Departamento, Municipio
 from parametro.models import TipoAsociado, ServicioFuneraria, MesTarifa
@@ -17,6 +18,7 @@ class Asociado(models.Model):
         tarjetaIdentidad = 'TARJETA IDENTIDAD', 'TARJETA IDENTIDAD'
         cedulaExtranjera = 'CEDULA EXTRANJERA', 'CEDULA EXTRANJERA'
         pasaporte = 'PASAPORTE', 'PASAPORTE'
+        ppt = 'PPT', 'PPT'
     
     class generoOp(models.TextChoices):
         masculino = 'MASCULINO', 'MASCULINO'
@@ -208,9 +210,12 @@ class TarifaAsociado(models.Model):
     cuotaMascota = models.IntegerField('Mascota', blank=True, null=True)
     cuotaRepatriacion = models.IntegerField('Repatriacion', blank=True, null=True)
     cuotaSeguroVida = models.IntegerField('Seguro Vida', blank=True, null=True)
+    seguroVidaIngreso = models.ForeignKey(MesTarifa, on_delete=models.RESTRICT, blank=True, null=True, related_name='seguroVidaIngreso')
     cuotaAdicionales = models.IntegerField('Adicionales', blank=True, null=True)
+    adicionalIngreso = models.ForeignKey(MesTarifa, on_delete=models.RESTRICT, blank=True, null=True, related_name='adicionalIngreso')
     cuotaCoohopAporte = models.IntegerField('Coohoperativito Aporte', blank=True, null=True)
     cuotaCoohopBsocial = models.IntegerField('Coohoperativito Bienestar Social', blank=True, null=True)
+    coohopIngreso = models.ForeignKey(MesTarifa, on_delete=models.RESTRICT, blank=True, null=True, related_name='coohopIngreso')
     total = models.IntegerField('Total', blank=False, null=False)
     estadoRegistro = models.BooleanField('Estado')
     fechaCreacion = models.DateTimeField(auto_now_add=True)

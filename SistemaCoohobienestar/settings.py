@@ -185,6 +185,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'asociado.apps.AsociadoConfig',
     'beneficiario.apps.BeneficiarioConfig',
     'dashboard.apps.DashboardConfig',
@@ -217,6 +218,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'SistemaCoohobienestar.context_processors.session_timeout'
             ],
         },
     },
@@ -287,7 +289,9 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-SESSION_COOKIE_AGE = 7200
+SESSION_COOKIE_AGE = 3600
+
+SESSION_SAVE_EVERY_REQUEST = True
 
 >>>>>>> eca0ec0e5138a647f10a9623b3f64b92301a62b9
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True

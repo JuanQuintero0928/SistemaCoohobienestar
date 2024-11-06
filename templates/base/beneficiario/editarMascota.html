@@ -16,6 +16,7 @@
                 </div>
                 {% csrf_token %}
                 {{ form.as_p }}
+                <input type="hidden" name="fechaIngresoHidden" value="{{form.fechaIngreso.value}}">
                 <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i></button>
             </form>
         </div>
