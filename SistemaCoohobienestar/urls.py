@@ -20,11 +20,19 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView, logout_then_login
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import HttpResponse
+from django.urls import path
 from dashboard.views import Dashboard
+
+
+# Función para manejar el chequeo de salud
+def health_check(request):
+    return HttpResponse("OK", status=200)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/login/', LoginView.as_view(template_name='registration/login.html'), name='login'),
+    path('health/', health_check, name='health_check'),
     # path('accounts/', include('django.contrib.auth.urls')),
     path('logout/', logout_then_login, name='logout'),
     path('', login_required(Dashboard.as_view()), name='dashboard'),

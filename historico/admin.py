@@ -5,7 +5,6 @@ from .models import *
 
 admin.site.register(HistoricoAuxilio)
 admin.site.register(HistoricoCredito)
-admin.site.register(TarifaAsociado)
 admin.site.register(HistorialPagos)
 admin.site.register(HistoricoSeguroVida)
 

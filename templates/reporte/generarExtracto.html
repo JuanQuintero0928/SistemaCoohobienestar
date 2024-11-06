@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'img/icons/logo.ico' %}" type="image/x-icon" />
+    <link rel="icon" href="{% static 'img/icons/logo.png' %}" type="image/png" />
     <title>Coohobienestar</title>
     <style>
         body, html {
@@ -51,9 +53,10 @@
 {% if lista %}
     <script>
         let arrayExtracto = [];
+        let arrayExtracto2 = [];
     </script>
     {% for asoc in lista %}
-        <form style="display:display" id="formExtracto{{forloop.counter}}">
+        <form style="display:none" id="formExtracto{{forloop.counter}}">
             
             <input type="text" id="id_formato" value="{{asoc.formato}}">
             <input type="date" id="id_fechaCorte" value="{{asoc.fechaCorte|date:"Y-m-d"}}">
@@ -161,6 +164,8 @@
              '{{asoc.pagoTotal}}', '{{asoc.mensaje}} ']);
 
             eliminarFormulario();
+
+            arrayExtracto2.push(['{{asoc.objAsoc.nombre}} {{asoc.objAsoc.apellido}}', '{{asoc.objAsoc.numDocumento}}'])
             
             // funcion que elimina el contenido actual del formualirio, para no remplazar la informacion
             async function eliminarFormulario() {
@@ -174,13 +179,18 @@
 {% endif %}
 
 <script>
+   
     // funcion que envia toda la informacion de todos los asociados, para generar el pdf
-    console.log(arrayExtracto);
-    generarPDFf5('{% static 'img/Formato_ExtractoPago_page_0001.jpg'%}', arrayExtracto, '{{mes.concepto}}');
-    setTimeout(function() { 
-        // Redirige o carga contenido aquí después del tiempo de espera
+    async function generarYRedirigir() {
+        await generarPDFf5('{% static 'img/Formato_ExtractoPago_page_0001.jpg'%}', arrayExtracto, '{{mes.concepto}}');
+        
+        await generarTxt(arrayExtracto2);
+
         window.location.replace("{% url 'reportes:formatoExtracto' %}");
-    }, 1000); // 1 segundos de espera
+    }
+
+    // Ejecutar la función que genera el PDF y redirige
+    generarYRedirigir();
 </script>
 
 

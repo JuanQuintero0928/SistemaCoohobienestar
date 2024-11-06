@@ -21,12 +21,6 @@
         <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="#">Lista</a>
         </li>
-        {% comment %} <li class="nav-item">
-            <a class="nav-link" href="#">Inventario</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="#">Utilidades</a>
-        </li> {% endcomment %}
     </ul>
 {% endblock submenu %}
 
@@ -49,10 +43,10 @@
             <th>{{ obj.nombre }}</th>
             <th>{{ obj.apellido }}</th>
             <th>{{ obj.numCelular }}</th>
-            <th>{{ obj.tAsociado }}</th>
+            <th>{{ obj.tAsociado__concepto }}</th>
             <th>{{ obj.estadoAsociado }}</th>
             <th>
-                <center><a type="button" class="btn btn-outline-primary" href="{% url 'asociado:verAsociado' obj.pk %}"><i class="fa-solid fa-pen"></i></button>
+                <center><a type="button" class="btn btn-outline-primary" href="{% url 'asociado:verAsociado' obj.id %}"><i class="fa-solid fa-pen"></i></button>
             </th>
         </tr>
     {% endfor %}  

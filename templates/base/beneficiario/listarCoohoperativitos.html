@@ -56,7 +56,8 @@
             <th>{{ obj.tipoDocumento }}</th>
             <th>{{ obj.numDocumento }}</th>
             <th>{{ obj.fechaIngreso }}</th>
-            <th><center><button class="btn btn-outline-primary" onclick="abrir_modal_edicion('{% url 'asociado:editarCoohoperativito' pkAsociado obj.pk %}')"><i class="fa-solid fa-pen-to-square"></i></button></th>
+            <th><center><button class="btn btn-outline-primary" onclick="abrir_modal_edicion('{% url 'asociado:editarCoohoperativito' pkAsociado obj.pk %}')"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button class="btn btn-outline-primary" onclick="abrir_modal_eliminacion('{% url 'asociado:eliminarCoohoperativito' pkAsociado obj.pk %}')"><i class="fa-solid fa-trash"></i></button></th>
         </tr>
     {% endfor %}
 
@@ -78,6 +79,11 @@
     }
     var $ = jQuery.noConflict()
     function abrir_modal_edicion(url){
+        $('#creacion').load(url, function(){
+            $(this).modal('show');
+        });
+    }
+    function abrir_modal_eliminacion(url){
         $('#creacion').load(url, function(){
             $(this).modal('show');
         });

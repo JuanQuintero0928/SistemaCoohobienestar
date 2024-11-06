@@ -1,4 +1,12 @@
-<div class="modal-dialog modal-sm" role="document">
+{% if queryMascota %}
+  <div class="modal-dialog modal-sm" role="document">
+{% endif %}
+{% if queryBeneficiario %}
+  <div class="modal-dialog modal-sm" role="document">
+{% endif %}
+{% if queryCoohop %}
+  <div class="modal-dialog modal-xl" role="document">
+{% endif %}
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -7,6 +15,9 @@
           {% endif %}
           {% if queryBeneficiario %}
             <h1 class="modal-title fs-5" id="exampleModalLabel">Eliminar Beneficiario</h1>
+          {% endif %}
+          {% if queryCoohop %}
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Eliminar Coohoperativito</h1>
           {% endif %}
             <hr>
           <h2 class="modal-title fs-5" id="exampleModalLabel"></h2>
@@ -37,6 +48,20 @@
                 </tr>
             </table>
           {% endif %}
+          {% if queryCoohop %}
+            <table class="table table-xl">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Número Documento</th>
+                    <th>Valor</th>
+                </tr>
+                <tr>
+                    <td>{{queryCoohop.nombre}} {{queryCoohop.apellido}}</td>
+                    <td>{{queryCoohop.numDocumento}}</td>
+                    <td>${{tarifaCooh.total_valor}}</td>
+                </tr>
+            </table>
+          {% endif %}
         </div>
         <div class="modal-footer">
           {% if queryMascota %}
@@ -45,6 +70,10 @@
           {% endif %}
           {% if queryBeneficiario %}
             <form action="{% url 'asociado:eliminarBeneficiario' pkAsociado pk %}" method="post">
+            {% csrf_token %}
+          {% endif %}
+          {% if queryCoohop %}
+            <form action="{% url 'asociado:eliminarCoohoperativito' pkAsociado pk %}" method="post">
             {% csrf_token %}
           {% endif %}
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>

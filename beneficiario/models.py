@@ -25,10 +25,10 @@ class tipoDocumentoOp(models.TextChoices):
 class Beneficiario(models.Model):
     id = models.AutoField(primary_key=True)
     asociado = models.ForeignKey(Asociado, on_delete=models.RESTRICT, blank=False, null=False)
-    nombre = models.CharField('Nombre', max_length=30, null=False, blank=False)
-    apellido = models.CharField('Apellido', max_length=30, null=False, blank=False)
+    nombre = models.CharField('Nombre', max_length=50, null=False, blank=False)
+    apellido = models.CharField('Apellido', max_length=50, null=False, blank=False)
     tipoDocumento = models.CharField('Tipo Documento', choices=tipoDocumentoOp.choices, default=tipoDocumentoOp.cedula, blank=False, null=False)
-    numDocumento = models.CharField('Número Documento', max_length=10, blank=False, null=False)
+    numDocumento = models.CharField('Número Documento', max_length=12, blank=False, null=False)
     fechaNacimiento = models.DateField('Fecha Nacimiento', blank=False, null=False)
     parentesco = models.ForeignKey(Parentesco, on_delete=models.RESTRICT, blank=False, null=False)
     repatriacion = models.BooleanField('Repatriacion')
