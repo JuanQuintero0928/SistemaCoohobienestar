@@ -1,0 +1,35 @@
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">{% if crear %} Crear Historico de Creditos:{% else %} Editar Historico de Creditos:{% endif %}</h1>
+          <hr>
+          <h2 class="modal-title fs-5" id="exampleModalLabel" style="margin-left: 8px;">{{asociado.nombre}} {{asociado.apellido}}</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            {% if crear %}
+                <form action="{% url 'asociado:crearHistoricoCredito' pkAsociado %}" method="post" id="form">
+            {% else %}
+                <form action="{% url 'asociado:editarHistoricoCredito' pkAsociado pk %}" method="post" id="form">
+            {% endif %}
+                {% csrf_token %}
+                
+                <label for="{{ form.fechaSolicitud.id_for_label }}">Fecha Solicitud</label>
+                {{ form.fechaSolicitud}}
+                
+                <label for="{{ form.valor.id_for_label }}">Valor</label>
+                {{ form.valor }}
+                
+                <label for="{{ form.cuotas.id_for_label }}">Cuotas</label>
+                {{ form.cuotas }}
+                
+                <label for="{{ form.estado.id_for_label }}">Estado</label>
+                {{ form.estado }}
+                
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>

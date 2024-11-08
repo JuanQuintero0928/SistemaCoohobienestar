@@ -1,5 +1,6 @@
 {% extends 'estructura/tabla.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}
     Asociado
@@ -41,6 +42,8 @@
         <th>Fecha Solicitud</th>
         <th>Tipo Auxilio</th>
         <th>Valor</th>
+        <th>Entidad Bancaria</th>
+        <th>Número Cuenta</th>
         <th>Estado</th>
         <th>Opciones</th>
     </tr>
@@ -50,9 +53,11 @@
     {% for obj in query %}
         <tr>
             <th>{{ forloop.counter }}</th>
-            <th>{{ obj.fechaSolicitud }}</th>
+            <th>{{ obj.fechaSolicitud|date:"d/m/Y" }}</th>
             <th>{{ obj.tipoAuxilio }}</th>
-            <th>{{ obj.valor }}</th>
+            <th>${{ obj.valor|intcomma }}</th>
+            <th>{{ obj.entidadBancaria }}</th>
+            <th>{{ obj.numCuenta }}</th>
             <th>{{ obj.estado }}</th>
             <th><center><button class="btn btn-outline-primary" onclick="abrir_modal_edicion('{% url 'asociado:detalleAuxilio' pkAsociado obj.pk %}')"><i class="fa-solid fa-eye"></i></button></th>  
         </tr>

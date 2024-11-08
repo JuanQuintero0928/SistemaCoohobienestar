@@ -118,7 +118,7 @@
                                 <label for="id_mpioDoc" class="form-label">Lugar Expedición *</label>
                                 <select name="mpioDoc" class="form-select" id="id_mpioDoc" required disabled>
                                     {% for mcpio in query_mpio %}
-                                        <option value="{{mcpio.id}}" {% if mcpio.id == objAsociado.mpioDoc.pk %} selected {% endif %}>{{mcpio.nombre}}</option>
+                                        <option value="{{mcpio.id}}" {% if mcpio.id == objAsociado.mpioDoc.pk %} selected {% endif %}>{{mcpio.nombre}} - {{mcpio.departamento__nombre}}</option>
                                     {% endfor %}
                                 </select>
                             </div>

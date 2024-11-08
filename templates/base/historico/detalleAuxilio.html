@@ -10,33 +10,48 @@
         <div class="modal-body">
             <form class="row g-3" action="{% url 'asociado:detalleAuxilio' pkAsociado pk %}" method="post">
                 {%csrf_token%}
-                <div class="col-3">
-                    <label for="id_fechaSolicitud" class="form-label">Fecha Solicitud</label>
-                    <input name="fechaSolicitud" class="form form-control" id="id_fechaSolicitud" type="date" value="{{obj.fechaSolicitud|date:"Y-m-d"}}" disabled>
-                </div>
-                <div class="col-5">
-                    <label for="id_tipoAuxilio" class="form-label">Tipo Auxilio</label>
-                    <input name="tipoAuxilio" class="form form-control" id="id_tipoAuxilio" type="text" value="{{obj.tipoAuxilio}}" disabled>
-                </div>
-                <div class="col-2">
-                    <label for="id_valor" class="form-label">Valor</label>
-                    <input name="valor" class="form form-control" id="id_valor" type="number" value="{{obj.valor}}" disabled>
-                </div>
-                <div class="col-2">
-                    <label for="id_estado" class="form-label">Estado</label>
-                    <select name="estado" class="form-select" id="id_estado">
-                        <option value="REVISION" {% if "REVISION" == obj.estado %}selected {% endif %}>REVISION</option>
-                        <option value="OTORGADO" {% if "OTORGADO" == obj.estado %}selected {% endif %}>OTORGADO</option>
-                        <option value="DENEGADO" {% if "DENEGADO" == obj.estado %}selected {% endif %}>DENEGADO</option>
-                    </select>
-                </div>
-                {% if obj.estado == 'OTORGADO' %}
-                    <div class="col-3">
-                        <label for="id_fechaDesembolso" class="form-label">Fecha Desembolso</label>
-                        <input name="fechaDesembolso" class="form form-control" id="id_fechaDesembolso" type="date" value="{{obj.fechaDesembolso|date:"Y-m-d"}}">
+                <div class="row">
+                    <div class="col-6">
+                        <label for="id_fechaSolicitud" class="form-label">Fecha Solicitud</label>
+                        <input name="fechaSolicitud" class="form form-control" id="id_fechaSolicitud" type="date" value="{{obj.fechaSolicitud|date:"Y-m-d"}}" disabled>
                     </div>
-                {% endif %}
-                {% comment %} se valida si tipo auxilio es igual a educativo, para mostrar el formulario {% endcomment %}
+                    <div class="col-6">
+                        <label for="id_tipoAuxilio" class="form-label">Tipo Auxilio</label>
+                        <input name="tipoAuxilio" class="form form-control" id="id_tipoAuxilio" type="text" value="{{obj.tipoAuxilio}}" disabled>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6" id="id_entidadBancaria">
+                        <label for="id_entidadBancaria" class="form-label">Entidad Bancaria:</label> 
+                        <input name="entidadBancaria" class="form form-control" id="id_entidadBancaria" type="text" value="{{ obj.entidadBancaria }}" disabled>
+                    </div>
+                    <div class="col-6" id="id_numCuenta">
+                        <label for="id_numCuenta" class="form-label">Número Cuenta:</label> 
+                        <input name="numCuenta" class="form form-control" id="id_numCuenta" type="number" value="{{ obj.numCuenta }}" disabled>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <label for="id_valor" class="form-label">Valor</label>
+                        <input name="valor" class="form form-control" id="id_valor" type="number" value="{{obj.valor}}" disabled>
+                    </div>
+                    <div class="col-6">
+                        <label for="id_estado" class="form-label">Estado</label>
+                        <select name="estado" class="form-select" id="id_estado" onchange="toggleEstado()">
+                            <option value="REVISION" {% if "REVISION" == obj.estado %}selected {% endif %}>REVISION</option>
+                            <option value="OTORGADO" {% if "OTORGADO" == obj.estado %}selected {% endif %}>OTORGADO</option>
+                            <option value="DENEGADO" {% if "DENEGADO" == obj.estado %}selected {% endif %}>DENEGADO</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-3" id="fechaDesembolsoContainer" style="display: {% if obj.estado == 'OTORGADO' %}block{% else %}none{% endif %};">
+                    <label for="id_fechaDesembolso" class="form-label">Fecha Desembolso:</label>
+                    <input name="fechaDesembolso" class="form form-control" id="id_fechaDesembolso" type="date" value="{{ obj.fechaDesembolso|date:"Y-m-d" }}">
+                </div>
+                <div class="col-12" id="observacionContainer" style="display: {% if obj.estado == 'DENEGADO' %}block{% else %}none{% endif %};">
+                    <label for="id_observacion" class="form-label">Observación:</label>
+                    <textarea name="observacion" class="form form-control" id="id_observacion">{% if obj.observacion != None %}{{obj.observacion}}{% endif %}</textarea>
+                </div>
                 {% if obj.tipoAuxilio.pk == 3 %}
                     <hr>
                     <center><h4>SE SOLICITA PARA</h4></center>
@@ -104,3 +119,28 @@
       </div>
     </div>
   </div>
+    <script>
+        function toggleEstado() {
+            // Obtener el valor seleccionado en el campo de estado
+            const estado = document.getElementById("id_estado").value;
+            
+            // Obtener los contenedores
+            const fechaDesembolsoContainer = document.getElementById("fechaDesembolsoContainer");
+            const observacionContainer = document.getElementById("observacionContainer");
+            
+            // Mostrar u ocultar el campo de fecha de desembolso dependiendo del estado seleccionado
+            if (estado === "OTORGADO") {
+                fechaDesembolsoContainer.style.display = "block";
+            } else {
+                fechaDesembolsoContainer.style.display = "none";
+            }
+            // Mostrar u ocultar el campo de observaciones dependiendo del estado seleccionado
+            if (estado === "DENEGADO") {
+                observacionContainer.style.display = "block";
+            } else {
+                observacionContainer.style.display = "none";
+            }   
+        }
+        // Ejecutar la función una vez al cargar la página para asegurar que el estado inicial sea correcto
+        document.addEventListener("DOMContentLoaded", toggleEstado);
+    </script>

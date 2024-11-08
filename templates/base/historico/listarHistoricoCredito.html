@@ -1,5 +1,6 @@
 {% extends 'estructura/tabla.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}
     Asociado
@@ -24,7 +25,7 @@
         <div class="col-sm-1">
             <div class="btn-group" role="group" aria-label="Basic example">
                 <a href="{% url 'asociado:asociado' %}" class="btn btn-primary"><i class="fa-solid fa-arrow-left"></i></a>
-                <button class="btn btn-primary" onclick="abrir_modal_creacion('{% url 'asociado:crearBeneficiario' pkAsociado %}')"><i class="fa-solid fa-plus"></i></button>
+                <button class="btn btn-primary" onclick="abrir_modal_creacion('{% url 'asociado:crearHistoricoCredito' pkAsociado %}')"><i class="fa-solid fa-plus"></i></button>
             </div>
         </div>
     </div> 
@@ -53,14 +54,14 @@
     {% for obj in query %}
         <tr>
             <th>{{ forloop.counter }}</th>
-            <th>{{ obj.fechaSolicitud }}</th>
+            <th>{{ obj.fechaSolicitud|date:"d/m/Y" }}</th>
             <th>{{ obj.asociado.nombre }}</th>
             <th>{{ obj.asociado.apellido }}</th>
-            <th>{{ obj.asociado.numDocumento }}</th>
-            <th>{{ obj.valor }}</th>
+            <th>{{ obj.asociado.numDocumento|intcomma }}</th>
+            <th>${{ obj.valor|intcomma }}</th>
             <th>{{ obj.cuotas }}</th>
             <th>{{ obj.estado }}</th>
-            <th><center><button class="btn btn-outline-primary" onclick="abrir_modal_edicion('{% url 'asociado:editarBeneficiario' pkAsociado obj.pk %}')"><i class="fa-solid fa-pen-to-square"></i></button></th>
+            <th><center><button class="btn btn-outline-primary" onclick="abrir_modal_edicion('{% url 'asociado:editarHistoricoCredito' pkAsociado obj.pk %}')"><i class="fa-solid fa-pen-to-square"></i></button></th>
         </tr>
     {% endfor %}
 

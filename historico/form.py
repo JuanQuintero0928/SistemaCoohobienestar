@@ -1,5 +1,6 @@
+from pyexpat import model
 from django import forms
-from .models import HistorialPagos, HistoricoSeguroVida, HistoricoAuxilio
+from .models import HistorialPagos, HistoricoSeguroVida, HistoricoAuxilio, HistoricoCredito
 
 # no se utiliza
 class HistorialPagoForm(forms.ModelForm):
@@ -103,7 +104,7 @@ class HistoricoSeguroVidaForm(forms.ModelForm):
 class HistoricoAuxilioForm(forms.ModelForm):
     class Meta:
         model = HistoricoAuxilio
-        fields = ['fechaSolicitud','tipoAuxilio','estado']
+        fields = ['fechaSolicitud','tipoAuxilio','entidadBancaria','numCuenta','estado']
         widgets = {
             'fechaSolicitud': forms.DateInput(
                 attrs={ 
@@ -113,6 +114,46 @@ class HistoricoAuxilioForm(forms.ModelForm):
             ),
              'tipoAuxilio': forms.Select(
                 attrs={ 
+                    'class':'form-control'
+                }
+            ),
+            'estado': forms.Select(
+                attrs={ 
+                    'class':'form-control'
+                }
+            ),
+            'entidadBancaria': forms.TextInput(
+                attrs={ 
+                    'class':'form-control',
+                    'style': 'text-transform: uppercase;'
+                }
+            ),
+            'numCuenta': forms.TextInput(
+                attrs={
+                    'class':'form-control' 
+                }
+            )
+        }
+
+class HistoricoCreditoForm(forms.ModelForm):
+
+    class Meta:
+        model = HistoricoCredito
+        fields = ['fechaSolicitud','valor','cuotas','estado']
+        widgets = {
+            'fechaSolicitud': forms.DateInput(
+                attrs={ 
+                    'class':'form-control',
+                    'type':'date',
+                },format='%Y-%m-%d'
+            ),
+            'valor': forms.NumberInput(
+                attrs={
+                    'class':'form-control'
+                }
+            ),
+            'cuotas': forms.NumberInput(
+                attrs={
                     'class':'form-control'
                 }
             ),
