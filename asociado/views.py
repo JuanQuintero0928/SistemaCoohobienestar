@@ -7,8 +7,6 @@ from django.urls import reverse_lazy
 from django.db.models import Sum
 from datetime import date, datetime, timedelta
 
-from asociado import form
-
 from .models import Asociado, Residencia, Nacimiento, Laboral, Financiera, ReferenciaFamiliar, ParametroAsociado, TarifaAsociado
 from beneficiario.models import Beneficiario, Mascota, Coohoperativitos, Parentesco
 from historico.models import HistoricoAuxilio, HistoricoCredito, HistoricoSeguroVida, HistorialPagos
@@ -1313,3 +1311,7 @@ class GenerarFormato(ListView):
                 else:
                     pass
                 return render(request, template_name,{'pkAsociado':kwargs['pkAsociado'], 'fechaCorte':fechaCorte,'objAsoc':objAsoc, 'objResidencia':objResidencia, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':kwargs['formato'],'saldo':saldo})
+
+class UtilidadesAsociado(ListView):
+    model = Asociado
+    template_name = 'base/asociado/utilidades.html'

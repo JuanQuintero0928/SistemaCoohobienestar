@@ -39,4 +39,5 @@ urlpatterns = [
     path('descargarFormatos/<int:pkAsociado>', login_required(DescargarFormatos.as_view()), name='descargarFormatos'),
     path('modalFormato/<int:pkAsociado>/<int:formato>', login_required(ModalFormato.as_view()), name='modalFormato'),
     path('generarFormato/<int:pkAsociado>/<int:pk>/<int:formato>', login_required(GenerarFormato.as_view()), name='generarFormato'),
+    path('utilidades', login_required(UtilidadesAsociado.as_view()), name='utilidades'),
 ]

@@ -1,0 +1,69 @@
+{% extends 'estructura/tabla.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+    Asociados
+{% endblock title %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'informacion:informacion' %}">Información</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Asociados</li>
+{% endblock breadcrumb %}
+
+{% block contenidoPagina %}
+
+    {% block submenu %}
+        <br>
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'asociado:asociado' %}">Lista</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#">Utilidades</a>
+            </li>
+        </ul>
+    {% endblock submenu %}
+    
+    <br>
+    <div class="d-flex justify-content-start flex-wrap">
+        <div class="card text-center mb-3" style="width: 16rem; margin-right: 10px;">
+            <div class="card-body">
+            <h5 class="card-title">Descargar Listado Asociados</h5>
+            <a href="{% url 'reportes:descargarExcel' 1 %}" class="btn btn-success"><i class="fa-solid fa-file-excel"></i></a>
+            </div>
+        </div>
+
+        <div class="card text-center mb-3" style="width: 16rem; margin-right: 10px;">
+            <div class="card-body">
+            <h5 class="card-title">Descargar Tarifas Asociados</h5>
+            <a href="{% url 'reportes:descargarExcel' 2 %}" class="btn btn-success"><i class="fa-solid fa-file-excel"></i></a>
+            </div>
+        </div>
+{% comment %} 
+        <div class="card text-center mb-3" style="width: 16rem; margin-right: 10px;">
+            <div class="card-body">
+            <h5 class="card-title">Descargar Listado Beneficiarios</h5>
+            <a href="{%  url 'reportes:descargarExcel' 3 %}" class="btn btn-success"><i class="fa-solid fa-file-excel"></i></a>
+            </div>
+        </div>
+
+        <div class="card text-center mb-3" style="width: 16rem; margin-right: 10px;">
+            <div class="card-body">
+            <h5 class="card-title">Descargar Listado Asociados</h5>
+            <a href="{% url 'reportes:descargarExcel' 4 %}" class="btn btn-success"><i class="fa-solid fa-file-excel"></i></a>
+            </div>
+        </div> {% endcomment %}
+    </div>
+
+
+
+{% endblock contenidoPagina %}
+
+
+
+
+
+
+    

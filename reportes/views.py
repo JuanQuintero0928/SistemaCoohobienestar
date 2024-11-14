@@ -607,30 +607,48 @@ class ExcelDescuentosNomina(TemplateView):
         ws.title = 'Descuentos'
         titulo1 = f"Reporte descuentos nomina"
         ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
-        ws.merge_cells('A1:E1')
+        ws.merge_cells('A1:N1')
         ws['A1'].font = bold_font
         ws['A1'].alignment = alignment_center
         ws['A1'].fill = fill
 
         ws['A2'] = 'Número registro'
-        ws['B2'] = 'Número Documento'
-        ws['C2'] = 'Nombre Completo'
-        ws['D2'] = 'Empresa'
-        ws['E2'] = 'Valor'
+        ws['B2'] = 'Codigo'
+        ws['C2'] = 'Número Documento'
+        ws['D2'] = 'Nombre Completo'
+        ws['E2'] = 'Empresa'
+        ws['F2'] = 'Valor'
+        ws['G2'] = 'Aporte'
+        ws['H2'] = 'Bienestar Social'
+        ws['I2'] = 'Mascota'
+        ws['J2'] = 'Repatriación'
+        ws['K2'] = 'Seguro Vida'
+        ws['L2'] = 'Adicionales'
+        ws['M2'] = 'Coohoperativitos Aporte'
+        ws['N2'] = 'Coohoperativitos B Social'       
      
         bold_font2 = Font(bold=True)
         center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
 
-        for col in range(1,6):
+        for col in range(1,15):
             cell = ws.cell(row=2, column=col)
             cell.font = bold_font2
             cell.alignment = center_alignment
 
         ws.column_dimensions['A'].width = 11
-        ws.column_dimensions['B'].width = 14
-        ws.column_dimensions['C'].width = 36
-        ws.column_dimensions['D'].width = 20
-        ws.column_dimensions['E'].width = 14
+        ws.column_dimensions['B'].width = 11
+        ws.column_dimensions['C'].width = 14
+        ws.column_dimensions['D'].width = 36
+        ws.column_dimensions['E'].width = 20
+        ws.column_dimensions['F'].width = 14
+        ws.column_dimensions['G'].width = 14
+        ws.column_dimensions['H'].width = 14
+        ws.column_dimensions['I'].width = 14
+        ws.column_dimensions['J'].width = 14
+        ws.column_dimensions['K'].width = 14
+        ws.column_dimensions['L'].width = 14
+        ws.column_dimensions['M'].width = 14
+        ws.column_dimensions['N'].width = 14
 
         #Inicia el primer registro en la celda numero 3
         cont = 3
@@ -638,12 +656,20 @@ class ExcelDescuentosNomina(TemplateView):
         for asociado in array:
             for query in asociado:
                 #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
-                ws.cell(row = cont, column = 1).value = i                    
-                ws.cell(row = cont, column = 2).value = int(query.asociado.numDocumento)
-                ws.cell(row = cont, column = 3).value = f'{query.asociado.nombre}' + ' ' + f'{query.asociado.apellido}'
-                ws.cell(row = cont, column = 4).value = query.empresa.concepto
-                ws.cell(row = cont, column = 5).value = query.tarifaAsociado.total
-         
+                ws.cell(row = cont, column = 1).value = i
+                ws.cell(row = cont, column = 2).value = query.asociado.pk
+                ws.cell(row = cont, column = 3).value = int(query.asociado.numDocumento)
+                ws.cell(row = cont, column = 4).value = f'{query.asociado.nombre}' + ' ' + f'{query.asociado.apellido}'
+                ws.cell(row = cont, column = 5).value = query.empresa.concepto
+                ws.cell(row = cont, column = 6).value = query.tarifaAsociado.total
+                ws.cell(row = cont, column = 7).value = query.tarifaAsociado.cuotaAporte
+                ws.cell(row = cont, column = 8).value = query.tarifaAsociado.cuotaBSocial
+                ws.cell(row = cont, column = 9).value = query.tarifaAsociado.cuotaMascota
+                ws.cell(row = cont, column = 10).value = query.tarifaAsociado.cuotaRepatriacion
+                ws.cell(row = cont, column = 11).value = query.tarifaAsociado.cuotaSeguroVida
+                ws.cell(row = cont, column = 12).value = query.tarifaAsociado.cuotaAdicionales
+                ws.cell(row = cont, column = 13).value = query.tarifaAsociado.cuotaCoohopAporte
+                ws.cell(row = cont, column = 14).value = query.tarifaAsociado.cuotaCoohopBsocial
                 i+=1
                 cont+=1
 
@@ -760,6 +786,197 @@ class ExcelConciliacionBancaria(TemplateView):
             cont+=1
 
         nombre_archivo = f"Reporte_Conciliacion_Bancaria.xlsx"
+        response = HttpResponse(content_type = "application/ms-excel")
+        content = "attachment; filename = {0}".format(nombre_archivo)
+        response['Content-Disposition'] = content
+        wb.save(response)
+        return response
+
+class DescargarExcel(ListView):
+    
+    def get(self, request, *args, **kwargs):
+        tipo_formato = kwargs.get('tipoFormato')
+
+        # Estilos
+        bold_font = Font(bold=True, size=16, color="FFFFFF")  # Fuente en negrita, tamaño 12 y color blanco
+        bold_font2 = Font(bold=True, size=12, color="000000")  # Fuente en negrita, tamaño 12 y color negro
+        alignment_center = Alignment(horizontal="center", vertical="center")  # Alineación al centro
+        fill = PatternFill(start_color="85B84C", end_color="85B84C", fill_type="solid")  # Relleno verde sólido
+
+        wb = Workbook() #Creamos la instancia del Workbook
+        ws = wb.active
+
+        if tipo_formato == 1:
+            ws.title = 'Listado Asociados'
+            titulo1 = f"Listado Asociados"
+            ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
+            ws.merge_cells('A1:R1')
+            ws['A1'].font = bold_font
+            ws['A1'].alignment = alignment_center
+            ws['A1'].fill = fill
+
+            ws['A2'] = 'Número registro'
+            ws['B2'] = 'Codigo'
+            ws['C2'] = 'Nombres'
+            ws['D2'] = 'Apellidos'
+            ws['E2'] = 'Número Documento'
+            ws['F2'] = 'Genero'
+            ws['G2'] = 'Estado Civil'
+            ws['H2'] = 'Tipo Vivienda'
+            ws['I2'] = 'Estrato'
+            ws['J2'] = 'Dirección'
+            ws['K2'] = 'Barrio'
+            ws['L2'] = 'Departamento Residencia'
+            ws['M2'] = 'Municipio Residencia'
+            ws['N2'] = 'Fecha Nacimiento'
+            ws['O2'] = 'Número Celular'
+            ws['P2'] = 'Email'
+            ws['Q2'] = 'Estado Asociado'
+            ws['R2'] = 'Tipo Asociado'
+                    
+            bold_font2 = Font(bold=True)
+            center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+
+            for col in range(1,18):
+                cell = ws.cell(row=2, column=col)
+                cell.font = bold_font2
+                cell.alignment = center_alignment
+
+            ws.column_dimensions['A'].width = 11
+            ws.column_dimensions['B'].width = 11
+            ws.column_dimensions['C'].width = 20
+            ws.column_dimensions['D'].width = 20
+            ws.column_dimensions['E'].width = 20
+            ws.column_dimensions['F'].width = 20
+            ws.column_dimensions['G'].width = 20
+            ws.column_dimensions['H'].width = 20
+            ws.column_dimensions['I'].width = 10
+            ws.column_dimensions['J'].width = 25
+            ws.column_dimensions['K'].width = 25
+            ws.column_dimensions['L'].width = 14
+            ws.column_dimensions['M'].width = 20
+            ws.column_dimensions['N'].width = 15
+            ws.column_dimensions['O'].width = 15
+            ws.column_dimensions['P'].width = 20
+            ws.column_dimensions['Q'].width = 18
+            ws.column_dimensions['R'].width = 20
+
+            #Inicia el primer registro en la celda numero 3
+            cont = 3
+            i = 1
+            
+            queryAsociado = Asociado.objects.prefetch_related('nacimiento_set','residencia_set').all()
+
+            for asociado in queryAsociado:
+
+                #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
+                ws.cell(row = cont, column = 1).value = i
+                ws.cell(row = cont, column = 2).value = asociado.pk             
+                ws.cell(row = cont, column = 3).value = asociado.nombre
+                ws.cell(row = cont, column = 4).value = asociado.apellido
+                ws.cell(row = cont, column = 5).value = int(asociado.numDocumento)
+                ws.cell(row = cont, column = 6).value = asociado.genero
+                ws.cell(row = cont, column = 7).value = asociado.estadoCivil
+                
+                residencia = asociado.residencia_set.first()
+                if residencia:
+                    ws.cell(row = cont, column = 8).value = residencia.tipoVivienda
+                    ws.cell(row = cont, column = 9).value = residencia.estrato
+                    ws.cell(row = cont, column = 10).value = residencia.direccion
+                    ws.cell(row = cont, column = 11).value = residencia.barrio
+                    ws.cell(row = cont, column = 12).value = residencia.deptoResidencia.nombre
+                    ws.cell(row = cont, column = 13).value = residencia.mpioResidencia.nombre
+
+                nacimiento = asociado.nacimiento_set.first()
+                if nacimiento:
+                    ws.cell(row = cont, column = 14).value = nacimiento.fechaNacimiento.strftime("%d/%m/%Y")
+                
+                ws.cell(row = cont, column = 15).value = int(asociado.numCelular)
+                ws.cell(row = cont, column = 16).value = asociado.email
+                ws.cell(row = cont, column = 17).value = asociado.estadoAsociado
+                ws.cell(row = cont, column = 18).value = asociado.tAsociado.concepto
+
+                i+=1
+                cont+=1
+                nombre_archivo = f"Reporte_Listado_Asociados.xlsx"
+        elif tipo_formato == 2:
+            ws.title = 'Listado '
+            titulo1 = f"Listado Tarifas Asociados"
+            ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
+            ws.merge_cells('A1:N1')
+            ws['A1'].font = bold_font
+            ws['A1'].alignment = alignment_center
+            ws['A1'].fill = fill
+
+            ws['A2'] = 'Número registro'
+            ws['B2'] = 'Codigo'
+            ws['C2'] = 'Número Documento'
+            ws['D2'] = 'Nombre Completo'
+            ws['E2'] = 'Tipo Asociado'
+            ws['F2'] = 'Valor'
+            ws['G2'] = 'Aporte'
+            ws['H2'] = 'Bienestar Social'
+            ws['I2'] = 'Mascota'
+            ws['J2'] = 'Repatriación'
+            ws['K2'] = 'Seguro Vida'
+            ws['L2'] = 'Adicionales'
+            ws['M2'] = 'Coohoperativitos Aporte'
+            ws['N2'] = 'Coohoperativitos B Social'       
+        
+            bold_font2 = Font(bold=True)
+            center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+
+            for col in range(1,15):
+                cell = ws.cell(row=2, column=col)
+                cell.font = bold_font2
+                cell.alignment = center_alignment
+
+            ws.column_dimensions['A'].width = 11
+            ws.column_dimensions['B'].width = 11
+            ws.column_dimensions['C'].width = 14
+            ws.column_dimensions['D'].width = 36
+            ws.column_dimensions['E'].width = 20
+            ws.column_dimensions['F'].width = 14
+            ws.column_dimensions['G'].width = 14
+            ws.column_dimensions['H'].width = 14
+            ws.column_dimensions['I'].width = 14
+            ws.column_dimensions['J'].width = 14
+            ws.column_dimensions['K'].width = 14
+            ws.column_dimensions['L'].width = 14
+            ws.column_dimensions['M'].width = 14
+            ws.column_dimensions['N'].width = 14
+
+            #Inicia el primer registro en la celda numero 3
+            cont = 3
+            i = 1
+
+            queryTarifa = TarifaAsociado.objects.values('asociado__id',
+                            'asociado__nombre','asociado__apellido','asociado__numDocumento','asociado__tAsociado__concepto', 'cuotaAporte', 'cuotaBSocial', 'cuotaMascota', 'cuotaRepatriacion', 
+                            'cuotaSeguroVida', 'seguroVidaIngreso', 'fechaInicioAdicional', 'cuotaAdicionales', 
+                            'adicionalIngreso', 'cuotaCoohopAporte', 'cuotaCoohopBsocial', 'coohopIngreso', 'total'
+                        )
+
+            for query in queryTarifa:
+                #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
+                ws.cell(row = cont, column = 1).value = i
+                ws.cell(row = cont, column = 2).value = query['asociado__id']
+                ws.cell(row = cont, column = 3).value = int(query['asociado__numDocumento'])
+                ws.cell(row = cont, column = 4).value = f'{query['asociado__nombre']}' + ' ' + f'{query['asociado__apellido']}'
+                ws.cell(row = cont, column = 5).value = query['asociado__tAsociado__concepto']
+                ws.cell(row = cont, column = 6).value = query['total']
+                ws.cell(row = cont, column = 7).value = query['cuotaAporte']
+                ws.cell(row = cont, column = 8).value = query['cuotaBSocial']
+                ws.cell(row = cont, column = 9).value = query['cuotaMascota']
+                ws.cell(row = cont, column = 10).value = query['cuotaRepatriacion']
+                ws.cell(row = cont, column = 11).value = query['cuotaSeguroVida']
+                ws.cell(row = cont, column = 12).value = query['cuotaAdicionales']
+                ws.cell(row = cont, column = 13).value = query['cuotaCoohopAporte']
+                ws.cell(row = cont, column = 14).value = query['cuotaCoohopBsocial']
+                i+=1
+                cont+=1
+            nombre_archivo = f"Reporte_Tarifas_Asociado.xlsx"
+        elif tipo_formato == 3:
+            pass
         response = HttpResponse(content_type = "application/ms-excel")
         content = "attachment; filename = {0}".format(nombre_archivo)
         response['Content-Disposition'] = content
