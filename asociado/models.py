@@ -47,6 +47,11 @@ class Asociado(models.Model):
         maestria = 'MAESTRIA', 'MAESTRIA'
         doctorado = 'DOCTORADO', 'DOCTORADO'
 
+    class tipoViviendaOp(models.TextChoices):
+        propia = 'PROPIA', 'PROPIA'
+        familiar = 'FAMILIAR', 'FAMILIAR'
+        arrendada = 'ARRENDADA', 'ARRENDADA'
+
     id = models.AutoField(primary_key=True)
     tPersona = models.CharField('Tipo Persona', choices=tipoPersonaOp.choices, default=tipoPersonaOp.pNatural, blank=False, null=False)
     tAsociado = models.ForeignKey(TipoAsociado, on_delete=models.RESTRICT, blank=False, null=False)
@@ -60,6 +65,15 @@ class Asociado(models.Model):
     genero = models.CharField('Genero', choices=generoOp.choices, default=generoOp.masculino, blank=False, null=False)
     estadoCivil = models.CharField('Estado Civil', choices=estadoCivilOp.choices, default=estadoCivilOp.soltero, blank=False, null=False)
     email = models.EmailField('Email', blank=False, null=False)
+    fechaNacimiento = models.DateField('Fecha Nacimiento', blank=True, null=True)
+    dtoNacimiento = models.ForeignKey(Departamento, on_delete=models.RESTRICT, blank=True, null=True, related_name='dtoNacimiento')
+    mpioNacimiento = models.ForeignKey(Municipio, on_delete=models.RESTRICT, blank=True, null=True, related_name='mpioNacimiento')
+    tipoVivienda = models.CharField('Tipo Vivienda', choices=tipoViviendaOp.choices, default=tipoViviendaOp.propia, blank=True, null=True)
+    estrato = models.IntegerField('Estrato', blank=True, null=True)
+    direccion = models.CharField('Dirección', max_length=50, blank=True, null=True)
+    barrio = models.CharField('barrio', max_length=50, blank=True, null=True)
+    deptoResidencia = models.ForeignKey(Departamento, on_delete=models.RESTRICT, blank=True, null=True, related_name='deptoResidencia')
+    mpioResidencia = models.ForeignKey(Municipio, on_delete=models.RESTRICT, blank=True, null=True, related_name='mpioResidencia')
     numResidencia = models.CharField('Numero Residencia', max_length=13, blank=False, null=False)
     numCelular = models.CharField('Numero Celular', max_length=13, blank=False, null=False)
     envioInfoCorreo = models.BooleanField('Envio Información Email', default=False)
@@ -69,6 +83,9 @@ class Asociado(models.Model):
     tituloPregrado = models.CharField('Titulo Pregrado', max_length=100, blank=True, null=True)
     tituloPosgrado = models.CharField('Titulo Posgrado', max_length=100, blank=True, null=True)
     estadoAsociado = models.CharField('Estado Asociado', choices=estadoAsociadoOp.choices, default=estadoAsociadoOp.activo, blank=False, null=False)
+    nombreRF = models.CharField('Nombre', max_length=50, blank=True, null=True)
+    parentesco = models.CharField('Parentesco', max_length=30, blank=True, null=True)
+    numContacto = models.CharField('Número', max_length=11, blank=True, null=True)
     estadoRegistro = models.BooleanField('Estado')
     fechaIngreso = models.DateField('Fecha Ingreso', blank=False, null=False)
     fechaRetiro = models.DateField('Fecha Retiro', blank=True, null=True)
@@ -135,7 +152,7 @@ class Laboral(models.Model):
 
     id = models.AutoField(primary_key=True)
     asociado = models.ForeignKey(Asociado, on_delete=models.RESTRICT, blank=False, null=False)
-    ocupacion = models.CharField('Ocupacion', max_length=50, blank=False, null=False)
+    ocupacion = models.CharField('Ocupacion', max_length=50, blank=True, null=True)
     nombreEmpresa = models.CharField('Nombre Empresa', max_length=50, blank=True, null=True)
     cargo = models.CharField('Dirección', max_length=50, blank=True, null=True)
     nomRepresenLegal = models.CharField('Nombre Representante Legal', max_length=50, blank=True, null=True)

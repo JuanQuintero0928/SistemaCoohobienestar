@@ -62,8 +62,8 @@
             <input type="date" id="id_fechaCorte" value="{{asoc.fechaCorte|date:"Y-m-d"}}">
             <input type="text" id="id_nombre" value="{{asoc.objAsoc.nombre}} {{objAsoc.apellido}}">
             <input type="text" id="id_numDoc" value="{{asoc.objAsoc.numDocumento}}">
-            <input type="text" id="id_mpioResidencia" value="{{asoc.objResidencia.mpioResidencia}}">
-            <input type="text" id="id_direccion" value="{{asoc.objResidencia.direccion}}">
+            <input type="text" id="id_mpioResidencia" value="{{asoc.objAsoc.mpioResidencia}}">
+            <input type="text" id="id_direccion" value="{{asoc.objAsoc.direccion}}">
             <input type="text" id="id_numCelular" value="{{asoc.objAsoc.numCelular}}">
             {% comment %} Valores a pagar {% endcomment %}
             {% comment %} Cuota Periodica {% endcomment %}
@@ -147,7 +147,7 @@
 
 
             // array que almacena todos los elementos de un beneficiario
-            arrayExtracto.push(['{{asoc.objAsoc.nombre}} {{asoc.objAsoc.apellido}}', '{{asoc.objAsoc.numDocumento}}', id_fechaCorte{{forloop.counter}}, '{{asoc.objResidencia.mpioResidencia}}', '{{asoc.objAsoc.numCelular}}', '{{asoc.objResidencia.direccion}}', arrayBeneficiarios{{forloop.counter}}, arrayMascotas{{forloop.counter}},
+            arrayExtracto.push(['{{asoc.objAsoc.nombre}} {{asoc.objAsoc.apellido}}', '{{asoc.objAsoc.numDocumento}}', id_fechaCorte{{forloop.counter}}, '{{asoc.objAsoc.mpioResidencia}}', '{{asoc.objAsoc.numCelular}}', '{{asoc.objAsoc.direccion}}', arrayBeneficiarios{{forloop.counter}}, arrayMascotas{{forloop.counter}},
 
              id_cuota{{forloop.counter}},'{{asoc.saldo}}', '{{asoc.cuotaVencida}}', '{{asoc.cuotaPeriodica}}', '{{asoc.valorVencido}}',
              

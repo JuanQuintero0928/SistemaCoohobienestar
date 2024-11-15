@@ -76,15 +76,15 @@
             {% comment %} <form> {% endcomment %}
             <form style="display:none">
                 <h2>Tabla Asociado</h2>
-                <input type="date" id="id_fechaIngreso" value="{{fIngresoFormateada}}">
-                <input type="date" id="id_fechaActual" value="{{fechaActual}}">
+                <input type="date" id="id_fechaIngreso" value="{{query.fechaIngreso|date:"Y-m-d"}}">
+                <input type="date" id="id_fechaActual" value="{{fechaActual|date:"Y-m-d"}}">
                 <input type="text" id="id_tPersona" value="{{query.tPersona}}">
                 <input type="text" id="id_actualizacion" value="{{actualizacion}}">
                 <input type="text" id="id_nombre" value="{{query.nombre}}">
                 <input type="text" id="id_apellido" value="{{query.apellido}}">
                 <input type="text" id="id_tipoDocumento" value="{{query.tipoDocumento}}">
                 <input type="text" id="id_numDocumento" value="{{query.numDocumento}}">
-                <input type="date" id="id_fechaExpedicion" value="{{fExpedicionFormateada}}">
+                <input type="date" id="id_fechaExpedicion" value="{{query.fechaExpedicion|date:"Y-m-d"}}">
                 <input type="text" id="id_mpioDoc" value="{{query.mpioDoc}}">
                 <input type="text" id="id_nacionalidad" value="{{query.nacionalidad}}">
                 <input type="text" id="id_genero" value="{{query.genero}}">
@@ -98,25 +98,25 @@
                 <input type="text" id="id_nivelEducativo" value="{{query.nivelEducativo}}">
                 <input type="text" id="id_tituloPregrado" value="{{query.tituloPregrado}}">
                 <input type="text" id="id_tituloPosgrado" value="{{query.tituloPosgrado}}">
-                <h2>Tabla Nacimiento</h2>
-                <input type="date" id="id_fechaNacimiento" value="{{fNacimientoFormateada}}">
-                <input type="text" id="id_dtoNacimiento" value="{{queryNac.dtoNacimiento}}">
-                <input type="text" id="id_mpioNacimiento" value="{{queryNac.mpioNacimiento}}">
-                <h2>Tabla Residencia</h2>
-                <input type="text" id="id_tipoVivienda" value="{{queryResidencia.tipoVivienda}}">
-                <input type="number" id="id_estrato" value="{{queryResidencia.estrato}}">
-                <input type="text" id="id_direccion" value="{{queryResidencia.direccion}}">
-                <input type="text" id="id_barrio" value="{{queryResidencia.barrio}}">
-                <input type="text" id="id_deptoResidencia" value="{{queryResidencia.deptoResidencia}}">
-                <input type="text" id="id_mpioResidencia" value="{{queryResidencia.mpioResidencia}}">
+                <h2>Informacion Nacimiento</h2>
+                <input type="date" id="id_fechaNacimiento" value="{{query.fechaNacimiento|date:"Y-m-d"}}">
+                <input type="text" id="id_dtoNacimiento" value="{{query.dtoNacimiento}}">
+                <input type="text" id="id_mpioNacimiento" value="{{query.mpioNacimiento}}">
+                <h2>Informacion Residencia</h2>
+                <input type="text" id="id_tipoVivienda" value="{{query.tipoVivienda}}">
+                <input type="number" id="id_estrato" value="{{query.estrato}}">
+                <input type="text" id="id_direccion" value="{{query.direccion}}">
+                <input type="text" id="id_barrio" value="{{query.barrio}}">
+                <input type="text" id="id_deptoResidencia" value="{{query.deptoResidencia}}">
+                <input type="text" id="id_mpioResidencia" value="{{query.mpioResidencia}}">
                 <h2>Tabla Laboral</h2>
                 <input type="text" id="id_ocupacion" value="{{queryLaboral.ocupacion}}">
                 <input type="text" id="id_nombreEmpresa" value="{{queryLaboral.nombreEmpresa}}">
                 <input type="text" id="id_cargo" value="{{queryLaboral.cargo}}">
                 <input type="text" id="id_nomRepresenLegal" value="{{queryLaboral.nomRepresenLegal}}">
                 <input type="text" id="id_numDocRL" value="{{queryLaboral.numDocRL}}">
-                <input type="date" id="id_fechaInicio" value="{{fInicioLab}}">
-                <input type="date" id="id_fechaTerminacion" value="{{fTerminacionLab}}">
+                <input type="date" id="id_fechaInicio" value="{{queryLaboral.fechaInicio|date:"Y-m-d"}}">
+                <input type="date" id="id_fechaTerminacion" value="{{queryLaboral.fechaTerminacion|date:"Y-m-d"}}">
                 <input type="text" id="id_direccionLab" value="{{queryLaboral.direccion}}">
                 <input type="text" id="id_mpioTrabajo" value="{{queryLaboral.mpioTrabajo}}">
                 <input type="text" id="id_dptoTrabajo" value="{{queryLaboral.dptoTrabajo}}">
@@ -136,10 +136,10 @@
                 <input type="text" id="id_activos" value="{{objFinanciera.activos}}">
                 <input type="text" id="id_pasivos" value="{{objFinanciera.pasivos}}">
                 <input type="text" id="id_patrimonio" value="{{objFinanciera.patrimonio}}">
-                <h2>Tabla Referencia Familiar</h2>
-                <input type="text" id="id_nombreRF" value="{{objReferencia.nombre}}">
-                <input type="text" id="id_parentesco" value="{{objReferencia.parentesco}}">
-                <input type="text" id="id_numContacto" value="{{objReferencia.numContacto}}">           
+                <h2>Informacion Referencia Familiar</h2>
+                <input type="text" id="id_nombreRF" value="{{query.nombreRF}}">
+                <input type="text" id="id_parentesco" value="{{query.parentesco}}">
+                <input type="text" id="id_numContacto" value="{{query.numContacto}}">           
                 <h2>Tabla Parametro Asociado</h2>
                 <input type="text" id="id_autorizaciondcto" value="{{objParametroAsociado.autorizaciondcto}}">           
                 <input type="text" id="id_empresa" value="{{objParametroAsociado.empresa}}">

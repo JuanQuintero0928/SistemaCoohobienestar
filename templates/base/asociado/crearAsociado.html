@@ -100,7 +100,7 @@
                     <label for="id_mpioDoc" class="form-label">Lugar Expedición *</label>
                     <select name="mpioDoc" class="form-select" id="id_mpioDoc" required>
                         {% for mcpio in query_mpio %}
-                            <option value="{{mcpio.pk}}">{{mcpio.nombre}} - {{mcpio.departamento.nombre}}</option>
+                            <option value="{{mcpio.id}}">{{mcpio.nombre}} - {{mcpio.departamento__nombre}}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -118,7 +118,7 @@
                     <label for="id_dtoNacimiento" class="form-label">Departamento Nacimiento *</label>
                     <select name="dtoNacimiento" class="form-select" id="id_dtoNacimiento" required>
                         {% for dpto in query_dpto %}
-                            <option value="{{dpto.pk}}">{{dpto.nombre}}</option>
+                            <option value="{{dpto.id}}">{{dpto.nombre}}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -126,7 +126,7 @@
                     <label for="id_mpioNacimiento" class="form-label">Municipio Nacimiento *</label>
                     <select name="mpioNacimiento" class="form-select" id="id_mpioNacimiento" required>
                         {% for mcpio in query_mpio %}
-                            <option value="{{mcpio.pk}}" data-chained="{{mcpio.departamento.pk}}">{{mcpio.nombre}}</option>
+                            <option value="{{mcpio.id}}" data-chained="{{mcpio.departamento}}">{{mcpio.nombre}}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -177,7 +177,7 @@
                     <label for="id_deptoResidencia" class="form-label">Departamento *</label>
                     <select name="deptoResidencia" class="form-select" id="id_deptoResidencia" required>
                         {% for dpto in query_dpto %}
-                            <option value="{{dpto.pk}}">{{dpto.nombre}}</option>
+                            <option value="{{dpto.id}}">{{dpto.nombre}}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -187,7 +187,7 @@
                     <label for="id_mpioResidencia" class="form-label">Municipio *</label>
                     <select name="mpioResidencia" class="form-select" id="id_mpioResidencia" required>
                         {% for mcpio in query_mpio %}
-                            <option value="{{mcpio.pk}}" data-chained="{{mcpio.departamento.pk}}">{{mcpio.nombre}}</option>
+                            <option value="{{mcpio.id}}" data-chained="{{mcpio.departamento}}">{{mcpio.nombre}}</option>
                         {% endfor %}
                     </select>
                 </div>

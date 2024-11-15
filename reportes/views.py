@@ -7,7 +7,7 @@ from django.db.models import Sum
 from datetime import timedelta
 from datetime import datetime
 
-from asociado.models import Asociado, Nacimiento, ParametroAsociado, Residencia, TarifaAsociado
+from asociado.models import Asociado, ParametroAsociado, TarifaAsociado
 from beneficiario.models import Mascota, Beneficiario
 from historico.models import HistorialPagos
 from funciones.function import separarFecha
@@ -245,12 +245,11 @@ class ReporteExcelFecha(TemplateView):
         i = 1
         for asociado in asociadoRetiro:
             #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
-            obj = Nacimiento.objects.get(asociado = asociado.pk)
             ws3.cell(row = cont, column = 1).value = i                    
             ws3.cell(row = cont, column = 2).value = f'{asociado.nombre}' + ' ' + f'{asociado.apellido}'
             ws3.cell(row = cont, column = 3).value = asociado.tipoDocumento
             ws3.cell(row = cont, column = 4).value = int(asociado.numDocumento)
-            ws3.cell(row = cont, column = 5).value = obj.fechaNacimiento
+            ws3.cell(row = cont, column = 5).value = asociado.fechaNacimiento
             ws3.cell(row = cont, column = 6).value = 'RETIRO'
             ws3.cell(row = cont, column = 7).value = asociado.fechaRetiro
             i+=1
@@ -260,12 +259,11 @@ class ReporteExcelFecha(TemplateView):
         i = 1
         for asociado in asociadoIngreso:
             #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
-            obj = Nacimiento.objects.get(asociado = asociado.pk)
             ws3.cell(row = cont, column = 1).value = i                    
             ws3.cell(row = cont, column = 2).value = f'{asociado.nombre}' + ' ' + f'{asociado.apellido}'
             ws3.cell(row = cont, column = 3).value = asociado.tipoDocumento
             ws3.cell(row = cont, column = 4).value = int(asociado.numDocumento)
-            ws3.cell(row = cont, column = 5).value = obj.fechaNacimiento
+            ws3.cell(row = cont, column = 5).value = asociado.fechaNacimiento
             ws3.cell(row = cont, column = 6).value = 'INGRESO'
             ws3.cell(row = cont, column = 7).value = asociado.fechaIngreso
             i+=1
@@ -421,7 +419,6 @@ class FormatoExtracto(ListView):
                 # se valida si el primer mes de pago es igual o mayor a la seleccion del form
                 if mes.pk >= parametro.primerMes.pk:
                     
-                    objResidencia = Residencia.objects.get(asociado = asociado.pk)
                     # Formato 4
                     fechaCorte = timedelta(15) + mes.fechaInicio
                     objTarifaAsociado = TarifaAsociado.objects.get(asociado = asociado.pk)
@@ -439,9 +436,9 @@ class FormatoExtracto(ListView):
                     valorVencidoCoohop = 0
                     mensaje = ""
                     # query mostrar beneficiarios y mascotas
-                    objBeneficiario = Beneficiario.objects.filter(asociado = asociado.pk)
+                    objBeneficiario = Beneficiario.objects.filter(asociado = asociado.pk, estadoRegistro = True)
                     cuentaBeneficiario = len(objBeneficiario)
-                    objMascota = Mascota.objects.filter(asociado = asociado.pk)
+                    objMascota = Mascota.objects.filter(asociado = asociado.pk, estadoRegistro = True)
                     cuentaMascota = len(objMascota)
                     # query que suma la diferencia de pagos
                     querySaldoTotal = HistorialPagos.objects.filter(asociado = asociado.pk).aggregate(total=Sum('diferencia'))
@@ -478,7 +475,7 @@ class FormatoExtracto(ListView):
                             # saldo en 0
                             valorVencido = (cuotaPeriodica * cuotaVencida)
                             pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
-                        asociados.append({'pkAsociado':asociado.pk, 'fechaCorte':fechaCorte,'objAsoc':asociado, 'objResidencia':objResidencia, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':5, 'saldo':saldo, 'mensaje':mensaje})
+                        asociados.append({'pkAsociado':asociado.pk, 'fechaCorte':fechaCorte,'objAsoc':asociado, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':5, 'saldo':saldo, 'mensaje':mensaje})
                         
                     # condicional si esta al dia
                     elif mes.pk == objHistorialPago.mesPago.pk:
@@ -513,7 +510,7 @@ class FormatoExtracto(ListView):
                             pagoTotal = valorMensual - saldo
                             dif = valorMensual - saldo
                             mensaje = 'Tiene un saldo pendiente por pagar de ' + str(dif) + '.'
-                        asociados.append({'pkAsociado':asociado.pk, 'fechaCorte':fechaCorte,'objAsoc':asociado, 'objResidencia':objResidencia, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':5, 'saldo':saldo, 'mensaje':mensaje})
+                        asociados.append({'pkAsociado':asociado.pk, 'fechaCorte':fechaCorte,'objAsoc':asociado, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':5, 'saldo':saldo, 'mensaje':mensaje})
                     
                     # condicional si esta adelantado
                     else:
@@ -535,7 +532,7 @@ class FormatoExtracto(ListView):
 
                         mensaje = "Tiene Pago hasta el mes de " + objHistorialPago.mesPago.concepto + "."
                         
-                        asociados.append({'pkAsociado':asociado.pk, 'fechaCorte':fechaCorte,'objAsoc':asociado, 'objResidencia':objResidencia, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':5, 'saldo':saldo, 'mensaje':mensaje})
+                        asociados.append({'pkAsociado':asociado.pk, 'fechaCorte':fechaCorte,'objAsoc':asociado, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':5, 'saldo':saldo, 'mensaje':mensaje})
                 
             # si no hay pagos en la bd
             except Exception as e:
@@ -563,7 +560,7 @@ class FormatoExtracto(ListView):
                             pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
                         else:
                             pass
-                        asociados.append({'pkAsociado':asociado.pk, 'fechaCorte':fechaCorte,'objAsoc':asociado, 'objResidencia':objResidencia, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':5, 'saldo':saldo})                     
+                        asociados.append({'pkAsociado':asociado.pk, 'fechaCorte':fechaCorte,'objAsoc':asociado, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':5, 'saldo':saldo})                     
         return render(request, template_name, {'lista':asociados, 'mes':mes})
     
 class VerDescuentosNomina(ListView):
@@ -865,7 +862,7 @@ class DescargarExcel(ListView):
             cont = 3
             i = 1
             
-            queryAsociado = Asociado.objects.prefetch_related('nacimiento_set','residencia_set').all()
+            queryAsociado = Asociado.objects.all()
 
             for asociado in queryAsociado:
 
@@ -877,20 +874,13 @@ class DescargarExcel(ListView):
                 ws.cell(row = cont, column = 5).value = int(asociado.numDocumento)
                 ws.cell(row = cont, column = 6).value = asociado.genero
                 ws.cell(row = cont, column = 7).value = asociado.estadoCivil
-                
-                residencia = asociado.residencia_set.first()
-                if residencia:
-                    ws.cell(row = cont, column = 8).value = residencia.tipoVivienda
-                    ws.cell(row = cont, column = 9).value = residencia.estrato
-                    ws.cell(row = cont, column = 10).value = residencia.direccion
-                    ws.cell(row = cont, column = 11).value = residencia.barrio
-                    ws.cell(row = cont, column = 12).value = residencia.deptoResidencia.nombre
-                    ws.cell(row = cont, column = 13).value = residencia.mpioResidencia.nombre
-
-                nacimiento = asociado.nacimiento_set.first()
-                if nacimiento:
-                    ws.cell(row = cont, column = 14).value = nacimiento.fechaNacimiento.strftime("%d/%m/%Y")
-                
+                ws.cell(row = cont, column = 8).value = asociado.tipoVivienda
+                ws.cell(row = cont, column = 9).value = asociado.estrato
+                ws.cell(row = cont, column = 10).value = asociado.direccion
+                ws.cell(row = cont, column = 11).value = asociado.barrio
+                ws.cell(row = cont, column = 12).value = asociado.deptoResidencia.nombre
+                ws.cell(row = cont, column = 13).value = asociado.mpioResidencia.nombre
+                ws.cell(row = cont, column = 14).value = asociado.fechaNacimiento.strftime("%d/%m/%Y")
                 ws.cell(row = cont, column = 15).value = int(asociado.numCelular)
                 ws.cell(row = cont, column = 16).value = asociado.email
                 ws.cell(row = cont, column = 17).value = asociado.estadoAsociado

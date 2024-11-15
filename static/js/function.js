@@ -120,10 +120,14 @@ function editarCasillasPago(dato){
 function formatearNumero(numero){
     numero = Number(numero);
     const formateado = numero.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    console.log(numero)
-    console.log(formateado)
     const numeroConSimbolo = `$ ${formateado}`;
     return numeroConSimbolo;
+}
+
+function formatearNumeroSinSimbolo(numero){
+    numero = Number(numero);
+    const formateado = numero.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return formateado;
 }
 
 // Funcion que cambia la edicion de actualizacion de la seccion personal, VIEW VerAscociado
@@ -553,7 +557,6 @@ async function llamarPDF(numFormato, url) {
                 let repatriacion = (document.getElementById('id_paisRepatriacion_'+i).value);
                 arrayBeneficiariosF4.push([nombre, parentesco, repatriacion]);
             }
-            console.log(arrayBeneficiariosF4)
             // Obtenemos la informacion del model Mascota, del template formatos.html por medio de su id
             let cuentaMascotaF4 = document.getElementById('id_cuentaMascota').value;
             let arrayMascotasF4 = [];
@@ -764,9 +767,13 @@ async function generarPDF(url, nombre, apellido, tipoDocumento, numDocumento, fe
     }else{
         pdf.text("X", 278, 638);
     }
-    pdf.text(activEcono, 326, 638);
-    pdf.text(ciiu, 550, 638);
-
+    if(activEcono != 'None'){
+        pdf.text(activEcono, 326, 638);
+    }
+    if(ciiu != 'None'){
+        pdf.text(ciiu, 550, 638);
+    }
+    
     // renglon 14
     pdf.text(banco, 20, 672);
     if(numCuenta != 'None'){
@@ -996,7 +1003,6 @@ async function generarPDFf2(url, actualizacionF2, tPersonaF2, fechaHoyF2, nombre
 // Formato 3
 // Formato Auxilios
 async function generarPDFf3(url, fechaHoyF3, nombreF3, apellidoF3, tipoDocumentoF3, numDocumentoF3, fechaExpedicionF3, mpioDocF3, emailF3, numCelularF3, direccionF3, barrioF3, mpioResidenciaF3, fechaNacimientoF3, nombreEmpresaF3, cargoF3, telefonoF3, ingresosActPrinF3, bancoF3, numCuentaF3, nombre2, numDoc2, parentescoF3, nivelEducativoF3, anexoOne, anexoTwo, anexoThree, anexoFour, anexoFive, anexoSix, anexoSeven, anexoEight, envioInfoCorreoF3, envioInfoMensajeF3, envioInfoWhatsappF3, tipoAuxilio) {
-    console.log(url)
     const image = await loadImage(url);
     const pdf = new jsPDF('p', 'pt', 'legal');
     pdf.addImage(image, 'PNG', 0, 0, 613, 1010);
@@ -1148,7 +1154,6 @@ async function generarPDFf3(url, fechaHoyF3, nombreF3, apellidoF3, tipoDocumento
 // Formato 4
 // Formato Extracto
 async function generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF4, direccionF4, numCelularF4, concepto1, cuotaVencida, cuotaMes1, totalConcepto1, concepto2, cuotaMes2, totalConcepto2, concepto3, cuotaMes3, totalConcepto3, concepto4, cuotaMes4, totalConcepto4, concepto5, cuotaMes5, totalConcepto5, concepto6, cuotaMes6, totalConcepto6, pagoTotal, cuentaBeneficiariosF4, arrayBeneficiariosF4, arrayMascotasF4, saldo, mensaje) {
-    console.log(url)
     const image = await loadImage(url);
     const pdf = new jsPDF('p', 'pt', 'legal');
     pdf.addImage(image, 'PNG', 0, 0, 613, 1010);
@@ -1157,7 +1162,7 @@ async function generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF
     // renglon 0
     pdf.setFontSize(9);
     pdf.text(nombreF4, 29,151);
-    pdf.text(numDocF4, 239,151);
+    pdf.text(formatearNumeroSinSimbolo(numDocF4), 257,151);
     pdf.text(mpioResidenciaF4, 335,151);
 
     var arrFechaCorte = fechaCorte.split("-");
@@ -1280,7 +1285,7 @@ async function generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF
     for(let i = 0;i < arrayMascotasF4.length; i++){
         pdf.text(arrayMascotasF4[i][0], 30,filaB);
         pdf.addImage(perro, 'PNG', 462,filaB-18, 23,23);
-        filaB += 20;
+        filaB += 13;
     }
 
     // pago pse
@@ -1316,7 +1321,7 @@ async function generarPDFf5(url, arrayExtracto, mes) {
         // renglon 0
         pdf.setFontSize(9);
         pdf.text(arrayExtracto[i][0], 29,151);
-        pdf.text(arrayExtracto[i][1], 239,151);
+        pdf.text(formatearNumeroSinSimbolo(arrayExtracto[i][1]), 257,151);
         pdf.text(arrayExtracto[i][3], 335,151);
 
         var arrFechaCorte = arrayExtracto[i][2].split("-");
@@ -1358,7 +1363,6 @@ async function generarPDFf5(url, arrayExtracto, mes) {
             // pdf.text('saldo', 248,fila);
             pdf.text(arrayExtracto[i][10], 324,fila);
             pdf.text(formatearNumero(arrayExtracto[i][14]), 382,fila);
-            alert(formatearNumero(arrayExtracto[i][14]))
             // pdf.text('interes mora', 452,fila);
             pdf.text(formatearNumero(arrayExtracto[i][15]), 520,fila);
             fila = fila + 20
@@ -1452,7 +1456,7 @@ async function generarPDFf5(url, arrayExtracto, mes) {
             pdf.text(arrayExtracto[i][7][j][0], 30,filaB);
             pdf.text(arrayExtracto[i][7][j][1], 450,filaB);
             pdf.text('MASCOTA', 515,filaB);
-            filaB += 20;
+            filaB += 13;
         }
 
         // pago pse

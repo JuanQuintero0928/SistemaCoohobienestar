@@ -163,3 +163,14 @@ class HistoricoCreditoForm(forms.ModelForm):
                 }
             ),
         }
+
+    from django import forms
+
+class CargarArchivoForm(forms.Form):
+    archivo_csv = forms.FileField(
+        label="Seleccione un archivo CSV",
+        widget=forms.ClearableFileInput(attrs={
+            'class': 'form-control',  # Clase de Bootstrap o personalizada
+            'accept': '.csv',  # Opcional: restringe a archivos CSV
+        })
+    )

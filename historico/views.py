@@ -7,13 +7,12 @@ from django.contrib import messages
 from django.db.models import Sum, F, Q, Subquery
 from django.core.paginator import Paginator
 
-import asociado
-
 from .models import HistoricoAuxilio, HistorialPagos, HistoricoSeguroVida
 from parametro.models import MesTarifa, FormaPago, Tarifas
 from asociado.models import Asociado, ParametroAsociado, TarifaAsociado
 from beneficiario.models import Mascota, Beneficiario, Coohoperativitos
-from .form import HistorialPagoForm
+from .form import HistorialPagoForm, CargarArchivoForm
+from funciones.function import procesar_csv
 
 # Create your views here.
 
@@ -387,4 +386,22 @@ class CrearPagoAsociado2(CreateView):
             messages.error(request, 'Pago No se pudo registrar')
             return redirect('proceso:asociadoPago')
 
+class cargarCSV(ListView):
+    def get(self, request, *args, **kwargs):
+        template_name = 'proceso/cargarCSV.html'
+        form = CargarArchivoForm()
+        return render(request, template_name, {'form': form})
+    
+    def post(self, request, *args, **kwargs):
+        archivo_csv = request.FILES.get('archivo_csv')
+        if archivo_csv:
+            try:
+                registros = procesar_csv(archivo_csv)
+                HistorialPagos.objects.bulk_create(registros)
+                messages.info(request, "Datos insertados correctamente.")
+            except ValueError as e:
+                messages.error(request, f"Error: {e}")
+            except Exception as e:
+                messages.error(request, f"Error inesperado: {e}")
+        return redirect('proceso:cargarCSV')    
 

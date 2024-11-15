@@ -130,13 +130,13 @@
                             </div>
                             <div class="col-2">
                                 <label for="id_fechaNacimiento" class="form-label">Fecha Nacimiento *</label>
-                                <input type="date" value="{{objNac.fechaNacimiento|date:"Y-m-d"}}" class="form-control" name="fechaNacimiento" id="id_fechaNacimiento" required disabled>
+                                <input type="date" value="{{objAsociado.fechaNacimiento|date:"Y-m-d"}}" class="form-control" name="fechaNacimiento" id="id_fechaNacimiento" required disabled>
                             </div>
                             <div class="col-3">
                                 <label for="id_dtoNacimiento" class="form-label">Departamento Nacimiento *</label>
                                 <select name="dtoNacimiento" class="form-select" id="id_dtoNacimiento" required disabled>
                                     {% for dpto in query_dpto %}
-                                        <option value="{{dpto.id}}" {% if dpto.id == objNac.dtoNacimiento.pk %} selected {% endif %}>{{dpto.nombre}}</option>
+                                        <option value="{{dpto.id}}" {% if dpto.id == objAsociado.dtoNacimiento.pk %} selected {% endif %}>{{dpto.nombre}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -144,7 +144,7 @@
                                 <label for="id_mpioNacimiento" class="form-label">Municipio Nacimiento *</label>
                                 <select name="mpioNacimiento" class="form-select" id="id_mpioNacimiento" required disabled>
                                     {% for mcpio in query_mpio %}
-                                        <option value="{{mcpio.id}}" data-chained="{{mcpio.departamento}}" {% if mcpio.id == objAsociado.mpioDoc.pk %} selected {% endif %}>{{mcpio.nombre}}</option>
+                                        <option value="{{mcpio.id}}" data-chained="{{mcpio.departamento}}" {% if mcpio.id == objAsociado.mpioNacimiento.pk %} selected {% endif %}>{{mcpio.nombre}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -171,31 +171,31 @@
                             <div class="col-4">
                                 <label for="id_tipoVivienda" class="form-label">Tipo Vivienda *</label>
                                 <select name="tipoVivienda" class="form-select" id="id_tipoVivienda" disabled>
-                                    <option value="PROPIA" {% if objResidencia.tipoVivienda == "PROPIA" %} selected {% endif %}>PROPIA</option>
-                                    <option value="FAMILIAR" {% if objResidencia.tipoVivienda == "FAMILIAR" %} selected {% endif %}>FAMILIAR</option>
-                                    <option value="ARRENDADA" {% if objResidencia.tipoVivienda == "ARRENDADA" %} selected {% endif %}>ARRENDADA</option>
+                                    <option value="PROPIA" {% if objAsociado.tipoVivienda == "PROPIA" %} selected {% endif %}>PROPIA</option>
+                                    <option value="FAMILIAR" {% if objAsociado.tipoVivienda == "FAMILIAR" %} selected {% endif %}>FAMILIAR</option>
+                                    <option value="ARRENDADA" {% if objAsociado.tipoVivienda == "ARRENDADA" %} selected {% endif %}>ARRENDADA</option>
                                 </select>
                             </div>
                             <div class="col-4">
                                 <label for="id_estrato" class="form-label">Estrato *</label>
-                                <input type="number" value="{{objResidencia.estrato}}" class="form-control" name="estrato" id="id_estrato" min="0" required disabled>
+                                <input type="number" value="{{objAsociado.estrato}}" class="form-control" name="estrato" id="id_estrato" min="0" required disabled>
                             </div>
             
                             <hr>
                             {% comment %} Fila 5 {% endcomment %}
                             <div class="col-4">
                                 <label for="id_direccion" class="form-label">Dirección *</label>
-                                <input type="text" value="{{objResidencia.direccion}}" class="form-control input-form" name="direccion" id="id_direccion" maxlength="50" required disabled>
+                                <input type="text" value="{{objAsociado.direccion}}" class="form-control input-form" name="direccion" id="id_direccion" maxlength="50" required disabled>
                             </div>
                             <div class="col-4">
                                 <label for="id_barrio" class="form-label">Barrio o Condominio *</label>
-                                <input type="text" value="{{objResidencia.barrio}}" class="form-control input-form" name="barrio" id="id_barrio" maxlength="50" required disabled>
+                                <input type="text" value="{{objAsociado.barrio}}" class="form-control input-form" name="barrio" id="id_barrio" maxlength="50" required disabled>
                             </div>
                             <div class="col-4">
                                 <label for="id_deptoResidencia" class="form-label">Departamento *</label>
                                 <select name="deptoResidencia" class="form-select" id="id_deptoResidencia" disabled>
                                     {% for dpto in query_dpto %}
-                                        <option value="{{dpto.id}}" {% if dpto.id == objResidencia.deptoResidencia.pk %}selected{% endif %}>{{dpto.nombre}}</option>
+                                        <option value="{{dpto.id}}" {% if dpto.id == objAsociado.deptoResidencia.pk %}selected{% endif %}>{{dpto.nombre}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -205,7 +205,7 @@
                                 <label for="id_mpioResidencia" class="form-label">Municipio *</label>
                                 <select name="mpioResidencia" class="form-select" id="id_mpioResidencia" disabled>
                                     {% for mcpio in query_mpio %}
-                                        <option value="{{mcpio.id}}" data-chained="{{mcpio.departamento}}" {% if mcpio.id == objResidencia.mpioResidencia.pk %} selected{% endif %}>{{mcpio.nombre}}</option>
+                                        <option value="{{mcpio.id}}" data-chained="{{mcpio.departamento}}" {% if mcpio.id == objAsociado.mpioResidencia.pk %} selected{% endif %}>{{mcpio.nombre}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -279,20 +279,20 @@
                             <center><h3>REFERENCIA FAMILIAR</h3></center>
                             <div class="col-4">
                                 <label for="id_nombreRF" class="form-label">Nombre Familiar de Contacto *</label>
-                                <input type="text" class="form-control input-form" {% if objReferencia.nombre %}value="{{ objReferencia.nombre }}"{% endif %} name="nombreRF" id="id_nombreRF" maxlength="50" disabled>
+                                <input type="text" class="form-control input-form" {% if objAsociado.nombreRF %}value="{{ objAsociado.nombreRF }}"{% endif %} name="nombreRF" id="id_nombreRF" maxlength="50" disabled>
                             </div>
                             <div class="col-4">
                                 <label for="id_parentesco" class="form-label">Parentesco *</label>
                                 <select name="parentesco" class="form-select" id="id_parentesco" disabled>
                                     <option value="0" selected>&nbsp;</option>
                                     {% for parent in objParentesco %}
-                                        <option value="{{parent.nombre}}" {% if parent.nombre == objReferencia.parentesco %} selected {% endif %}>{{parent.nombre}}</option>
+                                        <option value="{{parent.nombre}}" {% if parent.nombre == objAsociado.parentesco %} selected {% endif %}>{{parent.nombre}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
                             <div class="col-4">
                                 <label for="id_numContacto" class="form-label">Teléfono de Familiar *</label>
-                                <input type="number" class="form-control" {% if objReferencia.numContacto %}value="{{ objReferencia.numContacto }}"{% endif %} name="numContacto" id="id_numContacto" min="0" disabled>
+                                <input type="number" class="form-control" {% if objAsociado.numContacto %}value="{{ objAsociado.numContacto }}"{% endif %} name="numContacto" id="id_numContacto" min="0" disabled>
                             </div>
                         </form>
                     </div>
@@ -309,7 +309,7 @@
                 <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse">
                     <div class="accordion-body">
                         {% comment %} Formulario Informacion Laboral {% endcomment %}
-                        <form method="post" class="row g-3" id="form" {% if laboral == 'yes' %} action="{% url 'asociado:crearLaboral' pkAsociado %}" {% else %} action="{% url 'asociado:editarLaboral' pkAsociado %}" {% endif %}>
+                        <form method="post" class="row g-3" id="form" action="{% url 'asociado:editarLaboral' pkAsociado %}">
                             {% csrf_token %}   
                             {% comment %} Fila 0 {% endcomment %}
                             <div class="col-md-4">
@@ -334,21 +334,21 @@
                             {% comment %} Fila 1 {% endcomment %}
                             <div class="col-4">
                                 <label for="id_ocupacion" class="form-label">Ocupacion *</label>
-                                <input type="text" value="{{objLaboral.ocupacion}}" class="form-control input-form" name="ocupacion" id="id_ocupacion" maxlength="50" required {% if laboral == 'no' %} disabled {% endif %}>
+                                <input type="text" {% if objLaboral.ocupacion != None %} value="{{ objLaboral.ocupacion }}" {% endif %} class="form-control input-form" name="ocupacion" id="id_ocupacion" maxlength="50" required {% if laboral == 'no' %} disabled {% endif %}>
                             </div>
                             <div class="col-4">
                                 <label for="id_nombreEmpresa" class="form-label">Nombre Empresa</label>
-                                <input type="text" value="{{objLaboral.nombreEmpresa}}" class="form-control input-form" name="nombreEmpresa" id="id_nombreEmpresa" maxlength="50" {% if laboral == 'no' %} disabled {% endif %}>
+                                <input type="text" {% if objLaboral.nombreEmpresa != None %} value="{{ objLaboral.nombreEmpresa }}" {% endif %} class="form-control input-form" name="nombreEmpresa" id="id_nombreEmpresa" maxlength="50" {% if laboral == 'no' %} disabled {% endif %}>
                             </div>
                             <div class="col-4">
                                 <label for="id_cargo" class="form-label">Cargo</label>
-                                <input type="text" value="{{objLaboral.cargo}}" class="form-control input-form" name="cargo" id="id_cargo" maxlength="50" {% if laboral == 'no' %} disabled {% endif %}>
+                                <input type="text" {% if objLaboral.cargo != None %} value="{{ objLaboral.cargo }}" {% endif %} class="form-control input-form" name="cargo" id="id_cargo" maxlength="50" {% if laboral == 'no' %} disabled {% endif %}>
                             </div>
 
                             {% comment %} Fila 2 {% endcomment %}
                             <div class="col-3">
                                 <label for="id_nomRepresenLegal" class="form-label">Nombre Representante Legal</label>
-                                <input type="text" value="{{objLaboral.nomRepresenLegal}}" class="form-control input-form" name="nomRepresenLegal" id="id_nomRepresenLegal" maxlength="50" {% if laboral == 'no' %} disabled {% endif %}>
+                                <input type="text" {% if objLaboral.nomRepresenLegal != None %} value="{{ objLaboral.nomRepresenLegal }}" {% endif %} class="form-control input-form" name="nomRepresenLegal" id="id_nomRepresenLegal" maxlength="50" {% if laboral == 'no' %} disabled {% endif %}>
                             </div>
                             <div class="col-3">
                                 <label for="id_numDocRL" class="form-label">N° Identificación Representante Legal</label>
@@ -366,7 +366,7 @@
                             {% comment %} Fila 3 {% endcomment %}
                             <div class="col-3">
                                 <label for="id_direccion2" class="form-label">Dirección</label>
-                                <input type="text" value="{{objLaboral.direccion}}" class="form-control input-form" name="direccion" id="id_direccion2" maxlength="100" {% if laboral == 'no' %} disabled {% endif %}>
+                                <input type="text" {% if objLaboral.direccion != None %} value="{{ objLaboral.direccion }}" {% endif %} class="form-control input-form" name="direccion" id="id_direccion2" maxlength="100" {% if laboral == 'no' %} disabled {% endif %}>
                             </div>
                             <div class="col-3">
                                 <label for="id_dptoTrabajo" class="form-label">Departamento</label>
@@ -408,17 +408,17 @@
                             </div>
                             <div class="col-3">
                                 <label for="id_activEcono" class="form-label">Describa Actividad Economica</label>
-                                <input type="text" value="{{objLaboral.activEcono}}" class="form-control input-form" name="activEcono" id="id_activEcono" maxlength="30" {% if laboral == 'no' %} disabled {% endif %}>
+                                <input type="text" {% if objLaboral.activEcono != None %} value="{{ objLaboral.activEcono }}" {% endif %} class="form-control input-form" name="activEcono" id="id_activEcono" maxlength="30" {% if laboral == 'no' %} disabled {% endif %}>
                             </div>
                             <div class="col-3">
                                 <label for="id_ciiu" class="form-label">CIIU</label>
-                                <input type="text" value="{{objLaboral.ciiu}}" class="form-control input-form" name="ciiu" id="id_ciiu" maxlength="6" {% if laboral == 'no' %} disabled {% endif %}>
+                                <input type="text" {% if objLaboral.ciiu != None %} value="{{ objLaboral.ciiu }}" {% endif %} class="form-control input-form" name="ciiu" id="id_ciiu" maxlength="6" {% if laboral == 'no' %} disabled {% endif %}>
                             </div>
 
                             {% comment %} Fila 5 {% endcomment %}
                             <div class="col-4">
                                 <label for="id_banco" class="form-label">Banco o Entidad Bancaria</label>
-                                <input type="text" value="{{objLaboral.banco}}" class="form-control input-form" name="banco" id="id_banco" maxlength="30" {% if laboral == 'no' %} disabled {% endif %}>
+                                <input type="text" {% if objLaboral.banco != None %} value="{{ objLaboral.banco }}" {% endif %} class="form-control input-form" name="banco" id="id_banco" maxlength="30" {% if laboral == 'no' %} disabled {% endif %}>
                             </div>
                             
                             <div class="col-4">
