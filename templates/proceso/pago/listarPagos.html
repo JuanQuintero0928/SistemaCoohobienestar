@@ -57,6 +57,13 @@
         </tr>
     </thead>
     <tbody>
+        {% if mensaje %}
+            <tr>
+                <td colspan="10" style="text-align: center;">
+                    <p class="alert alert-warning">{{ mensaje }}</p>
+                </td>
+            </tr>
+        {% endif %}
         {% for pago in page_obj.object_list %}
         <tr>
             <td>{{ pago.id }}</td>

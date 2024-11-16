@@ -35,11 +35,9 @@ def procesar_csv(archivo_csv):
         # Limpia el encabezado para eliminar el carácter BOM
         if reader.fieldnames[0].startswith('\ufeff'):
             reader.fieldnames[0] = reader.fieldnames[0].replace('\ufeff', '')
-
-        print("encabezado encontrado", reader.fieldnames)
-
+        # print("encabezado encontrado", reader.fieldnames)
         for row in reader:
-            print("Fila leída:", row)
+            # print("Fila leída:", row)
             registros.append(
                 HistorialPagos(
                     asociado_id=int(row['asociado_id']),  # Relación con el modelo `Asociado`
@@ -63,5 +61,4 @@ def procesar_csv(archivo_csv):
             )
     except Exception as e:
         raise ValueError(f"Error procesando el archivo CSV: {e}")
-
     return registros

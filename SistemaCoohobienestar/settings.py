@@ -86,9 +86,8 @@ WSGI_APPLICATION = 'SistemaCoohobienestar.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    'default': env.db('DJANGO_DB_URL')
+    'default': env.db('DJANGO_DB_URL'),
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

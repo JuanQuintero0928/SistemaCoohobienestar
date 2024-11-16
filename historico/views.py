@@ -28,28 +28,39 @@ class VerHistoricoPagos(ListView):
         
         # Capturar el valor de búsqueda del formulario
         busqueda = request.GET.get('numDocumento')
-        if busqueda:
-            valorBuscado = int(busqueda.replace('.', ''))
+        mensaje = None  # Variable para el mensaje
 
-        # Consulta para obtener los registros
-        query = HistorialPagos.objects.select_related(
-            'asociado', 'mesPago', 'formaPago', 'asociado__tAsociado'
-        ).all()
+        if busqueda:
+            try:
+                # se valida si es un numero
+                valorBuscado = int(busqueda.replace('.', ''))
+                query = HistorialPagos.objects.select_related(
+                            'asociado', 'mesPago', 'formaPago', 'asociado__tAsociado'
+                        ).filter(asociado__numDocumento__icontains=valorBuscado)
+            except ValueError:
+                # si salta error, se busca por nombre o apellido
+                query = HistorialPagos.objects.select_related(
+                    'asociado', 'mesPago', 'formaPago', 'asociado__tAsociado'
+                    ).filter(
+                    Q(asociado__apellido__icontains=busqueda) |
+                    Q(asociado__nombre__icontains=busqueda)
+                    )
+        else: 
+            # Consulta para obtener los registros
+            query = HistorialPagos.objects.select_related(
+                'asociado', 'mesPago', 'formaPago', 'asociado__tAsociado'
+            ).all()
         
-        # Filtrar por numDocumento,nombre y apellido si se ingresó algo en el campo de búsqueda
-        if busqueda:
-            query = query.filter(
-                Q(asociado__numDocumento__icontains=valorBuscado) |
-                Q(asociado__apellido__icontains=valorBuscado) |
-                Q(asociado__nombre__icontains=valorBuscado)
-                )
-
+        # Verificar si no hay resultados
+        if not query.exists():
+            mensaje = "No se encontraron resultados para la búsqueda."
+        
         # Configurar el paginador
         paginator = Paginator(query, 10)  # Muestra 10 registros por página
         page_number = request.GET.get('page')  # Obtén el número de página de la URL
         page_obj = paginator.get_page(page_number)  # Obtén la página actual
         
-        return render(request, template_name, {'page_obj': page_obj})
+        return render(request, template_name, {'page_obj': page_obj, 'mensaje':mensaje})
 
 class VerAsociadoPagos(ListView):
     def get(self, request, *args, **kwargs):
@@ -400,8 +411,10 @@ class cargarCSV(ListView):
                 HistorialPagos.objects.bulk_create(registros)
                 messages.info(request, "Datos insertados correctamente.")
             except ValueError as e:
-                messages.error(request, f"Error: {e}")
+                messages.error(request, f"Error: {str(e)}")
             except Exception as e:
-                messages.error(request, f"Error inesperado: {e}")
+                print(e)
+                messages.error(request, f"Error: {str(e)}")
+                
         return redirect('proceso:cargarCSV')    
 
