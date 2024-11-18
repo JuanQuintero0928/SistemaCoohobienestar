@@ -36,7 +36,15 @@ def procesar_csv(archivo_csv):
         if reader.fieldnames[0].startswith('\ufeff'):
             reader.fieldnames[0] = reader.fieldnames[0].replace('\ufeff', '')
         # print("encabezado encontrado", reader.fieldnames)
+
         for row in reader:
+            asociado_id = int(row['asociado_id'])
+            mesPago_id = int(row['mesPago_id'])
+
+            # Verificar si ya existe un registro con ese asociado_id y mesPago_id
+            if HistorialPagos.objects.filter(asociado_id=asociado_id, mesPago_id=mesPago_id).exists():
+                raise ValueError(f"El asociado con ID {asociado_id} ya tiene un registro para el mes con ID {mesPago_id}.")
+
             # print("Fila leída:", row)
             registros.append(
                 HistorialPagos(

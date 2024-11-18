@@ -30,6 +30,7 @@
 
 {% block tablaencabezado %}
     <tr>
+        <th>ID</th>
         <th>N° Documento</th>
         <th>Nombre</th>
         <th>Apellido</th>
@@ -43,6 +44,7 @@
 {% block tablafilas %}
     {% for obj in query %}
         <tr>
+            <th>{{ obj.id|intcomma }}</th>
             <th>{{ obj.numDocumento|intcomma }}</th>
             <th>{{ obj.nombre }}</th>
             <th>{{ obj.apellido }}</th>

@@ -7,7 +7,7 @@
     
 {% block breadcrumb %}
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Procesos</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'proceso:informacion' %}">Procesos</a></li>
     <li class="breadcrumb-item active" aria-current="page">Carga Pagos Masivos</li>
 {% endblock breadcrumb %}
 
@@ -16,6 +16,12 @@
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
+        <div class="alert alert-secondary" role="alert">
+            <strong>Requisitos archivo delimitado por comas: </strong>
+            <p>asociado_id,mesPago_id,fechaPago,valorPago,aportePago,bSocialPago,mascotaPago,repatriacionPago,seguroVidaPago,adicionalesPago,coohopAporte,coohopBsocial,diferencia,formaPago_iduserCreacion_id,user,Modificacion_id,estadoRegistro</p>
+            <br><strong>Información adicional: </strong>
+            <p> fechaPago formato UTC "YYYY-MM-DD", estadoRegistro = True</p>
+        </div>
         <button type="submit" class="btn btn-primary">Cargar</button>
     </form>
     

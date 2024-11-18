@@ -70,3 +70,7 @@ class ListarMascotas(ListView):
         
         return render(request, template_name, {'page_obj': page_obj})
 
+class Utilidades(ListView):
+    def get(self, request, *args, **kwargs):
+        template_name = 'base/beneficiario/utilidades.html'
+        return render(request, template_name)

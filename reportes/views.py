@@ -16,7 +16,7 @@ from parametro.models import FormaPago, MesTarifa, TipoAsociado
 #Libreria para generar el Excel
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
-
+    
 class InformacionReporte(ListView):
     def get(self, request, *args, **kwargs):
         template_name = 'reporte/informacion.html'
@@ -965,6 +965,156 @@ class DescargarExcel(ListView):
                 i+=1
                 cont+=1
             nombre_archivo = f"Reporte_Tarifas_Asociado.xlsx"
+        elif tipo_formato == 3:
+            pass
+        response = HttpResponse(content_type = "application/ms-excel")
+        content = "attachment; filename = {0}".format(nombre_archivo)
+        response['Content-Disposition'] = content
+        wb.save(response)
+        return response
+
+class DescargarExcelBeneficiarios(ListView):
+    
+    def get(self, request, *args, **kwargs):
+        tipo_formato = kwargs.get('tipoFormato')
+
+        # Estilos
+        bold_font = Font(bold=True, size=16, color="FFFFFF")  # Fuente en negrita, tamaño 12 y color blanco
+        bold_font2 = Font(bold=True, size=12, color="000000")  # Fuente en negrita, tamaño 12 y color negro
+        alignment_center = Alignment(horizontal="center", vertical="center")  # Alineación al centro
+        fill = PatternFill(start_color="85B84C", end_color="85B84C", fill_type="solid")  # Relleno verde sólido
+
+        wb = Workbook() #Creamos la instancia del Workbook
+        ws = wb.active
+
+        if tipo_formato == 1:
+            ws.title = 'Listado Beneficiarios'
+            titulo1 = f"Listado Beneficiarios"
+            ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
+            ws.merge_cells('A1:M1')
+            ws['A1'].font = bold_font
+            ws['A1'].alignment = alignment_center
+            ws['A1'].fill = fill
+
+            ws['A2'] = 'Número registro'
+            ws['B2'] = 'Codigo Titular'
+            ws['C2'] = 'Nombres Titular'
+            ws['D2'] = 'Apellidos Titular'
+            ws['E2'] = 'Número Documento Titular'
+            ws['F2'] = 'Codigo Beneficiario'
+            ws['G2'] = 'Nombres Beneficiario'
+            ws['H2'] = 'Apellidos Beneficiario'
+            ws['I2'] = 'Número Documento Beneficiario'
+            ws['J2'] = 'Tipo Documento'
+            ws['K2'] = 'Fecha Nacimiento'
+            ws['L2'] = 'Parentesco'
+            ws['M2'] = 'Repatración'
+                    
+            bold_font2 = Font(bold=True)
+            center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+
+            for col in range(1,14):
+                cell = ws.cell(row=2, column=col)
+                cell.font = bold_font2
+                cell.alignment = center_alignment
+
+            ws.column_dimensions['A'].width = 11
+            ws.column_dimensions['B'].width = 11
+            ws.column_dimensions['C'].width = 20
+            ws.column_dimensions['D'].width = 20
+            ws.column_dimensions['E'].width = 20
+            ws.column_dimensions['F'].width = 12
+            ws.column_dimensions['G'].width = 20
+            ws.column_dimensions['H'].width = 20
+            ws.column_dimensions['I'].width = 20
+            ws.column_dimensions['J'].width = 20
+            ws.column_dimensions['K'].width = 20
+            ws.column_dimensions['L'].width = 20
+            ws.column_dimensions['M'].width = 20
+
+            #Inicia el primer registro en la celda numero 3
+            cont = 3
+            i = 1
+            
+            queryBeneficiario = Beneficiario.objects.all()
+
+            for obj in queryBeneficiario:
+
+                #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
+                ws.cell(row = cont, column = 1).value = i
+                ws.cell(row = cont, column = 2).value = obj.asociado.pk             
+                ws.cell(row = cont, column = 3).value = obj.asociado.nombre
+                ws.cell(row = cont, column = 4).value = obj.asociado.apellido
+                ws.cell(row = cont, column = 5).value = int(obj.asociado.numDocumento)
+                ws.cell(row = cont, column = 6).value = obj.pk
+                ws.cell(row = cont, column = 7).value = obj.nombre
+                ws.cell(row = cont, column = 8).value = obj.apellido
+                ws.cell(row = cont, column = 9).value = int(obj.numDocumento)
+                ws.cell(row = cont, column = 10).value = obj.tipoDocumento
+                ws.cell(row = cont, column = 11).value = obj.fechaNacimiento.strftime("%d/%m/%Y")
+                ws.cell(row = cont, column = 12).value = obj.parentesco.nombre
+                if obj.repatriacion == True:
+                    ws.cell(row = cont, column = 13).value = obj.paisRepatriacion.nombre
+                else:
+                    ws.cell(row = cont, column = 13).value = ''
+
+                i+=1
+                cont+=1
+                nombre_archivo = f"Reporte_Listado_Beneficiarios.xlsx"
+        elif tipo_formato == 2:
+            ws.title = 'Listado Mascotas'
+            titulo1 = f"Listado Mascotas"
+            ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
+            ws.merge_cells('A1:N1')
+            ws['A1'].font = bold_font
+            ws['A1'].alignment = alignment_center
+            ws['A1'].fill = fill
+
+            ws['A2'] = 'Número registro'
+            ws['B2'] = 'Codigo'
+            ws['C2'] = 'Nombre Completo Titular'
+            ws['D2'] = 'Número Documento Titular'
+            ws['E2'] = 'Nombre Mascota'
+            ws['F2'] = 'Tipo'
+            ws['G2'] = 'Raza'
+            ws['H2'] = 'Fecha Nacimiento'    
+        
+            bold_font2 = Font(bold=True)
+            center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+
+            for col in range(1,9):
+                cell = ws.cell(row=2, column=col)
+                cell.font = bold_font2
+                cell.alignment = center_alignment
+
+            ws.column_dimensions['A'].width = 11
+            ws.column_dimensions['B'].width = 11
+            ws.column_dimensions['C'].width = 20
+            ws.column_dimensions['D'].width = 20
+            ws.column_dimensions['E'].width = 20
+            ws.column_dimensions['F'].width = 20
+            ws.column_dimensions['G'].width = 20
+            ws.column_dimensions['H'].width = 20
+
+            #Inicia el primer registro en la celda numero 3
+            cont = 3
+            i = 1
+
+            queryMascota = Mascota.objects.all()
+
+            for query in queryMascota:
+                #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
+                ws.cell(row = cont, column = 1).value = i
+                ws.cell(row = cont, column = 2).value = query.asociado.pk
+                ws.cell(row = cont, column = 3).value = query.asociado.nombre + ' ' + query.asociado.apellido
+                ws.cell(row = cont, column = 4).value = int(query.asociado.numDocumento)
+                ws.cell(row = cont, column = 5).value = query.nombre
+                ws.cell(row = cont, column = 6).value = query.tipo
+                ws.cell(row = cont, column = 7).value = query.raza
+                ws.cell(row = cont, column = 8).value = query.fechaNacimiento.strftime("%d/%m/%Y")
+                i+=1
+                cont+=1
+            nombre_archivo = f"Reporte_Listado_Mascotas.xlsx"
         elif tipo_formato == 3:
             pass
         response = HttpResponse(content_type = "application/ms-excel")

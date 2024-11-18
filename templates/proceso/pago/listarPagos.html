@@ -12,7 +12,7 @@
 
 {% block breadcrumb %}
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
-    <li class="breadcrumb-item"><a href="#">Procesos</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'proceso:informacion' %}">Procesos</a></li>
     <li class="breadcrumb-item active" aria-current="page">Pagos</li>
 {% endblock breadcrumb %}
 

@@ -2,12 +2,12 @@
 {% load static %}
 
 {% block title %}
-    Componentes Información
+    Componentes Procesos
 {% endblock title %}
     
 {% block breadcrumb %}
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Información</li>
+    <li class="breadcrumb-item active" aria-current="page">Procesos</li>
 {% endblock breadcrumb %}
 
 {% block contenidoPagina %}
@@ -19,10 +19,10 @@
     <div class="card text-white mb-3">
         <div class="card-body">
             <div class="h1 text-muted text-right mb-3 w-50 p-1">
-                <i class="fa-solid fa-user"></i>
+                <i class="fa-solid fa-money-check-dollar"></i>
             </div>
             <div class="h6 text-muted text-right mb-4">
-                <a href="{% url 'asociado:asociado' %}" style="text-decoration:none">Asociados</a>
+                <a href="{% url 'proceso:asociadoPago' %}" style="text-decoration:none">Registrar Pago</a>
             </div>
             <div class="progress progress-xs mt-3 mb-0">
                 <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-info" style="width: 100%" role="progressbar"></div>
@@ -34,11 +34,10 @@
     <div class="card text-white mb-3">
         <div class="card-body">
             <div class="h1 text-muted text-right mb-3 w-50 p-1">
-                <i class="fa-solid fa-people-group"></i>
-                <i class="fa-solid fa-shield-dog"></i>
+                <i class="fa-solid fa-file-csv"></i>
             </div>
             <div class="h6 text-muted text-right mb-4">
-                <a href="{% url 'beneficiario:beneficiario' %}" style="text-decoration:none">Beneficiarios</a>
+                <a href="{% url 'proceso:cargarCSV' %}" style="text-decoration:none">Cargar Pagos Masivos</a>
             </div>
             <div class="progress progress-xs mt-3 mb-0">
                 <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-success" style="width: 100%" role="progressbar"></div>

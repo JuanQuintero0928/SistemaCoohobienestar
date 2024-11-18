@@ -16,6 +16,11 @@ from funciones.function import procesar_csv
 
 # Create your views here.
 
+class InformacionHistorico(ListView):
+    def get(self, request, *args, **kwargs):
+        template_name = 'proceso/informacion.html'
+        return render(request, template_name)
+
 class VerHistoricoAuxilio(ListView):
     def get(self, request, *args, **kwargs):
         template_name = 'base/asociado/listarAsociado.html'
@@ -409,7 +414,7 @@ class cargarCSV(ListView):
             try:
                 registros = procesar_csv(archivo_csv)
                 HistorialPagos.objects.bulk_create(registros)
-                messages.info(request, "Datos insertados correctamente.")
+                messages.info(request, "Datos insertados correctamente:  Se ha registrado " + str(len(registros)) + " registros.")
             except ValueError as e:
                 messages.error(request, f"Error: {str(e)}")
             except Exception as e:
