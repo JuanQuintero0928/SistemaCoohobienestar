@@ -1,3 +1,4 @@
+from django import template
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
@@ -97,9 +98,10 @@ class ModalPago(ListView):
         total_tarifa_asociado = queryTarifa['total_tarifa_asociado'] or 0  # Se obtiene el valor de la suma a 0 si no hay datos
         if queryHistorial:
             mesesPagados = HistorialPagos.objects.filter(asociado = kwargs['pkAsociado']).values('mesPago')
-            queryMes = MesTarifa.objects.exclude(pk__in=Subquery(mesesPagados)).annotate(total=F('aporte') + F('bSocial') + total_tarifa_asociado)
-            for mes in queryMes:
-                print(mes.pk, mes.total, mes.fechaInicio, mes.fechaFinal)
+            queryMes = (MesTarifa.objects
+                        .exclude(pk__in=Subquery(mesesPagados))
+                        .filter(pk__gte = queryParamAsoc.primerMes.pk)
+                        .annotate(total=F('aporte') + F('bSocial') + total_tarifa_asociado))
         else:
             queryMes = MesTarifa.objects.filter(pk__gte = queryParamAsoc.primerMes.pk).annotate(total=F('aporte') + F('bSocial') + total_tarifa_asociado)
         
@@ -423,3 +425,35 @@ class cargarCSV(ListView):
                 
         return redirect('proceso:cargarCSV')    
 
+class ProcesarPagos(ListView):
+    def get(self, request, *args, **kwargs):
+        template_name = 'proceso/procesarPagos.html'
+        return render(request, template_name)
+    
+    def post(self, request, *args, **kwargs):
+        query = Asociado.objects.get(pk = 436)
+        valorActual = TarifaAsociado.objects.get(asociado = 436)
+        print(valorActual.total)
+        
+        queryParamAsoc = ParametroAsociado.objects.get(asociado = kwargs['pkAsociado'])
+        queryHistorial = HistorialPagos.objects.filter(asociado = kwargs['pkAsociado']).exists()
+
+        # Obtener la suma de los adicionales del asociado, se suma todo menos el aporte y el bSocial
+        queryTarifa = TarifaAsociado.objects.filter(asociado = kwargs['pkAsociado']).aggregate(
+            total_tarifa_asociado=Sum(
+                F('cuotaMascota') + 
+                F('cuotaRepatriacion') + 
+                F('cuotaSeguroVida') + 
+                F('cuotaAdicionales') + 
+                F('cuotaCoohopAporte') + 
+                F('cuotaCoohopBsocial')
+            )
+        )
+   
+        total_tarifa_asociado = queryTarifa['total_tarifa_asociado'] or 0  # Se obtiene el valor de la suma a 0 si no hay datos
+        if queryHistorial:
+            mesesPagados = HistorialPagos.objects.filter(asociado = kwargs['pkAsociado']).values('mesPago')
+            queryMes = (MesTarifa.objects
+                        .exclude(pk__in=Subquery(mesesPagados))
+                        .filter(pk__gte = queryParamAsoc.primerMes.pk)
+                        .annotate(total=F('aporte') + F('bSocial') + total_tarifa_asociado))

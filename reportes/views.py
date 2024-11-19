@@ -834,7 +834,7 @@ class DescargarExcel(ListView):
             bold_font2 = Font(bold=True)
             center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
 
-            for col in range(1,18):
+            for col in range(1,19):
                 cell = ws.cell(row=2, column=col)
                 cell.font = bold_font2
                 cell.alignment = center_alignment
