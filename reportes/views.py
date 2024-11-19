@@ -1065,7 +1065,7 @@ class DescargarExcelBeneficiarios(ListView):
             ws.title = 'Listado Mascotas'
             titulo1 = f"Listado Mascotas"
             ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
-            ws.merge_cells('A1:N1')
+            ws.merge_cells('A1:H1')
             ws['A1'].font = bold_font
             ws['A1'].alignment = alignment_center
             ws['A1'].fill = fill
