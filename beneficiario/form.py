@@ -4,7 +4,7 @@ from .models import Beneficiario, Mascota, Coohoperativitos
 class BeneficiarioForm(forms.ModelForm):
     class Meta:
         model = Beneficiario
-        fields = ['nombre','apellido','tipoDocumento','numDocumento','fechaNacimiento','parentesco','paisRepatriacion','fechaIngreso']
+        fields = ['nombre','apellido','tipoDocumento','numDocumento','fechaNacimiento','parentesco','paisRepatriacion','fechaRepatriacion','fechaIngreso']
         widgets = {
             'nombre': forms.TextInput(
                 attrs={
@@ -33,8 +33,9 @@ class BeneficiarioForm(forms.ModelForm):
             'fechaNacimiento': forms.DateInput(
                 attrs={
                     'class':'form-control',
-                    'type': 'date'
-                }
+                    'type': 'date',
+                },
+                format='%Y-%m-%d'
             ),
             'parentesco': forms.Select(
                 attrs={ 
@@ -50,8 +51,16 @@ class BeneficiarioForm(forms.ModelForm):
                 attrs={ 
                     'class':'form-control',
                     'type': 'date'
-                }
+                },
+                format='%Y-%m-%d'
             ),
+            'fechaRepatriacion': forms.DateInput(
+                attrs={
+                    'class': 'form-control',
+                    'type': 'date',
+                },
+                format='%Y-%m-%d'
+            )
         }
 
 class MascotaForm(forms.ModelForm):

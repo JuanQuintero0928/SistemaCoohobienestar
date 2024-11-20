@@ -34,6 +34,7 @@ class Beneficiario(models.Model):
     parentesco = models.ForeignKey(Parentesco, on_delete=models.RESTRICT, blank=False, null=False)
     repatriacion = models.BooleanField('Repatriacion')
     paisRepatriacion = models.ForeignKey(PaisRepatriacion, on_delete=models.RESTRICT, blank=True, null=True)
+    fechaRepatriacion = models.DateField('Fecha Repatriacion', blank=True, null=True)
     estadoRegistro = models.BooleanField('Estado')
     fechaIngreso = models.DateField('Fecha Ingreso', blank=False, null=False)
     fechaRetiro = models.DateField('Fecha Retiro', blank=True, null=True)

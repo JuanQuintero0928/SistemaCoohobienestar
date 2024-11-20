@@ -60,7 +60,7 @@
             <th>{{ obj.apellido }}</th>
             <th>{{ obj.tipoDocumento }}</th>
             <th>{{ obj.numDocumento|intcomma }}</th>
-            <th>{{ obj.fechaNacimiento }}</th>
+            <th>{{ obj.fechaNacimiento|date:"d/m/Y" }}</th>
             <th>{{ obj.parentesco }}</th>
             {% if obj.repatriacion is False %}
                 <th></th>

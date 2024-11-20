@@ -472,6 +472,7 @@ class CrearBeneficiario(CreateView):
                 obj.paisRepatriacion = PaisRepatriacion.objects.get(nombre = formulario.cleaned_data['paisRepatriacion'])
                 obj.repatriacion = True
                 obj.estadoRegistro = True
+                obj.fechaRepatriacion = formulario.cleaned_data['fechaRepatriacion']
                 obj.fechaIngreso = formulario.cleaned_data['fechaIngreso']
                 obj.save()
                 # se busca el valor de la repatriacion, el pk es 4
@@ -489,19 +490,26 @@ class EditarBeneficiario(UpdateView):
 
     def get(self, request, *args, **kwargs):
         form_update = get_object_or_404(Beneficiario, pk = kwargs['pk'])
-        fechaNacFormateada = form_update.fechaNacimiento.strftime("%Y-%m-%d")
-        fechaIngFormateada = form_update.fechaIngreso.strftime("%Y-%m-%d")
         form = BeneficiarioForm(initial={'nombre':form_update.nombre,
                                      'apellido':form_update.apellido,
                                      'tipoDocumeno':form_update.tipoDocumento,
                                      'numDocumento':form_update.numDocumento,
-                                     'fechaNacimiento':fechaNacFormateada,
+                                     'fechaNacimiento':form_update.fechaNacimiento,
                                      'parentesco':form_update.parentesco,
                                      'paisRepatriacion':form_update.paisRepatriacion,
+                                     'fechaRepatriacion':form_update.fechaRepatriacion,
                                      'estadoRegistro':form_update.estadoRegistro,
-                                     'fechaIngreso':fechaIngFormateada                                    
+                                     'fechaIngreso':form_update.fechaIngreso                                    
                                      })
-        return render(request, self.template_name, {'form':form,'pkAsociado':kwargs['pkAsociado'],'pk':kwargs['pk']})
+        
+        context = {
+            'form': form,
+            'pkAsociado': kwargs['pkAsociado'],
+            'pk': kwargs['pk'],
+            'paisRepatriacion': form_update.paisRepatriacion.id if form_update.paisRepatriacion else None,  # Valor de paisRepatriacion para el JS
+        }
+
+        return render(request, self.template_name, context)
     
     def post(self, request, *args, **kwargs):
         formulario = BeneficiarioForm(request.POST)
@@ -527,6 +535,7 @@ class EditarBeneficiario(UpdateView):
                 if paisRepatriacion is None:
                     obj.repatriacion = False
                     obj.paisRepatriacion = None
+                    obj.fechaRepatriacion = None
                     obj.save()
                     objTarifaAsociado.cuotaRepatriacion = (numRepatriacion-1) * objTarifa.valor
                     objTarifaAsociado.total = objTarifaAsociado.total - objTarifa.valor
@@ -537,6 +546,7 @@ class EditarBeneficiario(UpdateView):
                 else:
                     obj.paisRepatriacion = PaisRepatriacion.objects.get(nombre = formulario.cleaned_data['paisRepatriacion'])
                     obj.repatriacion = True
+                    obj.fechaRepatriacion = formulario.cleaned_data['fechaRepatriacion']
                     obj.save()
                     objTarifaAsociado.save()
                     messages.info(request, 'Registro Modificado Correctamente')
@@ -545,6 +555,7 @@ class EditarBeneficiario(UpdateView):
             elif paisRepatriacion != None:
                 obj.paisRepatriacion = PaisRepatriacion.objects.get(nombre = formulario.cleaned_data['paisRepatriacion'])
                 obj.repatriacion = True
+                obj.fechaRepatriacion = formulario.cleaned_data['fechaRepatriacion']
                 obj.estadoRegistro = True
                 obj.fechaIngreso = formulario.cleaned_data['fechaIngreso']
                 obj.save()
@@ -562,12 +573,12 @@ class EditarBeneficiario(UpdateView):
             # no se agrego repatriacion
             else:
                 obj.repatriacion = False
+                obj.fechaRepatriacion = None
                 obj.estadoRegistro = True
                 obj.fechaIngreso = formulario.cleaned_data['fechaIngreso']
                 obj.save()
                 messages.info(request, 'Registro Modificado Correctamente')
                 return HttpResponseRedirect(reverse_lazy('asociado:beneficiario', args=[kwargs['pkAsociado']]))
-
 
 class EliminarBeneficiario(UpdateView):
     model = Beneficiario
@@ -585,7 +596,7 @@ class EliminarBeneficiario(UpdateView):
             obj.repatriacion = False
             objTarifa = TarifaAsociado.objects.get(asociado = kwargs['pkAsociado'])
             tarifaRepatriacion = Tarifas.objects.get(pk = 4)
-            objTarifa.cuotaRepatriacion = 0
+            objTarifa.cuotaRepatriacion = objTarifa.cuotaRepatriacion - tarifaRepatriacion.valor
             objTarifa.total = objTarifa.total - tarifaRepatriacion.valor
             objTarifa.save()
         obj.save()
