@@ -1,5 +1,5 @@
 from django import forms
-from .models import Asociado, Residencia
+from .models import Asociado, Residencia, RepatriacionTitular
 
 class AsociadoFormReadonly(forms.ModelForm):
     class Meta:
@@ -235,6 +235,25 @@ class ResidenciaForm(forms.ModelForm):
                 }
             ),
             'mpioResidencia': forms.Select(
+                attrs={ 
+                    'class':'form-control'
+                }
+            ),
+        }
+
+class RepatriacionTitularForm(forms.ModelForm):
+    class Meta:
+        model = RepatriacionTitular
+        fields = ['fechaRepatriacion','paisRepatriacion']
+        widgets = {
+            'fechaRepatriacion': forms.DateInput(
+                attrs={
+                    'class':'form-control',
+                    'type': 'date'
+                },
+                format='%Y-%m-%d',
+            ),
+            'paisRepatriacion': forms.Select(
                 attrs={ 
                     'class':'form-control'
                 }

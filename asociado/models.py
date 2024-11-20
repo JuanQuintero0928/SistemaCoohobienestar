@@ -1,6 +1,5 @@
-import re
 from django.db import models
-from departamento.models import Departamento, Municipio
+from departamento.models import Departamento, Municipio, PaisRepatriacion
 from parametro.models import TipoAsociado, ServicioFuneraria, MesTarifa
 # from historico.models import TarifaAsociado
 
@@ -266,3 +265,15 @@ class ParametroAsociado(models.Model):
     def __str__(self):
         return  f"{self.asociado}"
     
+class RepatriacionTitular(models.Model):
+    id = models.AutoField(primary_key=True)
+    asociado = models.ForeignKey(Asociado, on_delete=models.RESTRICT, blank=False, null=False)
+    paisRepatriacion = models.ForeignKey(PaisRepatriacion, on_delete=models.RESTRICT, blank=True, null=True)
+    fechaRepatriacion = models.DateField('Fecha Repatriacion', blank=False, null=False)
+    estadoRegistro = models.BooleanField('Estado')
+    fechaCreacion = models.DateTimeField(auto_now_add=True)
+    fechaModificacion = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Repatriacion Titular'
+        ordering = ['pk']

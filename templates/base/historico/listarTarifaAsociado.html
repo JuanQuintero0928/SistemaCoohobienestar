@@ -28,9 +28,9 @@
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         {% if adicional == False %}
-                           <li><a class="dropdown-item" onclick="abrir_modal_creacion('{% url 'asociado:crearAdicional' pkAsociado %}')">Crear Valor Adicional Funcionaria</a></li>
+                           <li><a class="btn btn-primary dropdown-item" onclick="abrir_modal_creacion('{% url 'asociado:crearAdicional' pkAsociado %}')">Crear Valor Adicional Funcionaria</a></li>
                         {% endif %}
-                        <li><a class="dropdown-item" href="#">Crear Repatriación Titular</a></li>
+                        {% comment %} <li><a class="btn btn-primary dropdown-item" onclick="abrir_modal_creacion('{% url 'asociado:repatriacionTitular' pkAsociado %}')">Crear Repatriación Titular</a></li> {% endcomment %}
                     </ul>
                 </div>
             </div>
@@ -56,9 +56,15 @@
                 <th>${{ query.cuotaMascota|intcomma }}</th>
             </tr>
         {% endif %}
+        {% if queryRepatriacionTitular %}
+            <tr>
+                <th>Repatriación Titular</th>
+                <th>${{ repatriacion|intcomma }}</th>
+            </tr>
+        {% endif %}
         {% if query.cuotaRepatriacion != 0 %}
             <tr>
-                <th>Repatriacion Beneficiarios</th>
+                <th>Repatriación Beneficiarios</th>
                 <th>${{ query.cuotaRepatriacion|intcomma }}</th>
                 </tr>
             <tr>

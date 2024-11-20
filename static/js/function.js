@@ -418,7 +418,9 @@ async function llamarPDF(numFormato, url) {
             let activos = document.getElementById('id_activos').value;
             let pasivos = document.getElementById('id_pasivos').value;
             let patrimonio = document.getElementById('id_patrimonio').value;
-            generarPDF(url, nombre, apellido, tipoDocumento, numDocumento, fechaExpedicion, mpioDoc, nacionalidad, fechaNacimiento, genero, estadoCivil, email, numResidencia, numCelular,envioInfoCorreo, envioInfoMensaje, envioInfoWhatsapp, nivelEducativo, tituloPregrado, tituloPosgrado, dtoNacimiento, mpioNacimiento, tipoVivienda, estrato, direccion, barrio, deptoResidencia, mpioResidencia, ocupacion, nombreEmpresa, cargo, nomRepresenLegal, numDocRL, fechaInicio, fechaTerminacion, direccionLab, mpioTrabajo, dptoTrabajo, telefono, admRP, pep, activEcono, ciiu, banco, numCuenta, tipoCuenta, actualizacion, tPersona, fechaHoy, nombreRF, parentesco, numContacto, autorizaciondcto, empresa, ingresosActPrin, otroIngreso1, otroIngreso2, egresos, activos, pasivos, patrimonio);
+            // Obtenemos informacion del usuario que realiza la operacion
+            let usuario = document.getElementById('usuario').value;
+            generarPDF(url, nombre, apellido, tipoDocumento, numDocumento, fechaExpedicion, mpioDoc, nacionalidad, fechaNacimiento, genero, estadoCivil, email, numResidencia, numCelular,envioInfoCorreo, envioInfoMensaje, envioInfoWhatsapp, nivelEducativo, tituloPregrado, tituloPosgrado, dtoNacimiento, mpioNacimiento, tipoVivienda, estrato, direccion, barrio, deptoResidencia, mpioResidencia, ocupacion, nombreEmpresa, cargo, nomRepresenLegal, numDocRL, fechaInicio, fechaTerminacion, direccionLab, mpioTrabajo, dptoTrabajo, telefono, admRP, pep, activEcono, ciiu, banco, numCuenta, tipoCuenta, actualizacion, tPersona, fechaHoy, nombreRF, parentesco, numContacto, autorizaciondcto, empresa, ingresosActPrin, otroIngreso1, otroIngreso2, egresos, activos, pasivos, patrimonio, usuario);
         break
         // Formato Actualizacion servicios exequiales
         case 2:
@@ -573,7 +575,7 @@ async function llamarPDF(numFormato, url) {
 
 // Formato 1
 // Formato de registro y actualizacion
-async function generarPDF(url, nombre, apellido, tipoDocumento, numDocumento, fechaExpedicion, mpioDoc, nacionalidad, fechaNacimiento, genero, estadoCivil, email, numResidencia, numCelular,envioInfoCorreo, envioInfoMensaje, envioInfoWhatsapp, nivelEducativo, tituloPregrado, tituloPosgrado, dtoNacimiento, mpioNacimiento, tipoVivienda, estrato, direccion, barrio, deptoResidencia, mpioResidencia, ocupacion, nombreEmpresa, cargo, nomRepresenLegal, numDocRL, fechaInicio, fechaTerminacion, direccionLab, mpioTrabajo, dptoTrabajo, telefono, admRP, pep, activEcono, ciiu, banco, numCuenta, tipoCuenta, actualizacion, tPersona, fechaHoy, nombreRF, parentesco, numContacto, autorizaciondcto, empresa, ingresosActPrin, otroIngreso1, otroIngreso2, egresos, activos, pasivos, patrimonio) {
+async function generarPDF(url, nombre, apellido, tipoDocumento, numDocumento, fechaExpedicion, mpioDoc, nacionalidad, fechaNacimiento, genero, estadoCivil, email, numResidencia, numCelular,envioInfoCorreo, envioInfoMensaje, envioInfoWhatsapp, nivelEducativo, tituloPregrado, tituloPosgrado, dtoNacimiento, mpioNacimiento, tipoVivienda, estrato, direccion, barrio, deptoResidencia, mpioResidencia, ocupacion, nombreEmpresa, cargo, nomRepresenLegal, numDocRL, fechaInicio, fechaTerminacion, direccionLab, mpioTrabajo, dptoTrabajo, telefono, admRP, pep, activEcono, ciiu, banco, numCuenta, tipoCuenta, actualizacion, tPersona, fechaHoy, nombreRF, parentesco, numContacto, autorizaciondcto, empresa, ingresosActPrin, otroIngreso1, otroIngreso2, egresos, activos, pasivos, patrimonio, usuario) {
 
     const image = await loadImage(url);
     const pdf = new jsPDF('p', 'pt', 'legal');
@@ -847,6 +849,13 @@ async function generarPDF(url, nombre, apellido, tipoDocumento, numDocumento, fe
     // Ultima Fila
     pdf.text(nomCompleto, 165, 752);
     pdf.text(numDocumento, 165, 773);
+
+    // Espacio reservado para coohobienestar
+    pdf.text(arrFechaHoy[2], 60,837);
+    pdf.text(arrFechaHoy[1], 82,837);
+    pdf.text(arrFechaHoy[0], 105,837);
+    pdf.text(usuario, 227,837);
+    pdf.text("Auxiliar administrativo", 495,837);
 
     pdf.save('Formato_Registro_'+numDocumento+'.pdf');
 

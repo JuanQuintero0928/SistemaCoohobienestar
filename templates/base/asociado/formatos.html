@@ -162,6 +162,8 @@
                     <input type="text" id="id_vacunas_{{forloop.counter}}" value="{{mascota.vacunasCompletas}}">
                 {% endfor %}
                 <input type="text" id="id_cuentaMascota" value="{{cuentaMascota}}">
+                <h2>Usuario</h2>
+                <input type="text" id="usuario" value="{{user.first_name}} {{user.last_name}}">
             </form>
             
         {% endif %}

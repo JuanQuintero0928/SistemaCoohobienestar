@@ -40,4 +40,5 @@ urlpatterns = [
     path('modalFormato/<int:pkAsociado>/<int:formato>', login_required(ModalFormato.as_view()), name='modalFormato'),
     path('generarFormato/<int:pkAsociado>/<int:pk>/<int:formato>', login_required(GenerarFormato.as_view()), name='generarFormato'),
     path('utilidades', login_required(UtilidadesAsociado.as_view()), name='utilidades'),
+    path('repatriacionTitular/<int:pkAsociado>', login_required(CrearRepatriacionTitular.as_view()), name='repatriacionTitular'),
 ]

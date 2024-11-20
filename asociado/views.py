@@ -6,7 +6,8 @@ from django.urls import reverse_lazy
 from django.db.models import Sum
 from datetime import date, datetime, timedelta
 
-from .models import Asociado, Laboral, Financiera, ParametroAsociado, TarifaAsociado
+from .models import Asociado, Laboral, Financiera, ParametroAsociado, TarifaAsociado, RepatriacionTitular
+from .form import RepatriacionTitularForm
 from beneficiario.models import Beneficiario, Mascota, Coohoperativitos, Parentesco
 from historico.models import HistoricoAuxilio, HistoricoCredito, HistoricoSeguroVida, HistorialPagos
 from departamento.models import Departamento, Municipio, PaisRepatriacion
@@ -873,10 +874,23 @@ class VerTarifaAsociado(ListView):
     def get(self, request, *args, **kwargs):
         template_name = 'base/historico/listarTarifaAsociado.html'
         queryTarifaAsociado = TarifaAsociado.objects.get(asociado = kwargs['pkAsociado'])
+        queryRepatriacionTitular = RepatriacionTitular.objects.filter(asociado = kwargs['pkAsociado']).exists()
+        repatriacionAsociado = 0
+        # se valida si hay titulares de repatriacion
+        if queryRepatriacionTitular:
+            queryRepatriacionTitular = RepatriacionTitular.objects.filter(asociado = kwargs['pkAsociado'])
+            benef = Beneficiario.objects.filter(asociado = kwargs['pkAsociado'], repatriacion = True).count()
+            tarifas = Tarifas.objects.get(pk = 4)
+            repatriacionAsociado = tarifas.valor
+            # se valida si existen beneficiarios con repatriacion
+            if benef > 0:
+                # obtenemos el valor de la tarifa de repatriacion
+                queryTarifaAsociado.cuotaRepatriacion = benef * tarifas.valor
+
         adicional = False
         if queryTarifaAsociado.cuotaAdicionales > 0:
             adicional = True
-        return render(request, template_name, {'updateAsociado':'yes','pkAsociado':kwargs['pkAsociado'],'query':queryTarifaAsociado, 'adicional':adicional, 'vista':8})
+        return render(request, template_name, {'updateAsociado':'yes','pkAsociado':kwargs['pkAsociado'],'query':queryTarifaAsociado, 'adicional':adicional, 'queryRepatriacionTitular':queryRepatriacionTitular,'repatriacion':repatriacionAsociado, 'vista':8})
 
 class CrearAdicionalAsociado(ListView):
     def get(self, request, *args, **kwargs):
@@ -1305,3 +1319,38 @@ class GenerarFormato(ListView):
 class UtilidadesAsociado(ListView):
     model = Asociado
     template_name = 'base/asociado/utilidades.html'
+
+class CrearRepatriacionTitular(ListView):
+    form_class = RepatriacionTitularForm
+    template_name = 'base/asociado/repatriacionTitular.html'
+
+    def get(self, request, *args, **kwargs):
+
+        context = {
+            'form': self.form_class,
+            'create': 'yes',
+            'pkAsociado': kwargs['pkAsociado'],
+            }
+
+        return render(request, self.template_name, context)
+    
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        
+        if form.is_valid():
+            objRepat = RepatriacionTitular(
+                asociado=get_object_or_404(Asociado, pk=kwargs['pkAsociado']),
+                paisRepatriacion=form.cleaned_data['paisRepatriacion'],
+                fechaRepatriacion=form.cleaned_data['fechaRepatriacion'],
+                estadoRegistro=True,
+            )
+            objRepat.save()
+            messages.info(request, 'Repatriación del Titular registrada correctamente.')
+            return HttpResponseRedirect(reverse_lazy('asociado:tarifaAsociado', args=[kwargs['pkAsociado']]))
+        else:
+            # Si el formulario es inválido, re-renderiza el formulario con errores
+            return render(request, self.template_name, {
+                'form': form,
+                'create': 'yes',
+                'pkAsociado': kwargs['pkAsociado'],
+            })
