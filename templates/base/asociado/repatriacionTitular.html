@@ -1,14 +1,14 @@
 <div class="modal-dialog modal-lg" role="document">
     <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-            {% if create %}
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Crear Repatriación Titular</h1>
-            {% else %}
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Editar Repatriación Titular</h1>
-            {% endif %}
-            <hr>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content">
+            <div class="modal-header">
+                {% if create %}
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Crear Repatriación Titular</h1>
+                {% else %}
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Editar Repatriación Titular</h1>
+                {% endif %}
+                <hr>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 {% if create %}
@@ -16,11 +16,11 @@
                 {% else %}
                     <form action="{% url 'asociado:editarAdicional' pkAsociado pk %}" method="post">
                 {% endif %}                    
-                        {% csrf_token %}
-                        {{ form.as_p }}
-                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i></button>
-                     </form>
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i></button>
+                </form>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
+</div>

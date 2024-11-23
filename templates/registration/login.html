@@ -7,7 +7,8 @@
   <title>Coohobienestar</title>
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-  <link rel="icon" href="{% static 'img/icons/logo.ico' %}" type="image/x-icon" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  
   <link rel="icon" href="{% static 'img/icons/logo.png' %}" type="image/png" />
   <link rel="stylesheet" href="{% static 'lib/startbootstrap-sb-admin-gh-pages/css/adminlte.min.css' %}">
 </head>
@@ -15,9 +16,13 @@
 <div class="login-box">
   <!-- /.login-logo -->
   <div class="card card-outline card-primary">
-    <div class="card-header text-center">
-      <p class="h1"><b>Coohobienestar</b></a>
+    <div class="card-header text-center d-flex align-items-center justify-content-center">
+        <!-- Logo -->
+        <img src="{% static 'img/icons/logo.png' %}" alt="Logo" style="height: 50px; margin-right: 10px;">
+        <!-- Texto -->
+        <p class="h1 mb-0"><b>Coohobienestar</b></p>
     </div>
+
     <div class="card-body">
       <form method="post">
         {% csrf_token %}
@@ -27,7 +32,7 @@
           <input type="text" class="form-control" name="username" placeholder="Nombre Usuario">
           <div class="input-group-append">
             <div class="input-group-text">
-              <i class="fa-solid fa-user-large"></i>
+              <i class="fa-solid fa-user"></i>
             </div>
           </div>
         </div>

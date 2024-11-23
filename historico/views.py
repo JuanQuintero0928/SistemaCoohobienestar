@@ -1,4 +1,3 @@
-from django import template
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
@@ -414,7 +413,8 @@ class cargarCSV(ListView):
         archivo_csv = request.FILES.get('archivo_csv')
         if archivo_csv:
             try:
-                registros = procesar_csv(archivo_csv)
+                user_creacion_id = request.user.pk
+                registros = procesar_csv(archivo_csv, user_creacion_id)
                 HistorialPagos.objects.bulk_create(registros)
                 messages.info(request, "Datos insertados correctamente:  Se ha registrado " + str(len(registros)) + " registros.")
             except ValueError as e:

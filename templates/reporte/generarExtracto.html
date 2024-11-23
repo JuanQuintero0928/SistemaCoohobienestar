@@ -47,9 +47,6 @@
 </body>
 </html>
 
-<script src="{% static 'js/function.js' %}"></script>
-<script src="{% static 'lib/jspdf/1.3.4/jspdf.min.js' %}"></script>
-
 {% if lista %}
     <script>
         let arrayExtracto = [];
@@ -178,19 +175,26 @@
 
 {% endif %}
 
-<script>
-   
-    // funcion que envia toda la informacion de todos los asociados, para generar el pdf
-    async function generarYRedirigir() {
-        await generarPDFf5('{% static 'img/Formato_ExtractoPago_page_0001.jpg'%}', arrayExtracto, '{{mes.concepto}}');
-        
-        await generarTxt(arrayExtracto2);
+{% block extrajs %} 
+    
+    {% comment %} Scripts de funciones para realizar documentos PDF{% endcomment %}
+    <script src="{% static 'js/formatos.js' %}"></script>
+    <script src="{% static 'lib/jspdf/1.3.4/jspdf.min.js' %}"></script>
 
-        window.location.replace("{% url 'reportes:formatoExtracto' %}");
-    }
+    <script>
+        // funcion que envia toda la informacion de todos los asociados, para generar el pdf
+        async function generarYRedirigir() {
+            await generarPDFf5('{% static 'img/Formato_ExtractoPago_page_0001.jpg'%}', arrayExtracto, '{{mes.concepto}}');
+            
+            await generarTxt(arrayExtracto2);
 
-    // Ejecutar la función que genera el PDF y redirige
-    generarYRedirigir();
-</script>
+            window.location.replace("{% url 'reportes:formatoExtracto' %}");
+        }
 
+        // Ejecutar la función que genera el PDF y redirige
+        generarYRedirigir();
+
+    </script>
+    
+{% endblock extrajs %}
 

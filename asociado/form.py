@@ -1,5 +1,5 @@
 from django import forms
-from .models import Asociado, Residencia, RepatriacionTitular
+from .models import Asociado, RepatriacionTitular
 
 class AsociadoFormReadonly(forms.ModelForm):
     class Meta:
@@ -157,86 +157,6 @@ class AsociadoForm(forms.ModelForm):
                 attrs={ 
                     'class':'form-control',
                     'type': 'date'
-                }
-            ),
-        }
-
-class ResidenciaFormReadonly(forms.ModelForm):
-    class Meta:
-        model = Residencia
-        fields = ['tipoVivienda','estrato','direccion','barrio','deptoResidencia','mpioResidencia']
-        widgets = {
-            'tipoVivienda': forms.Select(
-                attrs={ 
-                    'class':'form-control',
-                    'disabled':'disabled'
-                }
-            ),
-            'estrato': forms.NumberInput(
-                attrs={ 
-                    'class':'form-control',
-                    'disabled':'disabled'
-                }
-            ),
-            'direccion': forms.TextInput(
-                attrs={ 
-                    'class':'form-control',
-                    'disabled':'disabled'
-                }
-            ),
-            'barrio': forms.TextInput(
-                attrs={ 
-                    'class':'form-control',
-                    'disabled':'disabled'
-                }
-            ),
-            'deptoResidencia': forms.Select(
-                attrs={ 
-                    'class':'form-control',
-                    'disabled':'disabled'
-                }
-            ),
-            'mpioResidencia': forms.Select(
-                attrs={ 
-                    'class':'form-control',
-                    'disabled':'disabled'
-                }
-            ),
-        }
-
-class ResidenciaForm(forms.ModelForm):
-    class Meta:
-        model = Residencia
-        fields = ['tipoVivienda','estrato','direccion','barrio','deptoResidencia','mpioResidencia']
-        widgets = {
-            'tipoVivienda': forms.Select(
-                attrs={ 
-                    'class':'form-control'
-                }
-            ),
-            'estrato': forms.NumberInput(
-                attrs={ 
-                    'class':'form-control'
-                }
-            ),
-            'direccion': forms.TextInput(
-                attrs={ 
-                    'class':'form-control'
-                }
-            ),
-            'barrio': forms.TextInput(
-                attrs={ 
-                    'class':'form-control'
-                }
-            ),
-            'deptoResidencia': forms.Select(
-                attrs={ 
-                    'class':'form-control'
-                }
-            ),
-            'mpioResidencia': forms.Select(
-                attrs={ 
-                    'class':'form-control'
                 }
             ),
         }

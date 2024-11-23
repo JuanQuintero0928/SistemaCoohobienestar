@@ -173,7 +173,6 @@ class VerAsociado(ListView):
             return render(request, self.template_name, {'laboral':'yes', 'pkAsociado':kwargs['pkAsociado'], 'query_dpto':query_dpto, 'query_mpio':query_mpio, 'objAsociado':objAsociado, 'objParentesco':objParentesco, 'objEmpresa':objEmpresa, 'objServFuneraria':objServFuneraria, 'objParametroAsociado':objParametroAsociado, 'objMes':objMes, 'vista':1})
 
 class EditarAsociado(UpdateView):
-    template_name = 'base/asociado/editarAsociado.html'
 
     def post(self, request, *args, **kwargs):
         obj = Asociado.objects.get(pk = kwargs['pkAsociado'])
@@ -183,9 +182,7 @@ class EditarAsociado(UpdateView):
         if obj.estadoAsociado != request.POST['estadoAsociado']:
             # se valida si en el form se paso de activo a retiro
             if request.POST['estadoAsociado'] == 'RETIRO':
-                fecha_actual = datetime.now()
-                fecha_formateada = fecha_actual.strftime("%Y-%m-%d")
-                obj.fechaRetiro = fecha_formateada
+                obj.fechaRetiro = request.POST['fechaRetiro']
                 obj.estadoAsociado = request.POST['estadoAsociado']
             # si pasa de retiro o inactivo a activo
             elif request.POST['estadoAsociado'] == 'ACTIVO':
@@ -259,57 +256,6 @@ class EditarAsociado(UpdateView):
         objParamatro.save()
         messages.info(request, 'Información Modificada Correctamente')
         return HttpResponseRedirect(reverse_lazy('asociado:verAsociado', args=[kwargs['pkAsociado']]))
-
-# class CrearLaboral(CreateView):
-#     def post(self, request, *args, **kwargs):
-#         obj = Laboral()
-#         obj.asociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
-#         obj.ocupacion = request.POST['ocupacion'].upper()
-#         obj.nombreEmpresa = request.POST['nombreEmpresa'].upper()
-#         obj.cargo = request.POST['cargo'].upper()
-#         obj.nomRepresenLegal = request.POST['nomRepresenLegal'].upper()
-#         if request.POST['numDocRL'] != "":
-#             obj.numDocRL = request.POST['numDocRL']
-#         if request.POST['fechaInicio'] != "":
-#             obj.fechaInicio = request.POST['fechaInicio']
-#         if request.POST['fechaTerminacion'] != "":
-#             obj.fechaTerminacion = request.POST['fechaTerminacion']
-#         obj.direccion = request.POST['direccion'].upper()
-#         if int(request.POST['dptoTrabajo']) != 0:
-#             obj.dptoTrabajo = Departamento.objects.get(pk = request.POST['dptoTrabajo'])
-#             obj.mpioTrabajo = Municipio.objects.get(pk = request.POST['mpioTrabajo'])
-#         if request.POST['telefono'] != "" and request.POST['telefono'] != "0":
-#             obj.telefono = request.POST['telefono']
-#         obj.admRP = request.POST['admRP']
-#         obj.pep = request.POST['pep']
-#         obj.activEcono = request.POST['activEcono'].upper()
-#         obj.ciiu = request.POST['ciiu']
-#         obj.banco = request.POST['banco'].upper()
-#         if request.POST['numCuenta'] != "":
-#             obj.numCuenta = request.POST['numCuenta']
-#         obj.tipoCuenta = request.POST['tipoCuenta']
-#         obj.estadoRegistro = True
-#         obj.save()
-#         objFinanciera = Financiera()
-#         objFinanciera.asociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
-#         if request.POST['ingresosActPrin'] != "":
-#             objFinanciera.ingresosActPrin = request.POST['ingresosActPrin']
-#         if request.POST['otroIngreso1'] != "":
-#             objFinanciera.otroIngreso1 = request.POST['otroIngreso1']
-#         if request.POST['otroIngreso2'] != "":
-#             objFinanciera.otroIngreso2 = request.POST['otroIngreso2']
-#         if request.POST['egresos'] != "":
-#             objFinanciera.egresos = request.POST['egresos']
-#         if request.POST['activos'] != "":
-#             objFinanciera.activos = request.POST['activos']
-#         if request.POST['pasivos'] != "":
-#             objFinanciera.pasivos = request.POST['pasivos']
-#         if request.POST['patrimonio'] != "":
-#             objFinanciera.patrimonio = request.POST['patrimonio']
-#         objFinanciera.estadoRegistro = True
-#         objFinanciera.save()
-#         messages.info(request, 'Información Registrada Correctamente')
-#         return HttpResponseRedirect(reverse_lazy('asociado:verAsociado', args=[kwargs['pkAsociado']]))
 
 class EditarLaboral(CreateView):
     def post(self, request, *args, **kwargs):
@@ -538,7 +484,7 @@ class EditarBeneficiario(UpdateView):
                     obj.paisRepatriacion = None
                     obj.fechaRepatriacion = None
                     obj.save()
-                    objTarifaAsociado.cuotaRepatriacion = (numRepatriacion-1) * objTarifa.valor
+                    objTarifaAsociado.cuotaRepatriacion = objTarifaAsociado.cuotaRepatriacion - objTarifa.valor
                     objTarifaAsociado.total = objTarifaAsociado.total - objTarifa.valor
                     objTarifaAsociado.save()
                     messages.info(request, 'Registro Modificado Correctamente')
@@ -564,7 +510,7 @@ class EditarBeneficiario(UpdateView):
                 objTarifa = Tarifas.objects.get(pk = 4)
                 objTarifaAsociado = TarifaAsociado.objects.get(asociado = kwargs['pkAsociado'])
                 if numRepatriacion > 0:
-                    objTarifaAsociado.cuotaRepatriacion = (numRepatriacion+1) * objTarifa.valor
+                    objTarifaAsociado.cuotaRepatriacion = objTarifaAsociado.cuotaRepatriacion + objTarifa.valor
                 else:
                     objTarifaAsociado.cuotaRepatriacion = objTarifa.valor
                 objTarifaAsociado.total = objTarifa.valor + objTarifaAsociado.total
@@ -874,23 +820,28 @@ class VerTarifaAsociado(ListView):
     def get(self, request, *args, **kwargs):
         template_name = 'base/historico/listarTarifaAsociado.html'
         queryTarifaAsociado = TarifaAsociado.objects.get(asociado = kwargs['pkAsociado'])
-        queryRepatriacionTitular = RepatriacionTitular.objects.filter(asociado = kwargs['pkAsociado']).exists()
+        queryRepatriacionTitular = RepatriacionTitular.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True).exists()
         repatriacionAsociado = 0
+        pkRepatriacion = 0
         # se valida si hay titulares de repatriacion
         if queryRepatriacionTitular:
             queryRepatriacionTitular = RepatriacionTitular.objects.filter(asociado = kwargs['pkAsociado'])
             benef = Beneficiario.objects.filter(asociado = kwargs['pkAsociado'], repatriacion = True).count()
             tarifas = Tarifas.objects.get(pk = 4)
             repatriacionAsociado = tarifas.valor
+            for pk in queryRepatriacionTitular:
+                pkRepatriacion = pk.pk
             # se valida si existen beneficiarios con repatriacion
             if benef > 0:
                 # obtenemos el valor de la tarifa de repatriacion
                 queryTarifaAsociado.cuotaRepatriacion = benef * tarifas.valor
+            else:
+                queryTarifaAsociado.cuotaRepatriacion = 0
 
         adicional = False
         if queryTarifaAsociado.cuotaAdicionales > 0:
             adicional = True
-        return render(request, template_name, {'updateAsociado':'yes','pkAsociado':kwargs['pkAsociado'],'query':queryTarifaAsociado, 'adicional':adicional, 'queryRepatriacionTitular':queryRepatriacionTitular,'repatriacion':repatriacionAsociado, 'vista':8})
+        return render(request, template_name, {'updateAsociado':'yes','pkAsociado':kwargs['pkAsociado'],'query':queryTarifaAsociado, 'adicional':adicional, 'queryRepatriacionTitular':queryRepatriacionTitular,'repatriacion':repatriacionAsociado, 'pk':pkRepatriacion, 'vista':8})
 
 class CrearAdicionalAsociado(ListView):
     def get(self, request, *args, **kwargs):
@@ -1034,6 +985,7 @@ class CrearCoohoperativito(UpdateView):
             obj.apellido = formulario.cleaned_data['apellido'].upper()
             obj.tipoDocumento = formulario.cleaned_data['tipoDocumento']
             obj.numDocumento = formulario.cleaned_data['numDocumento']
+            obj.fechaNacimiento = formulario.cleaned_data['fechaNacimiento']
             obj.estadoRegistro = True
             obj.fechaIngreso = formulario.cleaned_data['fechaIngreso']
             obj.save()
@@ -1054,12 +1006,12 @@ class EditarCoohoperativito(UpdateView):
 
     def get(self, request, *args, **kwargs):
         form_update = get_object_or_404(Coohoperativitos, pk = kwargs['pk'])
-        fechaIngFormateada = form_update.fechaIngreso.strftime("%Y-%m-%d")
         form = CoohoperativitoForm(initial={'nombre':form_update.nombre,
                                             'apellido':form_update.apellido,
                                             'tipoDocumento':form_update.tipoDocumento,
                                             'numDocumento':form_update.numDocumento,
-                                            'fechaIngreso':fechaIngFormateada,
+                                            'fechaNacimiento':form_update.fechaNacimiento,
+                                            'fechaIngreso':form_update.fechaIngreso,
                                             })
         return render(request, self.template_name, {'form':form,'pkAsociado':kwargs['pkAsociado'],'pk':kwargs['pk']})
     
@@ -1071,6 +1023,7 @@ class EditarCoohoperativito(UpdateView):
             obj.apellido = formulario.cleaned_data['apellido'].upper()
             obj.tipoDocumento = formulario.cleaned_data['tipoDocumento']
             obj.numDocumento = formulario.cleaned_data['numDocumento']
+            obj.fechaNacimiento = formulario.cleaned_data['fechaNacimiento']
             obj.fechaIngreso = formulario.cleaned_data['fechaIngreso']
             obj.save()
             messages.info(request, 'Registro Modificado Correctamente')
@@ -1344,6 +1297,11 @@ class CrearRepatriacionTitular(ListView):
                 fechaRepatriacion=form.cleaned_data['fechaRepatriacion'],
                 estadoRegistro=True,
             )
+            objTarifa = TarifaAsociado.objects.get(pk=kwargs['pkAsociado'])
+            TarifaRep = Tarifas.objects.get(pk=4)
+            objTarifa.cuotaRepatriacion+=TarifaRep.valor
+            objTarifa.total += TarifaRep.valor
+            objTarifa.save()
             objRepat.save()
             messages.info(request, 'Repatriación del Titular registrada correctamente.')
             return HttpResponseRedirect(reverse_lazy('asociado:tarifaAsociado', args=[kwargs['pkAsociado']]))
@@ -1354,3 +1312,43 @@ class CrearRepatriacionTitular(ListView):
                 'create': 'yes',
                 'pkAsociado': kwargs['pkAsociado'],
             })
+
+class VerRepatriacionTitular(ListView):
+    def get(self, request, *args, **kwargs):
+        template_name = 'base/asociado/verRepatriacionTitular.html'
+        form_update = get_object_or_404(RepatriacionTitular, pk = kwargs['pk'])
+        form = RepatriacionTitularForm(initial={'fechaRepatriacion':form_update.fechaRepatriacion,
+                                                'paisRepatriacion':form_update.paisRepatriacion,
+                                     })
+        return render(request, template_name, {'form':form, 'pk':kwargs['pk'], 'pkAsociado':kwargs['pkAsociado']})
+    
+    def post(self, request, *args, **kwargs):
+        form = RepatriacionTitularForm(request.POST)
+        if form.is_valid():
+            obj = RepatriacionTitular.objects.get(pk = kwargs['pk'])
+            obj.fechaRepatriacion = form.cleaned_data['fechaRepatriacion']
+            obj.paisRepatriacion = form.cleaned_data['paisRepatriacion']
+            obj.save()
+            messages.info(request, 'Registro editado correctamente')
+            return HttpResponseRedirect(reverse_lazy('asociado:tarifaAsociado', args=[kwargs['pkAsociado']]))
+
+class EliminarRepatriacionTitular(UpdateView):
+    template_name = 'base/beneficiario/eliminar.html'
+
+    def get(self, request, *args, **kwargs):
+        query = RepatriacionTitular.objects.get(pk = kwargs['pk'])
+        return render(request, self.template_name, {'pk':kwargs['pk'], 'pkAsociado':kwargs['pkAsociado'] ,'queryRepatriacionTitular':query})
+
+    def post(self, request, *args, **kwargs):
+        obj = RepatriacionTitular.objects.get(pk = kwargs['pk'])
+        obj.estadoRegistro = False
+        obj.fechaRetiro = date.today()
+        obj.save()
+        # Valor quemado de la repatriacion, pk = 4
+        objTarifa = Tarifas.objects.get(pk = 4)
+        objTarifaAsoc = TarifaAsociado.objects.get(asociado = kwargs['pkAsociado'])
+        objTarifaAsoc.cuotaRepatriacion = objTarifaAsoc.cuotaRepatriacion - objTarifa.valor
+        objTarifaAsoc.total = objTarifaAsoc.total - objTarifa.valor
+        objTarifaAsoc.save()
+        messages.info(request, 'Registro Eliminado Correctamente')
+        return HttpResponseRedirect(reverse_lazy('asociado:tarifaAsociado', args=[kwargs['pkAsociado']]))

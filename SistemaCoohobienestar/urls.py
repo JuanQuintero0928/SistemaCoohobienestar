@@ -30,7 +30,7 @@ def health_check(request):
     return HttpResponse("OK", status=200)
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('cooho-admin/', admin.site.urls),
     path('accounts/login/', LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('health/', health_check, name='health_check'),
     # path('accounts/', include('django.contrib.auth.urls')),

@@ -82,6 +82,7 @@ class Coohoperativitos(models.Model):
     tipoDocumento = models.CharField('Tipo Documento', choices=tipoDocumentoOp.choices, default=tipoDocumentoOp.cedula, blank=False, null=False)
     numDocumento = models.CharField('Número Documento', max_length=10, blank=False, null=False)
     estadoRegistro = models.BooleanField('Estado')
+    fechaNacimiento = models.DateField('Fecha Nacimiento', blank=True, null=True)
     fechaIngreso = models.DateField('Fecha Ingreso', blank=False, null=False)
     fechaRetiro = models.DateField('Fecha Retiro', blank=True, null=True)
     fechaCreacion = models.DateTimeField(auto_now_add=True)

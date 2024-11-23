@@ -48,8 +48,13 @@
             <th>${{ obj.total|intcomma }}</th>
             <th>{{ obj.asociado__tAsociado__concepto }}</th>
             <th>
-                {% comment %} <center><button class="btn btn-outline-primary" onclick="abrir_modal_creacion('{% url 'proceso:crearPagoAsociado' obj.asociado__id 2 %}')"><i class="fa-solid fa-pen-to-square"></i></button> {% endcomment %}
-                <center><button class="btn btn-outline-primary" onclick="abrir_modal_creacion('{% url 'proceso:modalPago' obj.asociado__id 2 %}')"><i class="fa-solid fa-plus"></i></button>   
+                <center>
+                <button class="btn btn-outline-primary d-flex align-items-center justify-content-center" onclick="abrir_modal_creacion('{% url 'proceso:modalPago' obj.asociado__id 2 %}')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                    </svg>
+                </button>   
             </th>
         </tr>
     {% endfor %}
@@ -75,16 +80,9 @@
         });
     }
 
-    // Cuando se abre el segundo modal
-    $('#modal2').on('show.bs.modal', function () {
-        $('#modal1 .modal-content').addClass('modal-blur');
-    });
-    
-    // Cuando se cierra el segundo modal
-    $('#modal2').on('hidden.bs.modal', function () {
-        $('#modal1 .modal-content').removeClass('modal-blur');
-    });
-
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
+<script src="{% static 'lib/startbootstrap-sb-admin-gh-pages/js/datatables-simple-demo.js' %}"></script>
 
 {% endblock extrajs %} 

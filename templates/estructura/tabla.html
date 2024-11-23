@@ -11,28 +11,14 @@
                 <thead>
                     
                     {% block tablaencabezado %}
-                        <tr>
-                            <th>Neeeame</th>
-                            <th>Position</th>
-                            <th>Office</th>
-                            <th>Age</th>
-                            <th>Start date</th>
-                            <th>Salary</th>
-                        </tr>
+                        
                     {% endblock tablaencabezado %}
                         
                 </thead>
                 <tbody>
                     
                     {% block tablafilas %}
-                        <tr>
-                            <td>Tiger Nixon</td>
-                            <td>System Architect</td>
-                            <td>Edinburgh</td>
-                            <td>61</td>
-                            <td>2011/04/25</td>
-                            <td>$320,800</td>
-                        </tr>
+                       
                     {% endblock tablafilas %}
                     
                 </tbody>
@@ -40,3 +26,9 @@
         </div>
     </div>
 {% endblock contenidoPagina %}
+
+{% block extrajs %}
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
+<script src="{% static 'lib/startbootstrap-sb-admin-gh-pages/js/datatables-simple-demo.js' %}"></script>
+<script src="{% static 'lib/startbootstrap-sb-admin-gh-pages/js/config.js' %}"></script>
+{% endblock extrajs %}

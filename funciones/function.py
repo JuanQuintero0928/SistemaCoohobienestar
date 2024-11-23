@@ -1,4 +1,5 @@
 import datetime, csv
+from urllib import request
 from zoneinfo import ZoneInfo
 from historico.models import HistorialPagos
 
@@ -24,7 +25,7 @@ def fechaUtc(año, mes, dia, parametro):
         fecha = '00-00-0000'
     return fecha
 
-def procesar_csv(archivo_csv):
+def procesar_csv(archivo_csv, user_creacion_id):
     registros = []
 
     # Leer el archivo CSV
@@ -62,9 +63,8 @@ def procesar_csv(archivo_csv):
                     coohopBsocial=int(row['coohopBsocial']) if row['coohopBsocial'] else None,
                     diferencia=int(row['diferencia']) if row['diferencia'] else None,
                     formaPago_id=int(row['formaPago_id']),  # Relación con el modelo `FormaPago`
-                    userCreacion_id=int(row['userCreacion_id']) if row['userCreacion_id'] else None,  # Relación con `User`
-                    userModificacion_id=int(row['userModificacion_id']) if row['userModificacion_id'] else None,  # Relación con `User`
-                    estadoRegistro=row['estadoRegistro'].lower() == 'true',  # Convertir a booleano
+                    userCreacion_id=user_creacion_id,  # Relación con `User`
+                    estadoRegistro=True,  # Convertir a booleano
                 )
             )
     except Exception as e:

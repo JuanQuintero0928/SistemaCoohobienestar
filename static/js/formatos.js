@@ -1,121 +1,3 @@
-// Funcion que cambia la edicion en el proceso de pago, VIEW CrearPagoAsociado
-function editarCasillasPago(dato){
-    switch(dato){
-        case "editar1":
-            document.getElementById('valorPago').disabled = false;
-            document.getElementById('btn_editar').hidden = true;
-            document.getElementById('btn_no_editar').hidden = false;
-        break
-        case "no_editar1":
-            document.getElementById('valorPago').disabled = true;
-            document.getElementById('btn_editar').hidden = false;
-            document.getElementById('btn_no_editar').hidden = true;
-        break
-        case "editar2":
-        document.getElementById('aportePago').disabled = false;
-        document.getElementById('btn_editar2').hidden = true;
-        document.getElementById('btn_no_editar2').hidden = false;
-        break
-        case "no_editar2":
-            document.getElementById('aportePago').disabled = true;
-            document.getElementById('btn_editar2').hidden = false;
-            document.getElementById('btn_no_editar2').hidden = true;
-        break
-        case "editar3":
-        document.getElementById('bSocialPago').disabled = false;
-        document.getElementById('btn_editar3').hidden = true;
-        document.getElementById('btn_no_editar3').hidden = false;
-        break
-        case "no_editar3":
-            document.getElementById('bSocialPago').disabled = true;
-            document.getElementById('btn_editar3').hidden = false;
-            document.getElementById('btn_no_editar3').hidden = true;
-        break
-        case "editar4":
-        document.getElementById('mascotaPago').disabled = false;
-        document.getElementById('btn_editar4').hidden = true;
-        document.getElementById('btn_no_editar4').hidden = false;
-        break
-        case "no_editar4":
-            document.getElementById('mascotaPago').disabled = true;
-            document.getElementById('btn_editar4').hidden = false;
-            document.getElementById('btn_no_editar4').hidden = true;
-        break
-        case "editar5":
-        document.getElementById('repatriacionPago').disabled = false;
-        document.getElementById('btn_editar5').hidden = true;
-        document.getElementById('btn_no_editar5').hidden = false;
-        break
-        case "no_editar5":
-            document.getElementById('repatriacionPago').disabled = true;
-            document.getElementById('btn_editar5').hidden = false;
-            document.getElementById('btn_no_editar5').hidden = true;
-        break
-        case "editar6":
-        document.getElementById('seguroVidaPago').disabled = false;
-        document.getElementById('btn_editar6').hidden = true;
-        document.getElementById('btn_no_editar6').hidden = false;
-        break
-        case "no_editar6":
-            document.getElementById('seguroVidaPago').disabled = true;
-            document.getElementById('btn_editar6').hidden = false;
-            document.getElementById('btn_no_editar6').hidden = true;
-        break
-        case "editar7":
-        document.getElementById('adicionalesPago').disabled = false;
-        document.getElementById('btn_editar7').hidden = true;
-        document.getElementById('btn_no_editar7').hidden = false;
-        break
-        case "no_editar7":
-            document.getElementById('adicionalesPago').disabled = true;
-            document.getElementById('btn_editar7').hidden = false;
-            document.getElementById('btn_no_editar7').hidden = true;
-        break
-        case "editar8":
-        document.getElementById('coohopAporte').disabled = false;
-        document.getElementById('btn_editar8').hidden = true;
-        document.getElementById('btn_no_editar8').hidden = false;
-        break
-        case "no_editar8":
-            document.getElementById('coohopAporte').disabled = true;
-            document.getElementById('btn_editar8').hidden = false;
-            document.getElementById('btn_no_editar8').hidden = true;
-        break
-        case "editar9":
-        document.getElementById('coohopBsocial').disabled = false;
-        document.getElementById('btn_editar9').hidden = true;
-        document.getElementById('btn_no_editar9').hidden = false;
-        break
-        case "no_editar9":
-            document.getElementById('coohopBsocial').disabled = true;
-            document.getElementById('btn_editar9').hidden = false;
-            document.getElementById('btn_no_editar9').hidden = true;
-        break
-        case "editar10":
-        document.getElementById('diferencia').disabled = false;
-        document.getElementById('btn_editar10').hidden = true;
-        document.getElementById('btn_no_editar10').hidden = false;
-        break
-        case "no_editar10":
-            document.getElementById('diferencia').disabled = true;
-            document.getElementById('btn_editar10').hidden = false;
-            document.getElementById('btn_no_editar10').hidden = true;
-        break
-        case "habilitar":
-            document.getElementById('valorPago').disabled = false;
-            document.getElementById('aportePago').disabled = false;
-            document.getElementById('bSocialPago').disabled = false;
-            document.getElementById('mascotaPago').disabled = false;
-            document.getElementById('repatriacionPago').disabled = false;
-            document.getElementById('seguroVidaPago').disabled = false;
-            document.getElementById('adicionalesPago').disabled = false;
-            document.getElementById('coohopAporte').disabled = false;
-            document.getElementById('coohopBsocial').disabled = false;
-            document.getElementById('diferencia').disabled = false;   
-        break
-    }
-}
-
 // Funcion que cambia el formato numero a formato pesos para mostrar en el extracto
 function formatearNumero(numero){
     numero = Number(numero);
@@ -128,203 +10,6 @@ function formatearNumeroSinSimbolo(numero){
     numero = Number(numero);
     const formateado = numero.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     return formateado;
-}
-
-// Funcion que cambia la edicion de actualizacion de la seccion personal, VIEW VerAscociado
-function editarInputActualizacion(dato){
-    switch(dato){
-        case "editar":
-            document.getElementById('btn-editar').hidden = true;
-            document.getElementById('btn-noeditar').hidden = false;
-            document.getElementById('id_tPersona').disabled = false;
-            document.getElementById('id_tAsociado').disabled = false;
-            document.getElementById('id_estadoAsociado').disabled = false;
-            document.getElementById('id_fechaIngreso').disabled = false;
-            document.getElementById('id_nombre').disabled = false;
-            document.getElementById('id_apellido').disabled = false;
-            document.getElementById('id_tipoDocumento').disabled = false;
-            document.getElementById('id_numDocumento').disabled = false;
-            document.getElementById('id_fechaExpedicion').disabled = false;
-            document.getElementById('id_mpioDoc').disabled = false;
-            document.getElementById('id_nacionalidad').disabled = false;
-            document.getElementById('id_genero').disabled = false;
-            document.getElementById('id_estadoCivil').disabled = false;
-            document.getElementById('id_email').disabled = false;
-            document.getElementById('id_numResidencia').disabled = false;
-            document.getElementById('id_numCelular').disabled = false;
-            document.getElementById('id_envioInfoCorreo').disabled = false;
-            document.getElementById('id_envioInfoMensaje').disabled = false;
-            document.getElementById('id_envioInfoWhatsapp').disabled = false;
-            document.getElementById('id_nivelEducativo').disabled = false;
-            document.getElementById('id_tituloPregrado').disabled = false;
-            document.getElementById('id_tituloPosgrado').disabled = false;
-            document.getElementById('id_fechaNacimiento').disabled = false;
-            document.getElementById('id_dtoNacimiento').disabled = false;
-            document.getElementById('id_mpioNacimiento').disabled = false;
-            document.getElementById('id_tipoVivienda').disabled = false;
-            document.getElementById('id_estrato').disabled = false;
-            document.getElementById('id_direccion').disabled = false;
-            document.getElementById('id_barrio').disabled = false;
-            document.getElementById('id_deptoResidencia').disabled = false;
-            document.getElementById('id_mpioResidencia').disabled = false;
-            document.getElementById('id_nombreRF').disabled = false;
-            document.getElementById('id_parentesco').disabled = false;
-            document.getElementById('id_numContacto').disabled = false;
-            document.getElementById('btn-guardar').hidden = false;
-            document.getElementById('id_fechaRetiro').disabled = false;
-        break
-        case "no_editar":
-            document.getElementById('btn-noeditar').hidden = true;
-            document.getElementById('btn-editar').hidden = false;
-            document.getElementById('id_tPersona').disabled = true;
-            document.getElementById('id_tAsociado').disabled = true;
-            document.getElementById('id_estadoAsociado').disabled = true;
-            document.getElementById('id_fechaIngreso').disabled = true;
-            document.getElementById('id_nombre').disabled = true;
-            document.getElementById('id_apellido').disabled = true;
-            document.getElementById('id_tipoDocumento').disabled = true;
-            document.getElementById('id_numDocumento').disabled = true;
-            document.getElementById('id_fechaExpedicion').disabled = true;
-            document.getElementById('id_mpioDoc').disabled = true;
-            document.getElementById('id_nacionalidad').disabled = true;
-            document.getElementById('id_genero').disabled = true;
-            document.getElementById('id_estadoCivil').disabled = true;
-            document.getElementById('id_email').disabled = true;
-            document.getElementById('id_numResidencia').disabled = true;
-            document.getElementById('id_numCelular').disabled = true;
-            document.getElementById('id_envioInfoCorreo').disabled = true;
-            document.getElementById('id_envioInfoMensaje').disabled = true;
-            document.getElementById('id_envioInfoWhatsapp').disabled = true;
-            document.getElementById('id_nivelEducativo').disabled = true;
-            document.getElementById('id_tituloPregrado').disabled = true;
-            document.getElementById('id_tituloPosgrado').disabled = true;
-            document.getElementById('id_fechaNacimiento').disabled = true;
-            document.getElementById('id_dtoNacimiento').disabled = true;
-            document.getElementById('id_mpioNacimiento').disabled = true;
-            document.getElementById('id_tipoVivienda').disabled = true;
-            document.getElementById('id_estrato').disabled = true;
-            document.getElementById('id_direccion').disabled = true;
-            document.getElementById('id_barrio').disabled = true;
-            document.getElementById('id_deptoResidencia').disabled = true;
-            document.getElementById('id_mpioResidencia').disabled = true;
-            document.getElementById('id_nombreRF').disabled = true;
-            document.getElementById('id_parentesco').disabled = true;
-            document.getElementById('id_numContacto').disabled = true;
-            document.getElementById('btn-guardar').hidden = true;
-            document.getElementById('btn-fechaRetiro').hidden = true;
-        break
-    } 
-}
-
-// Funcion que cambia la edicion de actualizacion de la seccion laboral, VIEW VerAscociado
-function editarInputActualizacion2(dato){
-    switch(dato){
-        case "editar":
-            document.getElementById('btn-editar2').hidden = true;
-            document.getElementById('btn-noeditar2').hidden = false;
-            document.getElementById('id_ocupacion').disabled = false;
-            document.getElementById('id_nombreEmpresa').disabled = false;
-            document.getElementById('id_cargo').disabled = false;
-            document.getElementById('id_nomRepresenLegal').disabled = false;
-            document.getElementById('id_numDocRL').disabled = false;
-            document.getElementById('id_fechaInicio').disabled = false;
-            document.getElementById('id_fechaTerminacion').disabled = false;
-            document.getElementById('id_direccion2').disabled = false;
-            document.getElementById('id_mpioTrabajo').disabled = false;
-            document.getElementById('id_dptoTrabajo').disabled = false;
-            document.getElementById('id_telefono').disabled = false;
-            document.getElementById('id_admRP').disabled = false;
-            document.getElementById('id_pep').disabled = false;
-            document.getElementById('id_activEcono').disabled = false;
-            document.getElementById('id_ciiu').disabled = false;
-            document.getElementById('id_banco').disabled = false;
-            document.getElementById('id_numCuenta').disabled = false;
-            document.getElementById('id_tipoCuenta').disabled = false;
-            document.getElementById('id_ingresosActPrin').disabled = false;
-            document.getElementById('id_otroIngreso1').disabled = false;
-            document.getElementById('id_otroIngreso2').disabled = false;
-            document.getElementById('id_egresos').disabled = false;
-            document.getElementById('id_activos').disabled = false;
-            document.getElementById('id_pasivos').disabled = false;
-            document.getElementById('id_patrimonio').disabled = false;
-            document.getElementById('btn-guardar2').hidden = false;
-        break
-        case "no_editar":
-            document.getElementById('btn-noeditar2').hidden = true;
-            document.getElementById('btn-editar2').hidden = false;
-            document.getElementById('id_ocupacion').disabled = true;
-            document.getElementById('id_nombreEmpresa').disabled = true;
-            document.getElementById('id_cargo').disabled = true;
-            document.getElementById('id_nomRepresenLegal').disabled = true;
-            document.getElementById('id_numDocRL').disabled = true;
-            document.getElementById('id_fechaInicio').disabled = true;
-            document.getElementById('id_fechaTerminacion').disabled = true;
-            document.getElementById('id_direccion2').disabled = true;
-            document.getElementById('id_mpioTrabajo').disabled = true;
-            document.getElementById('id_dptoTrabajo').disabled = true;
-            document.getElementById('id_telefono').disabled = true;
-            document.getElementById('id_admRP').disabled = true;
-            document.getElementById('id_pep').disabled = true;
-            document.getElementById('id_activEcono').disabled = true;
-            document.getElementById('id_ciiu').disabled = true;
-            document.getElementById('id_banco').disabled = true;
-            document.getElementById('id_numCuenta').disabled = true;
-            document.getElementById('id_tipoCuenta').disabled = true;
-            document.getElementById('id_ingresosActPrin').disabled = true;
-            document.getElementById('id_otroIngreso1').disabled = true;
-            document.getElementById('id_otroIngreso2').disabled = true;
-            document.getElementById('id_egresos').disabled = true;
-            document.getElementById('id_activos').disabled = true;
-            document.getElementById('id_pasivos').disabled = true;
-            document.getElementById('id_patrimonio').disabled = true;
-            document.getElementById('btn-guardar2').hidden = true;
-    }
-}
-
-// Funcion que cambia la edicion de actualizacion de la seccion configuracion, VIEW VerAscociado
-function editarInputActualizacion3(dato){
-    switch(dato){
-        case "editar":
-            document.getElementById('btn-editar3').hidden = true;
-            document.getElementById('btn-noeditar3').hidden = false;
-            document.getElementById('id_empresaDcto').disabled = false;
-            document.getElementById('id_primerMes').disabled = false;
-            document.getElementById('id_servFuneraria').disabled = false;
-            document.getElementById('flexSwitchCheckChecked').disabled = false;
-            document.getElementById('flexSwitchCheckChecked_1').disabled = false;
-            document.getElementById('btn-guardar3').hidden = false;
-        break
-        case "no_editar":
-            document.getElementById('btn-editar3').hidden = false;
-            document.getElementById('btn-noeditar3').hidden = true;
-            document.getElementById('id_empresaDcto').disabled = true;
-            document.getElementById('id_servFuneraria').disabled = true;
-            document.getElementById('id_primerMes').disabled = true;
-            document.getElementById('flexSwitchCheckChecked').disabled = true;
-            document.getElementById('flexSwitchCheckChecked_1').disabled = true;
-            document.getElementById('btn-guardar3').hidden = true;
-        }
-}
-
-// Funcion que muestra y oculta el input de "Autorización Descuento de Nomina" seccion configuracion, VIEW VerAscociado
-function mostrarAutorizacion(dato){
-    switch(dato){
-        case "cambio":
-            document.getElementById('contenedorAutorizacion').style.display = "block";
-            document.getElementById('contenedorAutorizacion2').style.display = "none";
-            document.getElementById('flexSwitchCheckChecked').checked = true;
-        break
-        case "ocultar":
-            document.getElementById('contenedorAutorizacion').style.display = "none";
-            document.getElementById('contenedorAutorizacion2').style.display = "block";
-            document.getElementById('flexSwitchCheckChecked_1').checked = false;
-        case "ocultar2":
-            document.getElementById('contenedorAutorizacion').style.display = "none";
-            document.getElementById('contenedorAutorizacion2').style.display = "block";
-            document.getElementById('flexSwitchCheckChecked_2').hidden = true;
-            document.getElementById('flexSwitchCheckChecked_1').checked = false;
-        
-    }
 }
 
 // Funcion que convierte la imagen en documento pdf para rellenar
@@ -373,11 +58,9 @@ async function llamarPDF(numFormato, url) {
             let nivelEducativo = document.getElementById('id_nivelEducativo').value;
             let tituloPregrado = document.getElementById('id_tituloPregrado').value;
             let tituloPosgrado = document.getElementById('id_tituloPosgrado').value;
-            // Obtenemos la informacion del model Nacimiento, del template formatos.html por medio de su id
             let fechaNacimiento = document.getElementById('id_fechaNacimiento').value;
             let dtoNacimiento = document.getElementById('id_dtoNacimiento').value;
             let mpioNacimiento = document.getElementById('id_mpioNacimiento').value;
-            // Obtenemos la informacion del model Residencia, del template formatos.html por medio de su id
             let tipoVivienda = document.getElementById('id_tipoVivienda').value;
             let estrato = document.getElementById('id_estrato').value;
             let direccion = document.getElementById('id_direccion').value;
@@ -403,11 +86,9 @@ async function llamarPDF(numFormato, url) {
             let banco = document.getElementById('id_banco').value;
             let numCuenta = document.getElementById('id_numCuenta').value;
             let tipoCuenta = document.getElementById('id_tipoCuenta').value;
-            // Obtenemos la informacion del model Refencia Familiar, del template formatos.html por medio de su id
             let nombreRF = document.getElementById('id_nombreRF').value;
             let parentesco = document.getElementById('id_parentesco').value;
             let numContacto = document.getElementById('id_numContacto').value;
-            // Obtenemos la informacion del model Parentesco Asociado, del template formatos.html por medio de su id
             let autorizaciondcto = document.getElementById('id_autorizaciondcto').value;
             let empresa = document.getElementById('id_empresa').value;
             // Obtenemos la informacion del model Financiera, del template formatos.html por medio de su id
@@ -436,13 +117,10 @@ async function llamarPDF(numFormato, url) {
             let envioInfoCorreoF2 = document.getElementById('id_envioInfoCorreo').value;
             let envioInfoMensajeF2 = document.getElementById('id_envioInfoMensaje').value;
             let envioInfoWhatsappF2 = document.getElementById('id_envioInfoWhatsapp').value;
-            // Obtenemos la informacion del model Nacimiento, del template formatos.html por medio de su id
             let fechaNacimientoF2 = document.getElementById('id_fechaNacimiento').value;
-            // Obtenemos la informacion del model Residencia, del template formatos.html por medio de su id
             let direccionF2 = document.getElementById('id_direccion').value;
             let barrioF2 = document.getElementById('id_barrio').value;
             let mpioResidenciaF2 = document.getElementById('id_mpioResidencia').value;
-            // Obtenemos la informacion del model Refencia Familiar, del template formatos.html por medio de su id
             let numContactoF2 = document.getElementById('id_numContacto').value;
             // Obtenemos la informacion del model Beneficiarios, del template formatos.html por medio de su id
             let cuentaBeneficiarios = document.getElementById('id_cuentaBeneficiario').value;
@@ -485,11 +163,9 @@ async function llamarPDF(numFormato, url) {
             let envioInfoCorreoF3 = document.getElementById('id_envioInfoCorreo').value;
             let envioInfoMensajeF3 = document.getElementById('id_envioInfoMensaje').value;
             let envioInfoWhatsappF3 = document.getElementById('id_envioInfoWhatsapp').value;
-            // Obtenemos la informacion del model Residencia, del template formatos.html por medio de su id
             let direccionF3 = document.getElementById('id_direccion').value;
             let barrioF3 = document.getElementById('id_barrio').value;
             let mpioResidenciaF3 = document.getElementById('id_mpioResidencia').value;
-            // Obtenemos la informacion del model Nacimiento, del template formatos.html por medio de su id
             let fechaNacimientoF3 = document.getElementById('id_fechaNacimiento').value;
             // Obtenemos la informacion del model Laboral, del template formatos.html por medio de su id
             let nombreEmpresaF3 = document.getElementById('id_nombreEmpresa').value;
@@ -841,6 +517,7 @@ async function generarPDF(url, nombre, apellido, tipoDocumento, numDocumento, fe
     pdf.addImage(image3, 'PNG', 0, 0, 613, 1010);
     
     // Firma y Huella
+    pdf.setFontSize(12);
     pdf.text(arrFechaHoy[2], 227,680);
     pdf.text(arrFechaHoy[1], 372,680);
     pdf.text(arrFechaHoy[0], 495,680);
@@ -851,6 +528,7 @@ async function generarPDF(url, nombre, apellido, tipoDocumento, numDocumento, fe
     pdf.text(numDocumento, 165, 773);
 
     // Espacio reservado para coohobienestar
+    pdf.setFontSize(10);
     pdf.text(arrFechaHoy[2], 60,837);
     pdf.text(arrFechaHoy[1], 82,837);
     pdf.text(arrFechaHoy[0], 105,837);
@@ -1316,7 +994,6 @@ async function generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF
     };
 }
 
-
 // Formato 5
 // Formato Extracto TODOS
 async function generarPDFf5(url, arrayExtracto, mes) {
@@ -1513,5 +1190,3 @@ async function generarTxt(arrayExtracto2) {
     URL.revokeObjectURL(enlace.href);
     
 }
-
-

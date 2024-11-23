@@ -1,13 +1,12 @@
-from tkinter.tix import Form
 from django.shortcuts import render
 from django.views.generic import ListView, TemplateView
 from django.http import HttpResponse
-from django.db.models.functions import TruncDate
+from django.db.models.functions import TruncDate, TruncSecond
 from django.db.models import Sum
 from datetime import timedelta
 from datetime import datetime
 
-from asociado.models import Asociado, ParametroAsociado, TarifaAsociado
+from asociado.models import Asociado, ParametroAsociado, TarifaAsociado, RepatriacionTitular
 from beneficiario.models import Mascota, Beneficiario
 from historico.models import HistorialPagos
 from funciones.function import separarFecha
@@ -15,7 +14,7 @@ from parametro.models import FormaPago, MesTarifa, TipoAsociado
 
 #Libreria para generar el Excel
 from openpyxl import Workbook
-from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
+from openpyxl.styles import Font, Alignment, PatternFill
     
 class InformacionReporte(ListView):
     def get(self, request, *args, **kwargs):
@@ -42,13 +41,25 @@ class VerModificacionesFecha(ListView):
         )
         queryMascota = Mascota.objects.filter(
             fechaModificacion__range=[fechaInicial, fechaFinal]
+        ).annotate(
+            fechaModificacion_truncada=TruncSecond('fechaModificacion'),
+            fechaCreacion_truncada=TruncSecond('fechaCreacion'),
         )
         queryBeneficiario = Beneficiario.objects.filter(
             fechaModificacion__range=[fechaInicial, fechaFinal]
+        ).annotate(
+            fechaModificacion_truncada=TruncSecond('fechaModificacion'),
+            fechaCreacion_truncada=TruncSecond('fechaCreacion'),
         )
-        # fechaInicialEnvio = fechaInicial.strftime("%Y-%m-%d")
+        queryRepatriacionTitular = RepatriacionTitular.objects.filter(
+            fechaRepatriacion__range=[fechaInicialForm, fechaFinalForm]
+        )
+
+        print(fechaInicialForm)
+        print(queryRepatriacionTitular)
+
         template_name = 'reporte/modificacionesPorFecha.html'
-        return render(request, template_name, {'queryM':queryMascota, 'queryB':queryBeneficiario, 'post':'yes', 'fechaIncialF':fechaInicialForm, 'fechaFinalF':fechaFinalForm, 'asociadoRetiro':asociadoRetiro, 'asociadoIngreso':asociadoIngreso})
+        return render(request, template_name, {'queryM':queryMascota, 'queryB':queryBeneficiario, 'post':'yes', 'fechaIncialF':fechaInicialForm, 'fechaFinalF':fechaFinalForm, 'asociadoRetiro':asociadoRetiro, 'asociadoIngreso':asociadoIngreso, 'repatriacionTitular':queryRepatriacionTitular})
 
 class ReporteExcelFecha(TemplateView):
     def get(self, request, *args, **kwargs):

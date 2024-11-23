@@ -22,15 +22,27 @@
         <div class="row" style="display:flex; justify-content:flex-end; margin-right:25px; margin-top:15px">
             <div class="col-sm-1">
                 <div class="btn-group" role="group" aria-label="Basic example">
-                    <a href="{% url 'asociado:asociado' %}" class="btn btn-primary"><i class="fa-solid fa-arrow-left"></i></a>
+                    <a href="{% url 'asociado:asociado' %}" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+                        </svg>
+                    </a>
                     <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fa-solid fa-bars"></i>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list-nested" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M4.5 11.5A.5.5 0 0 1 5 11h10a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5m-2-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m-2-4A.5.5 0 0 1 1 3h10a.5.5 0 0 1 0 1H1a.5.5 0 0 1-.5-.5"/>
+                        </svg>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         {% if adicional == False %}
                            <li><a class="btn btn-primary dropdown-item" onclick="abrir_modal_creacion('{% url 'asociado:crearAdicional' pkAsociado %}')">Crear Valor Adicional Funcionaria</a></li>
+                        {% else %}
+                            <li><a class="btn btn-primary dropdown-item" onclick="abrir_modal_creacion('{% url 'asociado:crearAdicional' pkAsociado %}')">Editar Valor Adicional Funcionaria</a></li>
                         {% endif %}
-                        {% comment %} <li><a class="btn btn-primary dropdown-item" onclick="abrir_modal_creacion('{% url 'asociado:repatriacionTitular' pkAsociado %}')">Crear Repatriación Titular</a></li> {% endcomment %}
+                        {% if queryRepatriacionTitular == False %}
+                            <li><a class="btn btn-primary dropdown-item" onclick="abrir_modal_creacion('{% url 'asociado:repatriacionTitular' pkAsociado %}')">Crear Repatriación Titular</a></li>
+                        {% else %}
+                            <li><a class="btn btn-primary dropdown-item" onclick="abrir_modal_creacion('{% url 'asociado:verRepatriacionTitular' pkAsociado pk %}')">Editar Repatriación Titular</a></li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>
@@ -38,68 +50,106 @@
         {% comment %} contenido {% endcomment %}
     </div>
     <table class="table table-hover">
-        <tr>
-            <th>Nombre Asociado</th>
-            <th>{{ query.asociado.nombre }} {{query.asociado.apellido}}</th>
-        </tr>
-        <tr>
-            <th>Aporte</th>
-            <th>${{ query.cuotaAporte|intcomma }}</th>
-        </tr>
-        <tr>
-            <th>Bienestar Social</th>
-            <th>${{ query.cuotaBSocial|intcomma }}</th>   
-        </tr>
-        {% if query.cuotaMascota != 0 %}
+        <thead>
             <tr>
-                <th>Mascota</th>
-                <th>${{ query.cuotaMascota|intcomma }}</th>
+              <th style="width: 40%;" scope="col">Servicios</th>
+              <th style="width: 40%;" scope="col">Valores</th>
+              <th style="width: 20%;" scope="col">Opciones</th>
             </tr>
-        {% endif %}
-        {% if queryRepatriacionTitular %}
+        </thead>
+        <tbody class="table-group-divider">
             <tr>
-                <th>Repatriación Titular</th>
-                <th>${{ repatriacion|intcomma }}</th>
+                <th>Nombre Asociado</th>
+                <th>{{ query.asociado.nombre }} {{query.asociado.apellido}}</th>
+                <th></th>
             </tr>
-        {% endif %}
-        {% if query.cuotaRepatriacion != 0 %}
             <tr>
-                <th>Repatriación Beneficiarios</th>
-                <th>${{ query.cuotaRepatriacion|intcomma }}</th>
+                <th>Aporte</th>
+                <th>${{ query.cuotaAporte|intcomma }}</th>
+                <th></th>
+            </tr>
+            <tr>
+                <th>Bienestar Social</th>
+                <th>${{ query.cuotaBSocial|intcomma }}</th>
+                <th></th>
+            </tr>
+            {% if query.cuotaMascota != 0 %}
+                <tr>
+                    <th>Mascota</th>
+                    <th>${{ query.cuotaMascota|intcomma }}</th>
+                    <th></th>
                 </tr>
+            {% endif %}
+            {% if queryRepatriacionTitular %}
+                <tr>
+                    <th>Repatriación Titular</th>
+                    <th>${{ repatriacion|intcomma }}</th>
+                    <th>
+                        <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_creacion('{% url 'asociado:verRepatriacionTitular' pkAsociado pk %}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon" viewBox="0 0 16 16">
+                                <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                            </svg>
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="abrir_modal_creacion('{% url 'asociado:eliminarRepatriacionTitular' pkAsociado pk %}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
+                            </svg>
+                        </button>
+                    </th>
+                </tr>
+            {% endif %}
+            {% if query.cuotaRepatriacion != 0 %}
+                <tr>
+                    <th>Repatriación Beneficiarios</th>
+                    <th>${{ query.cuotaRepatriacion|intcomma }}</th>
+                    <th></th>
+                </tr>
+            {% endif %}
+            {% if query.cuotaSeguroVida != 0 %}
+                <tr>
+                    <th>Seguro Vida</th>
+                    <th>${{ query.cuotaSeguroVida|intcomma }}</th>
+                    <th></th>
+                </tr>
+            {% endif %}
+            {% if query.cuotaCoohopAporte != 0 %}
+                <tr>
+                    <th>Coohoperativitos Aporte</th>
+                    <th>${{ query.cuotaCoohopAporte|intcomma }}</th>
+                    <th></th>
+                </tr>
+            {% endif %}
+            {% if query.cuotaCoohopAporte != 0 %}
+                <tr>
+                    <th>Coohoperativitos Bienestar Social</th>
+                    <th>${{ query.cuotaCoohopBsocial|intcomma }}</th>
+                    <th></th>
+                </tr>
+            {% endif %}
+            {% if query.cuotaAdicionales != 0 %}
+                <tr>
+                    <th>Adicionales</th>
+                    <th>${{ query.cuotaAdicionales|intcomma }}</th>
+                    <th>
+                        <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_creacion('{% url 'asociado:editarAdicional' pkAsociado query.pk %}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon" viewBox="0 0 16 16">
+                                <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                            </svg>
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="abrir_modal_creacion('{% url 'asociado:editarAdicional' pkAsociado query.pk %}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
+                            </svg>
+                        </button>
+                    </th>
+                </tr>
+            {% endif %}   
             <tr>
-        {% endif %}
-        {% if query.cuotaSeguroVida != 0 %}
-            <tr>
-                <th>Seguro Vida</th>
-                <th>${{ query.cuotaSeguroVida|intcomma }}</th>
-            </tr>
-        {% endif %}
-        {% if query.cuotaCoohopAporte != 0 %}
-            <tr>
-                <th>Coohoperativitos Aporte</th>
-                <th>${{ query.cuotaCoohopAporte|intcomma }}</th>
-            </tr>
-        {% endif %}
-        {% if query.cuotaCoohopAporte != 0 %}
-            <tr>
-                <th>Coohoperativitos Bienestar Social</th>
-                <th>${{ query.cuotaCoohopBsocial|intcomma }}</th>
-            </tr>
-        {% endif %}
-        {% if query.cuotaAdicionales != 0 %}
-            <tr>
-                <th>Adicionales</th>
-                <th>${{ query.cuotaAdicionales|intcomma }}</th>
-                <a type="button" onclick="abrir_modal_creacion('{% url 'asociado:editarAdicional' pkAsociado query.pk %}')" style="margin-left:40px"><i class="fa-solid fa-pen"></i></a>
-                
-                </th>
-            </tr>
-        {% endif %}   
-        <tr>
-            <th>Total</th>
+                <th>Total</th>
                 <th>${{ query.total|intcomma }}</th>
+                <th></th>
             </tr>
+        <tbody>   
     </table>
 
     <div class="modal fade" id="creacion" role="dialog">

@@ -1,4 +1,6 @@
 from django import forms
+
+from asociado import form
 from .models import Beneficiario, Mascota, Coohoperativitos
 
 class BeneficiarioForm(forms.ModelForm):
@@ -107,7 +109,7 @@ class MascotaForm(forms.ModelForm):
 class CoohoperativitoForm(forms.ModelForm):
     class Meta:
         model = Coohoperativitos
-        fields = ['nombre','apellido','tipoDocumento','numDocumento','fechaIngreso']
+        fields = ['nombre','apellido','tipoDocumento','numDocumento','fechaNacimiento','fechaIngreso']
         widgets = {
             'nombre': forms.TextInput(
                 attrs={
@@ -133,10 +135,16 @@ class CoohoperativitoForm(forms.ModelForm):
                     'type': 'number'
                 }
             ),
+            'fechaNacimiento': forms.DateInput(
+                attrs={ 
+                    'class':'form-control',
+                    'type': 'date'
+                }, format='%Y-%m-%d',
+            ),
             'fechaIngreso': forms.DateInput(
                 attrs={ 
                     'class':'form-control',
                     'type': 'date'
-                }
+                },format='%Y-%m-%d',
             ),
         }

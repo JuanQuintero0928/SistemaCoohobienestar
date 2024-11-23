@@ -7,7 +7,6 @@ urlpatterns = [
     path('crearAsociado/', login_required(CrearAsociado.as_view()), name='crearAsociado'),
     path('verAsociado/<int:pkAsociado>', login_required(VerAsociado.as_view()), name='verAsociado'),
     path('editarAsociado/<int:pkAsociado>', login_required(EditarAsociado.as_view()), name='editarAsociado'),
-    # path('crearLaboral/<int:pkAsociado>', login_required(CrearLaboral.as_view()), name='crearLaboral'),
     path('editarLaboral/<int:pkAsociado>', login_required(EditarLaboral.as_view()), name='editarLaboral'),
     path('editarParametroAsociado/<int:pkAsociado>', login_required(EditarParametroAsociado.as_view()), name='editarParametroAsociado'),
     path('beneficiario/<int:pkAsociado>', login_required(Beneficiarios.as_view()), name='beneficiario'),
@@ -41,4 +40,6 @@ urlpatterns = [
     path('generarFormato/<int:pkAsociado>/<int:pk>/<int:formato>', login_required(GenerarFormato.as_view()), name='generarFormato'),
     path('utilidades', login_required(UtilidadesAsociado.as_view()), name='utilidades'),
     path('repatriacionTitular/<int:pkAsociado>', login_required(CrearRepatriacionTitular.as_view()), name='repatriacionTitular'),
+    path('verRepatriacionTitular/<int:pkAsociado>/<int:pk>', login_required(VerRepatriacionTitular.as_view()), name='verRepatriacionTitular'),
+    path('eliminarRepatriacionTitular/<int:pkAsociado>/<int:pk>', login_required(EliminarRepatriacionTitular.as_view()), name='eliminarRepatriacionTitular'),
 ]

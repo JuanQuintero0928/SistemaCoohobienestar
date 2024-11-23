@@ -7,6 +7,9 @@
 {% if queryCoohop %}
   <div class="modal-dialog modal-xl" role="document">
 {% endif %}
+{% if queryRepatriacionTitular %}
+  <div class="modal-dialog modal-lg" role="document">
+{% endif %}
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -18,6 +21,9 @@
           {% endif %}
           {% if queryCoohop %}
             <h1 class="modal-title fs-5" id="exampleModalLabel">Eliminar Coohoperativito</h1>
+          {% endif %}
+          {% if queryRepatriacionTitular %}
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Eliminar Repatriación Titular</h1>
           {% endif %}
             <hr>
           <h2 class="modal-title fs-5" id="exampleModalLabel"></h2>
@@ -62,6 +68,18 @@
                 </tr>
             </table>
           {% endif %}
+          {% if queryRepatriacionTitular %}
+            <table class="table table-sm">
+                <tr>
+                    <th>Fecha Ingreso</th>
+                    <th>Pais Repatriación</th>
+                </tr>
+                <tr>
+                    <td>{{queryRepatriacionTitular.fechaRepatriacion|date:'d/m/Y'}}</td>
+                    <td>{{queryRepatriacionTitular.paisRepatriacion}}</td>
+                </tr>
+            </table>
+          {% endif %}
         </div>
         <div class="modal-footer">
           {% if queryMascota %}
@@ -74,6 +92,10 @@
           {% endif %}
           {% if queryCoohop %}
             <form action="{% url 'asociado:eliminarCoohoperativito' pkAsociado pk %}" method="post">
+            {% csrf_token %}
+          {% endif %}
+          {% if queryRepatriacionTitular %}
+            <form action="{% url 'asociado:eliminarRepatriacionTitular' pkAsociado pk %}" method="post">
             {% csrf_token %}
           {% endif %}
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>

@@ -67,19 +67,37 @@
                                 </select>
                             </div>
                             <div class="col-md-2">
-                                {% if objAsociado.fechaRetiro %}
+                                <div id="retiroContainer" hidden>
                                     <label for="id_fechaRetiro" class="form-label">Fecha Retiro *</label>
-                                    <input type="date" value="{{objAsociado.fechaRetiro|date:"Y-m-d"}}" class="form-control" name="fechaRetiro" id="id_fechaRetiro" required disabled>
-                                {% endif %}
+                                    <input type="date" name="fechaRetiro" value="{{objAsociado.fechaRetiro|date:"Y-m-d"}}" class="form-control" id="id_fechaRetiro" required disabled>
+                                </div>
                             </div>
                             <div class="col-md-2">
-                                <div class="row" style="display:flex; justify-content:flex-end; margin-right:100px; margin-top:15px">
+                                <div class="row" style="display:flex; justify-content:flex-end; margin-right:120px; margin-top:15px">
                                     <div class="col-sm-1">
                                         <div class="btn-group" role="group" aria-label="Basic example">
-                                            <a href="{% url 'asociado:asociado' %}" class="btn btn-primary"><i class="fa-solid fa-arrow-left"></i></a>
-                                            <a class="btn btn-primary" onclick="editarInputActualizacion('editar')" id="btn-editar"><i class="fa-solid fa-pen-to-square"></i></a>  
-                                            <a class="btn btn-danger" onclick="editarInputActualizacion('no_editar')" id="btn-noeditar" hidden><i class="fa-solid fa-ban"></i></a>  
-                                            <button type="submit" class="btn btn-primary" id="btn-guardar" hidden><i class="fa-solid fa-floppy-disk"></i></button>
+                                            <a href="{% url 'asociado:asociado' %}" class="btn btn-primary custom-btn-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                                                    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+                                                </svg>
+                                            </a>
+                                            <a class="btn btn-primary custom-btn-2" onclick="editarInputActualizacion('editar')" id="btn-editar">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon-2" viewBox="0 0 16 16">
+                                                    <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                                                </svg>
+                                            </a>  
+                                            <a class="btn btn-danger" onclick="editarInputActualizacion('no_editar')" id="btn-noeditar" hidden>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-slash-circle" viewBox="0 0 16 16">
+                                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                                    <path d="M11.354 4.646a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 .708.708l6-6a.5.5 0 0 0 0-.708"/>
+                                                  </svg>
+                                            </a>  
+                                            <button type="submit" class="btn btn-primary" id="btn-guardar" hidden>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16">
+                                                    <path d="M11 2H9v3h2z"/>
+                                                    <path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>
+                                                </svg>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -319,10 +337,28 @@
                                     <div class="col-sm-1">
                                         {% if laboral == 'no' %}
                                             <div class="btn-group" role="group" aria-label="Basic example">
-                                                <a href="{% url 'asociado:asociado' %}" class="btn btn-primary"><i class="fa-solid fa-arrow-left"></i></a>
-                                                <a class="btn btn-primary" onclick="editarInputActualizacion2('editar')" id="btn-editar2"><i class="fa-solid fa-pen-to-square"></i></a>  
-                                                <a class="btn btn-danger" onclick="editarInputActualizacion2('no_editar')" id="btn-noeditar2" hidden><i class="fa-solid fa-ban"></i></a>  
-                                                <button type="submit" class="btn btn-primary" id="btn-guardar2" {% if laboral == 'no' %} hidden {% endif %}><i class="fa-solid fa-floppy-disk"></i></button>
+                                                <a href="{% url 'asociado:asociado' %}" class="btn btn-primary">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                                                        <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+                                                    </svg>
+                                                </a>
+                                                <a class="btn btn-primary" onclick="editarInputActualizacion2('editar')" id="btn-editar2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon-2" viewBox="0 0 16 16">
+                                                        <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                                                    </svg>
+                                                </a>  
+                                                <a class="btn btn-danger" onclick="editarInputActualizacion2('no_editar')" id="btn-noeditar2" hidden>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-slash-circle" viewBox="0 0 16 16">
+                                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                                        <path d="M11.354 4.646a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 .708.708l6-6a.5.5 0 0 0 0-.708"/>
+                                                    </svg>
+                                                </a>  
+                                                <button type="submit" class="btn btn-primary" id="btn-guardar2" {% if laboral == 'no' %} hidden {% endif %}>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16">
+                                                        <path d="M11 2H9v3h2z"/>
+                                                        <path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>
+                                                    </svg>
+                                                </button>
                                             </div>
                                         {% else %}
                                             <button type="submit" class="btn btn-primary" id="btn-guardar2"><i class="fa-solid fa-floppy-disk"></i></button>
@@ -492,10 +528,28 @@
                                     <div class="col-sm-1">
                                         {% if laboral == 'no' %}
                                             <div class="btn-group" role="group" aria-label="Basic example">
-                                                <a href="{% url 'asociado:asociado' %}" class="btn btn-primary"><i class="fa-solid fa-arrow-left"></i></a>
-                                                <a class="btn btn-primary" onclick="editarInputActualizacion3('editar')" id="btn-editar3"><i class="fa-solid fa-pen-to-square"></i></a>  
-                                                <a class="btn btn-danger" onclick="editarInputActualizacion3('no_editar')" id="btn-noeditar3" hidden><i class="fa-solid fa-ban"></i></a>  
-                                                <button type="submit" class="btn btn-primary" id="btn-guardar3" {% if laboral == 'no' %} hidden {% endif %}><i class="fa-solid fa-floppy-disk"></i></button>
+                                                <a href="{% url 'asociado:asociado' %}" class="btn btn-primary">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                                                        <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+                                                    </svg>
+                                                </a>
+                                                <a class="btn btn-primary" onclick="editarInputActualizacion3('editar')" id="btn-editar3">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon-2" viewBox="0 0 16 16">
+                                                        <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                                                    </svg>
+                                                </a>  
+                                                <a class="btn btn-danger" onclick="editarInputActualizacion3('no_editar')" id="btn-noeditar3" hidden>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-slash-circle" viewBox="0 0 16 16">
+                                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                                        <path d="M11.354 4.646a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 .708.708l6-6a.5.5 0 0 0 0-.708"/>
+                                                    </svg>
+                                                </a>  
+                                                <button type="submit" class="btn btn-primary" id="btn-guardar3" {% if laboral == 'no' %} hidden {% endif %}>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16">
+                                                        <path d="M11 2H9v3h2z"/>
+                                                        <path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>
+                                                    </svg>
+                                                </button>
                                             </div>
                                         {% else %}
                                             <button type="submit" class="btn btn-primary" id="btn-guardar3"><i class="fa-solid fa-floppy-disk"></i></button>
@@ -560,6 +614,8 @@
 {% block extrajs %}
 
     <script src="{% static 'lib/jquery-chained/jquery.chained.min.js' %}"></script>
+    <script src="{% static 'js/estadoAsociado.js' %}"></script>
+    <script src="{% static 'js/botonesAsociado.js' %}"></script>
 
     <script type="text/javascript">
         var $ = jQuery.noConflict()

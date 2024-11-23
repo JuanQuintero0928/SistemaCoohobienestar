@@ -97,47 +97,6 @@ class Asociado(models.Model):
     
     def __str__(self):
         return f"{self.id}"
-    
-class Nacimiento(models.Model):
-    id = models.AutoField(primary_key=True)
-    asociado = models.ForeignKey(Asociado, on_delete=models.RESTRICT, blank=False, null=False)
-    fechaNacimiento = models.DateField('Fecha Nacimiento', blank=False, null=False)
-    dtoNacimiento = models.ForeignKey(Departamento, on_delete=models.RESTRICT, blank=False, null=False)
-    mpioNacimiento = models.ForeignKey(Municipio, on_delete=models.RESTRICT, blank=False, null=False)
-    
-    class Meta:
-        verbose_name = 'Fecha Nacimiento'
-        ordering = ['pk']
-    
-    def __str__(self):
-        return  f"{self.fechaNacimiento}"
-
-
-class Residencia(models.Model):
-
-    class tipoViviendaOp(models.TextChoices):
-        propia = 'PROPIA', 'PROPIA'
-        familiar = 'FAMILIAR', 'FAMILIAR'
-        arrendada = 'ARRENDADA', 'ARRENDADA'
-
-    id = models.AutoField(primary_key=True)
-    asociado = models.ForeignKey(Asociado, on_delete=models.RESTRICT, blank=False, null=False)
-    tipoVivienda = models.CharField('Tipo Vivienda', choices=tipoViviendaOp.choices, default=tipoViviendaOp.propia, blank=False, null=False)
-    estrato = models.IntegerField('Estrato', blank=False, null=False)
-    direccion = models.CharField('Dirección', max_length=50, blank=False, null=False)
-    barrio = models.CharField('barrio', max_length=50, blank=False, null=False)
-    deptoResidencia = models.ForeignKey(Departamento, on_delete=models.RESTRICT, blank=False, null=False)
-    mpioResidencia = models.ForeignKey(Municipio, on_delete=models.RESTRICT, blank=False, null=False)
-    estadoRegistro = models.BooleanField('Estado')
-    fechaCreacion = models.DateTimeField(auto_now_add=True)
-    fechaModificacion = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = 'Residencia'
-        ordering = ['pk']
-    
-    def __str__(self):
-        return  f"{self.asociado}"
 
 class Laboral(models.Model):
     
@@ -201,23 +160,6 @@ class Financiera(models.Model):
     def __str__(self):
         return  f"{self.asociado}"
 
-class ReferenciaFamiliar(models.Model):
-    id = models.AutoField(primary_key=True)
-    asociado = models.ForeignKey(Asociado, on_delete=models.RESTRICT, blank=False, null=False)
-    nombre = models.CharField('Nombre', max_length=50, blank=True, null=True)
-    parentesco = models.CharField('Parentesco', max_length=30, blank=True, null=True)
-    numContacto = models.CharField('Número', max_length=11, blank=True, null=True)
-    estadoRegistro = models.BooleanField('Estado')
-    fechaCreacion = models.DateTimeField(auto_now_add=True)
-    fechaModificacion = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = 'Referencia Familiar'
-        ordering = ['pk']
-    
-    def __str__(self):
-        return  f"{self.asociado}"
-
 class TarifaAsociado(models.Model):
     id = models.AutoField(primary_key=True)
     asociado = models.ForeignKey(Asociado, on_delete=models.RESTRICT, blank=False, null=False)
@@ -270,6 +212,7 @@ class RepatriacionTitular(models.Model):
     asociado = models.ForeignKey(Asociado, on_delete=models.RESTRICT, blank=False, null=False)
     paisRepatriacion = models.ForeignKey(PaisRepatriacion, on_delete=models.RESTRICT, blank=True, null=True)
     fechaRepatriacion = models.DateField('Fecha Repatriacion', blank=False, null=False)
+    fechaRetiro = models.DateField('Fecha Retiro', blank=True, null=True)
     estadoRegistro = models.BooleanField('Estado')
     fechaCreacion = models.DateTimeField(auto_now_add=True)
     fechaModificacion = models.DateTimeField(auto_now=True)
