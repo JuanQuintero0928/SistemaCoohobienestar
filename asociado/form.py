@@ -1,5 +1,8 @@
+from cProfile import label
+from turtle import width
 from django import forms
-from .models import Asociado, RepatriacionTitular
+from .models import Asociado, RepatriacionTitular, ConveniosAsociado
+# from parametro.models import ConvenioAsociado
 
 class AsociadoFormReadonly(forms.ModelForm):
     class Meta:
@@ -164,7 +167,12 @@ class AsociadoForm(forms.ModelForm):
 class RepatriacionTitularForm(forms.ModelForm):
     class Meta:
         model = RepatriacionTitular
-        fields = ['fechaRepatriacion','paisRepatriacion']
+        fields = ['fechaRepatriacion','paisRepatriacion', 'ciudadRepatriacion']
+        labels = {
+            'fechaRepatriacion': 'Fecha Repatriación',
+            'paisRepatriacion': 'Pais Repatriación',
+            'ciudadRepatriacion': 'Ciudad Repatriación',
+        }
         widgets = {
             'fechaRepatriacion': forms.DateInput(
                 attrs={
@@ -177,5 +185,35 @@ class RepatriacionTitularForm(forms.ModelForm):
                 attrs={ 
                     'class':'form-control'
                 }
+            ),
+            'ciudadRepatriacion': forms.TextInput(
+                attrs={
+                    'class':'form-control',
+                    'style':'text-transform: uppercase;'
+                }
+            ),
+        }
+
+class ConvenioAsociadoForm(forms.ModelForm):
+    class Meta:
+        model = ConveniosAsociado
+        fields = ['convenio','fechaIngreso']
+        labels = {
+            'convenio': 'Nombre del Convenio',
+            'fechaIngreso': 'Fecha Ingreso',
+        }
+        widgets = {
+            'convenio': forms.Select(
+                attrs={
+                    'class':'form-control',
+                    'style':'text-transform: uppercase;'
+                }
+            ),
+            'fechaIngreso': forms.DateInput(
+                attrs={
+                    'class':'form-control',
+                    'type': 'date'
+                },
+                format='%Y-%m-%d'
             ),
         }

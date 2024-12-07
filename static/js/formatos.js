@@ -415,12 +415,13 @@ async function generarPDF(url, nombre, apellido, tipoDocumento, numDocumento, fe
         pdf.text(arrFechaInicio[1], 467,570);
         pdf.text(arrFechaInicio[0], 489,570);
     
+    }
+    if(fechaTerminacion != ''){
         var arrFechaTerminacion = fechaTerminacion.split("-")
         pdf.text(arrFechaTerminacion[2], 521,570);
         pdf.text(arrFechaTerminacion[1], 544,570);
         pdf.text(arrFechaTerminacion[0], 566,570);
     }
-
     
     // renglon 12
     pdf.text(direccionLab, 20, 603);

@@ -1,0 +1,35 @@
+{% load humanize %}
+<div class="modal-dialog modal-md" role="document">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Eliminar Adicional Funcionaria</h1>
+          <hr>
+        <h2 class="modal-title fs-5" id="exampleModalLabel"></h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        
+          <table class="table table-sm">
+              <tr>
+                  <th>Fecha Inicio Adicional</th>
+                  <th>Valor</th>
+              </tr>
+              <tr>
+                  <td>{{query.fechaInicioAdicional|date:'d/m/Y'}}</td>
+                  <td>${{query.cuotaAdicionales|intcomma}}</td>
+              </tr>
+          </table>
+        
+      </div>
+      <div class="modal-footer">
+        <form action="{% url 'asociado:eliminarAdicional' pkAsociado pk %}" method="post">
+        {% csrf_token %}
+      
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button  type="submit" class="btn btn-danger">Eliminar</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

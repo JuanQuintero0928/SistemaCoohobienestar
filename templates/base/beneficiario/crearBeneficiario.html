@@ -44,9 +44,15 @@
                     {{ form.paisRepatriacion.label_tag }}
                     {{ form.paisRepatriacion }}
                 </div>
-                <div id="id_fechaRepatriacion_div"class="form-group d-none mb-3">
-                    {{ form.fechaRepatriacion.label_tag }}
-                    <input id="id_fechaRepatriacion" name="fechaRepatriacion" type="date" class="form-control">
+                <div id="contenedor" class="d-none mb-3" style="background-color: #f2f2f2; padding: 10px; border-radius: 10px;">
+                  <div id="id_fechaRepatriacion_div"class="form-group d-none mb-3">
+                      {{ form.fechaRepatriacion.label_tag }}
+                      <input id="id_fechaRepatriacion" name="fechaRepatriacion" type="date" class="form-control">
+                  </div>
+                    <div id="id_ciudadRepatriacion_div"class="form-group d-none mb-3">
+                      {{ form.ciudadRepatriacion.label_tag }}
+                      <input id="id_ciudadRepatriacion" name="ciudadRepatriacion" type="text" class="form-control">
+                    </div>
                 </div>
                 <div class="form-group mb-3">
                     {{ form.fechaIngreso.label_tag }}
@@ -67,8 +73,11 @@
   <script>
     $('#creacion').on('shown.bs.modal', function () {
       const paisRepatriacion = document.querySelector('#id_paisRepatriacion');
+      const contenedor = document.querySelector('#contenedor');
       const fechaRepatriacion = document.querySelector('#id_fechaRepatriacion_div');
       const fechaRepatriacionInput = document.querySelector('#id_fechaRepatriacion');
+      const ciudadRepatriacion = document.querySelector('#id_ciudadRepatriacion_div');
+      const ciudadRepatriacionInput = document.querySelector('#id_ciudadRepatriacion');
   
       if (!paisRepatriacion || !fechaRepatriacion) {
           console.error('No se encontraron los elementos en el modal.');
@@ -77,12 +86,19 @@
   
       paisRepatriacion.addEventListener('change', function () {
           if (paisRepatriacion.value) {
+            contenedor.classList.remove('d-none');
             fechaRepatriacion.classList.remove('d-none');
             fechaRepatriacionInput.setAttribute('required', 'required');
+            ciudadRepatriacion.classList.remove('d-none');
+            ciudadRepatriacionInput.setAttribute('required', 'required');
           } else {
+            contenedor.classList.add('d-none');
             fechaRepatriacion.classList.add('d-none');
             fechaRepatriacionInput.removeAttribute('required');
             fechaRepatriacion.value = '';
+            ciudadRepatriacion.classList.add('d-none');
+            ciudadRepatriacionInput.removeAttribute('required');
+            ciudadRepatriacion.value = '';
           }
       });
   });

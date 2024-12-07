@@ -48,6 +48,9 @@
                                     {% if query.cuotaCoohopAporte %}
                                         Coohoperativitos: ${{ query.cuotaCoohopAporte|add:query.cuotaCoohopBsocial|intcomma }}<br>
                                     {% endif %}
+                                    {% if query.cuotaConvenio %}
+                                        Convenios: ${{ query.cuotaConvenio|intcomma }}<br>
+                                    {% endif %}
                                 </div>
                             </div>                            
                         </td>

@@ -20,7 +20,7 @@
                 </div>
                 <div class="input-group mb-3">
                     <span class="input-group-text" id="basic-addon3">Fecha Pago</span>
-                    <input type="text" class="form-control" value="{{ query.fechaPago|date:"d-m-Y" }} " disabled >      
+                    <input type="text" class="form-control" value="{{ query.fechaPago|date:"d/m/Y" }} " disabled >      
                 </div>
                 <div class="input-group mb-3">
                     <span class="input-group-text" id="basic-addon3">Mes Pago</span>
@@ -92,6 +92,14 @@
                     <span class="input-group-text" id="basic-addon3">Coohoperativitos B. Social</span>
                     <span class="input-group-text">$</span>
                     <input type="text" class="form-control" id="coohopBsocial" name="coohopBsocial" value="{{ query.coohopBsocial }}" type="number" disabled>
+                  </div>
+                {% endif %}
+                {% if query.convenioPago != 0 %}
+                  {% comment %} input completo {% endcomment %}
+                  <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon3">Convenios</span>
+                    <span class="input-group-text">$</span>
+                    <input type="text" class="form-control" id="coohopBsocial" name="coohopBsocial" value="{{ query.convenioPago }}" type="number" disabled>
                   </div>
                 {% endif %}
                 {% comment %} input completo {% endcomment %}

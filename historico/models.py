@@ -1,3 +1,5 @@
+from turtle import mode
+from xmlrpc.client import TRANSPORT_ERROR
 from django.db import models
 from django.contrib.auth.models import User
 from asociado.models import Asociado
@@ -32,6 +34,7 @@ class HistoricoAuxilio(models.Model):
     anexoSeven = models.CharField('Anexo 7', max_length=40, blank=True, null=True)
     anexoEight = models.CharField('Anexo 8', max_length=40, blank=True, null=True)
     observacion = models.CharField('Observaciones', max_length=200, blank=True, null=True)
+    motivoEliminacion = models.CharField('Motivo de Eliminacion', max_length=200, blank=True, null=True)
     fechaDesembolso = models.DateField('Fecha Desembolso', blank=True, null=True)
     estadoRegistro = models.BooleanField('Estado')
     fechaCreacion = models.DateTimeField(auto_now_add=True)
@@ -78,6 +81,7 @@ class HistorialPagos(models.Model):
     adicionalesPago = models.IntegerField('Adicionales', blank=True, null=True)
     coohopAporte = models.IntegerField('Coohoperativitos Aporte', blank=True, null=True)
     coohopBsocial = models.IntegerField('Coohoperativitos B Social', blank=True, null=True)
+    convenioPago = models.IntegerField('Convenio', blank=True, null=True)
     diferencia = models.IntegerField('Diferencia', blank=True, null=True)
     formaPago = models.ForeignKey(FormaPago, on_delete=models.RESTRICT, blank=False, null=False)
     userCreacion = models.ForeignKey(User, related_name='usuario_creacion', on_delete=models.CASCADE, blank=True, null=True)

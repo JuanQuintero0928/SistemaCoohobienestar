@@ -20,12 +20,14 @@ urlpatterns = [
     path('historicoAuxilio/<int:pkAsociado>', login_required(VerHistoricoAuxilio.as_view()), name='historicoAuxilio'),
     path('crearhistoricoAuxilio/<int:pkAsociado>', login_required(CrearAuxilio.as_view()), name='crearhistoricoAuxilio'),
     path('detalleAuxilio/<int:pkAsociado>/<int:pk>', login_required(DetalleAuxilio.as_view()), name='detalleAuxilio'),
+    path('eliminarAuxilio/<int:pkAsociado>/<int:pk>', login_required(EliminarAuxilio.as_view()), name='eliminarAuxilio'),
     path('historicoCredito/<int:pkAsociado>', login_required(VerHistoricoCredito.as_view()), name='historicoCredito'),
     path('crearHistoricoCredito/<int:pkAsociado>/', login_required(CrearHistoricoCredito.as_view()), name='crearHistoricoCredito'),
     path('editarHistoricoCredito/<int:pkAsociado>/<int:pk>', login_required(EditarHistoricoCredito.as_view()), name='editarHistoricoCredito'),
     path('tarifaAsociado/<int:pkAsociado>', login_required(VerTarifaAsociado.as_view()), name='tarifaAsociado'),
     path('crearAdicional/<int:pkAsociado>', login_required(CrearAdicionalAsociado.as_view()), name='crearAdicional'),    
     path('editarAdicional/<int:pkAsociado>/<int:pk>', login_required(EditarAdicionalAsociado.as_view()), name='editarAdicional'),
+    path('eliminarAdicional/<int:pkAsociado>/<int:pk>', login_required(EliminarAdicionalAsociado.as_view()), name='eliminarAdicional'),
     path('seguroVida/<int:pkAsociado>', login_required(VerSeguroVida.as_view()), name='seguroVida'),
     path('crearSeguroVida/<int:pkAsociado>', login_required(CrearSeguroVida.as_view()), name='crearSeguroVida'),
     path('editarSeguroVida/<int:pkAsociado>/<int:pk>', login_required(EditarSeguroVida.as_view()), name='editarSeguroVida'),
@@ -42,4 +44,9 @@ urlpatterns = [
     path('repatriacionTitular/<int:pkAsociado>', login_required(CrearRepatriacionTitular.as_view()), name='repatriacionTitular'),
     path('verRepatriacionTitular/<int:pkAsociado>/<int:pk>', login_required(VerRepatriacionTitular.as_view()), name='verRepatriacionTitular'),
     path('eliminarRepatriacionTitular/<int:pkAsociado>/<int:pk>', login_required(EliminarRepatriacionTitular.as_view()), name='eliminarRepatriacionTitular'),
+    path('crearConvenio/<int:pkAsociado>', login_required(CrearConvenio.as_view()), name='crearConvenio'),
+    path('editarConvenio/<int:pkAsociado>/<int:pk>', login_required(EditarConvenioAsociado.as_view()), name='editarConvenio'),
+    path('eliminarConvenio/<int:pkAsociado>/<int:pk>', login_required(EliminarConvenioAsociado.as_view()), name='eliminarConvenio'),
+
+
 ]

@@ -19,7 +19,7 @@
                     <div class="input-group mb-3">
                         <span class="input-group-text" id="basic-addon3">Valor Adicional</span>
                         <span class="input-group-text">$</span>
-                        <input type="number" class="form-control" name="cuotaAdicionales" {% if update %} value="{{query.cuotaAdicionales}}" {% endif %} min="0" max="20000" required>
+                        <input type="number" class="form-control" name="cuotaAdicionales" {% if update %} value="{{query.cuotaAdicionales}}" {% endif %} min="0" max="100000" required>
                         {% if update %}
                             <input type="number" class="form-control" name="adicionalAnterior" value="{{query.cuotaAdicionales}}" hidden>
                         {% endif %}

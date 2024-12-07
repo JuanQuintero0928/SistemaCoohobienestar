@@ -1,4 +1,4 @@
-{% extends 'estructura/tabla.html' %}
+{% extends 'index.html' %}
 {% load static %}
 {% load humanize %}
 
@@ -51,25 +51,42 @@
                 </a>
             </div>
         </div>
-{% comment %} 
-        <div class="card text-center mb-3" style="width: 16rem; margin-right: 10px;">
-            <div class="card-body">
-            <h5 class="card-title">Descargar Listado Beneficiarios</h5>
-            <a href="{%  url 'reportes:descargarExcel' 3 %}" class="btn btn-success"><i class="fa-solid fa-file-excel"></i></a>
-            </div>
-        </div>
 
         <div class="card text-center mb-3" style="width: 16rem; margin-right: 10px;">
             <div class="card-body">
-            <h5 class="card-title">Descargar Listado Asociados</h5>
-            <a href="{% url 'reportes:descargarExcel' 4 %}" class="btn btn-success"><i class="fa-solid fa-file-excel"></i></a>
+                <h5 class="card-title">Descargar Auxilios</h5>
+                <br>
+                <button class="btn btn-success" onclick="abrir_modal_creacion('{% url 'reportes:descargarAuxilio' %}')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-excel" viewBox="0 0 16 16">
+                        <path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/>
+                        <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
+                    </svg>
+                </button>
             </div>
-        </div> {% endcomment %}
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="creacion" role="dialog">
+        <!-- En este div se visualiza la informacion para la creacion de un nuevo registro de entrada -->
     </div>
 
 
 
 {% endblock contenidoPagina %}
+
+{% block extrajs %}
+
+<script type="text/javascript">
+    var $ = jQuery.noConflict()
+    function abrir_modal_creacion(url){
+        $('#creacion').load(url, function(){
+            $(this).modal('show');
+        });
+    }
+</script>
+
+{% endblock extrajs %}
 
 
 

@@ -109,28 +109,33 @@ class HistoricoAuxilioForm(forms.ModelForm):
             'fechaSolicitud': forms.DateInput(
                 attrs={ 
                     'class':'form-control',
-                    'type':'date'
+                    'type':'date',
+                    'required':'required'
                 }
             ),
              'tipoAuxilio': forms.Select(
                 attrs={ 
-                    'class':'form-control'
+                    'class':'form-control',
+                    'required':'required'
                 }
             ),
             'estado': forms.Select(
                 attrs={ 
-                    'class':'form-control'
+                    'class':'form-control',
+                    'required':'required'
                 }
             ),
             'entidadBancaria': forms.TextInput(
                 attrs={ 
                     'class':'form-control',
-                    'style': 'text-transform: uppercase;'
+                    'style': 'text-transform: uppercase;',
+                    'required':'required'
                 }
             ),
             'numCuenta': forms.TextInput(
                 attrs={
-                    'class':'form-control' 
+                    'class':'form-control',
+                    'required':'required'
                 }
             )
         }

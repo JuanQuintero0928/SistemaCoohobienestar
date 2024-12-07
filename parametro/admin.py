@@ -8,4 +8,5 @@ admin.site.register(Tarifas)
 admin.site.register(MesTarifa)
 admin.site.register(FormaPago)
 admin.site.register(TipoAsociado)
+admin.site.register(Convenio)
 

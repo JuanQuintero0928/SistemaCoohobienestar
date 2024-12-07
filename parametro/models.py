@@ -82,3 +82,19 @@ class ServicioFuneraria(models.Model):
     
     def __str__(self):
         return self.concepto
+    
+class Convenio(models.Model):
+    id = models.AutoField(primary_key=True)
+    fechaInicio = models.DateField('Fecha Inicio', null=False, blank=False)
+    concepto = models.CharField('Convenio Asociado', max_length=30, null=False, blank=False)
+    valor = models.IntegerField('Valor', null=False, blank=False)
+    fechaTerminacion = models.DateField('Fecha Terminacion', null=True, blank=True)
+    estado = models.BooleanField('Estado')
+
+    class Meta:
+        verbose_name = 'Convenio Asociado'
+        verbose_name_plural = 'Convenio Asociado'
+        ordering = ['pk']
+    
+    def __str__(self):
+        return self.concepto

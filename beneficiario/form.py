@@ -6,7 +6,7 @@ from .models import Beneficiario, Mascota, Coohoperativitos
 class BeneficiarioForm(forms.ModelForm):
     class Meta:
         model = Beneficiario
-        fields = ['nombre','apellido','tipoDocumento','numDocumento','fechaNacimiento','parentesco','paisRepatriacion','fechaRepatriacion','fechaIngreso']
+        fields = ['nombre','apellido','tipoDocumento','numDocumento','fechaNacimiento','parentesco','paisRepatriacion','fechaRepatriacion','ciudadRepatriacion','fechaIngreso']
         widgets = {
             'nombre': forms.TextInput(
                 attrs={
@@ -62,6 +62,13 @@ class BeneficiarioForm(forms.ModelForm):
                     'type': 'date',
                 },
                 format='%Y-%m-%d'
+            ),
+            'ciudadRepatriacion': forms.TextInput( 
+                attrs={
+                    'class': 'form-control',
+                    'type': 'text',
+                    'style':'text-transform: uppercase;'
+                },
             )
         }
 

@@ -12,106 +12,114 @@ function editarCasillasPago(dato){
             document.getElementById('btn_no_editar').hidden = true;
         break
         case "editar2":
-        document.getElementById('aportePago').disabled = false;
-        document.getElementById('btn_editar2').hidden = true;
-        document.getElementById('btn_no_editar2').hidden = false;
+            document.getElementById('diferencia').disabled = false;
+            document.getElementById('btn_editar2').hidden = true;
+            document.getElementById('btn_no_editar2').hidden = false;
         break
         case "no_editar2":
-            document.getElementById('aportePago').disabled = true;
+            document.getElementById('diferencia').disabled = true;
             document.getElementById('btn_editar2').hidden = false;
             document.getElementById('btn_no_editar2').hidden = true;
         break
         case "editar3":
-        document.getElementById('bSocialPago').disabled = false;
-        document.getElementById('btn_editar3').hidden = true;
-        document.getElementById('btn_no_editar3').hidden = false;
+            document.getElementById('mascotaPago').disabled = false;
+            document.getElementById('btn_editar3').hidden = true;
+            document.getElementById('btn_no_editar3').hidden = false;
         break
         case "no_editar3":
-            document.getElementById('bSocialPago').disabled = true;
+            document.getElementById('mascotaPago').disabled = true;
             document.getElementById('btn_editar3').hidden = false;
             document.getElementById('btn_no_editar3').hidden = true;
         break
         case "editar4":
-        document.getElementById('mascotaPago').disabled = false;
-        document.getElementById('btn_editar4').hidden = true;
-        document.getElementById('btn_no_editar4').hidden = false;
+            document.getElementById('repatriacionPago').disabled = false;
+            document.getElementById('btn_editar4').hidden = true;
+            document.getElementById('btn_no_editar4').hidden = false;
         break
         case "no_editar4":
-            document.getElementById('mascotaPago').disabled = true;
+            document.getElementById('repatriacionPago').disabled = true;
             document.getElementById('btn_editar4').hidden = false;
             document.getElementById('btn_no_editar4').hidden = true;
         break
         case "editar5":
-        document.getElementById('repatriacionPago').disabled = false;
-        document.getElementById('btn_editar5').hidden = true;
-        document.getElementById('btn_no_editar5').hidden = false;
+            document.getElementById('seguroVidaPago').disabled = false;
+            document.getElementById('btn_editar5').hidden = true;
+            document.getElementById('btn_no_editar5').hidden = false;
         break
         case "no_editar5":
-            document.getElementById('repatriacionPago').disabled = true;
+            document.getElementById('seguroVidaPago').disabled = true;
             document.getElementById('btn_editar5').hidden = false;
             document.getElementById('btn_no_editar5').hidden = true;
         break
         case "editar6":
-        document.getElementById('seguroVidaPago').disabled = false;
-        document.getElementById('btn_editar6').hidden = true;
-        document.getElementById('btn_no_editar6').hidden = false;
+            document.getElementById('adicionalesPago').disabled = false;
+            document.getElementById('btn_editar6').hidden = true;
+            document.getElementById('btn_no_editar6').hidden = false;
         break
         case "no_editar6":
-            document.getElementById('seguroVidaPago').disabled = true;
+            document.getElementById('adicionalesPago').disabled = true;
             document.getElementById('btn_editar6').hidden = false;
             document.getElementById('btn_no_editar6').hidden = true;
         break
         case "editar7":
-        document.getElementById('adicionalesPago').disabled = false;
-        document.getElementById('btn_editar7').hidden = true;
-        document.getElementById('btn_no_editar7').hidden = false;
+            document.getElementById('coohopAporte').disabled = false;
+            document.getElementById('btn_editar7').hidden = true;
+            document.getElementById('btn_no_editar7').hidden = false;
         break
         case "no_editar7":
-            document.getElementById('adicionalesPago').disabled = true;
+            document.getElementById('coohopAporte').disabled = true;
             document.getElementById('btn_editar7').hidden = false;
             document.getElementById('btn_no_editar7').hidden = true;
         break
         case "editar8":
-        document.getElementById('coohopAporte').disabled = false;
-        document.getElementById('btn_editar8').hidden = true;
-        document.getElementById('btn_no_editar8').hidden = false;
+            document.getElementById('coohopBsocial').disabled = false;
+            document.getElementById('btn_editar8').hidden = true;
+            document.getElementById('btn_no_editar8').hidden = false;
         break
         case "no_editar8":
-            document.getElementById('coohopAporte').disabled = true;
+            document.getElementById('coohopBsocial').disabled = true;
             document.getElementById('btn_editar8').hidden = false;
             document.getElementById('btn_no_editar8').hidden = true;
         break
         case "editar9":
-        document.getElementById('coohopBsocial').disabled = false;
-        document.getElementById('btn_editar9').hidden = true;
-        document.getElementById('btn_no_editar9').hidden = false;
+            document.getElementById('convenioPago').disabled = false;
+            document.getElementById('btn_editar9').hidden = true;
+            document.getElementById('btn_no_editar9').hidden = false;
         break
         case "no_editar9":
-            document.getElementById('coohopBsocial').disabled = true;
+            document.getElementById('convenioPago').disabled = true;
             document.getElementById('btn_editar9').hidden = false;
             document.getElementById('btn_no_editar9').hidden = true;
         break
-        case "editar10":
-        document.getElementById('diferencia').disabled = false;
-        document.getElementById('btn_editar10').hidden = true;
-        document.getElementById('btn_no_editar10').hidden = false;
-        break
-        case "no_editar10":
-            document.getElementById('diferencia').disabled = true;
-            document.getElementById('btn_editar10').hidden = false;
-            document.getElementById('btn_no_editar10').hidden = true;
-        break
+        // case "editar10":
+        // document.getElementById('diferencia').disabled = false;
+        // document.getElementById('btn_editar10').hidden = true;
+        // document.getElementById('btn_no_editar10').hidden = false;
+        // break
+        // case "no_editar10":
+        //     document.getElementById('diferencia').disabled = true;
+        //     document.getElementById('btn_editar10').hidden = false;
+        //     document.getElementById('btn_no_editar10').hidden = true;
+        // break
         case "habilitar":
-            document.getElementById('valorPago').disabled = false;
-            document.getElementById('aportePago').disabled = false;
-            document.getElementById('bSocialPago').disabled = false;
-            document.getElementById('mascotaPago').disabled = false;
-            document.getElementById('repatriacionPago').disabled = false;
-            document.getElementById('seguroVidaPago').disabled = false;
-            document.getElementById('adicionalesPago').disabled = false;
-            document.getElementById('coohopAporte').disabled = false;
-            document.getElementById('coohopBsocial').disabled = false;
-            document.getElementById('diferencia').disabled = false;   
+            const inputs = [
+                'valorPago', 
+                'diferencia', 
+                'mascotaPago', 
+                'repatriacionPago', 
+                'seguroVidaPago', 
+                'adicionalesPago', 
+                'coohopAporte', 
+                'coohopBsocial', 
+                'convenioPago'
+            ];
+            // Iterar sobre los IDs y habilitar solo los que existen
+            inputs.forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {  // Si el input existe
+                    input.disabled = false;
+                }
+            });
         break
     }
 }

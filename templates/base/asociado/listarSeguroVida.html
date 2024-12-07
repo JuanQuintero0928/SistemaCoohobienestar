@@ -13,7 +13,7 @@
     <li class="breadcrumb-item"><a href="#">Información</a></li>
     <li class="breadcrumb-item"><a href="{% url 'asociado:asociado' %}">Asociados</a></li>
     <li class="breadcrumb-item active" aria-current="page">Detalle Asociado</li>
-    <li class="breadcrumb-item active" aria-current="page">{{queryAsociado.nombre}} {{queryAsociado.apellido}}</li>
+    <li class="breadcrumb-item active" aria-current="page">{{queryAsociado.nombre}} {{queryAsociado.apellido}} - {{queryAsociado.numDocumento}}</li>
 {% endblock breadcrumb %}
 
 {% block submenu %}

@@ -6,7 +6,10 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <form action="{% url 'proceso:editarPagoAsociado' pk pkAsociado vista %}" method="post">
+            <form action="{% url 'proceso:editarPagoAsociado' pk pkAsociado vista %}" method="post" id="formId">
+                {% comment %} Campo Oculto {% endcomment %}
+                <input type="number" name="cuotaPeriodica" value="{{queryPago.aportePago|add:queryPago.bSocialPago }}" id="cuotaPeriodica" class="form-control" aria-label="Default select example" hidden>
+
                 {% csrf_token %}
                 {% comment %} input completo {% endcomment %}
                 <div class="input-group mb-3">
@@ -40,25 +43,193 @@
                   <span class="input-group-text">$</span>
                   <input type="number" class="form-control" value="{{queryPago.valorPago}}" id="valorPago" name="valorPago" value="{{ query.cuota }}" type="number" disabled>
                   <span class="input-group-text">
-                    <a class="btn btn-outline-dark btn-sm" id="btn_editar" onclick="editarCasillasPago('editar1')" style="border:0px"><i class="fa-solid fa-pen"></i></a>
-                    <a class="btn btn-outline-danger btn-sm" id="btn_no_editar" onclick="editarCasillasPago('no_editar1')" style="border:0px" hidden><i class="fa-solid fa-xmark"></i></a>
+                    <a class="btn btn-outline-dark btn-sm custom-btn-2" id="btn_editar" onclick="editarCasillasPago('editar1')" style="border:0px">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon-3" viewBox="0 0 16 16">
+                        <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                      </svg>
+                    </a>
+                    <a class="btn btn-outline-danger btn-sm" id="btn_no_editar" onclick="editarCasillasPago('no_editar1')" style="border:0px" hidden>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                      </svg>
+                    </a>
                   </span>
                 </div>
-                {% if diferencia > 0 or diferencia < 0 %}
-                <hr>
-                <h2 class="modal-title fs-5" id="exampleModalLabel">Observaciones</h2>
-                <hr>               
-                {% comment %} input completo {% endcomment %}
+                {% if queryPago.mascotaPago != 0 or queryPago.repatriacionPago != 0 or queryPago.seguroVidaPago != 0 or queryPago.adicionalesPago != 0 or queryPago.coohopAporte != 0 or queryPago.coohopBsocial != 0 %}
                   <hr>
-                  <h2 class="modal-title fs-5" id="exampleModalLabel">Saldos</h2>
+                    <h2 class="modal-title fs-5" id="exampleModalLabel">Detalles</h2>
                   <hr>
+                {% endif %}
+                {% if queryPago.mascotaPago != 0 %}
+                  {% comment %} input completo {% endcomment %}
                   <div class="input-group mb-3">
-                    <span class="input-group-text" id="basic-addon3" {% if diferencia < 0 %}  style="color:#DF5B68" {% else %} style="color:#198754" {% endif %} ><b>{% if diferencia > 0 %}Saldo a Favor{% else %}Saldo a Pagar{% endif %}</b></span>
+                    <span class="input-group-text" id="basic-addon3">Mascota</span>
                     <span class="input-group-text">$</span>
-                    <input type="number" class="form-control" id="diferencia" value="{{diferencia}}" name="diferencia" type="number" disabled>
-                    
+                    <input type="text" class="form-control" id="mascotaPago" name="mascotaPago" value="{{ queryPago.mascotaPago }}" type="number" disabled>
+                    <span class="input-group-text">
+                      <a class="btn btn-outline-dark btn-sm custom-btn-2" id="btn_editar3" onclick="editarCasillasPago('editar3')" style="border:0px">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon-3" viewBox="0 0 16 16">
+                          <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                        </svg>
+                      </a>
+                      <a class="btn btn-outline-danger btn-sm" id="btn_no_editar3" onclick="editarCasillasPago('no_editar3')" style="border:0px" hidden>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                          <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                        </svg>
+                      </a>
+                    </span>
                   </div>
                 {% endif %}
+                {% if queryPago.repatriacionPago != 0 %}
+                  {% comment %} input completo {% endcomment %}
+                  <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon3">Repatriación</span>
+                    <span class="input-group-text">$</span>
+                    <input type="text" class="form-control" id="repatriacionPago" name="repatriacionPago" value="{{ queryPago.repatriacionPago }}" type="number" disabled>
+                    <span class="input-group-text">
+                      <a class="btn btn-outline-dark btn-sm custom-btn-2" id="btn_editar4" onclick="editarCasillasPago('editar4')" style="border:0px">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon-3" viewBox="0 0 16 16">
+                          <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                        </svg>
+                      </a>
+                      <a class="btn btn-outline-danger btn-sm" id="btn_no_editar4" onclick="editarCasillasPago('no_editar4')" style="border:0px" hidden>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                          <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                        </svg>
+                      </a>
+                    </span>
+                  </div>
+                {% endif %}
+                {% if queryPago.seguroVidaPago != 0 %}
+                  {% comment %} input completo {% endcomment %}
+                  <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon3">Seguro Vida</span>
+                    <span class="input-group-text">$</span>
+                    <input type="text" class="form-control" id="seguroVidaPago" name="seguroVidaPago" value="{{ queryPago.seguroVidaPago }}" type="number" disabled>
+                    <span class="input-group-text">
+                      <a class="btn btn-outline-dark btn-sm custom-btn-2" id="btn_editar5" onclick="editarCasillasPago('editar5')" style="border:0px">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon-3" viewBox="0 0 16 16">
+                          <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                        </svg>
+                      </a>
+                      <a class="btn btn-outline-danger btn-sm" id="btn_no_editar5" onclick="editarCasillasPago('no_editar5')" style="border:0px" hidden>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                          <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                        </svg>
+                      </a>
+                    </span>
+                  </div>
+                {% endif %}
+                {% if queryPago.adicionalesPago != 0 %}
+                  {% comment %} input completo {% endcomment %}
+                  <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon3">Adicionales</span>
+                    <span class="input-group-text">$</span>
+                    <input type="text" class="form-control" id="adicionalesPago" name="adicionalesPago" value="{{ queryPago.adicionalesPago }}" type="number" disabled>
+                    <span class="input-group-text">
+                      <a class="btn btn-outline-dark btn-sm custom-btn-2" id="btn_editar6" onclick="editarCasillasPago('editar6')" style="border:0px">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon-3" viewBox="0 0 16 16">
+                          <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                        </svg>
+                      </a>
+                      <a class="btn btn-outline-danger btn-sm" id="btn_no_editar6" onclick="editarCasillasPago('no_editar6')" style="border:0px" hidden>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                          <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                        </svg>
+                      </a>
+                    </span>
+                  </div>
+                {% endif %}
+                {% if queryPago.coohopAporte != 0 %}
+                  {% comment %} input completo {% endcomment %}
+                  <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon3">Coohoperativitos</span>
+                    <span class="input-group-text">$</span>
+                    <input type="text" class="form-control" id="coohopAporte" name="coohopAporte" value="{{ queryPago.coohopAporte }}" type="number" disabled>
+                    <span class="input-group-text">
+                      <a class="btn btn-outline-dark btn-sm custom-btn-2" id="btn_editar7" onclick="editarCasillasPago('editar7')" style="border:0px">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon-3" viewBox="0 0 16 16">
+                          <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                        </svg>
+                      </a>
+                      <a class="btn btn-outline-danger btn-sm" id="btn_no_editar7" onclick="editarCasillasPago('no_editar7')" style="border:0px" hidden>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                          <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                        </svg>
+                      </a>
+                    </span>
+                  </div>
+                {% endif %}
+                {% if queryPago.coohopBsocial != 0 %}
+                  {% comment %} input completo {% endcomment %}
+                  <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon3">Coohoperativitos B. Social</span>
+                    <span class="input-group-text">$</span>
+                    <input type="text" class="form-control" id="coohopBsocial" name="coohopBsocial" value="{{ queryPago.coohopBsocial }}" type="number" disabled>
+                    <span class="input-group-text">
+                      <a class="btn btn-outline-dark btn-sm custom-btn-2" id="btn_editar8" onclick="editarCasillasPago('editar8')" style="border:0px">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon-3" viewBox="0 0 16 16">
+                          <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                        </svg>
+                      </a>
+                      <a class="btn btn-outline-danger btn-sm" id="btn_no_editar8" onclick="editarCasillasPago('no_editar8')" style="border:0px" hidden>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                          <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                        </svg>
+                      </a>
+                    </span>
+                  </div>
+                {% endif %}
+                {% if queryPago.convenioPago != 0 %}
+                  {% comment %} input completo {% endcomment %}
+                  <div class="input-group mb-3">
+                    <span class="input-group-text" id="basic-addon3">Convenios</span>
+                    <span class="input-group-text">$</span>
+                    <input type="text" class="form-control" id="convenioPago" name="convenioPago" value="{{ queryPago.convenioPago }}" type="number" disabled>
+                    <span class="input-group-text">
+                      <a class="btn btn-outline-dark btn-sm custom-btn-2" id="btn_editar9" onclick="editarCasillasPago('editar9')" style="border:0px">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon-3" viewBox="0 0 16 16">
+                          <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                        </svg>
+                      </a>
+                      <a class="btn btn-outline-danger btn-sm" id="btn_no_editar9" onclick="editarCasillasPago('no_editar9')" style="border:0px" hidden>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                          <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                        </svg>
+                      </a>
+                    </span>
+                  </div>
+                {% endif %}           
+                {% comment %} input completo {% endcomment %}
+                <hr>
+                <h2 class="modal-title fs-5" id="exampleModalLabel">Saldo</h2>
+                <hr>
+                <div class="input-group mb-3">
+                  <span class="input-group-text" id="basic-addon3" {% if queryPago.diferencia < 0 %}  style="color:#DF5B68" {% else %} style="color:#198754" {% endif %} ><b>{% if diferencia > 0 %}Saldo a Favor{% else %}Saldo a Pagar{% endif %}</b></span>
+                  <span class="input-group-text">$</span>
+                  <input type="number" class="form-control" id="diferencia" value="{{queryPago.diferencia}}" name="diferencia" type="number" disabled>
+                  <span class="input-group-text">
+                    <a class="btn btn-outline-dark btn-sm custom-btn-2" id="btn_editar2" onclick="editarCasillasPago('editar2')" style="border:0px">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon-3" viewBox="0 0 16 16">
+                        <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                      </svg>
+                    </a>
+                    <a class="btn btn-outline-danger btn-sm" id="btn_no_editar2" onclick="editarCasillasPago('no_editar2')" style="border:0px" hidden>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                      </svg>
+                    </a>
+                  </span>
+                </div>
                 <hr>
                 <!-- Campo oculto para num_documento -->
                 <input type="hidden" name="num_documento" value="{{ queryPago.asociado.numDocumento }}">
@@ -73,3 +244,31 @@
       </div>
     </div>
   </div>
+
+  <script>
+    document.getElementById("formId").addEventListener("submit", function(event) {
+
+      function obtenerValorInput(id) {
+        const input = document.getElementById(id);
+        return input ? parseFloat(input.value) || 0 : 0; // Si el input no existe, devuelve 0
+      }
+
+      // Obtener los valores de los inputs
+      const cuotaPeriodica = obtenerValorInput("cuotaPeriodica");
+      const valorPago = obtenerValorInput("valorPago");
+      const mascotaPago = obtenerValorInput("mascotaPago");
+      const repatriacionPago = obtenerValorInput("repatriacionPago");
+      const seguroVidaPago = obtenerValorInput("seguroVidaPago");
+      const adicionalesPago = obtenerValorInput("adicionalesPago");
+      const coohopAporte = obtenerValorInput("coohopAporte");
+      const coohopBsocial = obtenerValorInput("coohopBsocial");
+      const convenioPago = obtenerValorInput("convenioPago");
+      const diferencia = obtenerValorInput("diferencia");
+
+      // Verificar si la suma es igual al total
+      if ( cuotaPeriodica + mascotaPago + repatriacionPago + seguroVidaPago + adicionalesPago + coohopAporte + coohopBsocial + convenioPago+ diferencia !== valorPago) {
+          event.preventDefault(); // Detener el envío del formulario
+          alert("El valor total no coincide con la suma de los valores de los pagos.");
+      }
+    });
+    </script>

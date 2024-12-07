@@ -1,6 +1,7 @@
 from django.db import models
 from departamento.models import Departamento, Municipio, PaisRepatriacion
 from parametro.models import TipoAsociado, ServicioFuneraria, MesTarifa
+from parametro.models import Convenio
 # from historico.models import TarifaAsociado
 
 # Create your models here.
@@ -168,13 +169,13 @@ class TarifaAsociado(models.Model):
     cuotaMascota = models.IntegerField('Mascota', blank=True, null=True)
     cuotaRepatriacion = models.IntegerField('Repatriacion', blank=True, null=True)
     cuotaSeguroVida = models.IntegerField('Seguro Vida', blank=True, null=True)
-    seguroVidaIngreso = models.ForeignKey(MesTarifa, on_delete=models.RESTRICT, blank=True, null=True, related_name='seguroVidaIngreso')
     fechaInicioAdicional = models.DateField('Fecha Inicio Adicional', blank=True, null=True)
+    fechaFinAdicional = models.DateField('Fecha Fin Adicional', blank=True, null=True)
+    estadoAdicional = models.BooleanField('Estado Adicional')
     cuotaAdicionales = models.IntegerField('Adicionales', blank=True, null=True)
-    adicionalIngreso = models.ForeignKey(MesTarifa, on_delete=models.RESTRICT, blank=True, null=True, related_name='adicionalIngreso')
     cuotaCoohopAporte = models.IntegerField('Coohoperativito Aporte', blank=True, null=True)
     cuotaCoohopBsocial = models.IntegerField('Coohoperativito Bienestar Social', blank=True, null=True)
-    coohopIngreso = models.ForeignKey(MesTarifa, on_delete=models.RESTRICT, blank=True, null=True, related_name='coohopIngreso')
+    cuotaConvenio = models.IntegerField('Convenio', blank=True, null=True)
     total = models.IntegerField('Total', blank=False, null=False)
     estadoRegistro = models.BooleanField('Estado')
     fechaCreacion = models.DateTimeField(auto_now_add=True)
@@ -211,12 +212,27 @@ class RepatriacionTitular(models.Model):
     id = models.AutoField(primary_key=True)
     asociado = models.ForeignKey(Asociado, on_delete=models.RESTRICT, blank=False, null=False)
     paisRepatriacion = models.ForeignKey(PaisRepatriacion, on_delete=models.RESTRICT, blank=True, null=True)
-    fechaRepatriacion = models.DateField('Fecha Repatriacion', blank=False, null=False)
-    fechaRetiro = models.DateField('Fecha Retiro', blank=True, null=True)
+    fechaRepatriacion = models.DateField(blank=False, null=False)
+    ciudadRepatriacion = models.CharField(max_length=50, blank=True, null=True)
+    fechaRetiro = models.DateField(blank=True, null=True)
     estadoRegistro = models.BooleanField('Estado')
     fechaCreacion = models.DateTimeField(auto_now_add=True)
     fechaModificacion = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = 'Repatriacion Titular'
+        ordering = ['pk']
+
+class ConveniosAsociado(models.Model):
+    id = models.AutoField(primary_key=True)
+    convenio = models.ForeignKey(Convenio, on_delete=models.RESTRICT, blank=False, null=False)
+    asociado = models.ForeignKey(Asociado, on_delete=models.RESTRICT, blank=False, null=False)
+    fechaIngreso = models.DateField('Fecha Ingreso', blank=False, null=False)
+    fechaRetiro = models.DateField('Fecha Retiro', blank=True, null=True)
+    estadoRegistro = models.BooleanField('Estado')
+    fechaCreacion = models.DateTimeField(auto_now_add=True)
+    fechaModificacion = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Convenios Asociado'
         ordering = ['pk']

@@ -15,4 +15,6 @@ urlpatterns = [
     path('excelConciliacionBancaria/', login_required(ExcelConciliacionBancaria.as_view()), name='excelConciliacionBancaria'),
     path('descargarExcel/<int:tipoFormato>', login_required(DescargarExcel.as_view()), name='descargarExcel'),
     path('descargarExcelBeneficiarios/<int:tipoFormato>', login_required(DescargarExcelBeneficiarios.as_view()), name='descargarExcelBeneficiarios'),
+    path('descargarAuxilio/', login_required(DescargaAuxilio.as_view()), name='descargarAuxilio'),
+
 ]
