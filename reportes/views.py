@@ -906,7 +906,7 @@ class DescargarExcel(ListView):
             ws.title = 'Listado '
             titulo1 = f"Listado Tarifas Asociados"
             ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
-            ws.merge_cells('A1:N1')
+            ws.merge_cells('A1:O1')
             ws['A1'].font = bold_font
             ws['A1'].alignment = alignment_center
             ws['A1'].fill = fill
@@ -924,12 +924,13 @@ class DescargarExcel(ListView):
             ws['K2'] = 'Seguro Vida'
             ws['L2'] = 'Adicionales'
             ws['M2'] = 'Coohoperativitos Aporte'
-            ws['N2'] = 'Coohoperativitos B Social'       
+            ws['N2'] = 'Coohoperativitos B Social'
+            ws['O2'] = 'Convenio'
         
             bold_font2 = Font(bold=True)
             center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
 
-            for col in range(1,15):
+            for col in range(1,16):
                 cell = ws.cell(row=2, column=col)
                 cell.font = bold_font2
                 cell.alignment = center_alignment
@@ -948,6 +949,7 @@ class DescargarExcel(ListView):
             ws.column_dimensions['L'].width = 14
             ws.column_dimensions['M'].width = 14
             ws.column_dimensions['N'].width = 14
+            ws.column_dimensions['O'].width = 14
 
             #Inicia el primer registro en la celda numero 3
             cont = 3
@@ -955,8 +957,7 @@ class DescargarExcel(ListView):
 
             queryTarifa = TarifaAsociado.objects.values('asociado__id',
                             'asociado__nombre','asociado__apellido','asociado__numDocumento','asociado__tAsociado__concepto', 'cuotaAporte', 'cuotaBSocial', 'cuotaMascota', 'cuotaRepatriacion', 
-                            'cuotaSeguroVida', 'seguroVidaIngreso', 'fechaInicioAdicional', 'cuotaAdicionales', 
-                            'adicionalIngreso', 'cuotaCoohopAporte', 'cuotaCoohopBsocial', 'coohopIngreso', 'total'
+                            'cuotaSeguroVida', 'cuotaAdicionales', 'cuotaCoohopAporte', 'cuotaCoohopBsocial', 'cuotaConvenio', 'total'
                         )
 
             for query in queryTarifa:
@@ -975,6 +976,7 @@ class DescargarExcel(ListView):
                 ws.cell(row = cont, column = 12).value = query['cuotaAdicionales']
                 ws.cell(row = cont, column = 13).value = query['cuotaCoohopAporte']
                 ws.cell(row = cont, column = 14).value = query['cuotaCoohopBsocial']
+                ws.cell(row = cont, column = 15).value = query['cuotaConvenio']
                 i+=1
                 cont+=1
             nombre_archivo = f"Reporte_Tarifas_Asociado.xlsx"
