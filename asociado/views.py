@@ -94,7 +94,16 @@ class CrearAsociado(CreateView):
             obj.parentesco = request.POST['parentesco']
             obj.numContacto = request.POST['numContacto']
             obj.save()
-            
+            # se guarda informacion en el modelo LABORAL
+            objLaboral = Laboral()
+            objLaboral.asociado = Asociado.objects.get(pk = obj.pk)
+            objLaboral.estadoRegistro = True
+            objLaboral.save()
+            # se guarda informacion en el modelo FINANCIERA
+            objFinanciera = Financiera()
+            objFinanciera.asociado = Asociado.objects.get(pk = obj.pk)
+            objFinanciera.estadoRegistro = True
+            objFinanciera.save()
             # se pone valor quemado en la busqueda con el pk, se busca tarifa de aportes y bienestar social
             objTarifaAporte = Tarifas.objects.get(pk = 1)
             objTarifaBSocial = Tarifas.objects.get(pk = 2)
@@ -109,18 +118,11 @@ class CrearAsociado(CreateView):
             objTarifaAsoc.cuotaAdicionales = 0
             objTarifaAsoc.cuotaCoohopAporte = 0
             objTarifaAsoc.cuotaCoohopBsocial = 0
+            objTarifaAsoc.cuotaConvenio = 0
+            objTarifaAsoc.estadoAdicional = False
             objTarifaAsoc.estadoRegistro = True
             objTarifaAsoc.save()
-            # se guarda informacion en el modelo LABORAL
-            objLaboral = Laboral()
-            objLaboral.asociado = Asociado.objects.get(pk = obj.pk)
-            objLaboral.estadoRegistro = True
-            objLaboral.save()
-            # se guarda informacion en el modelo FINANCIERA
-            objFinanciera = Financiera()
-            objFinanciera.asociado = Asociado.objects.get(pk = obj.pk)
-            objFinanciera.estadoRegistro = True
-            objFinanciera.save()
+            
             # se guarda informacion en el modelo PARAMETROASOCIADO
             objParametro = ParametroAsociado()
             objParametro.asociado = Asociado.objects.get(pk = obj.pk)
