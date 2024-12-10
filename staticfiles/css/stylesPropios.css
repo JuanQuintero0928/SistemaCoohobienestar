@@ -10,3 +10,38 @@
   filter: blur(4px);
   opacity: 0.5;
 }
+
+/* Color inicial del ícono */
+.custom-icon {
+  fill: #0D6EFD; /* Azul por defecto */
+  transition: fill 0.3s ease; /* Transición suave para el cambio de color */
+}
+
+/* Cambiar a blanco al pasar el mouse por encima del botón */
+.custom-btn:hover .custom-icon {
+  fill: white; /* Blanco en hover */
+}
+
+.custom-icon-2 {
+  fill: white; /* Azul por defecto */
+  transition: fill 0.3s ease; /* Transición suave para el cambio de color */
+}
+
+.custom-btn-2 {
+  background-color: transparent; /* Fondo transparente por defecto */
+  border: none; /* Sin borde */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.custom-btn-2:hover {
+  background-color: #0D6EFD; /* Fondo azul al pasar el mouse */
+}
+
+.custom-icon-3 {
+  fill: #0D6EFD; /* Azul por defecto */
+  transition: fill 0.3s ease;
+}
+
+.custom-btn-2:hover .custom-icon-3 {
+  fill: white; /* Ícono blanco al pasar el mouse */
+}
