@@ -1,0 +1,106 @@
+{% extends 'index.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+    {% if operation == 'crear' %}
+        Crear Producto
+    {% else %}
+        Editar Producto
+    {% endif %}
+{% endblock title %}
+
+{% block button %}
+    {% if operation == 'crear' %}
+        <a type="button" class="btn btn-outline-primary d-flex align-items-center justify-content-center" href="{% url 'asociado:listarProductos' %}" style="width:40px">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+            </svg>
+        </a>
+    {% else %}
+        <a type="button" class="btn btn-outline-primary d-flex align-items-center justify-content-center" href="{% url 'asociado:crearProducto' %}" style="width:40px">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+            </svg>
+        </a>
+    {% endif %}
+{% endblock button %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'informacion:informacion' %}">Información</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'asociado:listarProductos' %}">Productos</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{% if operation == 'crear' %}Crear{% else %}Editar{% endif %} Producto</li>
+{% endblock breadcrumb %}
+
+{% block contenidoPagina %}
+    <form method="post">
+
+        <!-- Mostrar errores generales del formulario -->
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for error in form.errors %}
+                        <li>Error en el campo: {{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        {% csrf_token %}
+        {% comment %} Primera Fila {% endcomment %}
+        <div class="row">
+            <div class="col-12 col-md-6 mb-3">
+                {{ form.categoria.label_tag }}
+                {{ form.categoria }} 
+            </div>
+            <div class="col-12 col-md-6 mb-3">
+                {{ form.nombre.label_tag }}
+                {{ form.nombre }} 
+            </div>
+        </div>
+
+        {% comment %} Segunda Fila {% endcomment %}
+        <div class="row">
+            <div class="col-12 col-md-4 mb-3">
+                {{ form.proveedor.label_tag }}
+                {{ form.proveedor }} 
+            </div>
+            <div class="col-12 col-md-4 mb-3">
+                {{ form.referencia.label_tag }}
+                {{ form.referencia }} 
+            </div>
+            <div class="col-12 col-md-4 mb-3">
+                {{ form.ean.label_tag }}
+                {{ form.ean }} 
+            </div>
+        </div>
+
+        {% comment %} Tercera Fila {% endcomment %}
+        <div class="row">
+            <div class="col-12 col-md-4 mb-3">
+                {{ form.precio.label_tag }}
+                {{ form.precio }} 
+            </div>
+            <div class="col-12 col-md-4 mb-3">
+                {{ form.descuento.label_tag }}
+                {{ form.descuento }} 
+            </div>
+            <div class="col-12 col-md-4 mb-3">
+                {{ form.stock.label_tag }}
+                {{ form.stock }} 
+            </div>
+        </div>
+
+        {% comment %} Cuarta Fila {% endcomment %}
+        <div class="row">
+            <div class="col-12 mb-3">
+                {{ form.descripcion.label_tag }}
+                {{ form.descripcion }} 
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Crear</button>
+    </form>
+{% endblock contenidoPagina %}

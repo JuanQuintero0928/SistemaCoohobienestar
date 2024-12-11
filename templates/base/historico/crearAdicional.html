@@ -25,6 +25,10 @@
                         {% endif %}
                     </div>
                     <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon3">Concepto Adicional</span>
+                        <input type="text" class="form-control" name="concepto" {% if update %} value="{{query.conceptoAdicional'}}" {% endif %} required>
+                    </div>
+                    <div class="input-group mb-3">
                         <span class="input-group-text" id="basic-addon3">Fecha Inicio Adicional</span>
                         <input type="date" class="form-control" name="fechaInicioAdicional" {% if update %} value="{{query.fechaInicioAdicional|date:'Y-m-d'}}" {% endif %} required>
                     </div>

@@ -880,6 +880,7 @@ class CrearAdicionalAsociado(ListView):
         objTarifa = TarifaAsociado.objects.get(asociado = kwargs['pkAsociado'])
         objTarifa.cuotaAdicionales = cuotaAdicional
         objTarifa.fechaInicioAdicional = fechaInicioAdicional
+        objTarifa.conceptoAdicional = request.POST['concepto'].upper()
         objTarifa.total = objTarifa.total + int(cuotaAdicional)
         objTarifa.estadoAdicional = True
         objTarifa.save()
@@ -898,6 +899,7 @@ class EditarAdicionalAsociado(ListView):
         fechaInicioAdicional = request.POST['fechaInicioAdicional']
         objTarifa = TarifaAsociado.objects.get(asociado = kwargs['pkAsociado'])
         objTarifa.cuotaAdicionales = cuotaAdicional
+        objTarifa.conceptoAdicional = request.POST['concepto'].upper()
         objTarifa.total = objTarifa.total + int(cuotaAdicional) - int(valorAnterior)
         objTarifa.fechaInicioAdicional = fechaInicioAdicional
         objTarifa.save()

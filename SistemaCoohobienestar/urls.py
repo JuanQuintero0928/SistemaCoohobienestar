@@ -42,6 +42,7 @@ urlpatterns = [
     path('parametro/', include(('parametro.urls','parametro'))),
     path('proceso/', include(('historico.urls','proceso'))),
     path('reportes/', include(('reportes.urls','reportes'))),
+    path('ventas/', include(('ventas.urls','ventas'))),
 
 ]
 

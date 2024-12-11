@@ -171,6 +171,7 @@ class TarifaAsociado(models.Model):
     cuotaSeguroVida = models.IntegerField('Seguro Vida', blank=True, null=True)
     fechaInicioAdicional = models.DateField('Fecha Inicio Adicional', blank=True, null=True)
     fechaFinAdicional = models.DateField('Fecha Fin Adicional', blank=True, null=True)
+    conceptoAdicional = models.CharField('Concepto Adicional', max_length=100, blank=True, null=True)
     estadoAdicional = models.BooleanField('Estado Adicional')
     cuotaAdicionales = models.IntegerField('Adicionales', blank=True, null=True)
     cuotaCoohopAporte = models.IntegerField('Coohoperativito Aporte', blank=True, null=True)

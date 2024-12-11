@@ -1,5 +1,3 @@
-from cProfile import label
-from turtle import width
 from django import forms
 from .models import Asociado, RepatriacionTitular, ConveniosAsociado
 # from parametro.models import ConvenioAsociado
