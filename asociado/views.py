@@ -194,6 +194,8 @@ class EditarAsociado(UpdateView):
             # INACTIVO
             else:
                 obj.estadoAsociado = request.POST['estadoAsociado']
+        elif obj.estadoAsociado == 'RETIRO':
+            obj.fechaRetiro = request.POST['fechaRetiro']
         obj.nombre = request.POST['nombre'].upper()
         obj.apellido = request.POST['apellido'].upper()
         obj.tipoDocumento = request.POST['tipoDocumento']

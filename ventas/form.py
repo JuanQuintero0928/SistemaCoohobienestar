@@ -1,9 +1,6 @@
-from cProfile import label
-from dataclasses import field
-from pyexpat import model
 from tkinter import Widget
 from django import forms
-from .models import Producto
+from .models import Producto, HistoricoVenta, DetalleVenta
 
 class ProductoForm(forms.ModelForm):
     class Meta:
@@ -39,4 +36,44 @@ class ProductoForm(forms.ModelForm):
             'descuento': 'Descuento (%)',
             'proveedor': 'Proveedor',
             'stock': 'Stock disponible'
+        }
+
+class HistoricoVentaForm(forms.ModelForm):
+    class Meta:
+        model = HistoricoVenta
+        fields = ['fechaVenta',
+                  'formaPago',
+                  'cuotas',
+                  'valorBruto',
+                  'valorNeto',
+        ]
+        widgets = {
+            'fechaVenta': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'},format='%Y-%m-%d',),
+            'formaPago': forms.Select(attrs={'class': 'form-control'}),
+            'cuotas': forms.NumberInput(attrs={'class': 'form-control', 'min':0}),
+            'valorBruto': forms.NumberInput(attrs={'class': 'form-control', 'readonly':'readonly'}),
+            'valorNeto': forms.NumberInput(attrs={'class': 'form-control', 'readonly':'readonly'}),
+        }
+        labels = {
+            'fechaVenta': 'Fecha Venta',
+            'formaPago': 'Forma Pago',
+            'cuotas': 'Número Cuotas',
+            'valorBruto': 'Valor Bruto',
+            'valorNeto': 'Valor Neto',
+        }
+
+class DetalleVentaForm(forms.ModelForm):
+    
+    class Meta:
+        model = DetalleVenta
+        fields = ['producto',
+                  'cantidad',
+        ]
+        widgets = {
+            'producto': forms.Select(attrs={'class': 'form-control'}),
+            'cantidad': forms.NumberInput(attrs={'class':'form-control', 'min':0}),
+        }
+        labels = {
+            'producto': 'Producto',
+            'cantidad': 'Cantidad',
         }

@@ -609,7 +609,7 @@ class ExcelDescuentosNomina(TemplateView):
         ws.title = 'Descuentos'
         titulo1 = f"Reporte descuentos nomina"
         ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
-        ws.merge_cells('A1:N1')
+        ws.merge_cells('A1:O1')
         ws['A1'].font = bold_font
         ws['A1'].alignment = alignment_center
         ws['A1'].fill = fill
@@ -815,7 +815,7 @@ class DescargarExcel(ListView):
             ws.title = 'Listado Asociados'
             titulo1 = f"Listado Asociados"
             ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
-            ws.merge_cells('A1:T1')
+            ws.merge_cells('A1:U1')
             ws['A1'].font = bold_font
             ws['A1'].alignment = alignment_center
             ws['A1'].fill = fill
@@ -840,11 +840,12 @@ class DescargarExcel(ListView):
             ws['R2'] = 'Tipo Asociado'
             ws['S2'] = 'Fecha Ingreso'
             ws['T2'] = 'Funeraria'
+            ws['U2'] = 'Fecha Retiro'
                     
             bold_font2 = Font(bold=True)
             center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
 
-            for col in range(1,21):
+            for col in range(1,22):
                 cell = ws.cell(row=2, column=col)
                 cell.font = bold_font2
                 cell.alignment = center_alignment
@@ -869,6 +870,8 @@ class DescargarExcel(ListView):
             ws.column_dimensions['R'].width = 20
             ws.column_dimensions['S'].width = 20
             ws.column_dimensions['T'].width = 22
+            ws.column_dimensions['U'].width = 20
+
 
             #Inicia el primer registro en la celda numero 3
             cont = 3
@@ -899,7 +902,10 @@ class DescargarExcel(ListView):
                 ws.cell(row = cont, column = 18).value = asociado.tAsociado.concepto
                 ws.cell(row = cont, column = 19).value = asociado.fechaIngreso.strftime("%d/%m/%Y")
                 ws.cell(row = cont, column = 20).value = asociado.funeraria
-                i+=1
+                if asociado.fechaRetiro:
+                    ws.cell(row = cont, column = 21).value = asociado.fechaRetiro.strftime("%d/%m/%Y")
+                else:
+                    ws.cell(row = cont, column = 21).value = ''
                 cont+=1
                 nombre_archivo = f"Reporte_Listado_Asociados.xlsx"
         elif tipo_formato == 2:

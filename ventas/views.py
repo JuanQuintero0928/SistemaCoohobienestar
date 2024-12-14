@@ -3,18 +3,22 @@ from django.views.generic import ListView, CreateView, UpdateView
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.http import HttpResponseRedirect
+from django.forms import inlineformset_factory
 
-from .models import Producto, HistoricoVenta
-from .form import ProductoForm
+from .models import Producto, HistoricoVenta, DetalleVenta
+from .form import ProductoForm, HistoricoVentaForm, DetalleVentaForm
+from asociado.models import Asociado
 
 # Create your views here.
 
 class ListarProductos(ListView):
-    def get(self, request, *args, **kwargs):
-        template_name = 'ventas/listarProductos.html'
-        query = Producto.objects.select_related('categoria')
-        return render(request, template_name, {'query':query})
+    model = Producto
+    template_name = 'ventas/listarProductos.html'
+    context_object_name = 'query'
     
+    def get_queryset(self):
+        return Producto.objects.select_related('categoria')
+
 class CrearProducto(CreateView):
     model = Producto
     form_class = ProductoForm
@@ -88,11 +92,34 @@ class ListarVentasAsociado(ListView):
             'pkAsociado': self.kwargs['pkAsociado'],
             'vista': 11
         })
+    
+        if self.request.POST:
+            context['detalle_venta_formset'] = inlineformset_factory(
+                HistoricoVenta,
+                DetalleVenta,
+                form=DetalleVentaForm,
+                extra=1,
+                can_delete=True
+            )(self.request.POST)
+        else:
+            context['detalle_venta_formset'] = inlineformset_factory(
+                HistoricoVenta,
+                DetalleVenta,
+                form=DetalleVentaForm,
+                extra=1,
+                can_delete=True
+            )()
         return context
 
 class CrearVentaAsociado(CreateView):
     model = HistoricoVenta
+    form_class = HistoricoVentaForm
     template_name = 'base/ventas/crearVentaAsociado.html'
-    context_object_name = 'ventas'
-    
-        
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'asociado': Asociado.objects.get(pk = self.kwargs['pkAsociado']),
+            'pkAsociado': self.kwargs['pkAsociado']
+        })
+        return context

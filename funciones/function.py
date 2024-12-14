@@ -61,6 +61,7 @@ def procesar_csv(archivo_csv, user_creacion_id):
                     adicionalesPago=int(row['adicionalesPago']) if row['adicionalesPago'] else None,
                     coohopAporte=int(row['coohopAporte']) if row['coohopAporte'] else None,
                     coohopBsocial=int(row['coohopBsocial']) if row['coohopBsocial'] else None,
+                    convenioPago=int(row['convenioPago']) if row['convenioPago'] else None,
                     diferencia=int(row['diferencia']) if row['diferencia'] else None,
                     formaPago_id=int(row['formaPago_id']),  # Relación con el modelo `FormaPago`
                     userCreacion_id=user_creacion_id,  # Relación con `User`

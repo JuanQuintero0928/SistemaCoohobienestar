@@ -41,14 +41,16 @@ class Producto(models.Model):
 class HistoricoVenta(models.Model):
 
     class FormaPago(models.TextChoices):
-        contado = 'CONTADO', 'CONTADO'
         credito = 'CREDITO', 'CREDITO'
+        contado = 'CONTADO', 'CONTADO'
 
     id = models.AutoField(primary_key=True)
     asociado = models.ForeignKey(Asociado, on_delete=models.CASCADE, blank=False, null=False)
     fechaVenta = models.DateField(blank=False, null=False)
     valorBruto = models.IntegerField(blank=False, null=False)
-    formaPago = models.CharField(choices=FormaPago.choices, default=FormaPago.contado, blank=False, null=False)
+    formaPago = models.CharField(choices=FormaPago.choices, default=FormaPago.credito, blank=False, null=False)
+    cuotas = models.IntegerField(blank=True, null=True)
+    pendientePago = models.IntegerField(blank=True, null=True)
     valorNeto = models.IntegerField(blank=False, null=False)
     userCreacion = models.ForeignKey(User, on_delete=models.CASCADE, blank=False, null=False)
     estadoRegistro = models.BooleanField(default=True)
