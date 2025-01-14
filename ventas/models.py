@@ -6,6 +6,14 @@ import historico
 
 # Create your models here.
 
+class PorcentajeDescuento(models.Model):
+    id = models.AutoField(primary_key=True)
+    porcentaje = models.DecimalField(max_digits=3, decimal_places=2, blank=False, null=False)
+    estado = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{int(self.porcentaje * 100)}%"
+
 class Categoria(models.Model):
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
@@ -29,7 +37,6 @@ class Producto(models.Model):
     ean = models.CharField(max_length=13, blank=False, null=False)
     descripcion = models.CharField(max_length=200, blank=False, null=False)
     precio = models.IntegerField(blank=False, null=False)
-    descuento = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, blank=False, null=False)
     inventario = models.BooleanField(default=False)
     stock = models.IntegerField(blank=False, null=False)
@@ -50,7 +57,11 @@ class HistoricoVenta(models.Model):
     valorBruto = models.IntegerField(blank=False, null=False)
     formaPago = models.CharField(choices=FormaPago.choices, default=FormaPago.credito, blank=False, null=False)
     cuotas = models.IntegerField(blank=True, null=True)
+    valorCuotas = models.IntegerField(blank=True, null=True)
+    cuotasPagas = models.IntegerField(blank=True, null=True)
     pendientePago = models.IntegerField(blank=True, null=True)
+    descuento = models.ForeignKey(PorcentajeDescuento, on_delete=models.CASCADE, blank=True, null=True)
+    valorDescuento = models.IntegerField(blank=True, null=True)
     valorNeto = models.IntegerField(blank=False, null=False)
     userCreacion = models.ForeignKey(User, on_delete=models.CASCADE, blank=False, null=False)
     estadoRegistro = models.BooleanField(default=True)
@@ -67,7 +78,6 @@ class DetalleVenta(models.Model):
     cantidad = models.IntegerField(blank=False, null=False)
     precio = models.IntegerField(blank=False, null=False)
     totalBruto = models.IntegerField(blank=False, null=False)
-    descuento = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
     totalNeto = models.IntegerField(blank=False, null=False)
     
     def __str__(self):

@@ -1,3 +1,5 @@
+from re import escape
+import re
 from django.shortcuts import render
 from django.views.generic import ListView, CreateView, UpdateView
 from django.urls import reverse_lazy
@@ -5,7 +7,7 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.forms import inlineformset_factory
 
-from .models import Producto, HistoricoVenta, DetalleVenta
+from .models import Producto, HistoricoVenta, DetalleVenta, PorcentajeDescuento
 from .form import ProductoForm, HistoricoVentaForm, DetalleVentaForm
 from asociado.models import Asociado
 
@@ -92,23 +94,6 @@ class ListarVentasAsociado(ListView):
             'pkAsociado': self.kwargs['pkAsociado'],
             'vista': 11
         })
-    
-        if self.request.POST:
-            context['detalle_venta_formset'] = inlineformset_factory(
-                HistoricoVenta,
-                DetalleVenta,
-                form=DetalleVentaForm,
-                extra=1,
-                can_delete=True
-            )(self.request.POST)
-        else:
-            context['detalle_venta_formset'] = inlineformset_factory(
-                HistoricoVenta,
-                DetalleVenta,
-                form=DetalleVentaForm,
-                extra=1,
-                can_delete=True
-            )()
         return context
 
 class CrearVentaAsociado(CreateView):
@@ -120,6 +105,29 @@ class CrearVentaAsociado(CreateView):
         context = super().get_context_data(**kwargs)
         context.update({
             'asociado': Asociado.objects.get(pk = self.kwargs['pkAsociado']),
-            'pkAsociado': self.kwargs['pkAsociado']
+            'pkAsociado': self.kwargs['pkAsociado'],
+            'queryProducto': Producto.objects.all(),
+            'descuento': PorcentajeDescuento.objects.filter(estado = True)
         })
         return context
+
+    def post(self, request, *args, **kwargs):
+        objHistoricoVenta = HistoricoVenta()
+        objHistoricoVenta.asociado = Asociado.objects.get(pk = self.kwargs['pkAsociado'])
+        objHistoricoVenta.fechaVenta = request.POST['fechaVenta']
+        objHistoricoVenta.formaPago = request.POST['formaPago']
+        if objHistoricoVenta.formaPago == 'CREDITO':
+            objHistoricoVenta.cuotas = request.POST['cuotas']
+            objHistoricoVenta.valorCuotas = int(request.POST['valorCuotas'].replace('.', ''))
+            objHistoricoVenta.pendientePago = int(request.POST['valorNeto'].replace('.', ''))
+            objHistoricoVenta.cuotasPagas = 0
+        else:
+            objHistoricoVenta.descuento = PorcentajeDescuento.objects.get(pk = request.POST['descuento'])
+            objHistoricoVenta.valorDescuento = int(request.POST['valorDescuento'].replace('.', ''))
+        objHistoricoVenta.valorBruto = int(request.POST['valorBruto'].replace('.', ''))
+        objHistoricoVenta.valorNeto = int(request.POST['valorNeto'].replace('.', ''))
+        objHistoricoVenta.userCreacion = request.user
+        objHistoricoVenta.estadoRegistro = True
+        objHistoricoVenta.save()
+        messages.info(request, f"Venta creada correctamente.")
+        return HttpResponseRedirect(reverse_lazy('asociado:listarVentasAsociado', kwargs={'pkAsociado': self.kwargs['pkAsociado']}))

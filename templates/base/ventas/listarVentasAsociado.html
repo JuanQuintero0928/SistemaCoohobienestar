@@ -51,7 +51,8 @@
         <th>Fecha Venta</th>
         <th>Forma de Pago</th>
         <th>Cuotas</th>
-        <th>Valor Bruto</th>
+        <th>Valor Cuota</th>
+        <th>Pendiente Pago</th>
         <th>Valor Neto</th>
         <th>Opciones</th>
     </tr>
@@ -63,8 +64,21 @@
             <th>{{ forloop.counter }}</th>
             <th>{{ obj.fechaVenta|date:"d/m/Y" }}</th>
             <th>{{ obj.formaPago }}</th>
-            <th>{{ obj.cuotas }}</th>
-            <th>${{ obj.valorBruto|intcomma }}</th>
+            <th>
+                {% if obj.formaPago == 'CREDITO' %}
+                    {{ obj.cuotas }}
+                {% endif %}
+            </th>
+            <th>
+                {% if obj.formaPago == 'CREDITO' %}
+                    ${{ obj.valorCuotas|intcomma }}
+                {% endif %}
+            </th>
+            <th>
+                {% if obj.formaPago == 'CREDITO' %}
+                    ${{ obj.pendientePago|intcomma }}
+                {% endif %}
+            </th>
             <th>${{ obj.valorNeto|intcomma }}</th>
             <th>
                 <center>

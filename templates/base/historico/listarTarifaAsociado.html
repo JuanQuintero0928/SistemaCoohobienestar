@@ -161,9 +161,16 @@
                     </tr>
                 {% endfor %}
             {% endif %}
+            {% if queryCreditoProd > 0 %}
+                <tr>
+                    <th>Creditos Home Elements</th>
+                    <th>${{ queryCreditoProd|intcomma }}</th>
+                    <th></th>
+                </tr>
+            {% endif %}
             <tr>
                 <th>Total</th>
-                <th>${{ query.total|intcomma }}</th>
+                <th>${{ totalTarifaAsociado|intcomma }}</th>
                 <th></th>
             </tr>
         <tbody>   

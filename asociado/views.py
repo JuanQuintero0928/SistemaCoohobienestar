@@ -1,19 +1,22 @@
-from multiprocessing import context
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, CreateView, UpdateView
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.urls import reverse_lazy
-from django.db.models import Sum
+from django.db.models import Sum, Prefetch
 from datetime import date, timedelta
 
 from .models import Asociado, ConveniosAsociado, Laboral, Financiera, ParametroAsociado, TarifaAsociado, RepatriacionTitular
-from .form import ConvenioAsociadoForm, RepatriacionTitularForm
 from beneficiario.models import Beneficiario, Mascota, Coohoperativitos, Parentesco
-from historico.models import HistoricoAuxilio, HistoricoCredito, HistoricoSeguroVida, HistorialPagos
+from credito.models import Codeudor
 from departamento.models import Departamento, Municipio, PaisRepatriacion
+from historico.models import HistoricoAuxilio, HistoricoCredito, HistoricoSeguroVida, HistorialPagos
 from parametro.models import Tarifas, TipoAsociado, TipoAuxilio, ServicioFuneraria, MesTarifa, Convenio
+from ventas.models import HistoricoVenta
+
+from .form import ConvenioAsociadoForm, RepatriacionTitularForm
 from beneficiario.form import BeneficiarioForm, MascotaForm, CoohoperativitoForm
+from credito.form import CodeudorForm
 from historico.form import HistoricoSeguroVidaForm, HistoricoAuxilioForm, HistoricoCreditoForm
 
 # Create your views here.
@@ -763,43 +766,26 @@ class EliminarAuxilio(UpdateView):
         queryAuxilio.save()
         messages.info(request, 'Registro Eliminado Correctamente')
         return HttpResponseRedirect(reverse_lazy('asociado:historicoAuxilio', args=[kwargs['pkAsociado']]))
-
 class VerHistoricoCredito(ListView):
+
+    
     def get(self, request, *args, **kwargs):
         template_name = 'base/historico/listarHistoricoCredito.html'
-        queryCredito = HistoricoCredito.objects.filter(asociado = kwargs['pkAsociado'])
+        queryCredito = HistoricoCredito.objects.prefetch_related(
+                Prefetch('codeudor_set', queryset=Codeudor.objects.all())
+            ).filter(asociado = kwargs['pkAsociado'])
         queryAsociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
-        return render(request, template_name, {'updateAsociado':'yes','pkAsociado':kwargs['pkAsociado'],'query':queryCredito, 'queryAsociado':queryAsociado,'vista':5})
 
-# class CrearHistoricoCredito(CreateView):
-#     model = HistoricoCredito
-#     form_class = HistoricoCreditoForm
-#     template_name = 'base/historico/crearHistoricoCredito.html'
-#     success_url = reverse_lazy('asociado:historicoCredito')
 
-#     def form_valid(self, form):
-#         print("Método POST recibido en form_valid")  # Mensaje de depuración
-#         # Obtener el objeto 'Asociado' a partir del `pk` en los kwargs
-#         asociado = get_object_or_404(Asociado, pk=self.kwargs['pkAsociado'])
-
-#         # Asignar el objeto 'Asociado' al formulario 
-#         form.instance.asociado = asociado
-
-#         # Validaciones adicionales
-#         if form.instance.valor < 0 or form.instance.cuotas < 0:
-#             form.add_error('valor', 'El valor no puede ser negativo.')
-#             return self.form_invalid(form)
-        
-#         return super().form_valid(form)
-
-#     def get_context_data(self, **kwargs):
-#         # se llama al contexto original
-#         context = super().get_context_data(**kwargs)
-
-#         context['asociado'] = Asociado.objects.get(pk = self.kwargs['pkAsociado'])
-#         context['vista'] = {'crear':'yes'}
-#         return context
-
+        context = {
+            'updateAsociado':'yes',
+            'pkAsociado':kwargs['pkAsociado'],
+            'query':queryCredito,
+            'queryAsociado':queryAsociado,
+            'vista':5
+        }
+        return render(request, template_name, context)
+    
 class CrearHistoricoCredito(ListView):
     def get(self, request, *args, **kwargs):
         template_name = 'base/historico/crearHistoricoCredito.html'
@@ -869,7 +855,35 @@ class VerTarifaAsociado(ListView):
         adicional = False
         if queryTarifaAsociado.cuotaAdicionales > 0:
             adicional = True
-        return render(request, template_name, {'updateAsociado':'yes','pkAsociado':kwargs['pkAsociado'],'query':queryTarifaAsociado, 'adicional':adicional, 'queryRepatriacionTitular':queryRepatriacionTitular,'repatriacion':repatriacionAsociado, 'pk':pkRepatriacion, 'queryConvenio':queryConvenio, 'vista':8})
+        
+        # Se valida si el asociado cuenta con credito de productos home elements
+        queryValidacion = HistoricoVenta.objects.filter(asociado = kwargs['pkAsociado']).exists()
+        queryCreditoProd = None
+        totalCredito = 0
+        if queryValidacion:
+            queryCreditoProd = HistoricoVenta.objects.filter(
+                asociado = kwargs['pkAsociado'],
+                formaPago = 'CREDITO',
+                pendientePago__gt = 0
+                ).aggregate(total=Sum('valorCuotas'))
+            totalCredito = queryCreditoProd.get('total') or 0 # se utiliza 0 en caso que no exista valor
+        
+        totalTarifaAsociado = totalCredito + queryTarifaAsociado.total
+
+        context = {
+            'updateAsociado':'yes',
+            'pkAsociado':kwargs['pkAsociado'],
+            'query':queryTarifaAsociado,
+            'adicional':adicional,
+            'queryRepatriacionTitular':queryRepatriacionTitular,
+            'repatriacion':repatriacionAsociado,
+            'pk':pkRepatriacion,
+            'queryConvenio':queryConvenio,
+            'vista':8,
+            'queryCreditoProd':totalCredito,
+            'totalTarifaAsociado':totalTarifaAsociado
+        }
+        return render(request, template_name, context)
 
 class CrearAdicionalAsociado(ListView):
     def get(self, request, *args, **kwargs):
@@ -1145,18 +1159,33 @@ class DescargarFormatos(ListView):
 # Descarga Formato Auxilios
 class ModalFormato(ListView):
     def get(self, request, *args, **kwargs):
+        template_name = 'base/asociado/formato2.html'
+
         # Formato Auxilio
         if kwargs['formato'] == 3:
-            print('formato 3')
-            template_name = 'base/asociado/formato2.html'
             objAuxilio = HistoricoAuxilio.objects.filter(asociado = kwargs['pkAsociado'], estado='REVISION')
             return render(request, template_name,{'pkAsociado':kwargs['pkAsociado'], 'formato':kwargs['formato'], 'objAuxilio':objAuxilio})
         # Formato Extracto
         elif kwargs['formato'] == 4:
-            template_name = 'base/asociado/formato2.html'
             objParametroAsoc = ParametroAsociado.objects.get(asociado = kwargs['pkAsociado'])
             objMes = MesTarifa.objects.filter(pk__gte = objParametroAsoc.primerMes.pk)
             return render(request, template_name,{'pkAsociado':kwargs['pkAsociado'], 'formato':kwargs['formato'], 'objMes':objMes})
+        elif kwargs['formato'] == 5:
+            queryHistoricoCredito = HistoricoCredito.objects.filter(asociado = kwargs['pkAsociado']).order_by('fechaSolicitud')
+            queryAsociado = Asociado.objects.get(pk=kwargs['pkAsociado'])
+            queryParametroAsoc = ParametroAsociado.objects.filter(asociado = kwargs['pkAsociado']).values('autorizaciondcto','empresa__concepto').first()
+            queryLaboral = Laboral.objects.get(asociado = kwargs['pkAsociado'])
+            fechaActual = date.today()
+            context = {
+                'pkAsociado': kwargs['pkAsociado'],
+                'formato': kwargs['formato'],
+                'query': queryHistoricoCredito,
+                'queryAsociado': queryAsociado,
+                'fechaActual': fechaActual,
+                'queryLab': queryLaboral,
+                'queryParametroAsoc': queryParametroAsoc,
+            }
+            return render(request, template_name, context)
 
 
 # Descarga Formato Auxilios
@@ -1489,3 +1518,64 @@ class EliminarConvenioAsociado(UpdateView):
         objTarifa.save()
         messages.info(request, 'Registro Eliminado Correctamente')
         return HttpResponseRedirect(reverse_lazy('asociado:tarifaAsociado', args=[kwargs['pkAsociado']]))
+    
+class CrearCodeudor(CreateView):
+    model = Codeudor
+    form_class = CodeudorForm
+    template_name = 'base/historico/crearCodeudor.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'operation': 'crear',
+            'pk': self.kwargs['pk'],
+            'pkAsociado': self.kwargs['pkAsociado'],
+        })
+        return context
+
+    def form_valid(self, form):
+        codeudor = form.save(commit=False)
+        # Asignar valores manualmente
+        codeudor.nombre = codeudor.nombre.upper()
+        codeudor.apellido = codeudor.apellido.upper()
+        codeudor.nacionalidad = codeudor.nacionalidad.upper()
+        codeudor.barrio = codeudor.barrio.upper()
+        codeudor.direccion = codeudor.direccion.upper()
+        codeudor.historicoCredito = HistoricoCredito.objects.get(pk=self.kwargs['pk'])
+        codeudor.asociado = Asociado.objects.get(pk=self.kwargs['pkAsociado'])
+        codeudor.save()
+        messages.info(self.request, "Codeudor creado correctamente.")
+        return HttpResponseRedirect(reverse_lazy('asociado:historicoCredito', args=[self.kwargs['pkAsociado']]))
+
+class EditarCodeudor(UpdateView):
+    model = Codeudor
+    form_class = CodeudorForm
+    template_name = 'base/historico/crearCodeudor.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        query_dpto = Departamento.objects.values('id', 'nombre')
+        query_mpio = Municipio.objects.values('id', 'nombre', 'departamento', 'departamento__nombre')
+
+        context.update({
+            'operation': 'editar',
+            'pk': self.kwargs['pk'],
+            'pkAsociado': self.kwargs['pkAsociado'],
+            'query_dpto': query_dpto,
+            'query_mpio': query_mpio,
+        })
+        return context
+    
+    def form_valid(self, form):
+        # Verifica que el formulario sea válido antes de guardar
+        if form.is_valid():
+            form.save()  # Asegúrate de que el formulario esté guardando correctamente el objeto
+            messages.info(self.request, "Codeudor modificado correctamente.")
+            return HttpResponseRedirect(reverse_lazy('asociado:historicoCredito', args=[self.kwargs['pkAsociado']]))
+        else:
+            # Si el formulario no es válido, muestra errores
+            messages.error(self.request, "Error al modificar el codeudor.")
+            return self.render_to_response(self.get_context_data(form=form), status=400)
+
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form), status=400)

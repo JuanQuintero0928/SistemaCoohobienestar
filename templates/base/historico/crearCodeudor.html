@@ -1,0 +1,189 @@
+{% load static %}
+<div class="modal-dialog modal-xl" role="document">
+  <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">{% if operation == 'crear' %}Crear Codeudor:{% else %}Editar Codeudor:{% endif %}</h1>
+            <hr>
+            <h2 class="modal-title fs-5" id="exampleModalLabel" style="margin-left: 8px;"></h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+      <div class="modal-body">    
+        <form {% if operation == 'crear' %} action="{% url 'asociado:crearCodeudor' pkAsociado pk %}" {% else %} action="{% url 'asociado:editarCodeudor' pk pkAsociado %}" {% endif %} method="post">
+          {% csrf_token %}
+          
+          {% if form.errors %}
+            <ul>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+          {% endif %}
+
+          {% comment %} Primera Fila {% endcomment %}
+          <div class="row">
+            <div class="col-12 col-md-3 mb-3">
+                {{ form.nombre.label_tag }}
+                {{ form.nombre }} 
+            </div>
+            <div class="col-12 col-md-3 mb-3">
+                {{ form.apellido.label_tag }}
+                {{ form.apellido }} 
+            </div>
+            <div class="col-12 col-md-3 mb-3">
+                {{ form.tipoDocumento.label_tag }}
+                {{ form.tipoDocumento }} 
+            </div>
+            <div class="col-12 col-md-3 mb-3">
+              {{ form.numDocumento.label_tag }}
+              {{ form.numDocumento }} 
+            </div>
+          </div>
+
+          {% comment %} Segunda Fila {% endcomment %}
+          <div class="row">
+            <div class="col-12 col-md-3 mb-3">
+                {{ form.fechaExpedicion.label_tag }}
+                {{ form.fechaExpedicion }} 
+            </div>
+            <div class="col-12 col-md-3 mb-3">
+                {{ form.mpioDoc.label_tag }}
+                {{ form.mpioDoc }} 
+            </div>
+            <div class="col-12 col-md-3 mb-3">
+                {{ form.nacionalidad.label_tag }}
+                {{ form.nacionalidad }} 
+            </div>
+            <div class="col-12 col-md-3 mb-3">
+              {{ form.genero.label_tag }}
+              {{ form.genero }} 
+            </div>
+          </div>
+
+          {% comment %} Tercera Fila {% endcomment %}
+          <div class="row">
+            <div class="col-12 col-md-4 mb-3">
+                {{ form.fechaNacimiento.label_tag }}
+                {{ form.fechaNacimiento }} 
+            </div>
+            <div class="col-12 col-md-4 mb-3">
+                {% comment %} {{ form.dtoNacimiento.label_tag }}
+                {{ form.dtoNacimiento }}  {% endcomment %}
+                <label for="id_dtoNacimiento" class="form-label">Departamento Nacimiento</label>
+                <select name="dtoNacimiento" class="form-select" id="id_dtoNacimiento" required>
+                    {% for dpto in query_dpto %}
+                        <option value="{{dpto.id}}" {% if dpto.id == object.dtoNacimiento.pk %} selected {% endif %}>{{dpto.nombre}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-4 mb-3">
+                {% comment %} {{ form.mpioNacimiento.label_tag }}
+                {{ form.mpioNacimiento }}  {% endcomment %}
+                <label for="id_mpioNacimiento" class="form-label">Municipio Nacimiento</label>
+                <select name="mpioNacimiento" class="form-select" id="id_mpioNacimiento" required>
+                    {% for mcpio in query_mpio %}
+                        <option value="{{mcpio.id}}" data-chained="{{mcpio.departamento}}" {% if mcpio.id == object.mpioNacimiento.pk %} selected {% endif %}>{{mcpio.nombre}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+          </div>
+
+          {% comment %} Cuarta Fila {% endcomment %}
+          <div class="row">
+            <div class="col-12 col-md-4 mb-3">
+                {{ form.estadoCivil.label_tag }}
+                {{ form.estadoCivil }} 
+            </div>
+            <div class="col-12 col-md-4 mb-3">
+                {{ form.tipoVivienda.label_tag }}
+                {{ form.tipoVivienda }} 
+            </div>
+            <div class="col-12 col-md-4 mb-3">
+                {{ form.estrato.label_tag }}
+                {{ form.estrato }} 
+            </div>
+          </div>
+
+          {% comment %} Quinta Fila {% endcomment %}
+          <div class="row">
+            <div class="col-12 col-md-6 mb-3">
+              {{ form.barrio.label_tag }}
+              {{ form.barrio }} 
+            </div>
+            <div class="col-12 col-md-6 mb-3">
+                {{ form.direccion.label_tag }}
+                {{ form.direccion }} 
+            </div>
+          </div>
+
+          {% comment %} Sexta Fila {% endcomment %}
+          <div class="row">
+            <div class="col-12 col-md-3 mb-3">
+                {% comment %} {{ form.deptoResidencia.label_tag }}
+                {{ form.deptoResidencia }} {% endcomment %}
+                <label for="id_deptoResidencia" class="form-label">Departamento Residencia</label>
+                <select name="deptoResidencia" class="form-select" id="id_deptoResidencia" required>
+                    {% for dpto in query_dpto %}
+                        <option value="{{dpto.id}}" {% if dpto.id == object.deptoResidencia.id %}selected{% endif %}>{{dpto.nombre}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-3 mb-3">
+                {% comment %} {{ form.mpioResidencia.label_tag }}
+                {{ form.mpioResidencia }}  {% endcomment %}
+                <label for="id_mpioResidencia" class="form-label">Municipio Residencia</label>
+                <select name="mpioResidencia" class="form-select" id="id_mpioResidencia" required>
+                    {% for mcpio in query_mpio %}
+                        <option value="{{mcpio.id}}" data-chained="{{mcpio.departamento}}" {% if mcpio.id == object.mpioResidencia.pk %} selected {% endif %}>{{mcpio.nombre}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-3 mb-3">
+                {{ form.numCelular.label_tag }}
+                {{ form.numCelular }} 
+            </div>
+            <div class="col-12 col-md-3 mb-3">
+                {{ form.email.label_tag }}
+                {{ form.email }} 
+            </div>  
+          </div>
+
+          {% comment %} Septima Fila {% endcomment %}
+          <div class="row">
+            <div class="col-12 col-md-6 mb-3">
+                {{ form.ingresosTotales.label_tag }}
+                {{ form.ingresosTotales }} 
+            </div>
+            <div class="col-12 col-md-6 mb-3">
+                {{ form.egresosTotales.label_tag }}
+                {{ form.egresosTotales }} 
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16">
+                <path d="M11 2H9v3h2z"/>
+                <path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>
+              </svg>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'lib/jquery-chained/jquery.chained.min.js' %}"></script>
+
+<script type="text/javascript">
+  var $ = jQuery.noConflict()
+  function abrir_modal_creacion(url){
+      $('#creacion').load(url, function(){
+          $(this).modal('show');
+      });
+  }
+  $("#id_mpioNacimiento").chained("#id_dtoNacimiento");
+  $("#id_mpioResidencia").chained("#id_deptoResidencia");
+
+</script>

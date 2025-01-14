@@ -1,5 +1,4 @@
-from turtle import mode
-from xmlrpc.client import TRANSPORT_ERROR
+from tabnanny import verbose
 from django.db import models
 from django.contrib.auth.models import User
 from asociado.models import Asociado
@@ -82,6 +81,7 @@ class HistorialPagos(models.Model):
     coohopAporte = models.IntegerField('Coohoperativitos Aporte', blank=True, null=True)
     coohopBsocial = models.IntegerField('Coohoperativitos B Social', blank=True, null=True)
     convenioPago = models.IntegerField('Convenio', blank=True, null=True)
+    creditoHomeElements = models.IntegerField('Credito Home Elements', blank=True, null=True)
     diferencia = models.IntegerField('Diferencia', blank=True, null=True)
     formaPago = models.ForeignKey(FormaPago, on_delete=models.RESTRICT, blank=False, null=False)
     userCreacion = models.ForeignKey(User, related_name='usuario_creacion', on_delete=models.CASCADE, blank=True, null=True)
@@ -97,7 +97,6 @@ class HistorialPagos(models.Model):
     
     def __str__(self):
         return f"{self.id}"
-    
 class HistoricoSeguroVida(models.Model):
     id = models.AutoField(primary_key=True)
     asociado = models.ForeignKey(Asociado, on_delete=models.RESTRICT, blank=False, null=False)

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'asociado.apps.AsociadoConfig',
     'beneficiario.apps.BeneficiarioConfig',
+    'credito.apps.CreditoConfig',
     'dashboard.apps.DashboardConfig',
     'departamento.apps.DepartamentoConfig',
     'parametro.apps.ParametroConfig',

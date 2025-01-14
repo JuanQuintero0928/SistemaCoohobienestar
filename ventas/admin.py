@@ -3,6 +3,7 @@ from .models import *
 
 # Register your models here.
 
+admin.site.register(PorcentajeDescuento)
 admin.site.register(Categoria)
 admin.site.register(Proveedor)
 admin.site.register(Producto)

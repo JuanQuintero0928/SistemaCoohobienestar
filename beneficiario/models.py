@@ -1,4 +1,5 @@
 from django.db import models
+import asociado
 from departamento.models import PaisRepatriacion 
 from asociado.models import Asociado
 

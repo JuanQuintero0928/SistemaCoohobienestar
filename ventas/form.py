@@ -11,7 +11,6 @@ class ProductoForm(forms.ModelForm):
                   'ean',
                   'descripcion',
                   'precio',
-                  'descuento',
                   'proveedor',
                   'stock',
         ]
@@ -22,7 +21,6 @@ class ProductoForm(forms.ModelForm):
             'ean': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Código EAN'}),
             'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Descripción del producto'}),
             'precio': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Precio en pesos', 'min': 0}),
-            'descuento': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '0.20', 'min': 0, 'max': 1}),
             'proveedor': forms.Select(attrs={'class': 'form-control'}),
             'stock': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Cantidad en stock', 'min': 0}),
         }
@@ -33,7 +31,6 @@ class ProductoForm(forms.ModelForm):
             'ean': 'Código EAN',
             'descripcion': 'Descripción',
             'precio': 'Precio',
-            'descuento': 'Descuento (%)',
             'proveedor': 'Proveedor',
             'stock': 'Stock disponible'
         }
@@ -44,20 +41,23 @@ class HistoricoVentaForm(forms.ModelForm):
         fields = ['fechaVenta',
                   'formaPago',
                   'cuotas',
+                  'descuento',
                   'valorBruto',
                   'valorNeto',
         ]
         widgets = {
             'fechaVenta': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'},format='%Y-%m-%d',),
             'formaPago': forms.Select(attrs={'class': 'form-control'}),
-            'cuotas': forms.NumberInput(attrs={'class': 'form-control', 'min':0}),
+            'cuotas': forms.NumberInput(attrs={'class': 'form-control', 'min':2, 'max':3}),
+            'descuento': forms.Select(attrs={'class': 'form-control','disabled':'disabled'}),
             'valorBruto': forms.NumberInput(attrs={'class': 'form-control', 'readonly':'readonly'}),
-            'valorNeto': forms.NumberInput(attrs={'class': 'form-control', 'readonly':'readonly'}),
+            'valorNeto': forms.TextInput(attrs={'class': 'form-control', 'readonly':'readonly'}),
         }
         labels = {
             'fechaVenta': 'Fecha Venta',
             'formaPago': 'Forma Pago',
             'cuotas': 'Número Cuotas',
+            'descuento': 'Descuento (%)',
             'valorBruto': 'Valor Bruto',
             'valorNeto': 'Valor Neto',
         }

@@ -48,6 +48,8 @@ urlpatterns = [
     path('crearConvenio/<int:pkAsociado>', login_required(CrearConvenio.as_view()), name='crearConvenio'),
     path('editarConvenio/<int:pkAsociado>/<int:pk>', login_required(EditarConvenioAsociado.as_view()), name='editarConvenio'),
     path('eliminarConvenio/<int:pkAsociado>/<int:pk>', login_required(EliminarConvenioAsociado.as_view()), name='eliminarConvenio'),
+    path('crearCodeudor/<int:pkAsociado>/<int:pk>', login_required(CrearCodeudor.as_view()), name='crearCodeudor'),
+    path('editarCodeudor/<int:pk>/<int:pkAsociado>', login_required(EditarCodeudor.as_view()), name='editarCodeudor'),
 
     # Vistas de la app Ventas
     path('listarProductos/', login_required(ListarProductos.as_view()), name='listarProductos'),

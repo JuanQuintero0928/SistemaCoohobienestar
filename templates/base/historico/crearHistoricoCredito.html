@@ -15,18 +15,26 @@
             {% endif %}
                 {% csrf_token %}
                 
-                <label for="{{ form.fechaSolicitud.id_for_label }}">Fecha Solicitud</label>
-                {{ form.fechaSolicitud}}
+                <div class="form-group mb-3">
+                  <label for="{{ form.fechaSolicitud.id_for_label }}">Fecha Solicitud</label>
+                  {{ form.fechaSolicitud}}
+                </div>
+
+                <div class="form-group mb-3">
+                  <label for="{{ form.valor.id_for_label }}">Valor Solicitado</label>
+                  {{ form.valor }}
+                </div>
                 
-                <label for="{{ form.valor.id_for_label }}">Valor</label>
-                {{ form.valor }}
-                
-                <label for="{{ form.cuotas.id_for_label }}">Cuotas</label>
-                {{ form.cuotas }}
-                
-                <label for="{{ form.estado.id_for_label }}">Estado</label>
-                {{ form.estado }}
-                
+                <div class="form-group mb-3">
+                  <label for="{{ form.cuotas.id_for_label }}">Cuotas</label>
+                  {{ form.cuotas }}
+                </div>
+
+                <div class="form-group mb-3">
+                  <label for="{{ form.estado.id_for_label }}">Estado</label>
+                  {{ form.estado }}
+                </div>
+
                 <hr>
                 <button type="submit" class="btn btn-primary">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16">

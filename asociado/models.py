@@ -1,56 +1,55 @@
 from django.db import models
 from departamento.models import Departamento, Municipio, PaisRepatriacion
-from parametro.models import TipoAsociado, ServicioFuneraria, MesTarifa
-from parametro.models import Convenio
-# from historico.models import TarifaAsociado
+from parametro.models import TipoAsociado, ServicioFuneraria, MesTarifa, Convenio
+# from historico.models import HistoricoCredito
 
 # Create your models here.
 
-class Asociado(models.Model):
-
-    class tipoPersonaOp(models.TextChoices):
+class tipoPersonaOp(models.TextChoices):
         pNatural = 'PERSONA NATURAL', 'PERSONA NATURAL'
         pjuridica = 'PERSONA JURIDICA', 'PERSONA JURIDICA'
 
-    class tipoDocumentoOp(models.TextChoices):
-        cedula = 'CEDULA', 'CEDULA' 
-        registroCivil = 'REGISTRO CIVIL', 'REGISTRO CIVIL'
-        tarjetaIdentidad = 'TARJETA IDENTIDAD', 'TARJETA IDENTIDAD'
-        cedulaExtranjera = 'CEDULA EXTRANJERA', 'CEDULA EXTRANJERA'
-        pasaporte = 'PASAPORTE', 'PASAPORTE'
-        ppt = 'PPT', 'PPT'
-    
-    class generoOp(models.TextChoices):
-        masculino = 'MASCULINO', 'MASCULINO'
-        femenino = 'FEMENINO', 'FEMENINO'
+class tipoDocumentoOp(models.TextChoices):
+    cedula = 'CEDULA', 'CEDULA' 
+    registroCivil = 'REGISTRO CIVIL', 'REGISTRO CIVIL'
+    tarjetaIdentidad = 'TARJETA IDENTIDAD', 'TARJETA IDENTIDAD'
+    cedulaExtranjera = 'CEDULA EXTRANJERA', 'CEDULA EXTRANJERA'
+    pasaporte = 'PASAPORTE', 'PASAPORTE'
+    ppt = 'PPT', 'PPT'
 
-    class estadoCivilOp(models.TextChoices):
-        soltero = 'SOLTERO', 'SOLTERO(A)'
-        casado = 'CASADO', 'CASADO(A)'
-        unionLibre = 'UNION LIBRE', 'UNION LIBRE'
-        separado = 'SEPARADO', 'SEPARADO(A)'
-        divorciado = 'DIVORCIADO', 'DIVORCIADO(A)'
-        viudo = 'VIUDO', 'VIUDO(A)'
+class generoOp(models.TextChoices):
+    masculino = 'MASCULINO', 'MASCULINO'
+    femenino = 'FEMENINO', 'FEMENINO'
 
-    class estadoAsociadoOp(models.TextChoices):
-        activo = 'ACTIVO', 'ACTIVO'
-        inactivo = 'INACTIVO', 'INACTIVO'
-        retiro = 'RETIRO', 'RETIRO'
+class estadoCivilOp(models.TextChoices):
+    soltero = 'SOLTERO', 'SOLTERO(A)'
+    casado = 'CASADO', 'CASADO(A)'
+    unionLibre = 'UNION LIBRE', 'UNION LIBRE'
+    separado = 'SEPARADO', 'SEPARADO(A)'
+    divorciado = 'DIVORCIADO', 'DIVORCIADO(A)'
+    viudo = 'VIUDO', 'VIUDO(A)'
 
-    class nivelEducativoOp(models.TextChoices):
-        primaria = 'PRIMARIA', 'PRIMARIA'
-        secundaria = 'SECUNDARIA', 'SECUNDARIA'
-        tecnico = 'TECNICO', 'TECNICO'
-        tecnologico = 'TECNOLOGICO', 'TECNOLOGICO'
-        pregrado = 'PREGRADO', 'PREGRADO'
-        especializacion = 'ESPECIALIZACION', 'ESPECIALIZACION'
-        maestria = 'MAESTRIA', 'MAESTRIA'
-        doctorado = 'DOCTORADO', 'DOCTORADO'
+class estadoAsociadoOp(models.TextChoices):
+    activo = 'ACTIVO', 'ACTIVO'
+    inactivo = 'INACTIVO', 'INACTIVO'
+    retiro = 'RETIRO', 'RETIRO'
 
-    class tipoViviendaOp(models.TextChoices):
-        propia = 'PROPIA', 'PROPIA'
-        familiar = 'FAMILIAR', 'FAMILIAR'
-        arrendada = 'ARRENDADA', 'ARRENDADA'
+class nivelEducativoOp(models.TextChoices):
+    primaria = 'PRIMARIA', 'PRIMARIA'
+    secundaria = 'SECUNDARIA', 'SECUNDARIA'
+    tecnico = 'TECNICO', 'TECNICO'
+    tecnologico = 'TECNOLOGICO', 'TECNOLOGICO'
+    pregrado = 'PREGRADO', 'PREGRADO'
+    especializacion = 'ESPECIALIZACION', 'ESPECIALIZACION'
+    maestria = 'MAESTRIA', 'MAESTRIA'
+    doctorado = 'DOCTORADO', 'DOCTORADO'
+
+class tipoViviendaOp(models.TextChoices):
+    propia = 'PROPIA', 'PROPIA'
+    familiar = 'FAMILIAR', 'FAMILIAR'
+    arrendada = 'ARRENDADA', 'ARRENDADA'
+
+class Asociado(models.Model):
 
     id = models.AutoField(primary_key=True)
     tPersona = models.CharField('Tipo Persona', choices=tipoPersonaOp.choices, default=tipoPersonaOp.pNatural, blank=False, null=False)

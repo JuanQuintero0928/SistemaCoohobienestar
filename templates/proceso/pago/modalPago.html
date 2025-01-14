@@ -98,7 +98,7 @@
                         </thead>
                         <tbody>
                             {% for obj in queryMes %}
-                                {% if obj.pk != 9999 %}
+                                {% if obj.pk != 9999 and obj.pk != 9998 %}
                                     <tr>
                                         <th>{{ forloop.counter }}</th>
                                         <td>{{ obj.concepto }}</th>
@@ -121,6 +121,31 @@
                                     </tr>
                                 {% endif %}
                             {% endfor %}
+                            {% if queryCreditoProd %}
+                                {% for homeElements in queryCreditoProd %}
+                                
+                                    <tr>
+                                        <th>-</th>
+                                        <td>CREDITOS HOME ELEMENTS</th>
+                                        <td style="text-align: center;">
+                                            <div class="form-check form-switch" style="display: inline-block;">
+                                                <input 
+                                                    class="form-check-input switch-mes"
+                                                    type="checkbox"
+                                                    role="switch"
+                                                    name="switches"
+                                                    id="flexSwitchCheckDefault{{homeElements.pk}}"
+                                                    value="{{ homeElements.pk }}-9998-{{ homeElements.valorCuotas }}"
+                                                    data-costo="{{ homeElements.valorCuotas }}"
+                                                    onchange="actualizarTotal()"
+                                                >
+                                                <label class="form-check-label" for="flexSwitchCheckDefault{{homeElements.pk}}"></label>
+                                            </div>
+                                        </td>
+                                        <td>${{ homeElements.valorCuotas|intcomma }}</th>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
                             <tr>
                                 <th>-</th>
                                 <td>ABONO</th>

@@ -13,6 +13,7 @@ from parametro.models import MesTarifa, FormaPago, Tarifas
 from asociado.models import Asociado, ParametroAsociado, TarifaAsociado
 from beneficiario.models import Mascota, Beneficiario, Coohoperativitos
 from .form import HistorialPagoForm, CargarArchivoForm
+from ventas.models import HistoricoVenta
 from funciones.function import procesar_csv
 
 # Create your views here.
@@ -109,7 +110,32 @@ class ModalPago(ListView):
 
         queryHistorial = HistorialPagos.objects.filter(asociado = kwargs['pkAsociado']).aggregate(total=Sum('diferencia'))
         total_diferencia = queryHistorial['total'] or 0  # Se obtiene el valor de la suma a 0 si no hay datos
-        return render(request, template_name, {'pkAsociado':kwargs['pkAsociado'], 'vista':kwargs['vista'] ,'query':queryValor, 'queryMes':queryMes, 'queryPago':queryPago, 'diferencia':total_diferencia})
+
+        # Se valida si el asociado cuenta con credito de productos home elements
+        queryValidacion = HistoricoVenta.objects.filter(asociado = kwargs['pkAsociado']).exists()
+        queryCreditoProd = None
+        if queryValidacion:
+            queryCreditoProd = HistoricoVenta.objects.filter(
+                    asociado = kwargs['pkAsociado'],
+                    formaPago = 'CREDITO',
+                    pendientePago__gt = 0
+                )
+            for homeElements in queryCreditoProd:
+                if homeElements.valorNeto % homeElements.pendientePago != 0:
+                    if homeElements.cuotas - homeElements.cuotasPagas == 1:
+                        homeElements.valorCuotas = homeElements.pendientePago
+
+
+        context = {
+            'pkAsociado':kwargs['pkAsociado'],
+            'vista':kwargs['vista'],
+            'query':queryValor,
+            'queryMes':queryMes,
+            'queryPago':queryPago,
+            'diferencia':total_diferencia,
+            'queryCreditoProd':queryCreditoProd
+        }
+        return render(request, template_name, context)
 
     def post(self, request, *args, **kwargs):
         fechaPago = request.POST['fechaPago']
@@ -130,54 +156,94 @@ class ModalPago(ListView):
         # Se recorre los switch activos, con el pk del mes activo
         for contador, pk in enumerate(switches_activos, start=1):
             # si es un abono, se crea un registro de pago con el valor de abono
-            if pk == '9999':
-                pago = {
-                    'asociado': Asociado.objects.get(pk = kwargs['pkAsociado']),
-                    'mesPago': MesTarifa.objects.get(pk = pk),
-                    'fechaPago': fechaPago,
-                    'formaPago': FormaPago.objects.get(pk = formaPago),
-                    'aportePago': MesTarifa.objects.get(pk = pk).aporte,
-                    'bSocialPago': MesTarifa.objects.get(pk = pk).bSocial,
-                    'mascotaPago': 0,
-                    'repatriacionPago': 0,
-                    'seguroVidaPago': 0,
-                    'adicionalesPago': 0,
-                    'coohopAporte': 0,
-                    'coohopBsocial': 0,
-                    'convenioPago': 0,
-                    'diferencia': valorDiferencia if cantidadSwitches == contador else 0,
-                    'valorPago':  valorDiferencia if cantidadSwitches == contador else 0,
-                    'estadoRegistro': True,
-                    'userCreacion': User.objects.get(pk = request.user.pk),
-                }
-                datos_pagos.append(pago)
-            # si es un mes normal, se crea un registro de pago con el valor del mes
-            else:
-                valorMes = MesTarifa.objects.get(pk = pk).aporte + MesTarifa.objects.get(pk = pk).bSocial + tarifaAsociado.cuotaMascota + tarifaAsociado.cuotaRepatriacion + tarifaAsociado.cuotaSeguroVida + tarifaAsociado.cuotaAdicionales + tarifaAsociado.cuotaCoohopAporte + tarifaAsociado.cuotaCoohopBsocial + tarifaAsociado.cuotaConvenio
-                pago = {
+            split = pk.split('-')
+
+            if len(split) == 1:
+                if pk == '9999':
+                    pago = {
                         'asociado': Asociado.objects.get(pk = kwargs['pkAsociado']),
                         'mesPago': MesTarifa.objects.get(pk = pk),
                         'fechaPago': fechaPago,
                         'formaPago': FormaPago.objects.get(pk = formaPago),
                         'aportePago': MesTarifa.objects.get(pk = pk).aporte,
                         'bSocialPago': MesTarifa.objects.get(pk = pk).bSocial,
-                        'mascotaPago': tarifaAsociado.cuotaMascota,
-                        'repatriacionPago': tarifaAsociado.cuotaRepatriacion,
-                        'seguroVidaPago': tarifaAsociado.cuotaSeguroVida,
-                        'adicionalesPago': tarifaAsociado.cuotaAdicionales,
-                        'coohopAporte': tarifaAsociado.cuotaCoohopAporte,
-                        'coohopBsocial': tarifaAsociado.cuotaCoohopBsocial,
-                        'convenioPago': tarifaAsociado.cuotaConvenio,
+                        'mascotaPago': 0,
+                        'repatriacionPago': 0,
+                        'seguroVidaPago': 0,
+                        'adicionalesPago': 0,
+                        'coohopAporte': 0,
+                        'coohopBsocial': 0,
+                        'convenioPago': 0,
                         'diferencia': valorDiferencia if cantidadSwitches == contador else 0,
-                        'valorPago':  valorMes if contador < cantidadSwitches else valorMes + valorDiferencia,
+                        'valorPago':  valorDiferencia if cantidadSwitches == contador else 0,
                         'estadoRegistro': True,
                         'userCreacion': User.objects.get(pk = request.user.pk),
                     }
-                datos_pagos.append(pago)
+                    datos_pagos.append(pago)
+                # si es un mes normal, se crea un registro de pago con el valor del mes
+                else:
+                    valorMes = MesTarifa.objects.get(pk = pk).aporte + MesTarifa.objects.get(pk = pk).bSocial + tarifaAsociado.cuotaMascota + tarifaAsociado.cuotaRepatriacion + tarifaAsociado.cuotaSeguroVida + tarifaAsociado.cuotaAdicionales + tarifaAsociado.cuotaCoohopAporte + tarifaAsociado.cuotaCoohopBsocial + tarifaAsociado.cuotaConvenio
+                    pago = {
+                            'asociado': Asociado.objects.get(pk = kwargs['pkAsociado']),
+                            'mesPago': MesTarifa.objects.get(pk = pk),
+                            'fechaPago': fechaPago,
+                            'formaPago': FormaPago.objects.get(pk = formaPago),
+                            'aportePago': MesTarifa.objects.get(pk = pk).aporte,
+                            'bSocialPago': MesTarifa.objects.get(pk = pk).bSocial,
+                            'mascotaPago': tarifaAsociado.cuotaMascota,
+                            'repatriacionPago': tarifaAsociado.cuotaRepatriacion,
+                            'seguroVidaPago': tarifaAsociado.cuotaSeguroVida,
+                            'adicionalesPago': tarifaAsociado.cuotaAdicionales,
+                            'coohopAporte': tarifaAsociado.cuotaCoohopAporte,
+                            'coohopBsocial': tarifaAsociado.cuotaCoohopBsocial,
+                            'convenioPago': tarifaAsociado.cuotaConvenio,
+                            'diferencia': valorDiferencia if cantidadSwitches == contador else 0,
+                            'valorPago':  valorMes if contador < cantidadSwitches else valorMes + valorDiferencia,
+                            'estadoRegistro': True,
+                            'userCreacion': User.objects.get(pk = request.user.pk),
+                        }
+                    datos_pagos.append(pago)
+            else:
+                extra_param = split[0]  # pk de la venta
+                pk = split[1] # identificador del tipo de pago, credito home elements
+                valorCuota = int(split[2].replace('.', ''))  # valor de la cuota
+
+                # Creditos Home Elements
+                if pk == '9998':
+                    queryCreditoProd = HistoricoVenta.objects.get(pk = extra_param)
+                    pago = {
+                        'asociado': Asociado.objects.get(pk = kwargs['pkAsociado']),
+                        'mesPago': MesTarifa.objects.get(pk = pk),
+                        'fechaPago': fechaPago,
+                        'formaPago': FormaPago.objects.get(pk = formaPago),
+                        'aportePago': 0,
+                        'bSocialPago': 0,
+                        'mascotaPago': 0,
+                        'repatriacionPago': 0,
+                        'seguroVidaPago': 0,
+                        'adicionalesPago': 0,
+                        'coohopAporte': 0,
+                        'coohopBsocial': 0,
+                        'convenioPago': 0,
+                        'creditoHomeElements': queryCreditoProd.valorCuotas,
+                        'diferencia': valorCuota - queryCreditoProd.valorCuotas + valorDiferencia if cantidadSwitches == contador else 0,
+                        'valorPago':  queryCreditoProd.valorCuotas if contador < cantidadSwitches else valorCuota + valorDiferencia,
+                        'estadoRegistro': True,
+                        'userCreacion': User.objects.get(pk = request.user.pk),
+                    }
+                    if contador < cantidadSwitches:
+                        queryCreditoProd.valorCuotas
+                    elif queryCreditoProd.valorCuotas :
+                        queryCreditoProd.valorCuotas + valorDiferencia
+                    datos_pagos.append(pago)
+                    queryCreditoProd.pendientePago = queryCreditoProd.pendientePago - pago['valorPago']
+                    queryCreditoProd.cuotasPagas = queryCreditoProd.cuotasPagas + 1
+                    
+                    queryCreditoProd.save()
 
         # Crear cada registro en un bucle
         for data in datos_pagos:
-            HistorialPagos.objects.create(**data)
+            HistorialPagos.objects.create(**data)  
         
         messages.info(request, 'Pago Registrado Correctamente')
         url = reverse('proceso:asociadoPago')
@@ -202,42 +268,7 @@ class EditarPago(ListView):
         mesPago = request.POST['mesPago']
 
         objHistorico = HistorialPagos.objects.get(pk = kwargs['pk'])
-        # objTarifa = TarifaAsociado.objects.get(asociado = kwargs['pkAsociado'])
-        # valorMes = MesTarifa.objects.get(pk = mesPago).aporte + MesTarifa.objects.get(pk = mesPago).bSocial + objTarifa.cuotaMascota + objTarifa.cuotaRepatriacion + objTarifa.cuotaSeguroVida + objTarifa.cuotaAdicionales + objTarifa.cuotaCoohopAporte + objTarifa.cuotaCoohopBsocial
         infoMes = MesTarifa.objects.get(pk=mesPago)
-        # valorMes = infoMes.aporte + infoMes.bSocial
-
-            # if objTarifa.cuotaMascota != 0:
-            #     mascotas = Mascota.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True, fechaIngreso__lte = infoMes.fechaFinal)
-            #     # valor quemado de mascotas
-            #     tarifaMascota = Tarifas.objects.get(pk = 3)
-            #     for masc in mascotas:
-            #         valorMes+= tarifaMascota.valor
-
-            # if objTarifa.cuotaRepatriacion != 0:
-            #     repatriaciones = Beneficiario.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True, repatriacion = True, fechaIngreso__lte = infoMes.fechaFinal)
-            #     # valor quemado de repatriaciones
-            #     tarifaRepatriacion = Tarifas.objects.get(pk = 4)
-            #     for repat in repatriaciones:
-            #         valorMes+= tarifaRepatriacion.valor
-
-            # if objTarifa.cuotaSeguroVida != 0:
-            #     seguroVida = HistoricoSeguroVida.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True, fechaIngreso__lte = infoMes.fechaFinal)
-            #     for seguro in seguroVida:
-            #         valorMes+= seguro.valorPago
-
-            # if objTarifa.cuotaAdicionales != 0:
-            #     adicionales = TarifaAsociado.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True, fechaInicioAdicional__lte = infoMes.fechaFinal)
-            #     for adicional in adicionales:
-            #         valorMes+= adicional.cuotaAdicionales
-
-            # if objTarifa.cuotaCoohopAporte != 0:
-            #     coohopAporte = Coohoperativitos.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True, fechaIngreso__lte = infoMes.fechaFinal)
-            #     # valor quemado de coohop ap
-            #     tarifaCoohopAporte = Tarifas.objects.get(pk = 5)
-            #     tarifaCoohopBSocial = Tarifas.objects.get(pk = 6)
-            #     for coohop in coohopAporte:
-            #         valorMes+= tarifaCoohopAporte.valor + tarifaCoohopBSocial.valor
         
         objHistorico.mesPago = MesTarifa.objects.get(pk = mesPago)
         objHistorico.formaPago = FormaPago.objects.get(pk = request.POST['formaPago'])
@@ -264,7 +295,6 @@ class EditarPago(ListView):
 
         # Recupera el valor de num_documento del POST
         num_documento = request.POST.get('num_documento', '')
-        print(num_documento)
         # Inicializar la URL por defecto
         url = reverse('proceso:historicoPagos')
 
@@ -295,7 +325,6 @@ class EliminarPago(DeleteView):
 
         # Recupera el valor de num_documento del POST
         num_documento = request.POST.get('num_documento', '')
-        print(num_documento)
         # Inicializar la URL por defecto
         url = reverse('proceso:historicoPagos')
 
@@ -326,7 +355,6 @@ class cargarCSV(ListView):
             except ValueError as e:
                 messages.error(request, f"Error: {str(e)}")
             except Exception as e:
-                print(e)
                 messages.error(request, f"Error: {str(e)}")
                 
         return redirect('proceso:cargarCSV')    

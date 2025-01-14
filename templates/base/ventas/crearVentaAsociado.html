@@ -28,30 +28,43 @@
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="exampleModalLabel">Información Venta:</h1>
                 </div>
-                <form method="post">
+                <form action="{% url 'asociado:crearVentaAsociado' pkAsociado %}" method="post">
                     {% csrf_token %}
                     
                     {% comment %} Primera Fila {% endcomment %}
                     <div class="row">
-                        <div class="col-12 col-md-4 mb-3">
+                        <div class="col-12 col-md-3 mb-3">
                             {{ form.fechaVenta.label_tag }}
                             {{ form.fechaVenta }} 
                         </div>
-                        <div class="col-12 col-md-4 mb-3">
+                        <div class="col-12 col-md-3 mb-3">
                             {{ form.formaPago.label_tag }}
-                            {{ form.formaPago }} 
+                            {{ form.formaPago }}
                         </div>
-                        <div class="col-12 col-md-4 mb-3">
+                        <div class="col-12 col-md-3 mb-3" id="contenedorCuotas">
                             {{ form.cuotas.label_tag }}
                             {{ form.cuotas }} 
                         </div>
+                        <div class="col-12 col-md-3 mb-3" id="contenedorDescuento" hidden>
+                            {{ form.descuento.label_tag }}
+                            {{ form.descuento }}
+                        </div>
+                        <div class="col-12 col-md-3 mb-3" id="contenedorValorDesc" hidden>
+                            <label for="id_valorDescuento">Valor Descuento:</label>
+                            <input type="text" name="valorDescuento" id="id_valorDescuento" class="form-control" readonly>
+                        </div>
+                        <div class="col-12 col-md-3 mb-3" id="contenedorValorCuotas">
+                            <label for="id_valorCuotas">Valor Cuotas:</label>
+                            <input type="text" name="valorCuotas" id="id_valorCuotas" class="form-control" readonly>
+                        </div>
+
                     </div>
 
                     {% comment %} Segunda Fila {% endcomment %}
                     <div class="row">
                         <div class="col-12 col-md-6 mb-3">
                             {{ form.valorBruto.label_tag }}
-                            {{ form.valorBruto }} 
+                            <input type="text" name="valorBruto" class="form-control" id="id_valorBruto" name="valorBruto" readonly>
                         </div>
                         <div class="col-12 col-md-6 mb-3">
                             {{ form.valorNeto.label_tag }}
@@ -61,86 +74,278 @@
 
 
                     <!-- Formulario de productos -->
-                    <h5>Productos</h5>
-                    <div id="productos-container">
-                        {{ detalle_venta_formset.management_form }}
-                        <div id="productos-container">
-                            {% for form in detalle_venta_formset %}
-                                <div class="producto-form">
-                                    {{ form.as_p }}
-                                </div>
-                            {% endfor %}
+                    <hr>
+                    <div class="row">
+                        <div class="col-6 text-start">
+                            <h5>Lista de Productos:</h5>
+                        </div>
+                        <div class="col-6 text-end">
+                            <button id="add-product" type="button" class="btn btn-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                                </svg>
+                            </button>
                         </div>
                     </div>
-                    
-                    <button type="button" id="add-product-btn" class="btn btn-secondary">Agregar Producto</button>
-                    <button type="submit" class="btn btn-primary">Guardar</button>
-
-
-                    
-                </form>
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Registrar Productos:</h1>
-                </div>                
-                    
-                
-               
-                <script>
-                    $('#creacion').on('shown.bs.modal', function () {
-
-                        document.getElementById('add-product-btn').addEventListener('click', function () {
-                            const container = document.getElementById('productos-container');
-    const totalForms = document.querySelector('#id_form-TOTAL_FORMS'); // Campo de administración
-    
-    // Verifica que el campo exista
-    if (!totalForms) {
-        console.error("El campo TOTAL_FORMS no existe en el DOM.");
-        return;
-    }
-
-    const currentFormCount = parseInt(totalForms.value);
-    const newFormHtml = container.innerHTML.replace(/__prefix__/g, currentFormCount);
-
-    totalForms.value = currentFormCount + 1; // Incrementa el contador
-    container.insertAdjacentHTML('beforeend', newFormHtml); // Agrega el nuevo formulario
-});
-
-
-                        const modal = document.getElementById('creacion');
-                
-                        // Escuchar cuando el modal se muestre
-                        modal.addEventListener('shown.bs.modal', function () {
-                
-                            // Obtener los elementos de los inputs
-                            const formaPagoInput = document.querySelector('[name="{{ form.formaPago.name }}"]');
-                            const cuotasInput = document.querySelector('[name="{{ form.cuotas.name }}"]');
-                
-                            if (!formaPagoInput || !cuotasInput) {
-                                console.error("No se encontraron los elementos formaPago o cuotas");
-                                return;
-                            }
-                
-                            // Función para habilitar/deshabilitar el campo cuotas
-                            function toggleCuotas() {
-                                if (formaPagoInput.value === "CREDITO") {
-                                    cuotasInput.disabled = false; // Habilitar
-                                } else {
-                                    cuotasInput.disabled = true; // Deshabilitar
-                                    cuotasInput.value = ""; // Limpiar el valor
-                                }
-                            }
-                
-                            // Escuchar el evento 'change' en formaPagoInput
-                            formaPagoInput.addEventListener("change", toggleCuotas);
-                
-                            // Llamar la función al cargar la página para configurar el estado inicial
-                            toggleCuotas();
-                        });
-                    });
-                    
-                </script>
+                    <hr>
+                    <div id="encabezados-container" hidden>
+                        <div class="row">
+                            <div class="col-12 col-md-5 mb-1">
+                                <label class="form-label">Producto</label>
+                            </div>
+                            <div class="col-12 col-md-2 mb-1">
+                                <label class="form-label">Precio</label>
+                            </div>
+                            <div class="col-12 col-md-2 mb-1">
+                                <label class="form-label">Cantidad</label>
+                            </div>
+                            <div class="col-12 col-md-2 mb-1">
+                                <label class="form-label">Total Bruto</label>
+                            </div>
+                            <div class="col-12 col-md-1 mb-1">
+                                <label class="form-label">Opciones</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="productos-container">
+                        {% comment %} aca se agregará el contenedor de productos {% endcomment %}
+                    </div>
+                    <button id="submit" type="submit" class="btn btn-primary" hidden>Guardar</button>
+                </form>                
             </div>
         </div>
     </div>
 </div>
 
+<script>
+    $('#creacion').on('shown.bs.modal', function () {
+        const formaPago = document.getElementById('id_formaPago');
+        const contenedorDesc = document.getElementById('contenedorDescuento');
+        const contenedorValorDesc = document.getElementById('contenedorValorDesc');
+        const contenedorCuotas = document.getElementById('contenedorCuotas');
+        const contenedorValorCuotas = document.getElementById('contenedorValorCuotas');
+        const descuento = document.getElementById('id_descuento');
+        const encabezado = document.getElementById('encabezados-container');
+        const submit = document.getElementById('submit');
+        const cuotas = document.getElementById('id_cuotas');
+        const container = document.getElementById('productos-container');
+        const addButton = document.getElementById('add-product');
+
+        let productCount = 0; // Contador para asignar IDs únicos
+        
+        // Funcion que cambia los input entre credito y contado
+        function toggleCuotas() {
+            if (formaPago.value === 'CONTADO') {
+                cuotas.disabled = true;
+                cuotas.value = 0;
+                cuotas.removeAttribute('required');
+                contenedorDesc.removeAttribute('hidden');
+                contenedorValorDesc.removeAttribute('hidden');
+                contenedorCuotas.setAttribute('hidden', 'hidden');
+                contenedorValorCuotas.setAttribute('hidden', 'hidden');
+                descuento.disabled = false;
+                descuento.setAttribute('required', 'required');
+            } else {
+                cuotas.disabled = false;
+                cuotas.setAttribute('required', 'required');
+                contenedorDesc.setAttribute('hidden', 'hidden');
+                contenedorValorDesc.setAttribute('hidden', 'hidden');
+                contenedorCuotas.removeAttribute('hidden');
+                contenedorValorCuotas.removeAttribute('hidden');
+                descuento.selectedIndex = 0;
+                descuento.disabled = true;
+                descuento.removeAttribute('required');
+
+            }
+            actualizarValorBruto();
+            actualizarValorNeto();
+            actualizarValorCuotas();
+        }
+
+        formaPago.addEventListener('change', toggleCuotas);
+        toggleCuotas();
+
+        // Evento que agrega una nueva fila de producto
+        addButton.addEventListener('click', () => {
+            const newRow = document.createElement('div');
+            newRow.classList.add('row', 'producto-item');
+            newRow.innerHTML = `
+                <div class="col-12 col-md-5 mb-3">
+                    <select name="producto_${productCount}" class="form-select" id="id_producto_${productCount}" required>
+                        <option value="">Seleccionar Producto</option>
+                        {% for producto in queryProducto %}
+                        <option value="{{ producto.id }}" data-precio="{{ producto.precio }}">{{ producto.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-12 col-md-2 mb-3">
+                    <input type="text" class="form-control" id="id_precio_${productCount}" name="precio_${productCount}" readonly>
+                </div>
+                <div class="col-12 col-md-2 mb-3">
+                    <input type="number" class="form-control" id="id_cantidad_${productCount}" name="cantidad_${productCount}" required>
+                </div>
+                <div class="col-12 col-md-2 mb-3">
+                    <input type="text" class="form-control" id="id_totalNeto_${productCount}" name="totalNeto_${productCount}" readonly>
+                </div>
+                <div class="col-12 col-md-1 mb-3">
+                    <a onclick="eliminarProducto(this)" class="btn btn-danger">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-slash-circle" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                            <path d="M11.354 4.646a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 .708.708l6-6a.5.5 0 0 0 0-.708"/>
+                        </svg>
+                    </a>
+                </div>
+            `;
+            container.appendChild(newRow);
+            productCount++;
+
+            // Se agrega el div del encabezado y se muestra el boton de guardar
+            encabezado.removeAttribute('hidden');
+            submit.removeAttribute('hidden');
+            
+            // Recalcular el valor total
+            actualizarValorBruto();
+            actualizarValorNeto();
+            actualizarValorCuotas();
+        });
+    
+        // Evento delegado para manejar cambios en los productos
+        container.addEventListener('change', (event) => {
+            if (event.target.matches('select')) {
+                const precioInput = event.target.closest('.producto-item').querySelector('input[name^="precio"]');
+                const precio = event.target.selectedOptions[0].dataset.precio || 0;
+                precioInput.value = precio.toLocaleString('es-ES');
+            }
+            // Recalcular el valor total de todos los productos
+            actualizarValorBruto();
+            actualizarValorNeto();
+            actualizarValorCuotas();
+        });
+
+        // Evento delegado para manejar cambios en los productos
+        container.addEventListener('change', (event) => {
+            if (event.target.matches('select')) {
+                const precioInput = event.target.closest('.producto-item').querySelector('input[name^="precio"]');
+                const precio = event.target.selectedOptions[0].dataset.precio || 0;
+                precioInput.value = parseFloat(precio).toLocaleString('es-ES'); // Formateamos con separador de miles
+            }
+            // Recalcular el valor total de todos los productos
+            actualizarValorBruto();
+            actualizarValorNeto();
+        });
+
+        // Evento delegado para cuando cambie el descuento se actualice el total neto y el total bruto
+        descuento.addEventListener('change', (event) => {
+            actualizarValorBruto();
+            actualizarValorNeto();
+            actualizarValorCuotas();
+        });
+
+        cuotas.addEventListener('change', (event) => {
+            actualizarValorBruto();
+            actualizarValorNeto();
+            actualizarValorCuotas();
+        });
+
+        // Evento delegado para calcular el total por producto
+        container.addEventListener('input', (event) => {
+            if (event.target.matches('input[name^="cantidad"]')) {
+                const itemRow = event.target.closest('.producto-item');
+                const precio = parseFloat(itemRow.querySelector('input[name^="precio"]').value.replace(/\./g, '').replace(',', '.')) || 0;
+                const cantidad = parseInt(event.target.value, 10) || 0;
+                const totalInput = itemRow.querySelector('input[name^="totalNeto"]');
+                const total = precio * cantidad;
+                totalInput.value = total.toLocaleString('es-ES'); // Formateamos con separador de miles
+            }
+
+            // Recalcular el valor total de todos los productos
+            actualizarValorBruto();
+            actualizarValorNeto();
+            actualizarValorCuotas();
+        });
+
+        // Función para calcular el valor total de todos los productos
+        function actualizarValorBruto() {
+            let totalBruto = 0;
+
+            // Iterar por todos los elementos de productos
+            document.querySelectorAll('.producto-item').forEach(item => {
+                const totalNeto = item.querySelector('input[name^="totalNeto"]').value
+                    .replace(/\./g, '') // Eliminar puntos de miles
+                    .replace(',', '.'); // Reemplazar coma decimal por punto
+                totalBruto += parseFloat(totalNeto) || 0; // Convertir a número flotante
+            });
+
+            // Actualizar el campo valorBruto
+            const valorBrutoInput = document.querySelector('#id_valorBruto'); 
+            valorBrutoInput.value = totalBruto.toLocaleString('es-ES'); // Mostrar con separador de miles
+        }
+
+        function actualizarValorNeto() {
+            let totalNetoInput = 0;
+
+            // Iterar por todos los elementos de productos
+            document.querySelectorAll('.producto-item').forEach(item => {
+                const totalNetoItem = item.querySelector('input[name^="totalNeto"]').value
+                    .replace(/\./g, '') // Eliminar puntos de miles
+                    .replace(',', '.'); // Reemplazar coma decimal por punto
+                totalNetoInput += parseFloat(totalNetoItem) || 0; // Convertir a número flotante
+            });
+            const valorNeto = document.querySelector('#id_valorNeto');
+            let totalNeto;
+
+            const selectDescuento = document.querySelector('#id_descuento');
+
+            if (formaPago.value === 'CONTADO') {
+                // Obtener el descuento como decimal
+                const descuentoTexto = selectDescuento.options[selectDescuento.selectedIndex].textContent;
+                const descuento = parseFloat(descuentoTexto.replace('%', '')) / 100;
+                
+                // Calcular el total neto con descuento
+                totalNeto = totalNetoInput * (1 - descuento);
+                contenedorValorDesc.querySelector('input').value = (totalNetoInput * descuento).toLocaleString('es-ES'); // Mostrar con separador de miles
+            } else {
+                // Si no hay descuento, el valor neto es igual al bruto
+                totalNeto = totalNetoInput;
+            }
+
+            // Actualizar el campo valorNeto
+            valorNeto.value = totalNeto.toLocaleString('es-ES'); // Mostrar con separador de miles
+        }
+
+        function actualizarValorCuotas() {
+            let totalNetoInput = 0;
+            const valorCuota = document.querySelector('#id_valorCuotas');
+            const cuotas = parseInt(document.querySelector('#id_cuotas').value, 10) || 1;
+
+            // Iterar por todos los elementos de productos
+            document.querySelectorAll('.producto-item').forEach(item => {
+                const totalNetoItem = item.querySelector('input[name^="totalNeto"]').value
+                    .replace(/\./g, '') // Eliminar puntos de miles
+                    .replace(',', '.'); // Reemplazar coma decimal por punto
+                totalNetoInput += parseFloat(totalNetoItem) || 0; // Convertir a número flotante
+            });
+            let cuota = 0;
+            cuota = parseInt(totalNetoInput / cuotas, 10);
+            valorCuota.value = cuota.toLocaleString('es-ES'); // Mostrar con separador de miles
+        }
+
+        // Función para eliminar una fila de producto
+        window.eliminarProducto = function(button) {
+            const row = button.closest('.row'); // Obtiene la fila completa del producto
+            row.remove(); // Elimina la fila
+            productCount--;
+            actualizarValorBruto();
+            actualizarValorNeto();
+            actualizarValorCuotas();
+
+            if (productCount == 0) {
+                // Si el contador de productos es 0, se oculta el boton de guardar y el encabezado
+                submit.setAttribute('hidden', 'hidden');
+                encabezado.setAttribute('hidden', 'hidden');
+            }
+        }        
+    
+    });
+</script>
