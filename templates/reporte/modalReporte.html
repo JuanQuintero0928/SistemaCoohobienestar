@@ -2,12 +2,16 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">Descargar Auxilio por fecha</h1>
+          <h1 class="modal-title fs-5" id="exampleModalLabel">{% if tipoReporte == 'auxilio' %}Descargar Auxilio por fecha{% elif tipoReporte == 'credito' %}Descargar Créditos por fecha{% endif %}</h1>
           <hr>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <form action="{% url 'reportes:descargarAuxilio' %}" method="post">
+            {% if tipoReporte == 'auxilio' %}
+                <form action="{% url 'reportes:descargarAuxilio' %}" method="post">
+            {% elif tipoReporte == 'credito' %}
+                <form action="{% url 'reportes:descargarCredito' %}" method="post">
+            {% endif %}
                 {% csrf_token %}
                 <div class="row">
                     <!-- Input para Fecha Inicial -->

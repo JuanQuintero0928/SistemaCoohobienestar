@@ -33,27 +33,27 @@
                     
                     {% comment %} Primera Fila {% endcomment %}
                     <div class="row">
-                        <div class="col-12 col-md-3 mb-3">
+                        <div class="col-12 col-lg-3 col-md-6 mb-3">
                             {{ form.fechaVenta.label_tag }}
                             {{ form.fechaVenta }} 
                         </div>
-                        <div class="col-12 col-md-3 mb-3">
+                        <div class="col-12 col-lg-3 col-md-6 mb-3">
                             {{ form.formaPago.label_tag }}
                             {{ form.formaPago }}
                         </div>
-                        <div class="col-12 col-md-3 mb-3" id="contenedorCuotas">
+                        <div class="col-12 col-lg-3 col-md-6 mb-3" id="contenedorCuotas">
                             {{ form.cuotas.label_tag }}
                             {{ form.cuotas }} 
                         </div>
-                        <div class="col-12 col-md-3 mb-3" id="contenedorDescuento" hidden>
+                        <div class="col-12 col-lg-3 col-md-6 mb-3" id="contenedorDescuento" hidden>
                             {{ form.descuento.label_tag }}
                             {{ form.descuento }}
                         </div>
-                        <div class="col-12 col-md-3 mb-3" id="contenedorValorDesc" hidden>
+                        <div class="col-12 col-lg-3 col-md-6 mb-3" id="contenedorValorDesc" hidden>
                             <label for="id_valorDescuento">Valor Descuento:</label>
                             <input type="text" name="valorDescuento" id="id_valorDescuento" class="form-control" readonly>
                         </div>
-                        <div class="col-12 col-md-3 mb-3" id="contenedorValorCuotas">
+                        <div class="col-12 col-lg-3 col-md-6 mb-3" id="contenedorValorCuotas">
                             <label for="id_valorCuotas">Valor Cuotas:</label>
                             <input type="text" name="valorCuotas" id="id_valorCuotas" class="form-control" readonly>
                         </div>

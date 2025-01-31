@@ -1,6 +1,6 @@
-from pyexpat import model
 from django import forms
 from .models import HistorialPagos, HistoricoSeguroVida, HistoricoAuxilio, HistoricoCredito
+from parametro.models import TasasInteresCredito
 
 # no se utiliza
 class HistorialPagoForm(forms.ModelForm):
@@ -142,23 +142,89 @@ class HistoricoAuxilioForm(forms.ModelForm):
 
 class HistoricoCreditoForm(forms.ModelForm):
 
+    tasaInteres = forms.ModelChoiceField(
+        queryset=TasasInteresCredito.objects.all(),
+        label="Tasa de interés mensual (%)",
+        empty_label="Seleccione una tasa",
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'tasaInteres'}),
+        to_field_name="porcentaje"  # <-- Aquí se define que el value sea el porcentaje en vez del ID
+    )
+
     class Meta:
         model = HistoricoCredito
-        fields = ['fechaSolicitud','valor','cuotas','estado']
+        fields = ['fechaSolicitud',
+                  'valor',
+                  'cuotas',
+                  'lineaCredito',
+                  'amortizacion',
+                  'medioPago',
+                  'tasaInteres',
+                  'formaDesembolso',
+                  'valorCuota',
+                  'totalCredito',
+                  'estado'
+                  ]
+        labels = {
+            'fechaSolicitud': 'Fecha Solicitud',
+            'valor': 'Valor',
+            'cuotas': 'Cuotas',
+            'lineaCredito': 'Linea Crédito',
+            'amortizacion': 'Amortización',
+            'medioPago': 'Medio de Pago',
+            'formaDesembolso': 'Forma de Desembolso',
+            'estado': 'Estado'
+        }
         widgets = {
             'fechaSolicitud': forms.DateInput(
                 attrs={ 
                     'class':'form-control',
                     'type':'date',
+                    'id':'fechaSolicitud',
                 },format='%Y-%m-%d'
             ),
             'valor': forms.NumberInput(
                 attrs={
-                    'class':'form-control'
+                    'class':'form-control',
+                    'min':'0',
+                    'id':'valor'
                 }
             ),
             'cuotas': forms.NumberInput(
                 attrs={
+                    'class':'form-control',
+                    'min':'0',
+                    'id':'cuotas'
+                }
+            ),
+            'valorCuota': forms.NumberInput(
+                attrs={
+                    'class':'form-control',
+                    # 'hidden':'hidden',
+                }
+            ),
+            'totalCredito': forms.NumberInput(
+                attrs={
+                    'class':'form-control',
+                    # 'hidden':'hidden',
+                }
+            ),
+            'lineaCredito': forms.Select(
+                attrs={ 
+                    'class':'form-control'
+                }
+            ),
+            'amortizacion': forms.Select(
+                attrs={ 
+                    'class':'form-control'
+                }
+            ),
+            'medioPago': forms.Select(
+                attrs={ 
+                    'class':'form-control'
+                }
+            ),
+            'formaDesembolso': forms.Select(
+                attrs={ 
                     'class':'form-control'
                 }
             ),
@@ -168,8 +234,7 @@ class HistoricoCreditoForm(forms.ModelForm):
                 }
             ),
         }
-
-    from django import forms
+    
 
 class CargarArchivoForm(forms.Form):
     archivo_csv = forms.FileField(

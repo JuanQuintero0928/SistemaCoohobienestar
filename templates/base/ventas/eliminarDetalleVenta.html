@@ -1,0 +1,57 @@
+{% load humanize %}
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Eliminar Crédito Home Elements</h1>
+            <hr>
+          <h2 class="modal-title fs-5" id="exampleModalLabel"></h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <table class="table table-sm">
+                <tr>
+                    <th>Fecha Venta</th>
+                    <th>Forma Pago</th>
+                    {% if historicoVenta.formaPago == 'CREDITO' %}
+                        <th>Cuotas</th>
+                        <th>Valor Cuotas</th>
+                    {% else %}
+                        <th>Descuento</th>
+                        <th>Valor Descuento</th>
+                    {% endif %}
+                    <th>Valor Bruto</th>
+                    <th>Valor Neto</th>
+                </tr>
+                <tr>
+                    <td>{{historicoVenta.fechaVenta|date:'d/m/Y'}}</td>
+                    <td>{{historicoVenta.formaPago}}</td>
+                    {% if historicoVenta.formaPago == 'CREDITO' %}
+                        <td>{{historicoVenta.cuotas}}</td>
+                        <td>${{historicoVenta.valorCuotas|intcomma}}</td>
+                    {% else %}
+                        <td>{{historicoVenta.descuento}}</td>
+                        <td>${{historicoVenta.valorDescuento|intcomma}}</td>
+                    {% endif %}
+                    <td>${{historicoVenta.valorBruto|intcomma}}</td>
+                    <td>${{historicoVenta.valorNeto|intcomma}}</td>
+                </tr>
+            </table>
+            <div class="alert alert-warning" role="alert">
+                <strong>Alerta: </strong>
+                <p>
+                    Antes de eliminar el registro asegurese que no hayan pagos asignados al crédito, de lo contrario no se podra eliminar.
+                </p>
+            </div>
+        </div>
+        
+        <div class="modal-footer">
+          <form action="{% url 'asociado:eliminarDetalleVenta' pkAsociado pk %}" method="post">
+            {% csrf_token %}
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+              <button  type="submit" class="btn btn-danger">Eliminar</a>
+            </form>
+          </div>
+      </div>
+    </div>
+  </div>

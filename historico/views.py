@@ -112,12 +112,13 @@ class ModalPago(ListView):
         total_diferencia = queryHistorial['total'] or 0  # Se obtiene el valor de la suma a 0 si no hay datos
 
         # Se valida si el asociado cuenta con credito de productos home elements
-        queryValidacion = HistoricoVenta.objects.filter(asociado = kwargs['pkAsociado']).exists()
+        queryValidacion = HistoricoVenta.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True, formaPago = 'CREDITO').exists()
         queryCreditoProd = None
         if queryValidacion:
             queryCreditoProd = HistoricoVenta.objects.filter(
                     asociado = kwargs['pkAsociado'],
                     formaPago = 'CREDITO',
+                    estadoRegistro = True,
                     pendientePago__gt = 0
                 )
             for homeElements in queryCreditoProd:
@@ -174,6 +175,7 @@ class ModalPago(ListView):
                         'coohopAporte': 0,
                         'coohopBsocial': 0,
                         'convenioPago': 0,
+                        'creditoHomeElements': 0,
                         'diferencia': valorDiferencia if cantidadSwitches == contador else 0,
                         'valorPago':  valorDiferencia if cantidadSwitches == contador else 0,
                         'estadoRegistro': True,
@@ -197,6 +199,7 @@ class ModalPago(ListView):
                             'coohopAporte': tarifaAsociado.cuotaCoohopAporte,
                             'coohopBsocial': tarifaAsociado.cuotaCoohopBsocial,
                             'convenioPago': tarifaAsociado.cuotaConvenio,
+                            'creditoHomeElements': 0,
                             'diferencia': valorDiferencia if cantidadSwitches == contador else 0,
                             'valorPago':  valorMes if contador < cantidadSwitches else valorMes + valorDiferencia,
                             'estadoRegistro': True,
@@ -320,7 +323,19 @@ class EliminarPago(DeleteView):
         return render(request, template_name, context) 
 
     def post(self, request, *args, **kwargs):
-        HistorialPagos.objects.get(pk=kwargs['pk']).delete()
+
+        obj = HistorialPagos.objects.get(pk=kwargs['pk'])
+    
+        # si es credito home elements, se elimina el registro y se actualiza el valor de credito
+        if obj.mesPago.pk == 9998:
+            credito = (HistoricoVenta.objects
+                            .get(asociado = kwargs['pkAsociado'], valorCuotas = obj.creditoHomeElements, estadoRegistro = True)
+                        )
+            credito.pendientePago = credito.pendientePago + obj.valorPago
+            credito.cuotasPagas = credito.cuotasPagas - 1
+            credito.save()
+        
+        obj.delete()
         messages.info(request, 'Pago Eliminado Correctamente')
 
         # Recupera el valor de num_documento del POST

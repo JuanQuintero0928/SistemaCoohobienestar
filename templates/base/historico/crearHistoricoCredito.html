@@ -1,49 +1,131 @@
-<div class="modal-dialog modal-lg" role="document">
+<div class="modal-dialog modal-xl" role="document">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">{% if crear %} Crear Historico de Creditos:{% else %} Editar Historico de Creditos:{% endif %}</h1>
+          <h1 class="modal-title fs-5" id="exampleModalLabel">{% if crear %} Crear Crédito:{% else %} Editar Crédito:{% endif %}</h1> 
           <hr>
           <h2 class="modal-title fs-5" id="exampleModalLabel" style="margin-left: 8px;">{{asociado.nombre}} {{asociado.apellido}}</h2>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            {% if crear %}
-                <form action="{% url 'asociado:crearHistoricoCredito' pkAsociado %}" method="post" id="form">
-            {% else %}
-                <form action="{% url 'asociado:editarHistoricoCredito' pkAsociado pk %}" method="post" id="form">
-            {% endif %}
-                {% csrf_token %}
-                
-                <div class="form-group mb-3">
-                  <label for="{{ form.fechaSolicitud.id_for_label }}">Fecha Solicitud</label>
-                  {{ form.fechaSolicitud}}
-                </div>
+          <form action="{% url 'asociado:crearHistoricoCredito' pkAsociado %}" method="post" id="form">                {% csrf_token %}
+            <div class="row">
+              <div class="col-12 col-lg-3 col-md-6 mb-3">
+                <label for="fechaSolicitud">Valor del crédito</label>
+                <input type="date" id="fechaSolicitud" name="fechaSolicitud" class="form-control">
+              </div>
+              <div class="col-12 col-lg-3 col-md-6 mb-3">
+                <label for="valor">Valor del crédito</label>
+                <input name="valor" id="valor" type="number" class="form-control" min="0">
+              </div>
+              <div class="col-12 col-lg-3 col-md-6 mb-3">
+                {{ form.lineaCredito.label_tag }}
+                {{ form.lineaCredito }}
+              </div>
+              <div class="col-12 col-lg-3 col-md-6 mb-3">
+                {{ form.amortizacion.label_tag }}
+                {{ form.amortizacion }}
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-lg-3 col-md-6 mb-3">
+                {{ form.tasaInteres.label_tag }}
+                {{ form.tasaInteres }}
+              </div>
+              <div class="col-12 col-lg-3 col-md-6 mb-3">
+                {{ form.medioPago.label_tag }}
+                {{ form.medioPago }}
+              </div>
+              <div class="col-12 col-lg-3 col-md-6 mb-3">
+                <label for="cuotas">Número de cuotas</label>
+                <input name="cuotas" id="cuotas" type="number" class="form-control" min="0" value="6">
+              </div>
+              <div class="col-12 col-lg-3 col-md-6 mb-3">
+                {{ form.formaDesembolso.label_tag }}
+                {{ form.formaDesembolso }}
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-lg-3 col-md-6 mb-3">
+                {{ form.estado.label_tag }}
+                {{ form.estado }}
+              </div>
+              <div class="col-12 col-md-3 mb-3" style="display:none">
+                {{ form.valorCuota.label_tag }}
+                {{ form.valorCuota }}
+              </div>
+              <div class="col-12 col-md-3 mb-3" style="display:none">
+                {{ form.totalCredito.label_tag }}
+                {{ form.totalCredito }}
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-12">
+                <a type="button" id="calcular" class="btn btn-primary">Calcular Tabla de Amortización</a>
+              </div>
+            </div>
+            <div class="row mt-4">
+              <div class="col-12">
+                <table class="table table-hover" id="tablaAmortizacion">
+                  <thead>
+                    <tr>
+                      <th>N° Cuota</th>
+                      <th>Fecha</th>
+                      <th>Saldo inicial</th>
+                      <th>Abono capital</th>
+                      <th>Intereses</th>
+                      <th>Cuota</th>
+                      <th>Saldo final</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Aquí se generará dinámicamente la tabla -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            
 
-                <div class="form-group mb-3">
-                  <label for="{{ form.valor.id_for_label }}">Valor Solicitado</label>
-                  {{ form.valor }}
-                </div>
-                
-                <div class="form-group mb-3">
-                  <label for="{{ form.cuotas.id_for_label }}">Cuotas</label>
-                  {{ form.cuotas }}
-                </div>
-
-                <div class="form-group mb-3">
-                  <label for="{{ form.estado.id_for_label }}">Estado</label>
-                  {{ form.estado }}
-                </div>
-
-                <hr>
-                <button type="submit" class="btn btn-primary">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16">
-                    <path d="M11 2H9v3h2z"/>
-                    <path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>
-                  </svg>
-                </button>
-            </form>
+            <hr>
+            <button id="submit" type="submit" class="btn btn-primary" style="display:none">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16">
+                <path d="M11 2H9v3h2z"/>
+                <path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>
+              </svg>
+            </button>
+          </form>
         </div>
       </div>
     </div>
   </div>
+
+<script>
+
+    // Funcion que muestra la tabla de amortizacion cuando se carga el modal
+    $('#creacion').on('shown.bs.modal', function () {
+      const tablaBody = document.querySelector("#tablaAmortizacion tbody");
+      tablaBody.innerHTML = "";
+    });
+
+    // Evento que calcula la tabla de amortizacion cuando se hace clic en el botón
+    document.getElementById("calcular").addEventListener("click", function () {
+      const valor = parseFloat(document.getElementById("valor").value) || 0;
+      const tasa = parseFloat(document.getElementById("tasaInteres").value) || 0;
+      const cuotas = parseInt(document.getElementById("cuotas").value) || 0;
+      const fechaSolicitud = document.getElementById("fechaSolicitud").value;
+
+      if (!fechaSolicitud) {
+        alert("Por favor, ingresa una fecha válida.");
+        return;
+      }
+
+      if (valor > 0 && tasa > 0 && cuotas > 0) {
+        generarTablaAmortizacion(valor, tasa, cuotas, fechaSolicitud, 1);
+        document.getElementById("submit").style.display = "block";
+      } else {
+        alert("Por favor, ingresa valores válidos.");
+      }
+    });  
+
+</script>

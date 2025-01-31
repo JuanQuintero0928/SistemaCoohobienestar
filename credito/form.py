@@ -1,4 +1,5 @@
 from django import forms
+from departamento.models import Municipio
 from .models import Codeudor
 
 class CodeudorForm(forms.ModelForm):
@@ -13,13 +14,13 @@ class CodeudorForm(forms.ModelForm):
             'fechaExpedicion': forms.DateInput(attrs={'class':'form-control','type': 'date',}, format='%Y-%m-%d'),
             'mpioDoc': forms.Select(attrs={'class':'form-control',}),
             'nacionalidad': forms.TextInput(attrs={'class':'form-control','style':'text-transform: uppercase;',}),
-            'genero': forms.TextInput(attrs={'class':'form-control',}),
-            'estadoCivil': forms.TextInput(attrs={'class':'form-control',}),
+            'genero': forms.Select(attrs={'class':'form-control',}),
+            'estadoCivil': forms.Select(attrs={'class':'form-control',}),
             'email': forms.EmailInput(attrs={'class':'form-control',}),
             'fechaNacimiento': forms.DateInput(attrs={'class':'form-control','type': 'date',}, format='%Y-%m-%d'),
             'dtoNacimiento': forms.Select(attrs={'class':'form-control',}),
             'mpioNacimiento': forms.Select(attrs={'class':'form-control',}),
-            'tipoVivienda': forms.TextInput(attrs={'class':'form-control',}),
+            'tipoVivienda': forms.Select(attrs={'class':'form-control',}),
             'estrato': forms.NumberInput(attrs={'class':'form-control','min':'0',}),
             'direccion': forms.TextInput(attrs={'class':'form-control','style':'text-transform: uppercase;',}),
             'barrio': forms.TextInput(attrs={'class':'form-control','style':'text-transform: uppercase;',}),
@@ -53,3 +54,8 @@ class CodeudorForm(forms.ModelForm):
             'ingresosTotales': 'Ingresos Mensuales',
             'egresosTotales': 'Egresos Mensuales',
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['mpioDoc'].queryset = Municipio.objects.select_related('departamento').all()
+        self.fields['mpioDoc'].label_from_instance = lambda obj: f"{obj.departamento.nombre} - {obj.nombre}"

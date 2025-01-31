@@ -245,8 +245,101 @@ async function llamarPDF(numFormato, url) {
                 }
             }
             let pdf = generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF4, direccionF4, numCelularF4, concepto1, cuotaVencida, cuotaMes1, totalConcepto1, concepto2, cuotaMes2, totalConcepto2, concepto3, cuotaMes3, totalConcepto3, concepto4, cuotaMes4, totalConcepto4, concepto5, cuotaMes5, totalConcepto5, concepto6, cuotaMes6, totalConcepto6, pagoTotal, cuentaBeneficiariosF4, arrayBeneficiariosF4, arrayMascotasF4, saldo, mensaje)
-            return pdf;   
-        }
+            return pdf;
+    }
+}
+
+async function llamarPDFCredito(valor, cuotas, url, idCredito) {
+    let fechaHoy_F5 = document.getElementById('id_fechaActual').value;
+    let nombre_F5 = document.getElementById('id_nombre').value;
+    let apellido_F5 = document.getElementById('id_apellido').value;
+    let tipoDocumento_F5 = document.getElementById('id_tipoDocumento').value;
+    let numDocumento_F5 = document.getElementById('id_numDocumento').value;
+    let fechaExpedicion_F5 = document.getElementById('id_fechaExp').value;
+    let mpioDoc_F5 = document.getElementById('id_lugarExp').value;
+    let nacionalidad_F5 = document.getElementById('id_nacionalidad').value;
+    let genero_F5 = document.getElementById('id_genero').value;
+    let estadoCivil_F5 = document.getElementById('id_estadoCivil').value;
+    let email_F5 = document.getElementById('id_email').value;
+    let numCelular_F5 = document.getElementById('id_numCelular').value;
+    let numResidencia_F5 = document.getElementById('id_numResidencia').value;
+    let fechaNacimiento_F5 = document.getElementById('id_fechaNac').value;
+    let dtoNacimiento_F5 = document.getElementById('id_dtoNac').value;
+    let mpioNacimiento_F5 = document.getElementById('id_mpioNac').value;
+    let tipoVivienda_F5 = document.getElementById('id_tipoVivienda').value;
+    let estrato_F5 = document.getElementById('id_estrato').value;
+    let direccion_F5 = document.getElementById('id_direccion').value;
+    let barrio_F5 = document.getElementById('id_barrio').value;
+    let deptoResidencia_F5 = document.getElementById('id_deptoResidencia').value;
+    let mpioResidencia_F5 = document.getElementById('id_mpioResidencia').value;
+    let envioInfoCorreo_F5 = document.getElementById('id_envioInfoCorreo').value;
+    let envioInfoMensaje_F5 = document.getElementById('id_envioInfoMensaje').value;
+    let envioInfoWhatsapp_F5 = document.getElementById('id_envioInfoWhatsapp').value;
+    let nivelEducativo_F5 = document.getElementById('id_nivelEducativo').value;
+    let profesion_F5 = document.getElementById('id_tituloPregrado').value;
+    let nombreEmpresa_F5 = document.getElementById('id_nombreEmpresa').value;
+    let cargo_F5 = document.getElementById('id_cargo').value;
+    let fechaInicio_F5 = document.getElementById('id_fechaInicio').value;
+    let fechaTerminacion_F5 = document.getElementById('id_fechaTerminacion').value;
+    let nomRepresenLegal_F5 = document.getElementById('id_nomRepresenLegal').value;
+    let numDocRL_F5 = document.getElementById('id_numDocRL').value;
+    let direccionTrabajo_F5 = document.getElementById('id_direccionTrabajo').value;
+    let mpioTrabajo_F5 = document.getElementById('id_mpioTrabajo').value;
+    let dptoTrabajo_F5 = document.getElementById('id_dptoTrabajo').value;
+    let telefono_F5 = document.getElementById('id_telefono').value;
+    let admRP_F5 = document.getElementById('id_admRP').value;
+    let pep_F5 = document.getElementById('id_pep').value;
+    let activEcono_F5 = document.getElementById('id_activEcono').value;
+    let ciiu_F5 = document.getElementById('id_ciiu').value;
+    let banco_F5 = document.getElementById('id_banco').value;
+    let numCuenta_F5 = document.getElementById('id_numCuenta').value;
+    let tipoCuenta_F5 = document.getElementById('id_tipoCuenta').value;
+    let usuario_F5 = document.getElementById('usuario').value;
+    let autorizaciondcto_F5 = document.getElementById('id_autorizaciondcto').value;
+    let empresa_F5 = document.getElementById('id_empresa').value;
+    let lineaCredito_F5 = document.getElementById(`lineaCredito${idCredito}`).value;
+    let medioPago_F5 = document.getElementById(`medioPago${idCredito}`).value;
+    let formaDesembolso_F5 = document.getElementById(`formaDesembolso${idCredito}`).value;
+    let existCodeudor = document.getElementById(`existCodeudor${idCredito}`).value;
+
+    generarPDFfCredito(url, valor, cuotas, nombre_F5, apellido_F5, tipoDocumento_F5, numDocumento_F5, fechaExpedicion_F5, mpioDoc_F5, nacionalidad_F5, fechaNacimiento_F5, genero_F5, estadoCivil_F5, email_F5, numCelular_F5, dtoNacimiento_F5, mpioNacimiento_F5, tipoVivienda_F5, estrato_F5, direccion_F5, barrio_F5, deptoResidencia_F5, mpioResidencia_F5, usuario_F5, fechaHoy_F5, numResidencia_F5, envioInfoCorreo_F5, envioInfoMensaje_F5, envioInfoWhatsapp_F5, profesion_F5, nombreEmpresa_F5, cargo_F5, fechaInicio_F5, fechaTerminacion_F5, nomRepresenLegal_F5, numDocRL_F5, mpioTrabajo_F5, dptoTrabajo_F5, telefono_F5, admRP_F5, pep_F5, activEcono_F5, ciiu_F5, banco_F5, numCuenta_F5, tipoCuenta_F5, direccionTrabajo_F5, nivelEducativo_F5, autorizaciondcto_F5, empresa_F5, lineaCredito_F5, medioPago_F5, formaDesembolso_F5, existCodeudor); 
+}
+
+async function llamarPDFTablaAmortizacion(url, numDoc, fechaSolicitud, valor, cuotas, tasa, idCredito) {
+    
+    const existCodeudor = document.getElementById(`existCodeudor${idCredito}`).value;
+    
+    const datos = {
+        existCodeudor: existCodeudor,
+        numCredito: document.getElementById(`numCredito${idCredito}`).value,
+        nombre: document.getElementById('id_nombre').value,
+        apellido: document.getElementById('id_apellido').value,
+        numDocumento: document.getElementById('id_numDocumento').value,
+        tipoDocumento: document.getElementById('id_tipoDocumento').value,
+        mpioDoc: document.getElementById('id_lugarExp').value,
+
+        lineaCredito: document.getElementById(`lineaCredito${idCredito}`).value,
+        amortizacion: document.getElementById(`amortizacion${idCredito}`).value,
+        medioPago: document.getElementById(`medioPago${idCredito}`).value,
+        valorCuota: document.getElementById(`valorCuota${idCredito}`).value,
+        totalCredito: document.getElementById(`totalCredito${idCredito}`).value,
+    };
+
+    if(existCodeudor === "True"){
+        datos.nombreCodeudor = document.getElementById(`nombreCod${idCredito}`).value;
+        datos.apellidoCodeudor = document.getElementById(`apellidoCod${idCredito}`).value;
+        datos.tipoDocumentoCodeudor = document.getElementById(`tipoDocumentoCod${idCredito}`).value;
+        datos.numDocumentoCodeudor = document.getElementById(`numDocumentoCod${idCredito}`).value;
+        datos.mpioCodeudor = document.getElementById(`mpioDocCod${idCredito}`).value;
+    }else {
+        datos.nombreCodeudor = '';
+        datos.apellidoCodeudor = '';
+        datos.tipoDocumentoCodeudor = '';
+        datos.numDocumentoCodeudor = '';
+        datos.mpioCodeudor = '';
+    }
+    
+    descargarTablaAmortizacion(url, numDoc, fechaSolicitud, valor, cuotas, tasa, datos);
 }
 
 // Formato 1
@@ -760,10 +853,10 @@ async function generarPDFf3(url, fechaHoyF3, nombreF3, apellidoF3, tipoDocumento
         pdf.text("X", 323,415);
     }// auxilio educativo-u
     else if(tipoAuxilio == '3'){
-        pdf.text("X", 82,379);
+        pdf.text("X", 82,415);
     }// kit maternidad
     else if(tipoAuxilio == '4'){
-        pdf.text("X", 82,415);
+        pdf.text("X", 82,379);
     }//auxilio educativo-maestria
     else if(tipoAuxilio == '5'){
         pdf.text("X", 82,396);
@@ -1190,4 +1283,475 @@ async function generarTxt(arrayExtracto2) {
     // Limpiar el URL Object creado
     URL.revokeObjectURL(enlace.href);
     
+}
+
+// Formato Solicitud de Crédito
+async function generarPDFfCredito(url, valor, cuotas, nombre_F5, apellido_F5, tipoDocumento_F5, numDocumento_F5, fechaExpedicion_F5, mpioDoc_F5, nacionalidad_F5, fechaNacimiento_F5, genero_F5, estadoCivil_F5, email_F5, numCelular_F5, dtoNacimiento_F5, mpioNacimiento_F5, tipoVivienda_F5, estrato_F5, direccion_F5, barrio_F5, deptoResidencia_F5, mpioResidencia_F5, usuario_F5, fechaHoy_F5, numResidencia_F5, envioInfoCorreo_F5, envioInfoMensaje_F5, envioInfoWhatsapp_F5, profesion_F5, nombreEmpresa_F5, cargo_F5, fechaInicio_F5, fechaTerminacion_F5, nomRepresenLegal_F5, numDocRL_F5, mpioTrabajo_F5, dptoTrabajo_F5, telefono_F5, admRP_F5, pep_F5, activEcono_F5, ciiu_F5, banco_F5, numCuenta_F5, tipoCuenta_F5, direccionTrabajo_F5, nivelEducativo_F5, autorizaciondcto_F5, empresa_F5, lineaCredito_F5, medioPago_F5, formaDesembolso_F5, existCodeudor) {
+
+    const image = await loadImage(url);
+    const pdf = new jsPDF('p', 'pt', 'legal');
+    pdf.addImage(image, 'PNG', 0, 0, 613, 1010);
+
+    pdf.setFontSize(8);
+    // fecha encabezado
+    var arrFechaHoy = fechaHoy_F5.split("-")
+    pdf.text(arrFechaHoy[2], 236,136);
+    pdf.text(arrFechaHoy[1], 249,136);
+    pdf.text(arrFechaHoy[0], 265,136);
+
+    pdf.setFontSize(10);
+    // Condiciones Financieras
+    if (lineaCredito_F5 == 'SOLUCION INMEDIATA'){
+        pdf.text('X', 199,279);
+    }else if (lineaCredito_F5 == 'ANTICIPO NOMINA'){
+        pdf.text('X', 101,279);
+    }else if (lineaCredito_F5 == 'CREDILIBRE'){
+        pdf.text('X', 282,279);
+    }else if (lineaCredito_F5 == 'CREDICONTIGO'){
+        pdf.text('X', 355,279);
+    }
+    
+    pdf.text(formatearNumero(valor), 384,281);
+    pdf.text(cuotas, 534,281);
+
+    // Medio de Pago
+    if (medioPago_F5 == 'PAGO DIRECTO'){
+        pdf.text('X', 207,312);
+    }else {
+        pdf.text('X', 264,312);
+    }
+    // Coudeudor
+    if (existCodeudor == 'True'){
+        pdf.text('X', 304,312);
+    } else {
+        pdf.text('X', 329,312);
+    }
+    // Forma de Desembolso
+    if (formaDesembolso_F5 == 'TRANSFERENCIA ELECTRONICA'){
+        pdf.text('X', 395,312);
+    }else if (formaDesembolso_F5 == 'CHEQUE'){
+        pdf.text('X', 481,312);
+    }else if (formaDesembolso_F5 == 'CUENTA AHORROS'){
+        pdf.text('X', 548,312);
+    }
+
+    // Datos del Asociado
+    // Fila 1
+    pdf.text(nombre_F5, 20,377);
+    pdf.text(apellido_F5, 321,377);
+
+    // Fila 2
+    if(tipoDocumento_F5 == 'CEDULA'){
+        pdf.text('X', 41,426);
+    }else if(tipoDocumento_F5 == 'CEDULA EXTRANJERA'){
+        pdf.text('X', 82,426);
+    }else {
+        pdf.text('X', 104,426);
+    }
+    pdf.text(numDocumento_F5, 134,426);
+    var arrFechaExp = fechaExpedicion_F5.split("-");
+    pdf.text(arrFechaExp[2], 327,426);
+    pdf.text(arrFechaExp[1], 355,426);
+    pdf.text(arrFechaExp[0], 390,426);
+    pdf.text(mpioDoc_F5, 435,426);
+
+    // Fila 3
+    pdf.text(nacionalidad_F5, 20,474);
+    var arrFechaNac = fechaNacimiento_F5.split("-")
+    pdf.text(arrFechaNac[2], 149,474);
+    pdf.text(arrFechaNac[1], 188,474);
+    pdf.text(arrFechaNac[0], 222,474);
+    pdf.text(dtoNacimiento_F5, 278,474);
+    pdf.text(mpioNacimiento_F5, 385,474);
+    if (genero_F5 == 'FEMENINO'){
+        pdf.text('X', 504,474);
+    }else{
+        pdf.text('X', 558,474);
+    }
+    
+    // Fila 4
+    if (estadoCivil_F5 == 'SOLTERO(A)'){
+        pdf.text('X', 27,505);
+    }else if (estadoCivil_F5 == 'CASADO(A)'){
+        pdf.text('X', 68,505);
+    }else if (estadoCivil_F5 == 'UNION LIBRE'){
+        pdf.text('X', 114,505);
+    }else if (estadoCivil_F5 == 'SEPARADO(A)'){
+        pdf.text('X', 153,505);
+    }else if (estadoCivil_F5 == 'DIVORCIADO(A)'){
+        pdf.text('X', 209,505);
+    }else{
+        pdf.text('X', 253,505);
+    }
+
+    if (tipoVivienda_F5 == 'PROPIA'){
+        pdf.text('X', 293,505);
+    }else if (tipoVivienda_F5 == 'FAMILIAR'){
+        pdf.text('X', 327,505);
+    }else if (tipoVivienda_F5 == 'ARRENDADA'){
+        pdf.text('X', 357,505);
+    }else {
+        pdf.text('X', 397,505);
+    }
+
+    // Fila 5
+    if (estrato_F5 == '1'){
+        pdf.text('X', 20,538);
+    }else if (estrato_F5 == '2'){
+        pdf.text('X', 41,538);
+    }else if (estrato_F5 == '3'){
+        pdf.text('X', 41,538);
+    }else if (estrato_F5 == '4'){
+        pdf.text('X', 62,538);
+    }else if (estrato_F5 == '5'){
+        pdf.text('X', 85,538);
+    }else{
+        pdf.text('X', 107,538);
+    }
+
+    // Casillas jefe de hogar
+    // pdf.text('X', 129,538);
+    // pdf.text(direccion_F5, 322,539);
+
+    // Fila 6
+    pdf.text(barrio_F5, 20,573);
+    pdf.text(mpioResidencia_F5, 190, 573);
+    pdf.text(deptoResidencia_F5, 325, 573);
+    pdf.text(numCelular_F5, 465, 573);
+
+    // Fila 7
+    pdf.text(numResidencia_F5, 20,605);
+    pdf.text(numCelular_F5, 127, 605);
+    pdf.text(email_F5, 281, 605);
+
+    // Fila 8
+    if (envioInfoCorreo_F5 == 'True') pdf.text('X',106,635);
+    if (envioInfoMensaje_F5 == 'True') pdf.text('X',229,635);
+    if (envioInfoWhatsapp_F5 == 'True') pdf.text('X',330,635);
+
+    // Fila 9
+    if (nivelEducativo_F5 == 'PRIMARIA'){
+        pdf.text('X', 31,669);
+    }else if (nivelEducativo_F5 == 'SECUNDARIA'){
+        pdf.text('X', 73,669);
+    }else if (nivelEducativo_F5 == 'TECNICO'){
+        pdf.text('X', 117,669);
+    }else if (nivelEducativo_F5 == 'TECNOLOGICO'){
+        pdf.text('X', 174,669);
+    }else if (nivelEducativo_F5 == 'PREGRADO'){
+        pdf.text('X', 238,669);
+    }else if (nivelEducativo_F5 == 'ESPECIALIZACION'){
+        pdf.text('X', 304,669);
+    }else if (nivelEducativo_F5 == 'MAESTRIA'){
+        pdf.text('X', 359,669);
+    }else{
+        pdf.text('X', 402,669);
+    }
+
+    // Fila 10
+    pdf.text(profesion_F5, 20,703);
+    // Campos de opciones de ocupacion
+    // pdf.text('X', 345,703);
+    // pdf.text('X', 401,703);
+    // pdf.text('X', 454,703);
+    // pdf.text('X', 507,703);
+    // pdf.text('X', 561,703);
+
+    // Informacion Laboral
+    // Fila 1
+    if (nombreEmpresa_F5 != 'None') pdf.text(nombreEmpresa_F5, 20,764);
+    if (cargo_F5 != 'None') pdf.text(cargo_F5, 322,764);
+
+    // Fila 2
+    if (fechaInicio_F5 != ''){
+        var arrFechaInicio = fechaInicio_F5.split("-");
+        pdf.text(arrFechaInicio[2], 20,801);
+        pdf.text(arrFechaInicio[1], 37,801);
+        pdf.text(arrFechaInicio[0], 66,801);
+    }
+    if (fechaTerminacion_F5 != ''){
+        var arrFechaTerminacion = fechaTerminacion_F5.split("-");
+        pdf.text(arrFechaTerminacion[2], 104,801);
+        pdf.text(arrFechaTerminacion[1], 126,801);
+        pdf.text(arrFechaTerminacion[0], 155,801);
+    }
+    if (nomRepresenLegal_F5 != 'None') pdf.text(nomRepresenLegal_F5, 188,801);
+    if (numDocRL_F5 != 'None') pdf.text(numDocRL_F5, 411,801);
+
+    // Fila 3
+    if (direccionTrabajo_F5 != 'None') pdf.text(direccionTrabajo_F5, 386,837);
+
+    // Fila 4
+    if (mpioTrabajo_F5 != 'None') pdf.text(mpioTrabajo_F5, 20,870);
+    if (dptoTrabajo_F5 != 'None') pdf.text(dptoTrabajo_F5, 147,870);
+    if (telefono_F5 != 'None') pdf.text(telefono_F5, 280,870);
+
+    // Fila 5
+    if (admRP_F5 == 'SI'){
+        pdf.text('X', 39,905);
+    }else{
+        pdf.text('X', 103,905);
+    }
+    if (pep_F5 == 'SI'){
+        pdf.text('X', 191,905);
+    }else{
+        pdf.text('X', 277,905);
+    }
+    if (activEcono_F5 != 'None'){
+        pdf.text(activEcono_F5, 323,905);
+    }
+    if (ciiu_F5 != 'None'){
+        pdf.text(ciiu_F5, 543,905)
+    }
+
+    // Fila 6
+    if (banco_F5 != 'None') pdf.text(banco_F5, 20,939);
+    if (numCuenta_F5 != 'None') pdf.text(numCuenta_F5, 324,939);
+    pdf.text(tipoCuenta_F5, 463,939);
+
+    /////////////////////////////////////////////////////////////////////////////////////////
+    // Se añade Pagina 2 al documento
+    pdf.addPage();
+    const image2 = await loadImage('/static/img/Solicitud_Credito_page_0002.jpg');
+    pdf.addImage(image2, 'PNG', 0, 0, 613, 1010);
+
+    // Espacio de Autorizacion de descuento de nomina
+    let nombreCompleto = nombre_F5 + " " + apellido_F5
+    pdf.text(nombreCompleto, 45,761);
+    pdf.text(mpioResidencia_F5 +" - "+deptoResidencia_F5, 17,773);
+    pdf.text(numDocumento_F5, 430,773);
+    pdf.text(mpioDoc_F5, 17,783);
+
+    /////////////////////////////////////////////////////////////////////////////////////////
+    // Se añade Pagina 3 al documento
+    pdf.addPage();
+    const image3 = await loadImage('/static/img/Solicitud_Credito_page_0003.jpg');
+    pdf.addImage(image3, 'PNG', 0, 0, 613, 1010);
+
+    // Espacio de Firma y huella
+    pdf.text(arrFechaHoy[2], 224,286);
+    pdf.text(arrFechaHoy[1], 374,286);
+    pdf.text(arrFechaHoy[0], 491,286);
+    pdf.text("ARMENIA", 20,296);
+
+    pdf.save('Formato_Solicitud_Credito_'+numDocumento_F5+'.pdf');
+    
+    // se cierra el onload del image
+}
+
+async function descargarPagare(url, numDoc) {
+    const image = await loadImage(url);
+    const pdf = new jsPDF('p', 'pt', 'legal');
+    pdf.addImage(image, 'PNG', 0, 0, 613, 1010);
+
+    /////////////////////////////////////////////////////////////////////////////////////////
+    // Se añade Pagina 2 al documento
+    pdf.addPage();
+    const image2 = await loadImage('/static/img/Pagare_page_0002.jpg');
+    pdf.addImage(image2, 'PNG', 0, 0, 613, 1010);
+
+    /////////////////////////////////////////////////////////////////////////////////////////
+    // Se añade Pagina 3 al documento
+    pdf.addPage();
+    const image3 = await loadImage('/static/img/Pagare_page_0003.jpg');
+    pdf.addImage(image3, 'PNG', 0, 0, 613, 1010);
+
+
+    pdf.save('Pagare_'+numDoc+'.pdf');
+    
+    // se cierra el onload del image
+}
+
+async function descargarTablaAmortizacion(url, numDoc, fechaSolicitud, valor, cuotas, tasa, datos) {
+    const image = await loadImage(url);
+    const pdf = new jsPDF('p', 'pt', 'legal');
+    pdf.addImage(image, 'PNG', 0, 0, 613, 1010);
+
+    // Convertimos a numeros los valores de valor y cuotas
+    let valorNumerica = parseFloat(valor);
+    let cuotasNumerica = parseFloat(cuotas);
+    // Remplazamos comas por puntos
+    let tasaString = tasa.replace(',', '.');
+    let tasaNumerica = parseFloat(tasaString);
+
+    //Encabezados
+    pdf.setFontSize(10);
+    pdf.text('ARMENIA',111,130);
+
+    var arrFechaHoy = fechaSolicitud.split("-")
+    pdf.text('   /    /',325,130);
+    pdf.text(arrFechaHoy[2], 321,130);
+    pdf.text(arrFechaHoy[1], 336,130);
+    pdf.text(arrFechaHoy[0], 351,130);
+
+    pdf.setFontSize(12);
+    pdf.text(datos.numCredito, 480,130);
+
+    pdf.setFontSize(10);
+    let nombreCompleto = datos.nombre + " " + datos.apellido
+    let nombreCodeudor = datos.nombreCodeudor + " " + datos.apellidoCodeudor
+
+    // Titular
+    pdf.text(nombreCompleto, 53,256);
+    pdf.text(datos.tipoDocumento, 268,256);
+    pdf.text(datos.numDocumento, 361,256);
+    pdf.text(datos.mpioDoc, 448,256);
+    
+    // Codeudor
+    pdf.text(nombreCodeudor, 53,269);
+    pdf.text(datos.tipoDocumentoCodeudor, 268,269);
+    pdf.text(datos.numDocumentoCodeudor, 361,269);
+    pdf.text(datos.mpioCodeudor, 448,269);
+
+    // Renglon 1
+    pdf.text(sumarMeses(fechaSolicitud, 0), 181,340);
+    pdf.text(datos.lineaCredito, 345,340);
+    // Renglon 2
+    pdf.text(numeroALetras(valorNumerica), 60,355);
+    pdf.text(formatearNumero(valor), 321,355);
+    // Renglon 3
+    let tasaPorcentaje = (tasaNumerica * 100).toFixed(1);
+    pdf.text(tasaPorcentaje+'%', 341,384);
+    // Renglon 4
+    pdf.text(cuotas, 56,400);
+    pdf.text(sumarMeses(fechaSolicitud, 1), 346,400)
+    // Renglon 5
+    pdf.text(sumarMeses(fechaSolicitud, cuotasNumerica), 111,415);
+    pdf.text(formatearNumero(datos.valorCuota), 390,415);
+    // Renglon 6
+    pdf.text(datos.amortizacion, 88,430);
+    pdf.text(formatearNumero(datos.totalCredito), 369,430);
+    // Renglon 7
+    pdf.text(datos.medioPago, 58,446);
+
+    // Constancia
+    console.log(arrFechaHoy[1]);
+    pdf.text(arrFechaHoy[2], 95, 493);
+    pdf.text(convertirMes(arrFechaHoy[1]), 275, 493);
+    pdf.text(arrFechaHoy[0], 432, 493); 
+    pdf.text('ARMENIA', 61, 506);
+    
+    // Firmas
+    pdf.text(nombreCompleto, 159, 584);
+    pdf.text(numDoc, 159, 598);
+    pdf.text(datos.mpioDoc, 159, 611);
+
+    pdf.text(nombreCodeudor, 159, 689);
+    pdf.text(datos.numDocumentoCodeudor, 159, 702);
+    pdf.text(datos.mpioCodeudor, 159, 715);
+
+    /////////////////////////////////////////////////////////////////////////////////////////
+    // Se añade Pagina 2 al documento
+    pdf.addPage();
+    const image3 = await loadImage('/static/img/Otorgamiento_Credito_page_0002.jpg');
+    pdf.addImage(image3, 'PNG', 0, 0, 613, 1010);
+
+    //Encabezados
+    pdf.text('ARMENIA', 119, 134);
+    pdf.text('   /    /',325,134);
+    pdf.text(arrFechaHoy[2], 321,134);
+    pdf.text(arrFechaHoy[1], 336,134);
+    pdf.text(arrFechaHoy[0], 351,134);
+
+    pdf.setFontSize(12);
+    pdf.text(datos.numCredito, 480,134);
+    pdf.setFontSize(10);
+
+    // Deudores
+    pdf.text(nombreCompleto, 182, 181);
+    pdf.text(numDoc, 473, 181);
+    pdf.text(nombreCodeudor, 182, 206);
+    pdf.text(datos.numDocumentoCodeudor, 473, 206);
+
+    // Informacion Credito
+    pdf.text(sumarMeses(fechaSolicitud, 0), 231, 252);
+    pdf.text(datos.lineaCredito, 231, 267);
+    pdf.text(datos.amortizacion, 231, 283);
+    pdf.text(formatearNumero(valor), 231, 299);
+    pdf.text(cuotas, 231, 314);
+    pdf.text(tasaPorcentaje+'%', 231, 329);
+    pdf.text(sumarMeses(fechaSolicitud, cuotasNumerica), 231, 344);
+    
+    // Tabla Amortizacion
+
+    const calcularCuotaFija = (monto, tasa, cuotas) => {
+        return (monto * tasa * Math.pow(1 + tasa, cuotas)) / (Math.pow(1 + tasa, cuotas) - 1);
+    };
+    
+    const cuotaFija = parseFloat(calcularCuotaFija(valorNumerica, tasaNumerica, cuotasNumerica).toFixed(0));
+    const fechas = generarFechas(cuotasNumerica, fechaSolicitud);
+    
+    let saldoRestante = parseFloat(valorNumerica);
+
+    let fila = 415;
+    for (let i = 0; i <= cuotasNumerica; i++) {
+        if (i === 0) {
+            pdf.text(String(i), 81, fila);
+            pdf.text(fechas[i], 101, fila);
+            pdf.text(formatearMoneda(saldoRestante), 156, fila);
+            pdf.text(formatearMoneda(0), 225, fila);
+            pdf.text(formatearMoneda(0), 290, fila);
+            pdf.text(formatearMoneda(0), 347, fila);
+            pdf.text(formatearMoneda(0), 392, fila);
+            pdf.text(formatearMoneda(cuotaFija), 430, fila);
+            pdf.text(formatearMoneda(saldoRestante), 493, fila);
+            fila = fila + 15.5;
+        } else {
+            const intereses = (saldoRestante * tasaNumerica).toFixed(0);
+            const abonoCapital = (cuotaFija - intereses).toFixed(0);
+            
+            // Si es la última fila, forzamos saldoRestante a 0
+            if (i === cuotasNumerica) {
+                saldoRestante = 0;
+            } else {
+                saldoRestante = (saldoRestante - abonoCapital).toFixed(0);
+            }
+
+            pdf.text(String(i), 81, fila);
+            pdf.text(fechas[i], 101, fila);
+            pdf.text(formatearMoneda(parseFloat(saldoRestante) + parseFloat(abonoCapital)), 156, fila);
+            pdf.text(formatearMoneda(abonoCapital), 225, fila);
+            pdf.text(formatearMoneda(intereses), 290, fila);
+            pdf.text(formatearMoneda(0), 347, fila);
+            pdf.text(formatearMoneda(0), 392, fila);
+            pdf.text(formatearMoneda(cuotaFija), 430, fila);
+            pdf.text(formatearMoneda(saldoRestante), 493, fila);
+            fila = fila + 15.5;
+        }
+    }
+
+    // Firma
+    pdf.text(nombreCompleto, 157, 687);
+    pdf.text(numDoc, 157, 702);
+    pdf.text(datos.mpioDoc, 157, 717);
+
+    pdf.save('Otorgamiento_Credito_'+numDoc+'.pdf');
+}
+
+function generarFechas(cuotas, fechaSolicitud) {
+    const fechas = [];
+    // Convertir la fecha inicial en un objeto Date sin UTC
+    const [year, month, day] = fechaSolicitud.split("-").map(Number);
+    const fechaInicio = new Date(year, month - 1, day); // Crear fecha local
+
+    // Generar las fechas con base en el número de cuotas
+    for (let i = 0; i <= cuotas; i++) {
+        const fecha = new Date(fechaInicio); // Crear una copia de la fecha inicial
+        fecha.setMonth(fecha.getMonth() + i); // Sumar meses en zona local
+        fechas.push(
+            fecha.toLocaleDateString("es-ES", {
+                year: "numeric",month: "2-digit",day: "2-digit",
+            })
+        );
+    }
+    return fechas;
+}
+  
+function formatearMoneda(valor) {
+    return "$" + parseFloat(valor)
+        .toLocaleString("es-CO", {
+            style: "decimal", // Usar estilo decimal
+            minimumFractionDigits: 0, // Eliminar decimales
+            maximumFractionDigits: 0  // Eliminar decimales
+    });
 }

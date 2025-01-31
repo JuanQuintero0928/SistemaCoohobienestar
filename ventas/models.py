@@ -35,7 +35,7 @@ class Producto(models.Model):
     nombre = models.CharField(max_length=100, blank=False, null=False)
     referencia = models.CharField(max_length=20, blank=False, null=False)
     ean = models.CharField(max_length=13, blank=False, null=False)
-    descripcion = models.CharField(max_length=200, blank=False, null=False)
+    descripcion = models.CharField(max_length=300, blank=False, null=False)
     precio = models.IntegerField(blank=False, null=False)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, blank=False, null=False)
     inventario = models.BooleanField(default=False)

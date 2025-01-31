@@ -1,11 +1,11 @@
-from re import escape
-import re
 from django.shortcuts import render
 from django.views.generic import ListView, CreateView, UpdateView
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.forms import inlineformset_factory
+
+from historico.models import HistorialPagos
 
 from .models import Producto, HistoricoVenta, DetalleVenta, PorcentajeDescuento
 from .form import ProductoForm, HistoricoVentaForm, DetalleVentaForm
@@ -47,7 +47,7 @@ class CrearProducto(CreateView):
         return render(
             request,
             self.template_name,
-            {'form': form, 'errors': form.errors},
+            {'form': form, 'errors': form.errors, 'operation':'crear'},
             status=400
         )
 
@@ -63,6 +63,9 @@ class EditarProducto(UpdateView):
         return context
 
     def post(self, request, *args, **kwargs):
+        # Recuperamos el objecto existente
+        self.object = self.get_object()
+
         form = self.get_form()
         if form.is_valid():
             producto = form.save(commit=False)
@@ -76,7 +79,7 @@ class EditarProducto(UpdateView):
         return render(
             request,
             self.template_name,
-            {'form': form, 'errors': form.errors},
+            {'form': form, 'errors': form.errors, 'operation':'editar'},
             status=400
         )
     
@@ -92,6 +95,7 @@ class ListarVentasAsociado(ListView):
         context = super().get_context_data(**kwargs)
         context.update({
             'pkAsociado': self.kwargs['pkAsociado'],
+            'queryAsociado': Asociado.objects.get(id = self.kwargs['pkAsociado']),
             'vista': 11
         })
         return context
@@ -128,6 +132,96 @@ class CrearVentaAsociado(CreateView):
         objHistoricoVenta.valorNeto = int(request.POST['valorNeto'].replace('.', ''))
         objHistoricoVenta.userCreacion = request.user
         objHistoricoVenta.estadoRegistro = True
+        objDetalleVenta = DetalleVenta()
         objHistoricoVenta.save()
+        # objDetalleVenta.historicoVenta = objHistoricoVenta.pk
+
+        products = []
+        for key, value in request.POST.items():
+            if key.startswith('producto_'):
+                print(key)
+                print(value)
+                # Se obtiene el indice del producto
+                index = key.split('_')[1]
+
+                # Extrar los datos relacionados
+                producto_id = value
+                precio = int(request.POST.get(f"precio_{index}", "0").replace('.', ''))
+                cantidad = int(request.POST.get(f"cantidad_{index}", "0"))
+                total_bruto = int(request.POST.get(f"totalNeto_{index}", "0").replace('.', '')) #en el template se puso valorNeto al valorBruto
+                products.append({
+                    "historicoVenta": objHistoricoVenta,
+                    "producto": Producto.objects.get(pk = int(producto_id)),
+                    "precio": precio,
+                    "cantidad": cantidad,
+                    "totalBruto": total_bruto,
+                    "totalNeto": precio * cantidad if objHistoricoVenta.formaPago == "CREDITO" else (precio * cantidad * (1 - objHistoricoVenta.descuento.porcentaje)),
+                })
+
+        # Crear cada registro en un bucle
+        for data in products:
+            DetalleVenta.objects.create(**data)
+
         messages.info(request, f"Venta creada correctamente.")
         return HttpResponseRedirect(reverse_lazy('asociado:listarVentasAsociado', kwargs={'pkAsociado': self.kwargs['pkAsociado']}))
+    
+class ListarDetalleVenta(ListView):
+    model = DetalleVenta
+    template_name = 'base/ventas/listarDetalleVenta.html'
+    context_object_name = 'detalleVenta'
+
+    def get_queryset(self):
+        return DetalleVenta.objects.filter(historicoVenta = self.kwargs['pk'])
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'pkAsociado': self.kwargs['pkAsociado'],
+            'vista': 11,
+            'asociado': Asociado.objects.get(id = self.kwargs['pkAsociado']),
+            'historicoVenta': HistoricoVenta.objects.get(id = self.kwargs['pk'])
+        })
+        return context
+    
+class EliminarDetalleVenta(UpdateView):
+    model = HistoricoVenta
+    template_name = 'base/ventas/eliminarDetalleVenta.html'
+    fields = ['estadoRegistro']
+    context_object_name = 'historicoVenta'
+
+    def form_valid(self, form):
+        # Validación personalizada
+        if not self.validar_eliminacion():
+            messages.error(self.request, "La venta no se ha podido eliminar ya que hay un pago asociado a la venta.")
+            return HttpResponseRedirect(reverse_lazy('asociado:listarVentasAsociado', args=[self.kwargs['pkAsociado']])) # No guarda y regresa al formulario
+
+        # Si la validación pasa, procede a cambiar el estado del registro
+        form.instance.estadoRegistro = False
+        messages.info(self.request, "Venta eliminada exitosamente.")
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('asociado:listarVentasAsociado', kwargs={'pkAsociado': self.kwargs['pkAsociado']})
+
+    def get_queryset(self):
+        return HistoricoVenta.objects.filter(pk = self.kwargs['pk'])
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'pk': self.kwargs['pk'],
+            'pkAsociado': self.kwargs['pkAsociado'],
+            'vista': 11,
+        })
+        return context
+    
+    def validar_eliminacion(self):
+        # Obtener el objeto de la venta actual
+        venta = self.get_object()
+        # Comprobar si las cuotas de la venta son iguales a las cuotas pagadas
+        if venta.formaPago == 'CREDITO':
+            if venta.valorNeto == venta.pendientePago:
+                return True
+        else:
+            return True
+        return False

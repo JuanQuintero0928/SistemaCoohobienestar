@@ -2,7 +2,7 @@ from tabnanny import verbose
 from django.db import models
 from django.contrib.auth.models import User
 from asociado.models import Asociado
-from parametro.models import MesTarifa, FormaPago, TipoAuxilio
+from parametro.models import MesTarifa, FormaPago, TipoAuxilio, TasasInteresCredito
 from beneficiario.models import Parentesco
 
 # Create your models here.
@@ -10,6 +10,28 @@ class estadoOp(models.TextChoices):
     revision = 'REVISION', 'REVISION'
     otorgado = 'OTORGADO', 'OTORGADO'
     denegado = 'DENEGADO', 'DENEGADO'
+
+class lineaCreditoOp(models.TextChoices):
+    anticipoNomina = 'ANTICIPO NOMINA', 'ANTICIPO NOMINA'
+    solucionInmediata = 'SOLUCION INMEDIATA', 'SOLUCION INMEDIATA'
+    crediLibre = 'CREDILIBRE', 'CREDILIBRE'
+    crediContigo = 'CREDICONTIGO', 'CREDICONTIGO'
+    kupi = 'KUPI', 'KUPI'
+    crediSeguro = 'CREDISEGURO', 'CREDISEGURO'
+
+class amortizacionOP(models.TextChoices):
+    cuotaFija = 'CUOTA FIJA', 'CUOTA FIJA'
+    cuotaVariable = 'CUOTA VARIABLE', 'CUOTA VARIABLE'
+
+class mediodePagoOp(models.TextChoices):
+    pagoDirecto = 'PAGO DIRECTO', 'PAGO DIRECTO'
+    nomina = 'NOMINA', 'NOMINA'
+    libranza = 'LIBRANZA', 'LIBRANZA'
+
+class formaDesembolsoOp(models.TextChoices):
+    transferenciaElectronica = 'TRANSFERENCIA ELECTRONICA', 'TRANSFERENCIA ELECTRONICA'
+    cheque = 'CHEQUE', 'CHEQUE'
+    cuentaAhorros = 'CUENTA AHORROS', 'CUENTA AHORROS'
 
 class HistoricoAuxilio(models.Model):
     id = models.AutoField(primary_key=True)
@@ -52,7 +74,14 @@ class HistoricoCredito(models.Model):
     fechaSolicitud = models.DateField('Fecha Solicitud', blank=False, null=False)
     asociado = models.ForeignKey(Asociado, on_delete=models.RESTRICT, blank=False, null=False)
     valor = models.IntegerField('Valor', blank=False, null=False)
+    lineaCredito = models.CharField('Linea Credito', choices=lineaCreditoOp.choices, default=lineaCreditoOp.solucionInmediata, blank=False, null=False)
+    amortizacion = models.CharField('Amortización', choices=amortizacionOP.choices, default=amortizacionOP.cuotaFija, blank=False, null=False)
+    tasaInteres = models.ForeignKey(TasasInteresCredito, on_delete=models.RESTRICT, blank=True, null=True)
     cuotas = models.IntegerField('Cuotas', blank=False, null=False)
+    valorCuota = models.IntegerField('Valor Cuota', blank=False, null=False)
+    totalCredito = models.IntegerField('Total Credito', blank=False, null=False)
+    medioPago = models.CharField('Medio de Pago', choices=mediodePagoOp.choices, default=mediodePagoOp.pagoDirecto, blank=False, null=False)
+    formaDesembolso = models.CharField('Forma de Desembolso', choices=formaDesembolsoOp.choices, default=formaDesembolsoOp.transferenciaElectronica, blank=False, null=False)
     estado = models.CharField('Estado', choices=estadoOp.choices, default=estadoOp.revision, blank=False, null=False)
     estadoRegistro = models.BooleanField('Estado')
     fechaCreacion = models.DateTimeField(auto_now_add=True)
@@ -81,7 +110,7 @@ class HistorialPagos(models.Model):
     coohopAporte = models.IntegerField('Coohoperativitos Aporte', blank=True, null=True)
     coohopBsocial = models.IntegerField('Coohoperativitos B Social', blank=True, null=True)
     convenioPago = models.IntegerField('Convenio', blank=True, null=True)
-    creditoHomeElements = models.IntegerField('Credito Home Elements', blank=True, null=True)
+    creditoHomeElements = models.IntegerField('Credito Home Elements', blank=False, null=False)
     diferencia = models.IntegerField('Diferencia', blank=True, null=True)
     formaPago = models.ForeignKey(FormaPago, on_delete=models.RESTRICT, blank=False, null=False)
     userCreacion = models.ForeignKey(User, related_name='usuario_creacion', on_delete=models.CASCADE, blank=True, null=True)

@@ -1,7 +1,7 @@
 from django.urls import path
 from django.contrib.auth.decorators import login_required
 from .views import *
-from ventas.views import ListarProductos, CrearProducto, EditarProducto, ListarVentasAsociado, CrearVentaAsociado
+from ventas.views import ListarProductos, CrearProducto, EditarProducto, ListarVentasAsociado, CrearVentaAsociado, ListarDetalleVenta, EliminarDetalleVenta
 
 urlpatterns = [
     path('asociado/', login_required(Asociados.as_view()), name='asociado'),
@@ -57,4 +57,6 @@ urlpatterns = [
     path('editarProducto/<int:pk>', login_required(EditarProducto.as_view()), name='editarProducto'),
     path('listarVentasAsociado/<int:pkAsociado>', login_required(ListarVentasAsociado.as_view()), name='listarVentasAsociado'),
     path('crearVentaAsociado/<int:pkAsociado>', login_required(CrearVentaAsociado.as_view()), name='crearVentaAsociado'),
+    path('detalleVenta/<int:pkAsociado>/<int:pk>', login_required(ListarDetalleVenta.as_view()), name='detalleVenta'),
+    path('eliminarDetalleVenta/<int:pkAsociado>/<int:pk>', login_required(EliminarDetalleVenta.as_view()), name='eliminarDetalleVenta'),
 ]

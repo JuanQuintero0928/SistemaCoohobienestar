@@ -98,3 +98,16 @@ class Convenio(models.Model):
     
     def __str__(self):
         return self.concepto
+
+class TasasInteresCredito(models.Model):
+    id = models.AutoField(primary_key=True)
+    concepto = models.CharField('Concepto', max_length=30, null=False, blank=False)
+    porcentaje = models.DecimalField(max_digits=4, decimal_places=3, blank=False, null=False)
+
+    class Meta:
+        verbose_name = 'Tasas Interes Credito'
+        verbose_name_plural = 'Tasas Interes Credito'
+        ordering = ['pk']
+
+    def __str__(self):
+        return self.concepto

@@ -3,13 +3,13 @@ from django.shortcuts import render
 from django.views.generic import ListView, TemplateView
 from django.http import HttpResponse
 from django.db.models.functions import TruncDate, TruncSecond
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Subquery
 from datetime import timedelta
 from datetime import datetime
 
 from asociado.models import Asociado, ParametroAsociado, TarifaAsociado, RepatriacionTitular
 from beneficiario.models import Mascota, Beneficiario
-from historico.models import HistorialPagos, HistoricoAuxilio
+from historico.models import HistorialPagos, HistoricoAuxilio, HistoricoCredito
 from funciones.function import separarFecha
 from parametro.models import FormaPago, MesTarifa, TipoAsociado
 
@@ -162,7 +162,7 @@ class ReporteExcelFecha(TemplateView):
         ws2['D2'] = 'Número Documento'
         ws2['E2'] = 'Fecha Nacimiento'
         ws2['F2'] = 'Parentesco'
-        ws2['G2'] = 'Pais Repatriacion'
+        ws2['G2'] = 'Pais Repatriación'
         ws2['H2'] = 'Novedad'
 
         bold_font2 = Font(bold=True)
@@ -196,7 +196,7 @@ class ReporteExcelFecha(TemplateView):
             ws2.cell(row = cont, column = 5).value = beneficiario.fechaNacimiento
             ws2.cell(row = cont, column = 6).value = beneficiario.parentesco.nombre
             if beneficiario.repatriacion == True:
-                ws2.cell(row = cont, column = 7).value = beneficiario.paisRepatriacion.nombre
+                ws2.cell(row = cont, column = 7).value = f'{beneficiario.paisRepatriacion.nombre}' + '-' + f'{beneficiario.ciudadRepatriacion}'
             else:
                 ws2.cell(row = cont, column = 7).value = ''
             if beneficiario.fechaCreacion == beneficiario.fechaModificacion:
@@ -419,7 +419,7 @@ class FormatoExtracto(ListView):
         for asociado in objAsoc:
             parametro = ParametroAsociado.objects.get(asociado = asociado.pk)
             mes = MesTarifa.objects.get(pk = mesExtracto)
-            # Entra al try cuando un asociado no ha realizado ningun pago y no existe informacion en la query
+            # Entra al except cuando un asociado no ha realizado ningun pago y no existe informacion en la query
             try:
                 # se valida si el primer mes de pago es igual o mayor a la seleccion del form
                 if mes.pk >= parametro.primerMes.pk:
@@ -427,10 +427,45 @@ class FormatoExtracto(ListView):
                     # Formato 4
                     fechaCorte = timedelta(15) + mes.fechaInicio
                     objTarifaAsociado = TarifaAsociado.objects.get(asociado = asociado.pk)
+                    
                     cuotaPeriodica = objTarifaAsociado.cuotaAporte + objTarifaAsociado.cuotaBSocial
                     cuotaCoohop = objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial
-                    # query del ultimo pago hecho por el asociado
-                    objHistorialPago = HistorialPagos.objects.filter(asociado = asociado.pk).last()     
+                    
+                    # Obtener los meses pagados por el asociado, excluyendo los registros 9998 y 9999
+                    mesesPagados = (HistorialPagos.objects
+                                        .filter(asociado=asociado.pk)
+                                        .exclude(pk__in=[9998, 9999])
+                                        .values_list('mesPago', flat=True))
+                    
+                    # Obtener el rango de meses relevante
+                    queryParamAsoc = ParametroAsociado.objects.get(asociado=asociado.pk)
+                    queryMes = (MesTarifa.objects
+                                    .exclude(pk__in=Subquery(mesesPagados))
+                                    .exclude(pk__in=[9998, 9999])  # Excluir también en MesTarifa
+                                    .filter(pk__gte=queryParamAsoc.primerMes.pk, pk__lte=mes.pk))
+                    
+                    queryParamAsoc = ParametroAsociado.objects.get(asociado = asociado.pk)
+                  
+                    # Inicializar contadores
+                    cuotaVencida = 0
+                    cuotaAdelantada = 0
+                    cuotaPeriodicaTotal = 0
+
+                    # Identificar meses faltantes
+                    mesesFaltantes = queryMes.exclude(pk__in=mesesPagados)
+                    
+                    # Calcular cuotas vencidas y sumar las cuotas de meses pendientes
+                    for mesFaltante in mesesFaltantes:
+                        cuotaPeriodicaTotal += mesFaltante.aporte + mesFaltante.bSocial
+                        cuotaVencida += 1
+
+                    # Calcular cuotas adelantadas
+                    for mesPagado in mesesPagados:
+                        if mesPagado > mes.pk:  # Si el mes pagado está fuera del rango actual, es adelantado
+                            cuotaAdelantada += 1
+
+                    pagoTotal = cuotaPeriodicaTotal
+                     
                     # variables iniciacion
                     saldo = 0
                     valorVencido = 0
@@ -440,6 +475,7 @@ class FormatoExtracto(ListView):
                     valorVencidoAdic = 0
                     valorVencidoCoohop = 0
                     mensaje = ""
+                    
                     # query mostrar beneficiarios y mascotas
                     objBeneficiario = Beneficiario.objects.filter(asociado = asociado.pk, estadoRegistro = True)
                     cuentaBeneficiario = len(objBeneficiario)
@@ -451,10 +487,8 @@ class FormatoExtracto(ListView):
                         # variable que guarda la diferencia en los saldos(0=esta al dia, > a 0, saldo favor, < a 0, saldo pendiente)
                         saldoDiferencia = valor
                     
-                        
                     # condicional si esta atrasado
-                    if mes.pk > objHistorialPago.mesPago.pk:
-                        cuotaVencida = mes.pk - objHistorialPago.mesPago.pk
+                    if cuotaVencida > 0:
                         if objTarifaAsociado.cuotaMascota > 0:
                             valorVencidoMasc = cuotaVencida * objTarifaAsociado.cuotaMascota
                         if objTarifaAsociado.cuotaRepatriacion > 0:
@@ -468,23 +502,23 @@ class FormatoExtracto(ListView):
                     
                         if saldoDiferencia > 0:
                             # saldo a favor
-                            valorVencido = (cuotaPeriodica * cuotaVencida) - saldoDiferencia
+                            valorVencido = cuotaPeriodicaTotal - saldoDiferencia
                             pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
                             mensaje = "Tiene un saldo a favor de $" + str(saldoDiferencia)
                         elif saldoDiferencia < 0:
                             # saldo a pagar
-                            valorVencido = (cuotaPeriodica * cuotaVencida) - saldoDiferencia
+                            valorVencido = cuotaPeriodicaTotal - saldoDiferencia
                             pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
                             mensaje = "Tiene un saldo pendiente por pagar de $" + str((saldoDiferencia*-1))
                         else:
                             # saldo en 0
-                            valorVencido = (cuotaPeriodica * cuotaVencida)
+                            valorVencido = cuotaPeriodicaTotal
                             pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
                         asociados.append({'pkAsociado':asociado.pk, 'fechaCorte':fechaCorte,'objAsoc':asociado, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':5, 'saldo':saldo, 'mensaje':mensaje})
                         
-                    # condicional si esta al dia
-                    elif mes.pk == objHistorialPago.mesPago.pk:
-                        cuotaVencida = 0
+                    # condicional si esta al dia y no tiene meses pendientes en los pagos
+                    elif cuotaAdelantada == 0 and cuotaVencida == 0:
+                        
                         valorMensual = objTarifaAsociado.cuotaAporte + objTarifaAsociado.cuotaBSocial + objTarifaAsociado.cuotaMascota + objTarifaAsociado.cuotaRepatriacion + objTarifaAsociado.cuotaSeguroVida + objTarifaAsociado.cuotaAdicionales + objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial                
                     
                         # se valida si en el ultimo pago no hay diferencia
@@ -519,53 +553,70 @@ class FormatoExtracto(ListView):
                     
                     # condicional si esta adelantado
                     else:
-                        cuotaVencida = 0
                         pagoTotal = 0
                         # obtenemos el valor total que tiene pago el asociado, desde el mes seleccionado en la query hasta el pago en la bd
-                        query = HistorialPagos.objects.filter(mesPago__gte = mes.pk, asociado = asociado.pk).aggregate(total=Sum('valorPago'))
+                        query = (HistorialPagos.objects
+                                        .exclude(mesPago__in=[9998, 9999])
+                                        .filter(mesPago__gte = mes.pk, asociado = kwargs['pkAsociado'])
+                                        .aggregate(total=Sum('valorPago')))
+                        
+                        # Obtenemos el saldo actual del asociado, del mes seleccionado hasta el ultimo pago
                         for valor in query.values():
                             saldoActual = valor
                         
-                        valorMensual = (objTarifaAsociado.cuotaAporte + objTarifaAsociado.cuotaBSocial + objTarifaAsociado.cuotaMascota + objTarifaAsociado.cuotaRepatriacion + objTarifaAsociado.cuotaSeguroVida + objTarifaAsociado.cuotaAdicionales + objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial) * ((objHistorialPago.mesPago.pk - mes.pk)+1)
-                        
+                        # si tiene un saldo en diferencia, se calcula el saldo
                         if saldoDiferencia > 0:
-                            saldo = valorMensual + saldoDiferencia
+                            saldo = saldoActual + saldoDiferencia
                         elif saldoDiferencia < 0:
-                            saldo = valorMensual + saldoDiferencia
+                            saldo = saldoActual + saldoDiferencia
                         else:
-                            saldo = valorMensual
+                            saldo = saldoActual
 
-                        mensaje = "Tiene Pago hasta el mes de " + objHistorialPago.mesPago.concepto + "."
+                        # Obtenemos el pk de la tabla de pagos con el pk del pago mas alto
+                        max_mes_pago_pk = (HistorialPagos.objects
+                                        .exclude(mesPago__in=[9998, 9999])
+                                        .filter(asociado = kwargs['pkAsociado'])
+                                        .aggregate(max_mes_pk=Max('mesPago'))['max_mes_pk'])
+                        
+                        # Obtenemos el nombre del mes con el pk del pago mas alto
+                        obj_historial_pago = (HistorialPagos.objects
+                                                    .filter(mesPago=max_mes_pago_pk, asociado=kwargs['pkAsociado'])
+                                                    .first())
+                        
+                        mensaje = "Tiene Pago hasta el mes de " + obj_historial_pago.mesPago.concepto + "."
                         
                         asociados.append({'pkAsociado':asociado.pk, 'fechaCorte':fechaCorte,'objAsoc':asociado, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':5, 'saldo':saldo, 'mensaje':mensaje})
                 
             # si no hay pagos en la bd
             except Exception as e:
-                        valorVencidoMasc = objTarifaAsociado.cuotaMascota
-                        valorVencidoRep = objTarifaAsociado.cuotaRepatriacion
-                        valorVencidoSeg = objTarifaAsociado.cuotaSeguroVida
-                        valorVencidoAdic = objTarifaAsociado.cuotaAdicionales
-                        valorVencidoCoohop = objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial
-                        # obtenemos el parametro del primer mes q debe pagar
-                        objParametroAsoc = ParametroAsociado.objects.get(asociado = asociado.pk)
-                        cuotaVencida = mes.pk - objParametroAsoc.primerMes.pk
-                        cuotaVencida += 1
-                        if cuotaVencida == 0:
-                            # mes seleccionado igual al parametro.primerMes
-                            valorVencido = cuotaPeriodica
-                            pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
-                        elif cuotaVencida > 0:
-                            # mes adelantado al parametro.primerMes
-                            valorVencido = cuotaPeriodica * cuotaVencida
-                            valorVencidoMasc = objTarifaAsociado.cuotaMascota * cuotaVencida
-                            valorVencidoRep = objTarifaAsociado.cuotaRepatriacion * cuotaVencida
-                            valorVencidoSeg = objTarifaAsociado.cuotaSeguroVida * cuotaVencida
-                            valorVencidoAdic = objTarifaAsociado.cuotaAdicionales * cuotaVencida
-                            valorVencidoCoohop = (objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial) * cuotaVencida
-                            pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
-                        else:
-                            pass
-                        asociados.append({'pkAsociado':asociado.pk, 'fechaCorte':fechaCorte,'objAsoc':asociado, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':5, 'saldo':saldo})                     
+                # query mostrar beneficiarios y mascotas
+                objBeneficiario = Beneficiario.objects.filter(asociado = asociado.pk, estadoRegistro = True)
+                saldo = 0 
+                cuentaBeneficiario = len(objBeneficiario)
+                objMascota = Mascota.objects.filter(asociado = asociado.pk, estadoRegistro = True)
+                cuentaMascota = len(objMascota)
+                valorVencidoMasc = objTarifaAsociado.cuotaMascota
+                valorVencidoRep = objTarifaAsociado.cuotaRepatriacion
+                valorVencidoSeg = objTarifaAsociado.cuotaSeguroVida
+                valorVencidoAdic = objTarifaAsociado.cuotaAdicionales
+                valorVencidoCoohop = objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial
+                # obtenemos el parametro del primer mes q debe pagar
+                if cuotaVencida == 0:
+                    # mes seleccionado igual al parametro.primerMes
+                    valorVencido = cuotaPeriodicaTotal
+                    pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
+                elif cuotaVencida > 0:
+                    # mes adelantado al parametro.primerMes
+                    valorVencido = cuotaPeriodicaTotal
+                    valorVencidoMasc = objTarifaAsociado.cuotaMascota * cuotaVencida
+                    valorVencidoRep = objTarifaAsociado.cuotaRepatriacion * cuotaVencida
+                    valorVencidoSeg = objTarifaAsociado.cuotaSeguroVida * cuotaVencida
+                    valorVencidoAdic = objTarifaAsociado.cuotaAdicionales * cuotaVencida
+                    valorVencidoCoohop = (objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial) * cuotaVencida
+                    pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
+                else:
+                    pass
+                asociados.append({'pkAsociado':asociado.pk, 'fechaCorte':fechaCorte,'objAsoc':asociado, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':5, 'saldo':saldo})                     
         return render(request, template_name, {'lista':asociados, 'mes':mes})
     
 class VerDescuentosNomina(ListView):
@@ -796,7 +847,8 @@ class ExcelConciliacionBancaria(TemplateView):
         response['Content-Disposition'] = content
         wb.save(response)
         return response
-
+    
+# Excel Listado Asociados, Excel Tarifas Asociado
 class DescargarExcel(ListView):
     
     def get(self, request, *args, **kwargs):
@@ -1057,7 +1109,7 @@ class DescargarExcelBeneficiarios(ListView):
             cont = 3
             i = 1
             
-            queryBeneficiario = Beneficiario.objects.all()
+            queryBeneficiario = Beneficiario.objects.filter(estadoRegistro = True)
 
             for obj in queryBeneficiario:
 
@@ -1075,7 +1127,7 @@ class DescargarExcelBeneficiarios(ListView):
                 ws.cell(row = cont, column = 11).value = obj.fechaNacimiento.strftime("%d/%m/%Y")
                 ws.cell(row = cont, column = 12).value = obj.parentesco.nombre
                 if obj.repatriacion == True:
-                    ws.cell(row = cont, column = 13).value = obj.paisRepatriacion.nombre
+                    ws.cell(row = cont, column = 13).value = f'{obj.paisRepatriacion.nombre}' + '-' + f'{obj.ciudadRepatriacion}'
                 else:
                     ws.cell(row = cont, column = 13).value = ''
 
@@ -1121,7 +1173,7 @@ class DescargarExcelBeneficiarios(ListView):
             cont = 3
             i = 1
 
-            queryMascota = Mascota.objects.all()
+            queryMascota = Mascota.objects.filter(estadoRegistro = True)
 
             for query in queryMascota:
                 #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
@@ -1146,8 +1198,8 @@ class DescargarExcelBeneficiarios(ListView):
 
 class DescargaAuxilio(ListView):
     def get(self, request, *args, **kwargs):
-        template = 'reporte/descargarAuxilio.html'
-        return render(request, template)
+        template = 'reporte/modalReporte.html'
+        return render(request, template, {'tipoReporte':'auxilio'})
     
     def post(self, request, *args, **kwargs):
         fechaInicialForm = request.POST['fechaInicial']
@@ -1237,6 +1289,111 @@ class DescargaAuxilio(ListView):
             cont+=1
 
         nombre_archivo = f"Reporte_Auxilio_{fecha_formateada1}-{fecha_formateada2}.xlsx"
+        response = HttpResponse(content_type = "application/ms-excel")
+        content = "attachment; filename = {0}".format(nombre_archivo)
+        response['Content-Disposition'] = content
+        wb.save(response)
+        return response
+
+class DescargaCredito(ListView):
+    def get(self, request, *args, **kwargs):
+        template = 'reporte/modalReporte.html'
+        return render(request, template, {'tipoReporte':'credito'})
+    
+    def post(self, request, *args, **kwargs):
+        fechaInicialForm = request.POST['fechaInicial']
+        fechaFinalForm = request.POST['fechaFinal']
+
+        queryCredito = HistoricoCredito.objects.filter(
+            fechaSolicitud__range=[fechaInicialForm, fechaFinalForm]
+        )
+
+        # Convertir la cadena de fecha a un objeto datetime
+        fecha_objeto1 = datetime.strptime(fechaInicialForm, "%Y-%m-%d")
+        # Formatear la fecha en el formato d-m-Y
+        fecha_formateada1 = fecha_objeto1.strftime("%d-%m-%Y")
+        # Convertir la cadena de fecha a un objeto datetime
+        fecha_objeto2 = datetime.strptime(fechaFinalForm, "%Y-%m-%d")
+        # Formatear la fecha en el formato d-m-Y
+        fecha_formateada2 = fecha_objeto2.strftime("%d-%m-%Y")
+
+        # Estilos
+        bold_font = Font(bold=True, size=16, color="FFFFFF")  # Fuente en negrita, tamaño 12 y color blanco
+        bold_font2 = Font(bold=True, size=12, color="000000")  # Fuente en negrita, tamaño 12 y color negro
+        alignment_center = Alignment(horizontal="center", vertical="center")  # Alineación al centro
+        fill = PatternFill(start_color="85B84C", end_color="85B84C", fill_type="solid")  # Relleno verde sólido
+
+        wb = Workbook() #Creamos la instancia del Workbook
+        ws = wb.active
+        ws.title = 'Creditos'
+        titulo1 = f"Reporte de Créditos desde {fecha_formateada1} - {fecha_formateada2}"
+        ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
+        ws.merge_cells('A1:N1')
+        ws['A1'].font = bold_font
+        ws['A1'].alignment = alignment_center
+        ws['A1'].fill = fill
+
+        ws['A2'] = 'Número Registro'
+        ws['B2'] = 'Número Documento'
+        ws['C2'] = 'Nombre Completo'
+        ws['D2'] = 'Fecha Solicitud'
+        ws['E2'] = 'Valor'
+        ws['F2'] = 'Número Cuotas'
+        ws['G2'] = 'Valor Cuota'
+        ws['H2'] = 'Total Credito'
+        ws['I2'] = 'Estado'
+        ws['J2'] = 'Linea Credito'
+        ws['K2'] = 'Amortización'
+        ws['L2'] = 'Tasa Interes'
+        ws['M2'] = 'Forma Desembolso'
+        ws['N2'] = 'Medio de Pago'
+        
+        bold_font2 = Font(bold=True)
+        center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+
+        for col in range(1,15):
+            cell = ws.cell(row=2, column=col)
+            cell.font = bold_font2
+            cell.alignment = center_alignment
+
+        ws.column_dimensions['A'].width = 11
+        ws.column_dimensions['B'].width = 14
+        ws.column_dimensions['C'].width = 32
+        ws.column_dimensions['D'].width = 15
+        ws.column_dimensions['E'].width = 12
+        ws.column_dimensions['F'].width = 12
+        ws.column_dimensions['G'].width = 12
+        ws.column_dimensions['H'].width = 13
+        ws.column_dimensions['I'].width = 13
+        ws.column_dimensions['J'].width = 21
+        ws.column_dimensions['K'].width = 16
+        ws.column_dimensions['L'].width = 13
+        ws.column_dimensions['M'].width = 28
+        ws.column_dimensions['N'].width = 15
+
+        #Inicia el primer registro en la celda numero 3
+        cont = 3
+        i = 1
+        for credito in queryCredito:
+            #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
+            ws.cell(row = cont, column = 1).value = i                    
+            ws.cell(row = cont, column = 2).value = int(credito.asociado.numDocumento)
+            ws.cell(row = cont, column = 3).value = f'{credito.asociado.nombre}' + ' ' + f'{credito.asociado.apellido}'
+            ws.cell(row = cont, column = 4).value = credito.fechaSolicitud.strftime("%d/%m/%Y")
+            ws.cell(row = cont, column = 5).value = credito.valor
+            ws.cell(row = cont, column = 6).value = credito.cuotas
+            ws.cell(row = cont, column = 7).value = credito.valorCuota
+            ws.cell(row = cont, column = 8).value = credito.totalCredito
+            ws.cell(row = cont, column = 9).value = credito.estado
+            ws.cell(row = cont, column = 10).value = credito.lineaCredito
+            ws.cell(row = cont, column = 11).value = credito.amortizacion
+            ws.cell(row = cont, column = 12).value = credito.tasaInteres.porcentaje
+            ws.cell(row = cont, column = 13).value = credito.formaDesembolso
+            ws.cell(row = cont, column = 14).value = credito.medioPago
+            i+=1
+            cont+=1
+
+        nombre_archivo = f"Reporte_Credito_{fecha_formateada1}-{fecha_formateada2}.xlsx"
         response = HttpResponse(content_type = "application/ms-excel")
         content = "attachment; filename = {0}".format(nombre_archivo)
         response['Content-Disposition'] = content

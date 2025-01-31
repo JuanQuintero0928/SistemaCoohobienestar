@@ -104,6 +104,10 @@
             </div>
         </div>
 
-        <button type="submit" class="btn btn-primary">Crear</button>
+        {% if operation == 'crear' %}
+            <button type="submit" class="btn btn-primary">Crear</button>
+        {% else %}
+            <button type="submit" class="btn btn-primary">Editar</button>
+        {% endif %}
     </form>
 {% endblock contenidoPagina %}
