@@ -49,11 +49,12 @@
     <tr>
         <th>N°</th>
         <th>Fecha Solicitud</th>
-        <th>Nombre</th>
-        <th>Apellido</th>
-        <th>N° Documento</th>
         <th>Valor</th>
         <th>Cuotas</th>
+        <th>Valor Cuotas</th>
+        <th>Valor Total</th>
+        <th>Linea de Crédito</th>
+        <th>Tasa Interes</th>
         <th>Estado</th>
         <th>Codeudor</th>
         <th>Opciones</th>
@@ -65,11 +66,12 @@
         <tr>
             <th>{{ forloop.counter }}</th>
             <th>{{ obj.fechaSolicitud|date:"d/m/Y" }}</th>
-            <th>{{ obj.asociado.nombre }}</th>
-            <th>{{ obj.asociado.apellido }}</th>
-            <th>{{ obj.asociado.numDocumento|intcomma }}</th>
             <th>${{ obj.valor|intcomma }}</th>
             <th>{{ obj.cuotas }}</th>
+            <th>${{ obj.valorCuota|intcomma }}</th>
+            <th>${{ obj.totalCredito|intcomma }}</th>
+            <th>{{ obj.lineaCredito }}</th>
+            <th>{{ obj.tasaInteres }}</th>
             <th>{{ obj.estado }}</th>
             <th>
                 <center>
