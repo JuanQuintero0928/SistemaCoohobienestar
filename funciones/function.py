@@ -1,5 +1,4 @@
 import datetime, csv
-from urllib import request
 from zoneinfo import ZoneInfo
 from historico.models import HistorialPagos
 
@@ -72,3 +71,7 @@ def procesar_csv(archivo_csv, user_creacion_id):
     except Exception as e:
         raise ValueError(f"Error procesando el archivo CSV: {e}")
     return registros
+
+def convertirFecha(fecha):
+    fecha_objeto = datetime.datetime.strptime(fecha, "%Y-%m-%d")
+    return fecha_objeto.strftime("%d-%m-%Y")

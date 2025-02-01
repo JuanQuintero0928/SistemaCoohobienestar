@@ -1,4 +1,3 @@
-from re import A
 from django.shortcuts import render
 from django.views.generic import ListView, TemplateView
 from django.http import HttpResponse
@@ -10,8 +9,11 @@ from datetime import datetime
 from asociado.models import Asociado, ParametroAsociado, TarifaAsociado, RepatriacionTitular
 from beneficiario.models import Mascota, Beneficiario
 from historico.models import HistorialPagos, HistoricoAuxilio, HistoricoCredito
-from funciones.function import separarFecha
 from parametro.models import FormaPago, MesTarifa, TipoAsociado
+from .queries import obtenerNovedades
+
+#Funciones
+from funciones.function import separarFecha, convertirFecha
 
 #Libreria para generar el Excel
 from openpyxl import Workbook
@@ -33,54 +35,32 @@ class VerModificacionesFecha(ListView):
         # funcion que separa año, mes y dia de la fecha ingresada por el usuario.
         fechaInicial = separarFecha(fechaInicialForm, 'inicial')
         fechaFinal = separarFecha(fechaFinalForm, 'final')
-        # consulta por rango de fecha inicial y final
-        asociadoRetiro = Asociado.objects.filter(
-            fechaRetiro__range=[fechaInicialForm,fechaFinalForm]
-        )
-        asociadoIngreso = Asociado.objects.filter(
-            fechaIngreso__range=[fechaInicialForm,fechaFinalForm]
-        )
-        queryMascota = Mascota.objects.filter(
-            fechaModificacion__range=[fechaInicial, fechaFinal]
-        ).annotate(
-            fechaModificacion_truncada=TruncSecond('fechaModificacion'),
-            fechaCreacion_truncada=TruncSecond('fechaCreacion'),
-        )
-        queryBeneficiario = Beneficiario.objects.filter(
-            fechaModificacion__range=[fechaInicial, fechaFinal]
-        ).annotate(
-            fechaModificacion_truncada=TruncSecond('fechaModificacion'),
-            fechaCreacion_truncada=TruncSecond('fechaCreacion'),
-        )
-        queryRepatriacionTitular = RepatriacionTitular.objects.filter(
-            fechaRepatriacion__range=[fechaInicialForm, fechaFinalForm]
-        )
+        
+        # Obtenemos las queries de las novedades
+        queries = obtenerNovedades(fechaInicial, fechaFinal)
 
         template_name = 'reporte/modificacionesPorFecha.html'
-        return render(request, template_name, {'queryM':queryMascota, 'queryB':queryBeneficiario, 'post':'yes', 'fechaIncialF':fechaInicialForm, 'fechaFinalF':fechaFinalForm, 'asociadoRetiro':asociadoRetiro, 'asociadoIngreso':asociadoIngreso, 'repatriacionTitular':queryRepatriacionTitular})
+        context = {'queries':queries,
+                   'post':'yes',
+                   'fechaIncialF':fechaInicialForm,
+                   'fechaFinalF':fechaFinalForm,
+                   }
+        return render(request, template_name, context)
 
 class ReporteExcelFecha(TemplateView):
     def get(self, request, *args, **kwargs):
-        fechaInicialForm = request.GET['fechaInicial']
-        fechaFinalForm = request.GET['fechaFinal']
+        fechaInicialForm = request.GET.get('fechaInicial')
+        fechaFinalForm = request.GET.get('fechaFinal')
         # funcion que separa año, mes y dia de la fecha ingresada por el usuario.
         fechaInicial = separarFecha(fechaInicialForm, 'inicial')
         fechaFinal = separarFecha(fechaFinalForm, 'final')
+
+        # Funcion para formatear la fecha en el formato d-m-Y
+        fecha_formateada1 = convertirFecha(fechaInicialForm)
+        fecha_formateada2 = convertirFecha(fechaFinalForm)
        
-        asociadoRetiro = Asociado.objects.filter(
-            fechaRetiro__range=[fechaInicialForm,fechaFinalForm]
-        )
-        asociadoIngreso = Asociado.objects.filter(
-            fechaIngreso__range=[fechaInicialForm,fechaFinalForm]
-        )
-        queryMascota = Mascota.objects.annotate(
-            fecha_solo = TruncDate('fechaModificacion')).filter(
-            fechaModificacion__range=[fechaInicial, fechaFinal]
-        )
-        queryBeneficiario = Beneficiario.objects.annotate(
-            fecha_solo = TruncDate('fechaModificacion')).filter(
-            fechaModificacion__range=[fechaInicial, fechaFinal]
-        )
+        # Obtenemos las queries de las novedades
+        queries = obtenerNovedades(fechaInicial, fechaFinal)
 
         # Estilos
         bold_font = Font(bold=True, size=16, color="FFFFFF")  # Fuente en negrita, tamaño 12 y color blanco
@@ -91,57 +71,63 @@ class ReporteExcelFecha(TemplateView):
         wb = Workbook() #Creamos la instancia del Workbook
         ws = wb.active
         ws.title = 'Mascotas'
-        titulo1 = f"Reporte de Novedades Mascota Funeraria desde {fechaInicialForm} - {fechaFinalForm}"
+        titulo1 = f"Reporte de Novedades Mascota Funeraria desde {fecha_formateada1} - {fecha_formateada2}"
         ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
-        ws.merge_cells('A1:G1')
+        ws.merge_cells('A1:I1')
         ws['A1'].font = bold_font
         ws['A1'].alignment = alignment_center
         ws['A1'].fill = fill
 
         ws['A2'] = 'Número registro'
-        ws['B2'] = 'Mascota'
-        ws['C2'] = 'Tipo'
-        ws['D2'] = 'Raza'
-        ws['E2'] = 'Fecha Nacimiento'
-        ws['F2'] = 'Novedad'
-        ws['G2'] = 'Fecha Novedad'
+        ws['B2'] = 'Número Documento Titular'
+        ws['C2'] = 'Nombre Titular'
+        ws['D2'] = 'Mascota'
+        ws['E2'] = 'Tipo'
+        ws['F2'] = 'Raza'
+        ws['G2'] = 'Fecha Nacimiento'
+        ws['H2'] = 'Novedad'
+        ws['I2'] = 'Fecha Novedad'
      
         bold_font2 = Font(bold=True)
         center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
 
-        for col in range(1,8):
+        for col in range(1,10):
             cell = ws.cell(row=2, column=col)
             cell.font = bold_font2
             cell.alignment = center_alignment
 
         ws.column_dimensions['A'].width = 11
-        ws.column_dimensions['B'].width = 14
-        ws.column_dimensions['C'].width = 14
+        ws.column_dimensions['B'].width = 15
+        ws.column_dimensions['C'].width = 40
         ws.column_dimensions['D'].width = 14
         ws.column_dimensions['E'].width = 14
-        ws.column_dimensions['F'].width = 12
+        ws.column_dimensions['F'].width = 14
         ws.column_dimensions['G'].width = 14
+        ws.column_dimensions['H'].width = 12
+        ws.column_dimensions['I'].width = 14
         
         #Inicia el primer registro en la celda numero 3
         cont = 3
         i = 1
-        for mascota in queryMascota:
+        for mascota in queries["queryMascota"]:
             #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
-            ws.cell(row = cont, column = 1).value = i                    
-            ws.cell(row = cont, column = 2).value = mascota.nombre
-            ws.cell(row = cont, column = 3).value = mascota.tipo
-            ws.cell(row = cont, column = 4).value = mascota.raza
-            ws.cell(row = cont, column = 5).value = mascota.fechaNacimiento
-            if mascota.fechaCreacion == mascota.fechaModificacion:
-                ws.cell(row = cont, column = 6).value = 'Ingreso'
-                ws.cell(row = cont, column = 7).value = mascota.fechaIngreso
-            elif mascota.fechaCreacion != mascota.fechaModificacion:
+            ws.cell(row = cont, column = 1).value = i
+            ws.cell(row = cont, column = 2).value = int(mascota.asociado.numDocumento)
+            ws.cell(row = cont, column = 3).value = f'{mascota.asociado.nombre}' + ' ' + f'{mascota.asociado.apellido}'
+            ws.cell(row = cont, column = 4).value = mascota.nombre
+            ws.cell(row = cont, column = 5).value = mascota.tipo
+            ws.cell(row = cont, column = 6).value = mascota.raza
+            ws.cell(row = cont, column = 7).value = mascota.fechaNacimiento.strftime("%d/%m/%Y")
+            if mascota.fechaCreacion_truncada == mascota.fechaModificacion_truncada:
+                ws.cell(row = cont, column = 8).value = 'Ingreso'
+                ws.cell(row = cont, column = 9).value = mascota.fechaIngreso.strftime("%d/%m/%Y")
+            elif mascota.fechaCreacion_truncada != mascota.fechaModificacion_truncada:
                 if mascota.estadoRegistro == True:
-                    ws.cell(row = cont, column = 6).value = 'Modificación'
-                    ws.cell(row = cont, column = 7).value = mascota.fecha_solo
+                    ws.cell(row = cont, column = 8).value = 'Modificación'
+                    ws.cell(row = cont, column = 9).value = mascota.fechaModificacion.strftime("%d/%m/%Y")
                 else:
-                    ws.cell(row = cont, column = 6).value = 'Retiro'
-                    ws.cell(row = cont, column = 7).value = mascota.fechaRetiro
+                    ws.cell(row = cont, column = 8).value = 'Retiro'
+                    ws.cell(row = cont, column = 9).value = mascota.fechaRetiro.strftime("%d/%m/%Y")
             i+=1
             cont+=1
         
@@ -149,63 +135,76 @@ class ReporteExcelFecha(TemplateView):
         wb.create_sheet('Beneficiarios')  
         # se selecciona la hoja creada
         ws2 = wb['Beneficiarios']
-        titulo2 = f"Reporte de Novedades Beneficiarios Funeraria desde {fechaInicialForm} - {fechaFinalForm}"
+        titulo2 = f"Reporte de Novedades Beneficiarios Funeraria desde {fecha_formateada1} - {fecha_formateada2}"
         ws2['A1'] = titulo2    #Casilla en la que queremos poner la informacion
-        ws2.merge_cells('A1:H1')
+        ws2.merge_cells('A1:K1')
         ws2['A1'].font = bold_font
         ws2['A1'].alignment = alignment_center
         ws2['A1'].fill = fill
 
         ws2['A2'] = 'Número Registro'
-        ws2['B2'] = 'Nombre'
-        ws2['C2'] = 'Tipo Documento'
-        ws2['D2'] = 'Número Documento'
-        ws2['E2'] = 'Fecha Nacimiento'
-        ws2['F2'] = 'Parentesco'
-        ws2['G2'] = 'Pais Repatriación'
-        ws2['H2'] = 'Novedad'
+        ws2['B2'] = 'Número Documento Titular'
+        ws2['C2'] = 'Nombre Titular'
+        ws2['D2'] = 'Tipo Documento Beneficiario'
+        ws2['E2'] = 'Número Documento Beneficiario'
+        ws2['F2'] = 'Nombre Beneficiario'
+        ws2['G2'] = 'Parentesco'
+        ws2['H2'] = 'Fecha Nacimiento'
+        ws2['I2'] = 'Repatriación'
+        ws2['J2'] = 'Novedad'
+        ws2['K2'] = 'Fecha Novedad'
 
         bold_font2 = Font(bold=True)
         center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
 
-        for col in range(1,9):
+        for col in range(1,13):
             cell = ws2.cell(row=2, column=col)
             cell.font = bold_font2
             cell.alignment = center_alignment
 
         ws2.column_dimensions['A'].width = 11
-        ws2.column_dimensions['B'].width = 30
-        ws2.column_dimensions['C'].width = 12
-        ws2.column_dimensions['D'].width = 12
-        ws2.column_dimensions['E'].width = 12
-        ws2.column_dimensions['F'].width = 13
+        ws2.column_dimensions['B'].width = 15
+        ws2.column_dimensions['C'].width = 40
+        ws2.column_dimensions['D'].width = 18
+        ws2.column_dimensions['E'].width = 13
+        ws2.column_dimensions['F'].width = 40
         ws2.column_dimensions['G'].width = 16
         ws2.column_dimensions['H'].width = 12
-        ws2.column_dimensions['I'].width = 12
+        ws2.column_dimensions['I'].width = 15
+        ws2.column_dimensions['J'].width = 13
+        ws2.column_dimensions['K'].width = 12
 
 
         #Inicia el primer registro en la celda numero 3
         cont = 3
         i = 1
-        for beneficiario in queryBeneficiario:
+        for beneficiario in queries["queryBeneficiario"]:
             #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
             ws2.cell(row = cont, column = 1).value = i                    
-            ws2.cell(row = cont, column = 2).value = f'{beneficiario.asociado.nombre}' + ' ' + f'{beneficiario.asociado.apellido}'
-            ws2.cell(row = cont, column = 3).value = beneficiario.tipoDocumento
-            ws2.cell(row = cont, column = 4).value = int(beneficiario.numDocumento)
-            ws2.cell(row = cont, column = 5).value = beneficiario.fechaNacimiento
-            ws2.cell(row = cont, column = 6).value = beneficiario.parentesco.nombre
+            ws2.cell(row = cont, column = 2).value = int(beneficiario.asociado.numDocumento)
+            ws2.cell(row = cont, column = 3).value = f'{beneficiario.asociado.nombre}' + ' ' + f'{beneficiario.asociado.apellido}'
+            ws2.cell(row = cont, column = 4).value = beneficiario.tipoDocumento
+            ws2.cell(row = cont, column = 5).value = int(beneficiario.numDocumento)
+            ws2.cell(row = cont, column = 6).value = f'{beneficiario.nombre}' + ' ' + f'{beneficiario.apellido}'
+            ws2.cell(row = cont, column = 7).value = beneficiario.parentesco.nombre
+            ws2.cell(row = cont, column = 8).value = beneficiario.fechaNacimiento.strftime("%d/%m/%Y")
             if beneficiario.repatriacion == True:
-                ws2.cell(row = cont, column = 7).value = f'{beneficiario.paisRepatriacion.nombre}' + '-' + f'{beneficiario.ciudadRepatriacion}'
+                ws2.cell(row = cont, column = 9).value = f'{beneficiario.paisRepatriacion.nombre}' + '-' + f'{beneficiario.ciudadRepatriacion}'
             else:
-                ws2.cell(row = cont, column = 7).value = ''
-            if beneficiario.fechaCreacion == beneficiario.fechaModificacion:
-                ws2.cell(row = cont, column = 8).value = 'Ingreso'
-            elif beneficiario.fechaCreacion != beneficiario.fechaModificacion:
+                ws2.cell(row = cont, column = 9).value = ''
+            if beneficiario.fechaCreacion_truncada == beneficiario.fechaModificacion_truncada:
+                ws2.cell(row = cont, column = 10).value = 'Ingreso'
+            elif beneficiario.fechaCreacion_truncada != beneficiario.fechaModificacion_truncada:
                 if beneficiario.estadoRegistro == True:
-                    ws2.cell(row = cont, column = 8).value = 'Modificación'
+                    ws2.cell(row = cont, column = 10).value = 'Modificación'
                 else:
-                    ws2.cell(row = cont, column = 8).value = 'Retiro'
+                    ws2.cell(row = cont, column = 10).value = 'Retiro'
+            if beneficiario.fechaRetiro != None:
+                ws2.cell(row = cont, column = 11).value = beneficiario.fechaRetiro.strftime("%d/%m/%Y")
+            elif beneficiario.fechaCreacion_truncada == beneficiario.fechaModificacion_truncada:
+                ws2.cell(row = cont, column = 11).value = beneficiario.fechaIngreso.strftime("%d/%m/%Y")
+            else:
+                ws2.cell(row = cont, column = 11).value = beneficiario.fechaModificacion.strftime("%d/%m/%Y")
             i+=1
             cont+=1
         
@@ -213,7 +212,7 @@ class ReporteExcelFecha(TemplateView):
         wb.create_sheet('Asociados')
         # se selecciona la hoja creada
         ws3 = wb['Asociados']
-        titulo2 = f"Reporte de Novedades Asociados Funeraria desde {fechaInicialForm} - {fechaFinalForm}"
+        titulo2 = f"Reporte de Novedades Asociados Funeraria desde {fecha_formateada1} - {fecha_formateada2}"
         ws3['A1'] = titulo2    #Casilla en la que queremos poner la informacion
         ws3.merge_cells('A1:G1')
 
@@ -239,42 +238,56 @@ class ReporteExcelFecha(TemplateView):
 
         ws3.column_dimensions['A'].width = 11
         ws3.column_dimensions['B'].width = 30
-        ws3.column_dimensions['C'].width = 12
-        ws3.column_dimensions['D'].width = 12
+        ws3.column_dimensions['C'].width = 14
+        ws3.column_dimensions['D'].width = 13
         ws3.column_dimensions['E'].width = 12
-        ws3.column_dimensions['F'].width = 12
+        ws3.column_dimensions['F'].width = 29
         ws3.column_dimensions['G'].width = 12
 
         #Inicia el primer registro en la celda numero 3
         cont = 3
         i = 1
-        for asociado in asociadoRetiro:
+        for asociado in queries["asociadoRetiro"]:
             #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
             ws3.cell(row = cont, column = 1).value = i                    
             ws3.cell(row = cont, column = 2).value = f'{asociado.nombre}' + ' ' + f'{asociado.apellido}'
             ws3.cell(row = cont, column = 3).value = asociado.tipoDocumento
             ws3.cell(row = cont, column = 4).value = int(asociado.numDocumento)
-            ws3.cell(row = cont, column = 5).value = asociado.fechaNacimiento
-            ws3.cell(row = cont, column = 6).value = 'RETIRO'
-            ws3.cell(row = cont, column = 7).value = asociado.fechaRetiro
+            ws3.cell(row = cont, column = 5).value = asociado.fechaNacimiento.strftime("%d/%m/%Y")
+            ws3.cell(row = cont, column = 6).value = 'Retiro'
+            ws3.cell(row = cont, column = 7).value = asociado.fechaRetiro.strftime("%d/%m/%Y")
             i+=1
             cont+=1
         
-        cont = 3
-        i = 1
-        for asociado in asociadoIngreso:
+        for asociado in queries["asociadoIngreso"]:
             #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
             ws3.cell(row = cont, column = 1).value = i                    
             ws3.cell(row = cont, column = 2).value = f'{asociado.nombre}' + ' ' + f'{asociado.apellido}'
             ws3.cell(row = cont, column = 3).value = asociado.tipoDocumento
             ws3.cell(row = cont, column = 4).value = int(asociado.numDocumento)
-            ws3.cell(row = cont, column = 5).value = asociado.fechaNacimiento
-            ws3.cell(row = cont, column = 6).value = 'INGRESO'
-            ws3.cell(row = cont, column = 7).value = asociado.fechaIngreso
+            ws3.cell(row = cont, column = 5).value = asociado.fechaNacimiento.strftime("%d/%m/%Y")
+            ws3.cell(row = cont, column = 6).value = 'Ingreso'
+            ws3.cell(row = cont, column = 7).value = asociado.fechaIngreso.strftime("%d/%m/%Y")
             i+=1
             cont+=1
 
-        nombre_archivo = f"Reporte Modificaciones_{fechaInicialForm}-{fechaFinalForm}.xlsx"
+        for asociado in queries["queryRepatriacionTitular"]:
+            #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
+            ws3.cell(row = cont, column = 1).value = i                    
+            ws3.cell(row = cont, column = 2).value = f'{asociado.asociado.nombre}' + ' ' + f'{asociado.asociado.apellido}'
+            ws3.cell(row = cont, column = 3).value = asociado.asociado.tipoDocumento
+            ws3.cell(row = cont, column = 4).value = int(asociado.asociado.numDocumento)
+            ws3.cell(row = cont, column = 5).value = asociado.asociado.fechaNacimiento.strftime("%d/%m/%Y")
+            if asociado.estadoRegistro == True:
+                ws3.cell(row = cont, column = 6).value = 'Ingreso Repatriación ' + f'{asociado.paisRepatriacion}'
+            else:
+                ws3.cell(row = cont, column = 6).value = 'Retiro Repatriación ' + f'{asociado.paisRepatriacion}'
+            ws3.cell(row = cont, column = 7).value = asociado.fechaRepatriacion.strftime("%d/%m/%Y")
+            i+=1
+            cont+=1
+        
+
+        nombre_archivo = f"Reporte Modificaciones_{fecha_formateada1}-{fecha_formateada2}.xlsx"
         response = HttpResponse(content_type = "application/ms-excel")
         content = "attachment; filename = {0}".format(nombre_archivo)
         response['Content-Disposition'] = content
@@ -396,7 +409,7 @@ class ReporteExcelPago(TemplateView):
             i+=1
             cont+=1
 
-        nombre_archivo = f"Reporte Pago_{fechaInicialForm}-{fechaFinalForm}.xlsx"
+        nombre_archivo = f"Reporte Pago_{fecha_formateada1}-{fecha_formateada2}.xlsx"
         response = HttpResponse(content_type = "application/ms-excel")
         content = "attachment; filename = {0}".format(nombre_archivo)
         response['Content-Disposition'] = content

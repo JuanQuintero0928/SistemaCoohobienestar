@@ -3,7 +3,7 @@
 {% load humanize %}
 
 {% block title %}
-    Modificaciones Por Fecha
+    Reporte Funeraria Por Fecha
 {% endblock title %}
     
 {% block breadcrumb %}
@@ -20,64 +20,58 @@
                 <form action="{% url 'reportes:verModificacionesPorFecha' %}" method="post">
                     {% csrf_token %}
                     <div class="row">
-                        <div class="col-xl-6 col-md-6 mb-6">
+                        <div class="col-xl-6 col-lg-6 col-md-12 mb-3">
                             <label>Fecha Inicial</label>
                             {% if post %}
-                                <input class="form-control" type="date" value="{{ fechaIncialF }}" name="fechaInicial" required>
+                                <input class="form-control" type="date" value="{{ fechaIncialF }}" name="fechaInicial" id="id_fechaInicial" required>
                             {% else %}
-                                <input class="form-control" type="date" name="fechaInicial" required>
+                                <input class="form-control" type="date" name="fechaInicial" id="id_fechaInicial" required>
                             {% endif %}
                             </div>
-                        <div class="col-xl-6 col-md-6 mb-6">
+                        <div class="col-xl-6 col-lg-6 col-md-12 mb-3">
                             <label>Fecha Final</label>
                             {% if post %}
-                                <input class="form-control" type="date" value="{{ fechaFinalF }}" name="fechaFinal" required>
+                                <input class="form-control" type="date" value="{{ fechaFinalF }}" name="fechaFinal" id="id_fechaFinal" required>
                             {% else %}
-                                <input class="form-control" type="date" name="fechaFinal" required>
+                                <input class="form-control" type="date" name="fechaFinal" id="id_fechaFinal" required>
                             {% endif %}
                         </div>
                     </div>
-                    <div class="row" style="margin-top:10px">
-                        <div class="col-xl-3 col-md-3 mb-3">
-                            <button type="submit" class="btn btn-primary">Consultar</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="col-xl-5 col-md-5 mb-5">
-            {% if post %}
-                <form action="{% url 'reportes:generarModXFechaExcel' %}" method="get">
-                    <input class="form-control" type="date" value="{{ fechaIncialF }}" name="fechaInicial" hidden>
-                    <input class="form-control" type="date" value="{{ fechaFinalF }}" name="fechaFinal" hidden>
-                    <div class="row" style="margin-top:10px">
-                        <div class="col-xl-3 col-md-3 mb-3">
-                            <button type="submit" class="btn btn-success">
+                    <div class="row">
+                        <div class="col-12 col-lg-12 col-md-12 mb-3">
+                            <button type="submit" class="btn btn-primary mb-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-display" viewBox="0 0 16 16">
+                                    <path d="M0 4s0-2 2-2h12s2 0 2 2v6s0 2-2 2h-4q0 1 .25 1.5H11a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1h.75Q6 13 6 12H2s-2 0-2-2zm1.398-.855a.76.76 0 0 0-.254.302A1.5 1.5 0 0 0 1 4.01V10c0 .325.078.502.145.602q.105.156.302.254a1.5 1.5 0 0 0 .538.143L2.01 11H14c.325 0 .502-.078.602-.145a.76.76 0 0 0 .254-.302 1.5 1.5 0 0 0 .143-.538L15 9.99V4c0-.325-.078-.502-.145-.602a.76.76 0 0 0-.302-.254A1.5 1.5 0 0 0 13.99 3H2c-.325 0-.502.078-.602.145"/>
+                                </svg>
+                                Consultar
+                            </button>
+                            <button type="button" class="btn btn-success mb-3" onclick="descargarExcel()" id="id_descargarExcel" data-url="{% url 'reportes:generarModXFechaExcel' %}">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-excel" viewBox="0 0 16 16">
                                     <path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/>
                                     <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
                                 </svg>
-                            </button>
+                                Descargar
+                            </a>
                         </div>
                     </div>
                 </form>
-            {% endif %}
-        </div>
-
+            </div>
         </div>
         
     {% if post %}
         <div class="card-body">
             <hr>
-            {% if asociadoRetiro or asociadoIngreso or repatriacionTitular %}
-                <table class="table table-striped table-bordered">
-                    <thead>
+            <center><h3>REPORTE DE MODIFICACIONES POR FECHA {{fechaIncialF}} - {{fechaFinalF}}</h3></center>
+            {% if queries.asociadoRetiro or queries.asociadoIngreso or queries.queryRepatriacionTitular %}
+                <table class="table table-hover table-bordered shadow-lg rounded">
+                    <thead class="bg-dark text-white">
                         <tr>
-                            <th colspan="5" style="background-color:#00000059; color:white">
-                                <center><h3>NOVEDADES ASOCIADOS</h3>
+                            <th colspan="5" class="text-center">
+                                <h3 class="mb-0">📌 NOVEDADES ASOCIADOS</h3>
                             </th>
                         </tr>   
-                        <tr>
-                            <th>N°</th>
+                        <tr class="bg-secondary text-white">
+                            <th>#</th>
                             <th>N° Documento Titular</th>
                             <th>Nombre Completo Titular</th>
                             <th>Novedad</th>
@@ -85,50 +79,53 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for obj in asociadoRetiro %}
-                            <tr>
-                                <th>{{ forloop.counter }}</th>
-                                <th>{{obj.numDocumento|intcomma}}</th>
-                                <th>{{obj.nombre}} {{obj.apellido}}</th>
-                                <th>Retiro</th>
-                                <th>{{obj.fechaRetiro|date:"d/m/Y"}}</th>            
+                        {% for obj in queries.asociadoRetiro %}
+                            <tr class="table-danger">
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ obj.numDocumento|intcomma }}</td>
+                                <td>{{ obj.nombre }} {{ obj.apellido }}</td>
+                                <td><span class="badge bg-danger">🔴 Retiro</span></td>
+                                <td>{{ obj.fechaRetiro|date:"d/m/Y" }}</td>            
                             </tr>
                         {% endfor %}
-                        {% for obj in asociadoIngreso %}
-                            <tr>
-                                <th>{{ forloop.counter }}</th>
-                                <th>{{obj.numDocumento|intcomma}}</th>
-                                <th>{{obj.nombre}} {{obj.apellido}}</th>
-                                <th>Ingreso</th>
-                                <th>{{obj.fechaIngreso|date:"d/m/Y"}}</th>            
+                        {% for obj in queries.asociadoIngreso %}
+                            <tr class="table-success">
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ obj.numDocumento|intcomma }}</td>
+                                <td>{{ obj.nombre }} {{ obj.apellido }}</td>
+                                <td><span class="badge bg-success">🟢 Ingreso</span></td>
+                                <td>{{ obj.fechaIngreso|date:"d/m/Y" }}</td>            
                             </tr>
                         {% endfor %}
-                        {% for obj in repatriacionTitular %}
-                            <tr>
-                                <th>{{ forloop.counter }}</th>
-                                <th>{{obj.asociado.numDocumento|intcomma}}</th>
-                                <th>{{obj.asociado.nombre}} {{obj.asociado.apellido}}</th>
-                                {% if obj.estadoRegistro == True %}
-                                    <th>Ingreso Repatriación Titular - {{obj.paisRepatriacion}}</th>
-                                {% else %}
-                                    <th>Retiro Repatriación Titular - {{obj.paisRepatriacion}}</th>
-                                {% endif %}
-                                <th>{{obj.fechaRepatriacion|date:"d/m/Y"}}</th>            
+                        {% for obj in queries.queryRepatriacionTitular %}
+                            <tr class="table-info">
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ obj.asociado.numDocumento|intcomma }}</td>
+                                <td>{{ obj.asociado.nombre }} {{ obj.asociado.apellido }}</td>
+                                <td>
+                                    {% if obj.estadoRegistro == True %}
+                                        <span class="badge bg-primary">🔵 Ingreso Repatriación - {{ obj.paisRepatriacion }}</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">🟡 Retiro Repatriación - {{ obj.paisRepatriacion }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ obj.fechaRepatriacion|date:"d/m/Y" }}</td>            
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
+            
             {% endif %}
-            {% if queryB %}
+            {% if queries.queryBeneficiario %}
                 <hr>
-                <table class="table table-striped table-bordered">
-                    <thead>
+                <table class="table table-hover table-bordered shadow-lg rounded">
+                    <thead class="bg-dark text-white">
                         <tr>
-                            <th colspan="10" style="background-color:#00000059; color:white">
-                                <center><h3>NOVEDADES BENEFICIARIOS</h3>
+                            <th colspan="10" class="text-center">
+                                <h3 class="mb-0">📌 NOVEDADES BENEFICIARIOS</h3>
                             </th>
                         </tr>    
-                        <tr>
+                        <tr class="bg-secondary text-white">
                             <th>N°</th>
                             <th>N° Documento Titular</th>
                             <th>Nombre Completo Titular</th>
@@ -142,53 +139,62 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for obj in queryB %}
-                            <tr>
-                                <th>{{ forloop.counter }}</th>
-                                <th>{{obj.asociado.numDocumento|intcomma}}</th>
-                                <th>{{obj.asociado.nombre}} {{obj.asociado.apellido}}</th>
-                                <th>{{obj.numDocumento|intcomma}}</th>
-                                <th>{{obj.nombre}} {{obj.apellido}}</th>
-                                <th>{{obj.parentesco}}</th>
-                                <th>{{obj.fechaNacimiento|date:"d/m/Y"}}</th>
+                        {% for obj in queries.queryBeneficiario %}
+                            {% if obj.fechaCreacion_truncada == obj.fechaModificacion_truncada %}
+                                <tr class="table-success">
+                            {% elif obj.fechaCreacion_truncada != obj.fechaModificacion_truncada %}
+                                {% if obj.estadoRegistro == True %} 
+                                    <tr class="table-primary">
+                                {% else %}
+                                    <tr class="table-danger">
+                                {% endif %}
+                            {% endif %}
+                                
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{obj.asociado.numDocumento|intcomma}}</td>
+                                <td>{{obj.asociado.nombre}} {{obj.asociado.apellido}}</td>
+                                <td>{{obj.numDocumento|intcomma}}</td>
+                                <td>{{obj.nombre}} {{obj.apellido}}</td>
+                                <td>{{obj.parentesco}}</td>
+                                <td>{{obj.fechaNacimiento|date:"d/m/Y"}}</td>
 
                                 {% if obj.paisRepatriacion != None %}
-                                    <th>{{obj.paisRepatriacion}}</th>
+                                    <td>{{obj.paisRepatriacion}}</td>
                                 {% else %}
-                                    <th></th>
+                                    <td></td>
                                 {% endif %}
-
                                 {% if obj.fechaCreacion_truncada == obj.fechaModificacion_truncada %}
-                                    <th>Ingreso</th>
+                                    <td><span class="badge bg-success">🟢 Ingreso</span></td>
                                 {% elif obj.fechaCreacion_truncada != obj.fechaModificacion_truncada %}
                                     {% if obj.estadoRegistro == True %} 
-                                        <th>Modificación</th>
+                                        <td><span class="badge bg-primary">🔵Modificación</span></td>
                                     {% else %}
-                                        <th>Retiro</th>
+                                        <td><span class="badge bg-danger">🔴 Retiro</span></td>
                                     {% endif %}
                                 {% endif %}
+                                    
                                 {% if obj.fechaRetiro != None %}
-                                    <th>{{obj.fechaRetiro|date:"d/m/Y"}}</th>
+                                    <td>{{obj.fechaRetiro|date:"d/m/Y"}}</td>
                                 {% elif obj.fechaCreacion_truncada == obj.fechaModificacion_truncada %}
-                                    <th>{{obj.fechaIngreso|date:"d/m/Y"}}</th>
+                                    <td>{{obj.fechaIngreso|date:"d/m/Y"}}</td>
                                 {% else %}
-                                    <th>{{obj.fechaModificacion|date:"d/m/Y"}}</th>
+                                    <td>{{obj.fechaModificacion|date:"d/m/Y"}}</td>
                                 {% endif %}
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             {% endif %}
-            {% if queryM %}
+            {% if queries.queryMascota %}
                 <hr>
-                <table class="table table-striped table-bordered">
-                    <thead>
+                <table class="table table-hover table-bordered shadow-lg rounded">
+                    <thead class="bg-dark text-white">
                     <tr>
-                        <th colspan="7" style="background-color:#00000059; color:white">
-                            <center><h3>NOVEDADES MASCOTAS</h3>
+                        <th colspan="7" class="text-center">
+                            <h3 class="mb-0">🐾 NOVEDADES MASCOTAS</h3>
                         </th>
                     </tr>
-                        <tr>
+                        <tr class="bg-secondary text-white">
                             <th>N°</th>
                             <th>N° Documento Titular</th>
                             <th>Nombre Completo Titular</th>
@@ -199,28 +205,36 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for obj in queryM %}
-                            <tr>
-                                <th>{{ forloop.counter }}</th>
-                                <th>{{obj.asociado.numDocumento|intcomma}}</th>
-                                <th>{{obj.asociado.nombre}} {{obj.asociado.apellido}}</th>
-                                <th>{{obj.nombre}}</th>
-                                <th>{{ obj.tipo }}</th>
+                        {% for obj in queries.queryMascota %}
+                            {% if obj.fechaCreacion_truncada == obj.fechaModificacion_truncada %}
+                                <tr class="table-success">
+                            {% elif obj.fechaCreacion_truncada != obj.fechaModificacion_truncada %}
+                                {% if obj.estadoRegistro == True %}    
+                                    <tr class="table-primary">
+                                {% else %}
+                                    <tr class="table-danger">
+                                {% endif %}
+                            {% endif %}
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{obj.asociado.numDocumento|intcomma}}</td>
+                                <td>{{obj.asociado.nombre}} {{obj.asociado.apellido}}</td>
+                                <td>{{obj.nombre}}</td>
+                                <td>{{ obj.tipo }}</td>
                                 {% if obj.fechaCreacion_truncada == obj.fechaModificacion_truncada %}
-                                    <th>Ingreso</th>
+                                    <td><span class="badge bg-success">🟢 Ingreso</span></td>
                                 {% elif obj.fechaCreacion_truncada != obj.fechaModificacion_truncada %}
                                     {% if obj.estadoRegistro == True %}    
-                                        <th>Modificación</th>
+                                        <td><span class="badge bg-primary">🔵Modificación</span></td>
                                     {% else %}
-                                        <th>Retiro</th>
+                                        <td><span class="badge bg-danger">🔴 Retiro</span></td>
                                     {% endif %}
                                 {% endif %}
                                 {% if obj.fechaRetiro != None %}
-                                    <th>{{obj.fechaRetiro|date:"d/m/Y"}}</th>
+                                    <td>{{obj.fechaRetiro|date:"d/m/Y"}}</td>
                                 {% elif obj.fechaCreacion_truncada == obj.fechaModificacion_truncada %}
-                                    <th>{{obj.fechaIngreso|date:"d/m/Y"}}</th>
+                                    <td>{{obj.fechaIngreso|date:"d/m/Y"}}</td>
                                 {% else %}
-                                    <th>{{obj.fechaModificacion|date:"d/m/Y"}}</th>
+                                    <td>{{obj.fechaModificacion|date:"d/m/Y"}}</td>
                                 {% endif %}
                             </tr>
                         {% endfor %}
@@ -233,8 +247,6 @@
 
 {% endblock contenidoPagina %}
 
-
-
-
-    
-
+{% block extrajs %}
+    <script src="{% static 'js/funcionesReportes.js' %}"></script>    
+{% endblock extrajs %}
