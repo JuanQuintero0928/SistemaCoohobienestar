@@ -305,6 +305,36 @@ async function llamarPDFCredito(valor, cuotas, url, idCredito) {
     generarPDFfCredito(url, valor, cuotas, nombre_F5, apellido_F5, tipoDocumento_F5, numDocumento_F5, fechaExpedicion_F5, mpioDoc_F5, nacionalidad_F5, fechaNacimiento_F5, genero_F5, estadoCivil_F5, email_F5, numCelular_F5, dtoNacimiento_F5, mpioNacimiento_F5, tipoVivienda_F5, estrato_F5, direccion_F5, barrio_F5, deptoResidencia_F5, mpioResidencia_F5, usuario_F5, fechaHoy_F5, numResidencia_F5, envioInfoCorreo_F5, envioInfoMensaje_F5, envioInfoWhatsapp_F5, profesion_F5, nombreEmpresa_F5, cargo_F5, fechaInicio_F5, fechaTerminacion_F5, nomRepresenLegal_F5, numDocRL_F5, mpioTrabajo_F5, dptoTrabajo_F5, telefono_F5, admRP_F5, pep_F5, activEcono_F5, ciiu_F5, banco_F5, numCuenta_F5, tipoCuenta_F5, direccionTrabajo_F5, nivelEducativo_F5, autorizaciondcto_F5, empresa_F5, lineaCredito_F5, medioPago_F5, formaDesembolso_F5, existCodeudor); 
 }
 
+async function llamarPDFPagare(url, numDoc, idCredito) {
+    const existCodeudor = document.getElementById(`existCodeudor${idCredito}`).value;
+
+    const datos = {
+        existCodeudor: existCodeudor,
+        nombre: document.getElementById('id_nombre').value,
+        apellido: document.getElementById('id_apellido').value,
+        numDocumento: document.getElementById('id_numDocumento').value,
+        tipoDocumento: document.getElementById('id_tipoDocumento').value,
+        mpioDoc: document.getElementById('id_lugarExp').value,
+    };
+
+    if(existCodeudor === "True"){
+        datos.nombreCodeudor = document.getElementById(`nombreCod${idCredito}`).value;
+        datos.apellidoCodeudor = document.getElementById(`apellidoCod${idCredito}`).value;
+        datos.tipoDocumentoCodeudor = document.getElementById(`tipoDocumentoCod${idCredito}`).value;
+        datos.numDocumentoCodeudor = document.getElementById(`numDocumentoCod${idCredito}`).value;
+        datos.mpioCodeudor = document.getElementById(`mpioDocCod${idCredito}`).value;
+    }else {
+        datos.nombreCodeudor = '';
+        datos.apellidoCodeudor = '';
+        datos.tipoDocumentoCodeudor = '';
+        datos.numDocumentoCodeudor = '';
+        datos.mpioCodeudor = '';
+    }
+
+    descargarPagare(url, numDoc, datos);
+}
+    
+
 async function llamarPDFTablaAmortizacion(url, numDoc, fechaSolicitud, valor, cuotas, tasa, idCredito) {
     
     const existCodeudor = document.getElementById(`existCodeudor${idCredito}`).value;
@@ -1539,10 +1569,27 @@ async function generarPDFfCredito(url, valor, cuotas, nombre_F5, apellido_F5, ti
     // se cierra el onload del image
 }
 
-async function descargarPagare(url, numDoc) {
+async function descargarPagare(url, numDoc, datos) {
     const image = await loadImage(url);
     const pdf = new jsPDF('p', 'pt', 'legal');
     pdf.addImage(image, 'PNG', 0, 0, 613, 1010);
+
+    let nomCompleto = datos.nombre + " " + datos.apellido
+    let nomCompletoCod = datos.nombreCodeudor + " " + datos.apellidoCodeudor
+    
+    pdf.setFontSize(8);
+    pdf.text(nomCompleto, 66, 258);
+    pdf.text(nomCompletoCod, 66, 280);
+
+    pdf.setFontSize(10);
+    pdf.text(datos.tipoDocumento, 209, 258);
+    pdf.text(datos.numDocumento, 275, 258);
+    pdf.text(datos.mpioDoc, 369, 258);
+    
+    pdf.text(datos.tipoDocumentoCodeudor, 209, 280);
+    pdf.text(datos.numDocumentoCodeudor, 275, 280);
+    pdf.text(datos.mpioCodeudor, 369, 280);
+
 
     /////////////////////////////////////////////////////////////////////////////////////////
     // Se añade Pagina 2 al documento
