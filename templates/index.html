@@ -3,7 +3,11 @@
 <html lang="es">
 
     <!-- HEADER -->
-    {% include 'estructura/head.html' %}
+    <head>
+        {% include 'estructura/head.html' %}
+        {% block extraHead %}
+        {% endblock extraHead %}
+    </head>
 
     <body class="sb-nav-fixed d-none">
         <!-- NAVBAR SUPERIOR-->

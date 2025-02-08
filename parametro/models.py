@@ -4,7 +4,7 @@ from django.db import models
 
 class TipoAuxilio(models.Model):
     id = models.AutoField(primary_key=True)
-    nombre = models.CharField('Nombre', max_length=30, null=False, blank=False)
+    nombre = models.CharField('Nombre', max_length=50, null=False, blank=False)
     valor = models.IntegerField('Valor', blank=False, null=False)
     estadoRegistro = models.BooleanField('Estado')
     
@@ -102,7 +102,7 @@ class Convenio(models.Model):
 class TasasInteresCredito(models.Model):
     id = models.AutoField(primary_key=True)
     concepto = models.CharField('Concepto', max_length=30, null=False, blank=False)
-    porcentaje = models.DecimalField(max_digits=4, decimal_places=3, blank=False, null=False)
+    porcentaje = models.DecimalField(max_digits=6, decimal_places=5, blank=False, null=False)
 
     class Meta:
         verbose_name = 'Tasas Interes Credito'

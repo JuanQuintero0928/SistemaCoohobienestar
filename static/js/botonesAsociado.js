@@ -1,4 +1,4 @@
-// Funcion que cambia la edicion en el proceso de pago, VIEW CrearPagoAsociado
+// Funcion que cambia la edicion en el proceso de pago, VIEW EditarPago, app Historico
 function editarCasillasPago(dato){
     switch(dato){
         case "editar1":
@@ -145,6 +145,7 @@ function editarInputActualizacion(dato){
             document.getElementById('id_estadoCivil').disabled = false;
             document.getElementById('id_email').disabled = false;
             document.getElementById('id_numResidencia').disabled = false;
+            document.getElementById('id_indicativo').disabled = false;
             document.getElementById('id_numCelular').disabled = false;
             document.getElementById('id_envioInfoCorreo').disabled = false;
             document.getElementById('id_envioInfoMensaje').disabled = false;
@@ -185,6 +186,7 @@ function editarInputActualizacion(dato){
             document.getElementById('id_estadoCivil').disabled = true;
             document.getElementById('id_email').disabled = true;
             document.getElementById('id_numResidencia').disabled = true;
+            document.getElementById('id_indicativo').disabled = true;
             document.getElementById('id_numCelular').disabled = true;
             document.getElementById('id_envioInfoCorreo').disabled = true;
             document.getElementById('id_envioInfoMensaje').disabled = true;
@@ -316,7 +318,29 @@ function mostrarAutorizacion(dato){
             document.getElementById('contenedorAutorizacion').style.display = "none";
             document.getElementById('contenedorAutorizacion2').style.display = "block";
             document.getElementById('flexSwitchCheckChecked_2').hidden = true;
-            document.getElementById('flexSwitchCheckChecked_1').checked = false;
-        
+            document.getElementById('flexSwitchCheckChecked_1').checked = false;   
     }
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    const estadoAsociado = document.getElementById('id_estadoAsociado');
+    const retiroContainer = document.getElementById('retiroContainer');
+    const fechaRetiro = document.getElementById('id_fechaRetiro');
+
+    // Función para mostrar/ocultar y agregar/quitar required
+    const actualizarEstadoRetiro = () => {
+        if (estadoAsociado.value === 'RETIRO') {
+            retiroContainer.hidden = false; // Muestra el campo
+            fechaRetiro.setAttribute('required', 'required'); // Lo hace obligatorio
+        } else {
+            retiroContainer.hidden = true; // Oculta el campo
+            fechaRetiro.removeAttribute('required'); // Lo vuelve opcional
+        }
+    };
+
+    // Escuchar cambios en el select
+    estadoAsociado.addEventListener('change', actualizarEstadoRetiro);
+
+    // Verificar al cargar la página
+    actualizarEstadoRetiro();
+});

@@ -98,7 +98,9 @@ class ModalPago(ListView):
         total_tarifa_asociado = queryTarifa['total_tarifa_asociado'] or 0  # Se obtiene el valor de la suma a 0 si no hay datos        
 
         if queryHistorial:
-            mesesPagados = HistorialPagos.objects.filter(asociado = kwargs['pkAsociado']).values('mesPago')
+            mesesPagados = (HistorialPagos.objects
+                            .filter(asociado = kwargs['pkAsociado'], mesPago_id__lt = 9990)
+                            .values('mesPago'))
             queryMes = (MesTarifa.objects
                         .exclude(pk__in=Subquery(mesesPagados))
                         .filter(pk__gte = queryParamAsoc.primerMes.pk)
@@ -150,14 +152,25 @@ class ModalPago(ListView):
         datos_pagos = []
 
         # obtenemos los switchs que se marcaron como activos en el modal
-        switches_activos = request.POST.getlist('switches')
-        # saber el tamaño de los botones marcados
+        switches_activos = request.POST.getlist('switches') or []
+
+         # saber el tamaño de los botones marcados
         cantidadSwitches = len(switches_activos)
         
         # Se recorre los switch activos, con el pk del mes activo
         for contador, pk in enumerate(switches_activos, start=1):
             # si es un abono, se crea un registro de pago con el valor de abono
             split = pk.split('-')
+
+            # Si existe el switch 9997, equivalente a cine se elimina para tener en cuenta la diferencia si se selecciona un mes y cine 
+            numSwithces = request.POST.getlist('switches') or []
+            if '9997' in numSwithces:
+                numSwithces.remove('9997')
+                # saber el tamaño de los botones marcados
+                cantidadSwitches = len(numSwithces)
+            else:
+                # saber el tamaño de los botones marcados
+                cantidadSwitches = len(switches_activos)
 
             if len(split) == 1:
                 if pk == '9999':
@@ -184,7 +197,14 @@ class ModalPago(ListView):
                     datos_pagos.append(pago)
                 # si es un mes normal, se crea un registro de pago con el valor del mes
                 else:
-                    valorMes = MesTarifa.objects.get(pk = pk).aporte + MesTarifa.objects.get(pk = pk).bSocial + tarifaAsociado.cuotaMascota + tarifaAsociado.cuotaRepatriacion + tarifaAsociado.cuotaSeguroVida + tarifaAsociado.cuotaAdicionales + tarifaAsociado.cuotaCoohopAporte + tarifaAsociado.cuotaCoohopBsocial + tarifaAsociado.cuotaConvenio
+                    if pk == '9997':
+                        valorPago = request.POST['valorCine']
+                    elif pk == '9996':
+                        valorPago = request.POST['valorCertificado']
+                    else:
+                        valorMes = MesTarifa.objects.get(pk = pk).aporte + MesTarifa.objects.get(pk = pk).bSocial + tarifaAsociado.cuotaMascota + tarifaAsociado.cuotaRepatriacion + tarifaAsociado.cuotaSeguroVida + tarifaAsociado.cuotaAdicionales + tarifaAsociado.cuotaCoohopAporte + tarifaAsociado.cuotaCoohopBsocial + tarifaAsociado.cuotaConvenio
+                        valorPago = valorMes if contador < cantidadSwitches else valorMes + valorDiferencia
+
                     pago = {
                             'asociado': Asociado.objects.get(pk = kwargs['pkAsociado']),
                             'mesPago': MesTarifa.objects.get(pk = pk),
@@ -201,11 +221,12 @@ class ModalPago(ListView):
                             'convenioPago': tarifaAsociado.cuotaConvenio,
                             'creditoHomeElements': 0,
                             'diferencia': valorDiferencia if cantidadSwitches == contador else 0,
-                            'valorPago':  valorMes if contador < cantidadSwitches else valorMes + valorDiferencia,
+                            'valorPago':  valorPago,
                             'estadoRegistro': True,
                             'userCreacion': User.objects.get(pk = request.user.pk),
                         }
                     datos_pagos.append(pago)
+            # desde el modalPago se envia, pkVenta, 9998, valorCuota
             else:
                 extra_param = split[0]  # pk de la venta
                 pk = split[1] # identificador del tipo de pago, credito home elements
@@ -246,7 +267,7 @@ class ModalPago(ListView):
 
         # Crear cada registro en un bucle
         for data in datos_pagos:
-            HistorialPagos.objects.create(**data)  
+            HistorialPagos.objects.create(**data)
         
         messages.info(request, 'Pago Registrado Correctamente')
         url = reverse('proceso:asociadoPago')

@@ -8,54 +8,55 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>N°</th>
-                        <th>Asociado</th>
-                        <th>N° Documento</th>
-                        <th>Tarifa Asociado</th>
-                        <th>Tipo Asociado</th>
-                        <th>Diferencia</th>
-                        <th>Detalles</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th>1</th>
-                        <td>{{query.asociado.nombre}} {{query.asociado.apellido}}</td>
-                        <td>{{query.asociado.numDocumento|intcomma}}</td>
-                        <td>${{query.total|intcomma}}</td>
-                        <td>{{query.asociado.tAsociado}}</td>
-                        <td>${{diferencia|intcomma}}</td>
-                        <td>
-                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-                                <div class="accordion-body">
-                                    Cuota Periodica: ${{ query.cuotaAporte|add:query.cuotaBSocial|intcomma }}<br>
-                                    {% if query.cuotaMascota %}
-                                        Mascota: ${{ query.cuotaMascota|intcomma }}<br>
-                                    {% endif %}
-                                    {% if query.cuotaRepatriacion %}
-                                        Repatriación: ${{ query.cuotaRepatriacion|intcomma }}<br>
-                                    {% endif %}
-                                    {% if query.cuotaSeguroVida %}
-                                        Seguro Vida: ${{ query.cuotaSeguroVida|intcomma }}<br>
-                                    {% endif %}
-                                    {% if query.cuotaAdicionales %}
-                                        Adicionales: ${{ query.cuotaAdicionales|intcomma }}<br>
-                                    {% endif %}
-                                    {% if query.cuotaCoohopAporte %}
-                                        Coohoperativitos: ${{ query.cuotaCoohopAporte|add:query.cuotaCoohopBsocial|intcomma }}<br>
-                                    {% endif %}
-                                    {% if query.cuotaConvenio %}
-                                        Convenios: ${{ query.cuotaConvenio|intcomma }}<br>
-                                    {% endif %}
-                                </div>
-                            </div>                            
-                        </td>
-                    </tr>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>N°</th>
+                            <th>Asociado</th>
+                            <th>N° Documento</th>
+                            <th>Tarifa Asociado</th>
+                            <th>Tipo Asociado</th>
+                            <th>Diferencia</th>
+                            <th>Detalles</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th>1</th>
+                            <td>{{query.asociado.nombre}} {{query.asociado.apellido}}</td>
+                            <td>{{query.asociado.numDocumento|intcomma}}</td>
+                            <td>${{query.total|intcomma}}</td>
+                            <td>{{query.asociado.tAsociado}}</td>
+                            <td>${{diferencia|intcomma}}</td>
+                            <td>
+                                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                                    <div class="accordion-body">
+                                        Cuota Periodica: ${{ query.cuotaAporte|add:query.cuotaBSocial|intcomma }}<br>
+                                        {% if query.cuotaMascota %}
+                                            Mascota: ${{ query.cuotaMascota|intcomma }}<br>
+                                        {% endif %}
+                                        {% if query.cuotaRepatriacion %}
+                                            Repatriación: ${{ query.cuotaRepatriacion|intcomma }}<br>
+                                        {% endif %}
+                                        {% if query.cuotaSeguroVida %}
+                                            Seguro Vida: ${{ query.cuotaSeguroVida|intcomma }}<br>
+                                        {% endif %}
+                                        {% if query.cuotaAdicionales %}
+                                            Adicionales: ${{ query.cuotaAdicionales|intcomma }}<br>
+                                        {% endif %}
+                                        {% if query.cuotaCoohopAporte %}
+                                            Coohoperativitos: ${{ query.cuotaCoohopAporte|add:query.cuotaCoohopBsocial|intcomma }}<br>
+                                        {% endif %}
+                                        {% if query.cuotaConvenio %}
+                                            Convenios: ${{ query.cuotaConvenio|intcomma }}<br>
+                                        {% endif %}
+                                    </div>
+                                </div>                            
+                            </td>
+                        </tr>
+                </table>
+            </div>
             <hr>
             
             <div class="modal-header">
@@ -117,7 +118,17 @@
                                                 <label class="form-check-label" for="flexSwitchCheckDefault{{obj.pk}}"></label>
                                             </div>
                                         </td>
-                                        <td>${{ obj.total|intcomma }}</th>
+                                        {% if obj.pk == 9997 %}
+                                            <td class="d-flex justify-content-center">
+                                                <input type="number" data-costo="" name="valorCine" id="valorCine" class="form-control form-control-sm w-auto justify-content-center" style="text-align:center" min="0" disabled>
+                                            </th>
+                                        {% elif obj.pk == 9996 %}
+                                            <td class="d-flex justify-content-center">
+                                                <input type="number" data-costo="" name="valorCertificado" id="valorCertificado" class="form-control form-control-sm w-auto justify-content-center" style="text-align:center" min="0" disabled>
+                                            </th>
+                                        {% else %}
+                                            <td>${{ obj.total|intcomma }}</th>
+                                        {% endif %}
                                     </tr>
                                 {% endif %}
                             {% endfor %}
@@ -195,6 +206,65 @@
             
 
             <script>
+                // Al cargar el modal, se actualiza la fecha de pago a hoy
+                $('#creacion').on('shown.bs.modal', function () {
+                    // Obtiene la fecha actual en formato YYYY-MM-DD y la asigna al input de fecha
+                    let today = new Date().toISOString().split('T')[0];  // Obtiene la fecha en formato YYYY-MM-DD
+                    document.getElementById("fechaPago").value = today;
+                    
+                    // Input de valor cine y certificado
+                    const inputCine = document.getElementById("valorCine"); // Input donde se escribe el valor
+                    const switchCine = document.querySelector('input.switch-mes[value="9997"]'); // Switch con value 9997
+                    const inputCertificado = document.getElementById("valorCertificado"); // Input donde se escribe el valor
+                    const switchCertificado = document.querySelector('input.switch-mes[value="9996"]'); // Switch con value 9996
+
+                    if (inputCine && switchCine) {
+                        // Habilitar/deshabilitar input según el estado del switch
+                        switchCine.addEventListener("change", function () {
+                            inputCine.disabled = !this.checked; // Si el switch está activo, habilita el input; si no, lo deshabilita
+                            if (!this.checked) {
+                                inputCine.value = ""; // Borra el valor cuando se deshabilita
+                                inputCine.dispatchEvent(new Event("input")); // Dispara el evento input para actualizar el total
+                            }
+                        });
+
+                        // Evento input para actualizar data-costo y total
+                        inputCine.addEventListener("input", function () {
+                            let valor = parseFloat(this.value) || 0;
+                            switchCine.setAttribute("data-costo", valor);
+                            actualizarTotal();
+                        });
+                
+                        // Deshabilitar input al cargar si el switch no está activo
+                        inputCine.disabled = !switchCine.checked;
+                    } else {
+                        console.error("No se encontró el input del cine o el switch con value 9997.");
+                    }
+
+                    if (inputCertificado && switchCertificado) {
+                        // Habilitar/deshabilitar input según el estado del switch
+                        switchCertificado.addEventListener("change", function () {
+                            inputCertificado.disabled = !this.checked; // Si el switch está activo, habilita el input; si no, lo deshabilita
+                            if (!this.checked) {
+                                inputCertificado.value = ""; // Borra el valor cuando se deshabilita
+                                inputCertificado.dispatchEvent(new Event("input")); // Dispara el evento input para actualizar el total
+                            }
+                        });
+
+                        // Evento input para actualizar data-costo y total
+                        inputCertificado.addEventListener("input", function () {
+                            let valor = parseFloat(this.value) || 0;
+                            switchCertificado.setAttribute("data-costo", valor);
+                            actualizarTotal();
+                        });
+                
+                        // Deshabilitar input al cargar si el switch no está activo
+                        inputCertificado.disabled = !switchCertificado.checked;
+                    } else {
+                        console.error("No se encontró el input del cine o el switch con value 9997.");
+                    }
+                });
+
                 // Función para actualizar el total según los switches seleccionados
                 function actualizarTotal() {
                     let total = 0;
@@ -221,6 +291,7 @@
                     
                     document.getElementById('diferencia').value = diferencia.toLocaleString('es-ES');
                 }
+                
             </script>
             
         </div>

@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from django.contrib.auth.decorators import login_required
 from .views import *
 from ventas.views import ListarProductos, CrearProducto, EditarProducto, ListarVentasAsociado, CrearVentaAsociado, ListarDetalleVenta, EliminarDetalleVenta

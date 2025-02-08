@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'rest_framework',
     'asociado.apps.AsociadoConfig',
     'beneficiario.apps.BeneficiarioConfig',
     'credito.apps.CreditoConfig',

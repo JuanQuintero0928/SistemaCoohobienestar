@@ -36,3 +36,16 @@ class PaisRepatriacion(models.Model):
 
     def __str__(self):
         return self.nombre
+class Pais(models.Model):
+    id = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=100)
+    indicativo = models.CharField(max_length=10)
+    bandera = models.URLField()
+
+    class Meta:
+        ordering = ['pk']
+        verbose_name = 'Pais'
+        verbose_name_plural = 'Pais'
+
+    def __str__(self):
+        return self.nombre

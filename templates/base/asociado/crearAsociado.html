@@ -1,6 +1,10 @@
 {% extends 'index.html' %}
 {% load static %}   
 
+{% block extraHead %}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+{% endblock extraHead %}
+
 {% block title%}    
     Asociado
 {% endblock title %}
@@ -9,15 +13,11 @@
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
     <li class="breadcrumb-item"><a href="#">Información</a></li>
     <li class="breadcrumb-item"><a href="{% url 'asociado:asociado' %}">Asociados</a></li>
-    {% if updateAsociado %}
-        <li class="breadcrumb-item active" aria-current="page">Detalle Asociado</li>
-    {% endif %}
-    {% if create %}
-        <li class="breadcrumb-item active" aria-current="page">Creación Asociado</li>
-    {% endif %}
+    <li class="breadcrumb-item active" aria-current="page">Creación Asociado</li>
 {% endblock breadcrumb %}
 
 {% block contenidoPagina %}
+
     <ul class="nav nav-tabs">
         <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="#">Información Personal</a>
@@ -32,9 +32,6 @@
                             <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
                         </svg>
                     </a>
-                    {% if updateAsociado %}
-                        <button class="btn btn-primary" onclick="abrir_modal_creacion('{% url 'asociado:editarAsociado' pkAsociado %}')"><i class="fa-solid fa-pen-to-square"></i></button>  
-                    {% endif %}
                 </div>
             </div>
         </div> 
@@ -102,11 +99,7 @@
                 </div>
                 <div class="col-3">
                     <label for="id_mpioDoc" class="form-label">Lugar Expedición *</label>
-                    <select name="mpioDoc" class="form-select" id="id_mpioDoc" required>
-                        {% for mcpio in query_mpio %}
-                            <option value="{{mcpio.id}}">{{mcpio.nombre}} - {{mcpio.departamento__nombre}}</option>
-                        {% endfor %}
-                    </select>
+                    <select name="mpioDoc" class="form-select form-control" id="id_mpioDoc" required></select>
                 </div>
 
                 {% comment %} Fila 3 {% endcomment %}
@@ -119,8 +112,8 @@
                     <input type="date" class="form-control" name="fechaNacimiento" id="id_fechaNacimiento" required>
                 </div>
                 <div class="col-3">
-                    <label for="id_dtoNacimiento" class="form-label">Departamento Nacimiento *</label>
-                    <select name="dtoNacimiento" class="form-select" id="id_dtoNacimiento" required>
+                    <label for="dtoNacimiento" class="form-label">Departamento Nacimiento *</label>
+                    <select name="dtoNacimiento" class="form-select departamento-select" id="dtoNacimiento" data-target="#id_mpioNacimiento" required>
                         {% for dpto in query_dpto %}
                             <option value="{{dpto.id}}">{{dpto.nombre}}</option>
                         {% endfor %}
@@ -128,10 +121,8 @@
                 </div>
                 <div class="col-3">
                     <label for="id_mpioNacimiento" class="form-label">Municipio Nacimiento *</label>
-                    <select name="mpioNacimiento" class="form-select" id="id_mpioNacimiento" required>
-                        {% for mcpio in query_mpio %}
-                            <option value="{{mcpio.id}}" data-chained="{{mcpio.departamento}}">{{mcpio.nombre}}</option>
-                        {% endfor %}
+                    <select id="id_mpioNacimiento" name="mpioNacimiento" class="form form-control" required>
+                        <option value="">Seleccione un municipio</option>
                     </select>
                 </div>
                 <div class="col-2">
@@ -179,7 +170,7 @@
                 </div>
                 <div class="col-4">
                     <label for="id_deptoResidencia" class="form-label">Departamento *</label>
-                    <select name="deptoResidencia" class="form-select" id="id_deptoResidencia" required>
+                    <select name="deptoResidencia" class="form-select departamento-select" id="id_deptoResidencia"  data-target="#id_mpioResidencia" required>
                         {% for dpto in query_dpto %}
                             <option value="{{dpto.id}}">{{dpto.nombre}}</option>
                         {% endfor %}
@@ -187,23 +178,28 @@
                 </div>
                 
                 {% comment %} Fila 6 {% endcomment %}
+               
                 <div class="col-3">
-                    <label for="id_mpioResidencia" class="form-label">Municipio *</label>
-                    <select name="mpioResidencia" class="form-select" id="id_mpioResidencia" required>
-                        {% for mcpio in query_mpio %}
-                            <option value="{{mcpio.id}}" data-chained="{{mcpio.departamento}}">{{mcpio.nombre}}</option>
-                        {% endfor %}
+                    <label for="id_mpioResidencia" class="form-label">Municipio Residencia *</label>
+                    <select id="id_mpioResidencia" name="mpioResidencia" class="form form-control" required>
+                        <option value="">Seleccione un municipio</option>
                     </select>
                 </div>
                 <div class="col-3">
                     <label for="id_email" class="form-label">Correo Electronico *</label>
                     <input type="email" class="form-control input-email" name="email" id="id_email" autocomplete="off" lowercase required>
                 </div>
-                <div class="col-3">
+                <div class="col-2">
                     <label for="id_numResidencia" class="form-label">Telefono Residencia</label>
                     <input type="number" class="form-control" name="numResidencia" id="id_numResidencia" min="0">
                 </div>
-                <div class="col-3">
+                <div class="col-2">
+                    <label for="id_indicativo" class="form-label">Indicativo *</label>
+                    <select class="form-control" name="indicativo" id="id_indicativo" required>
+                        <!-- Aquí se llenarán los países con banderas -->
+                    </select>
+                </div>
+                <div class="col-2">
                     <label for="id_numCelular" class="form-label">Telefono Celular *</label>
                     <input type="number" class="form-control" name="numCelular" id="id_numCelular" min="0" required>
                 </div>
@@ -286,20 +282,8 @@
 {% endblock contenidoPagina %}
 
 {% block extrajs %}
-
-    <script src="{% static 'lib/jquery-chained/jquery.chained.min.js' %}"></script>
-
-    <script type="text/javascript">
-        var $ = jQuery.noConflict()
-        function abrir_modal_creacion(url){
-            $('#creacion').load(url, function(){
-                $(this).modal('show');
-            });
-        }
-        
-        $("#id_mpioNacimiento").chained("#id_dtoNacimiento");
-        $("#id_mpioResidencia").chained("#id_deptoResidencia");
-
-        </script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/i18n/es.js"></script>
+    <script src="{% static 'js/getMunicipios.js' %}"></script>
 
 {% endblock extrajs %} 

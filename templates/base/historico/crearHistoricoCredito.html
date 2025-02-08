@@ -2,16 +2,18 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">{% if crear %} Crear Crédito:{% else %} Editar Crédito:{% endif %}</h1> 
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Crear Crédito:</h1> 
           <hr>
           <h2 class="modal-title fs-5" id="exampleModalLabel" style="margin-left: 8px;">{{asociado.nombre}} {{asociado.apellido}}</h2>
+          <input type="hidden" id="pkAsociado" value="{{asociado.pk}}">
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form action="{% url 'asociado:crearHistoricoCredito' pkAsociado %}" method="post" id="form">                {% csrf_token %}
+          <form action="{% url 'asociado:crearHistoricoCredito' pkAsociado %}" method="post" id="form">
+            {% csrf_token %}
             <div class="row">
               <div class="col-12 col-lg-3 col-md-6 mb-3">
-                <label for="fechaSolicitud">Valor del crédito</label>
+                <label for="fechaSolicitud">Fecha Solicitud:</label>
                 <input type="date" id="fechaSolicitud" name="fechaSolicitud" class="form-control">
               </div>
               <div class="col-12 col-lg-3 col-md-6 mb-3">
@@ -46,9 +48,17 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-12 col-lg-3 col-md-6 mb-3">
+              <div class="col-12 col-lg-2 col-md-12 col-sm-12 mb-3">
                 {{ form.estado.label_tag }}
                 {{ form.estado }}
+              </div>
+              <div class="col-12 col-lg-5 col-md-12 mb-3 d-none" id="divAnalisis">
+                <label for="analisisCodeudor">Capacidad de Endeudamiento</label>
+                <input type="text" name="analisisCodeudor" class="form form-control" id="analisisCodeudor" readonly>
+              </div>
+              <div class="col-12 col-lg-5 col-md-12 mb-3 d-none" id="divCapacidadPago">
+                <label for="analisisCodeudor">Capacidad de Pago</label>
+                <input type="text" name="analisisCodeudor" class="form form-control" id="analisisCapacidadPago" readonly>
               </div>
               <div class="col-12 col-md-3 mb-3" style="display:none">
                 {{ form.valorCuota.label_tag }}
@@ -59,6 +69,15 @@
                 {{ form.totalCredito }}
               </div>
             </div>
+            <div class="d-none">
+                <!-- Datos Deudor  --> 
+                <input type="text" name="ingresosActPrin" class="form form-control" id="ingresosActPrin" {% if financiera.ingresosActPrin %} value="{{financiera.ingresosActPrin}}" {% else %} value="0" {% endif %}>
+                <input type="text" name="otroIngreso1" class="form form-control" id="otroIngreso1" {% if financiera.otroIngreso1 %} value="{{financiera.otroIngreso1}}" {% else %} value="0" {% endif %}>
+                <input type="text" name="otroIngreso2" class="form form-control" id="otroIngreso2" {% if financiera.otroIngreso2 %} value="{{financiera.otroIngreso2}}" {% else %} value="0" {% endif %}>
+                <input type="text" name="egresos" class="form form-control" id="egresos" {% if financiera.egresos %} value="{{financiera.egresos}}" {% else %} value="0" {% endif %}>
+                <!-- Datos Codeudor  -->
+
+            </div>
             
             <div class="row">
               <div class="col-12">
@@ -67,22 +86,24 @@
             </div>
             <div class="row mt-4">
               <div class="col-12">
-                <table class="table table-hover" id="tablaAmortizacion">
-                  <thead>
-                    <tr>
-                      <th>N° Cuota</th>
-                      <th>Fecha</th>
-                      <th>Saldo inicial</th>
-                      <th>Abono capital</th>
-                      <th>Intereses</th>
-                      <th>Cuota</th>
-                      <th>Saldo final</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <!-- Aquí se generará dinámicamente la tabla -->
-                  </tbody>
-                </table>
+                <div class="table-responsive">
+                  <table class="table table-hover" id="tablaAmortizacion">
+                    <thead>
+                      <tr>
+                        <th>N° Cuota</th>
+                        <th>Fecha</th>
+                        <th>Saldo inicial</th>
+                        <th>Abono capital</th>
+                        <th>Intereses</th>
+                        <th>Cuota</th>
+                        <th>Saldo final</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- Aquí se generará dinámicamente la tabla -->
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
             
@@ -106,6 +127,10 @@
     $('#creacion').on('shown.bs.modal', function () {
       const tablaBody = document.querySelector("#tablaAmortizacion tbody");
       tablaBody.innerHTML = "";
+
+      // Obtiene la fecha actual en formato YYYY-MM-DD y la asigna al input de fecha
+      let today = new Date().toISOString().split('T')[0];  // Obtiene la fecha en formato YYYY-MM-DD
+      document.getElementById("fechaSolicitud").value = today;
     });
 
     // Evento que calcula la tabla de amortizacion cuando se hace clic en el botón
@@ -122,10 +147,15 @@
 
       if (valor > 0 && tasa > 0 && cuotas > 0) {
         generarTablaAmortizacion(valor, tasa, cuotas, fechaSolicitud, 1);
+        let pkAsociado = document.getElementById("pkAsociado").value;
+        calcularCapacidadEndeudamiento(pkAsociado);
         document.getElementById("submit").style.display = "block";
       } else {
         alert("Por favor, ingresa valores válidos.");
       }
-    });  
+      
+
+    });
+    
 
 </script>

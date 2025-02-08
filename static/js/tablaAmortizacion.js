@@ -80,3 +80,53 @@ function formatearMoneda(valor) {
             maximumFractionDigits: 0  // Eliminar decimales
     });
 }
+
+function calcularCapacidadEndeudamiento(pkAsociado) {
+    fetch(`/api/obtener_total_tarifa/${pkAsociado}/`)
+        .then(responde => responde.json())
+        .then(data => {
+            if (data.error) {
+                console.error(data.error);
+                return;
+            }
+            let totalTarifa = data.total // Valor obtenido del API
+            const ingresoPrincipal = parseFloat(document.getElementById("ingresosActPrin").value) || 0;
+            const otroIngreso1 = parseFloat(document.getElementById("otroIngreso1").value) || 0;
+            const otroIngreso2 = parseFloat(document.getElementById("otroIngreso2").value) || 0;
+            const egresos = parseFloat(document.getElementById("egresos").value) || 0;
+            let valorCuota = document.getElementById("id_valorCuota").value;
+            
+            let ingresosTotales = ingresoPrincipal + otroIngreso1 + otroIngreso2;
+            let capacidadPago = ingresosTotales - egresos - totalTarifa;
+            
+            divAnalisis = document.getElementById("divAnalisis").classList.remove("d-none");
+            divCapacidadPago = document.getElementById("divCapacidadPago").classList.remove("d-none");
+            
+            let inputAnalisis = document.getElementById("analisisCodeudor");
+            let inputCapacidadPago = document.getElementById("analisisCapacidadPago");
+            
+            if ((ingresosTotales * 0.5) > valorCuota) {
+                inputAnalisis.value = "Con capacidad de endeudamiento";
+                inputAnalisis.style.color = "white";
+                inputAnalisis.style.fontWeight = "bold";
+                inputAnalisis.style.backgroundColor = "#6EB942";
+            } else {
+                inputAnalisis.value = "Sin capacidad de endeudamiento";
+                inputAnalisis.style.color = "white";
+                inputAnalisis.style.fontWeight = "bold";
+                inputAnalisis.style.backgroundColor = "#F87171";
+            }
+            if (capacidadPago > valorCuota) {
+                inputCapacidadPago.value = "Con capacidad de pago";
+                inputCapacidadPago.style.color = "white";
+                inputCapacidadPago.style.fontWeight = "bold";
+                inputCapacidadPago.style.backgroundColor = "#6EB942";
+            } else {
+                inputCapacidadPago.value = "Sin capacidad de pago";
+                inputCapacidadPago.style.color = "white";
+                inputCapacidadPago.style.fontWeight = "bold";
+                inputCapacidadPago.style.backgroundColor = "#F87171";
+            }
+        })
+        .catch(error => { console.log("Error al obtener la tarifa", error); });
+}

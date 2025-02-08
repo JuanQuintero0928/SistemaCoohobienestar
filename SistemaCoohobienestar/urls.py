@@ -39,11 +39,13 @@ urlpatterns = [
     path('informacion/', include(('dashboard.urls','informacion'))),  #Plantilla Principal de la base
     path('informacion/', include(('asociado.urls','asociado'))),
     path('informacion/', include(('beneficiario.urls','beneficiario'))),
+    path('departamento/', include(('departamento.urls','departamento'))),
     path('parametro/', include(('parametro.urls','parametro'))),
     path('proceso/', include(('historico.urls','proceso'))),
     path('reportes/', include(('reportes.urls','reportes'))),
     path('ventas/', include(('ventas.urls','ventas'))),
-
+    # API
+    path('api/', include('asociado.api.urls')),
 ]
 
 if settings.DEBUG:

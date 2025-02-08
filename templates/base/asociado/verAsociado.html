@@ -1,6 +1,10 @@
 {% extends 'index.html' %}
 {% load static %}
 
+{% block extraHead %}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+{% endblock extraHead %}
+
 {% block title%}    
     Asociado
 {% endblock title %}
@@ -134,10 +138,10 @@
                             </div>
                             <div class="col-3">
                                 <label for="id_mpioDoc" class="form-label">Lugar Expedición *</label>
-                                <select name="mpioDoc" class="form-select" id="id_mpioDoc" required disabled>
-                                    {% for mcpio in query_mpio %}
-                                        <option value="{{mcpio.id}}" {% if mcpio.id == objAsociado.mpioDoc.pk %} selected {% endif %}>{{mcpio.nombre}} - {{mcpio.departamento__nombre}}</option>
-                                    {% endfor %}
+                                <select name="mpioDoc" class="form-select form-control" id="id_mpioDoc" required disabled>
+                                    <option value="{{ objAsociado.mpioDoc.id }}" selected>
+                                        {{ objAsociado.mpioDoc.nombre }} - {{ objAsociado.mpioDoc.departamento.nombre }}
+                                    </option>
                                 </select>
                             </div>
             
@@ -152,7 +156,7 @@
                             </div>
                             <div class="col-3">
                                 <label for="id_dtoNacimiento" class="form-label">Departamento Nacimiento *</label>
-                                <select name="dtoNacimiento" class="form-select" id="id_dtoNacimiento" required disabled>
+                                <select name="dtoNacimiento" class="form-select departamento-select" id="id_dtoNacimiento" data-target="#id_mpioNacimiento" required disabled>
                                     {% for dpto in query_dpto %}
                                         <option value="{{dpto.id}}" {% if dpto.id == objAsociado.dtoNacimiento.pk %} selected {% endif %}>{{dpto.nombre}}</option>
                                     {% endfor %}
@@ -160,10 +164,10 @@
                             </div>
                             <div class="col-3">
                                 <label for="id_mpioNacimiento" class="form-label">Municipio Nacimiento *</label>
-                                <select name="mpioNacimiento" class="form-select" id="id_mpioNacimiento" required disabled>
-                                    {% for mcpio in query_mpio %}
-                                        <option value="{{mcpio.id}}" data-chained="{{mcpio.departamento}}" {% if mcpio.id == objAsociado.mpioNacimiento.pk %} selected {% endif %}>{{mcpio.nombre}}</option>
-                                    {% endfor %}
+                                <select name="mpioNacimiento" class="form form-control" id="id_mpioNacimiento" required disabled>
+                                    <option value="{{ objAsociado.mpioNacimiento.id }}" selected>
+                                        {{ objAsociado.mpioNacimiento.nombre }}
+                                    </option>
                                 </select>
                             </div>
                             <div class="col-2">
@@ -211,7 +215,7 @@
                             </div>
                             <div class="col-4">
                                 <label for="id_deptoResidencia" class="form-label">Departamento *</label>
-                                <select name="deptoResidencia" class="form-select" id="id_deptoResidencia" disabled>
+                                <select name="deptoResidencia" class="form-select departamento-select" id="id_deptoResidencia" data-target="#id_mpioResidencia" disabled>
                                     {% for dpto in query_dpto %}
                                         <option value="{{dpto.id}}" {% if dpto.id == objAsociado.deptoResidencia.pk %}selected{% endif %}>{{dpto.nombre}}</option>
                                     {% endfor %}
@@ -221,21 +225,27 @@
                             {% comment %} Fila 6 {% endcomment %}
                             <div class="col-3">
                                 <label for="id_mpioResidencia" class="form-label">Municipio *</label>
-                                <select name="mpioResidencia" class="form-select" id="id_mpioResidencia" disabled>
-                                    {% for mcpio in query_mpio %}
-                                        <option value="{{mcpio.id}}" data-chained="{{mcpio.departamento}}" {% if mcpio.id == objAsociado.mpioResidencia.pk %} selected{% endif %}>{{mcpio.nombre}}</option>
-                                    {% endfor %}
+                                <select name="mpioResidencia" class="form form-control" id="id_mpioResidencia" disabled>
+                                    <option value="{{ objAsociado.mpioResidencia.id }}" selected>
+                                        {{ objAsociado.mpioResidencia.nombre }}
+                                    </option>
                                 </select>
                             </div>
                             <div class="col-3">
                                 <label for="id_email" class="form-label">Correo Electronico *</label>
                                 <input type="email" value="{{objAsociado.email}}" class="form-control" name="email" id="id_email" autocomplete="off" required disabled>
                             </div>
-                            <div class="col-3">
-                                <label for="id_numResidencia" class="form-label">Telefono Residencia *</label>
-                                <input type="number" value="{{objAsociado.numResidencia}}" class="form-control" name="numResidencia" id="id_numResidencia" min="0" disabled>
+                            <div class="col-2">
+                                <label for="id_numResidencia" class="form-label">Telefono Residencia</label>
+                                <input type="number" {% if objAsociado.numResidencia %} value="{{objAsociado.numResidencia}}" {% endif %} class="form-control" name="numResidencia" id="id_numResidencia" min="0" disabled>
                             </div>
-                            <div class="col-3">
+                            <div class="col-2">
+                                <label for="id_indicativo" class="form-label">Indicativo *</label>
+                                <select class="form-control" name="indicativo" id="id_indicativo" required disabled data-pais-seleccionado="{{ pais_seleccionado }}">
+                                    <!-- Aquí se llenarán los países con banderas -->
+                                </select>
+                            </div>
+                            <div class="col-2">
                                 <label for="id_numCelular" class="form-label">Telefono Celular *</label>
                                 <input type="number" value="{{objAsociado.numCelular}}" class="form-control" name="numCelular" id="id_numCelular" min="0" required disabled>
                             </div>
@@ -388,7 +398,7 @@
                             </div>
                             <div class="col-3">
                                 <label for="id_numDocRL" class="form-label">N° Identificación Representante Legal</label>
-                                <input type="number" value="{{objLaboral.numDocRL}}" class="form-control" name="numDocRL" id="id_numDocRL" min="0" {% if laboral == 'no' %} disabled {% endif %}>
+                                <input type="number" {% if objLaboral.numDocRL %} value="{{objLaboral.numDocRL}}" {% endif %} class="form-control" name="numDocRL" id="id_numDocRL" min="0" {% if laboral == 'no' %} disabled {% endif %}>
                             </div>
                             <div class="col-3">
                                 <label for="id_fechaInicio" class="form-label">Fecha Inicio</label>
@@ -406,7 +416,7 @@
                             </div>
                             <div class="col-3">
                                 <label for="id_dptoTrabajo" class="form-label">Departamento</label>
-                                <select name="dptoTrabajo" class="form-select" id="id_dptoTrabajo" {% if laboral == 'no' %} disabled {% endif %}>
+                                <select name="dptoTrabajo" class="form-select departamento-select" id="id_dptoTrabajo" data-target="#id_mpioTrabajo" {% if laboral == 'no' %} disabled {% endif %}>
                                     <option value="0" selected>&nbsp;</option>
                                     {% for dpto in query_dpto %}
                                         <option value="{{dpto.id}}" {% if dpto.id == objLaboral.dptoTrabajo.pk %} selected {% endif %}>{{dpto.nombre}}</option>
@@ -415,16 +425,15 @@
                             </div>
                             <div class="col-3">
                                 <label for="id_mpioTrabajo" class="form-label">Municipio</label>
-                                <select name="mpioTrabajo" class="form-select" id="id_mpioTrabajo" {% if laboral == 'no' %} disabled {% endif %}>
-                                    <option value="0" selected>&nbsp;</option>
-                                    {% for mcpio in query_mpio %}
-                                        <option value="{{mcpio.id}}" data-chained="{{mcpio.departamento}}" {% if mcpio.id == objLaboral.mpioTrabajo.pk %} selected {% endif %}>{{mcpio.nombre}}</option>
-                                    {% endfor %}
+                                <select name="mpioTrabajo" class="form form-control" id="id_mpioTrabajo" {% if laboral == 'no' %} disabled {% endif %}>
+                                    <option value="{{ objLaboral.mpioTrabajo.id }}" selected>
+                                        {{ objLaboral.mpioTrabajo.nombre }}
+                                    </option>
                                 </select>  
                             </div>
                             <div class="col-3">
                                 <label for="id_telefono" class="form-label">Telefono</label>
-                                <input type="number" value="{{objLaboral.telefono}}" class="form-control" name="telefono" id="id_telefono" min="0" max="9999999999" {% if laboral == 'no' %} disabled {% endif %}>   
+                                <input type="number" {% if objLaboral.telefono %} value="{{objLaboral.telefono}}" {% endif %} class="form-control" name="telefono" id="id_telefono" min="0" max="9999999999" {% if laboral == 'no' %} disabled {% endif %}>   
                             </div>
 
                             {% comment %} Fila 4 {% endcomment %}
@@ -612,23 +621,13 @@
 {% endblock contenidoPagina %}
 
 {% block extrajs %}
-
-    <script src="{% static 'lib/jquery-chained/jquery.chained.min.js' %}"></script>
-    <script src="{% static 'js/estadoAsociado.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/i18n/es.js"></script>
+    <script src="{% static 'js/getMunicipios.js' %}"></script>
     <script src="{% static 'js/botonesAsociado.js' %}"></script>
 
+    
     <script type="text/javascript">
-        var $ = jQuery.noConflict()
-        function abrir_modal_creacion(url){
-            $('#creacion').load(url, function(){
-                $(this).modal('show');
-            });
-        }
-        
-        $("#id_mpioNacimiento").chained("#id_dtoNacimiento");
-        $("#id_mpioResidencia").chained("#id_deptoResidencia");
-        $("#id_mpioTrabajo").chained("#id_dptoTrabajo");
-
         document.getElementById('id_mpioNacimiento').disabled = true;
         document.getElementById('id_mpioResidencia').disabled = true;
         {% if laboral == 'no' %} 

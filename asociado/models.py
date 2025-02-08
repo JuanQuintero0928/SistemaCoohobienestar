@@ -1,5 +1,6 @@
+from turtle import mode
 from django.db import models
-from departamento.models import Departamento, Municipio, PaisRepatriacion
+from departamento.models import Departamento, Municipio, PaisRepatriacion, Pais
 from parametro.models import TipoAsociado, ServicioFuneraria, MesTarifa, Convenio
 # from historico.models import HistoricoCredito
 
@@ -74,6 +75,7 @@ class Asociado(models.Model):
     deptoResidencia = models.ForeignKey(Departamento, on_delete=models.RESTRICT, blank=True, null=True, related_name='deptoResidencia')
     mpioResidencia = models.ForeignKey(Municipio, on_delete=models.RESTRICT, blank=True, null=True, related_name='mpioResidencia')
     numResidencia = models.CharField('Numero Residencia', max_length=13, blank=False, null=False)
+    indicativoCelular = models.ForeignKey(Pais, on_delete=models.RESTRICT, blank=True, null=True)
     numCelular = models.CharField('Numero Celular', max_length=13, blank=False, null=False)
     envioInfoCorreo = models.BooleanField('Envio Información Email', default=False)
     envioInfoMensaje = models.BooleanField('Envio Información Mensaje Texto', default=False)
@@ -141,7 +143,7 @@ class Laboral(models.Model):
 
 class Financiera(models.Model):
     id = models.AutoField(primary_key=True)
-    asociado = models.ForeignKey(Asociado, on_delete=models.RESTRICT, blank=False, null=False)
+    asociado = models.ForeignKey(Asociado, on_delete=models.RESTRICT, blank=False, null=False, related_name="financiera")
     ingresosActPrin = models.IntegerField('Ingresos Actividad Principal', blank=True, null=True)
     otroIngreso1 = models.IntegerField('Otros Ingresos 1', blank=True, null=True)
     otroIngreso2 = models.IntegerField('Otros Ingresos 2', blank=True, null=True)

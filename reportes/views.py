@@ -899,18 +899,19 @@ class DescargarExcel(ListView):
             ws['L2'] = 'Departamento Residencia'
             ws['M2'] = 'Municipio Residencia'
             ws['N2'] = 'Fecha Nacimiento'
-            ws['O2'] = 'Número Celular'
-            ws['P2'] = 'Email'
-            ws['Q2'] = 'Estado Asociado'
-            ws['R2'] = 'Tipo Asociado'
-            ws['S2'] = 'Fecha Ingreso'
-            ws['T2'] = 'Funeraria'
-            ws['U2'] = 'Fecha Retiro'
+            ws['O2'] = 'Indicativo Celular'
+            ws['P2'] = 'Número Celular'
+            ws['Q2'] = 'Email'
+            ws['R2'] = 'Estado Asociado'
+            ws['S2'] = 'Tipo Asociado'
+            ws['T2'] = 'Fecha Ingreso'
+            ws['U2'] = 'Funeraria'
+            ws['V2'] = 'Fecha Retiro'
                     
             bold_font2 = Font(bold=True)
             center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
 
-            for col in range(1,22):
+            for col in range(1,23):
                 cell = ws.cell(row=2, column=col)
                 cell.font = bold_font2
                 cell.alignment = center_alignment
@@ -929,14 +930,14 @@ class DescargarExcel(ListView):
             ws.column_dimensions['L'].width = 14
             ws.column_dimensions['M'].width = 20
             ws.column_dimensions['N'].width = 15
-            ws.column_dimensions['O'].width = 15
-            ws.column_dimensions['P'].width = 20
-            ws.column_dimensions['Q'].width = 18
-            ws.column_dimensions['R'].width = 20
+            ws.column_dimensions['O'].width = 12
+            ws.column_dimensions['P'].width = 15
+            ws.column_dimensions['Q'].width = 20
+            ws.column_dimensions['R'].width = 18
             ws.column_dimensions['S'].width = 20
-            ws.column_dimensions['T'].width = 22
-            ws.column_dimensions['U'].width = 20
-
+            ws.column_dimensions['T'].width = 20
+            ws.column_dimensions['U'].width = 22
+            ws.column_dimensions['V'].width = 20
 
             #Inicia el primer registro en la celda numero 3
             cont = 3
@@ -961,16 +962,17 @@ class DescargarExcel(ListView):
                 ws.cell(row = cont, column = 12).value = asociado.deptoResidencia.nombre
                 ws.cell(row = cont, column = 13).value = asociado.mpioResidencia.nombre
                 ws.cell(row = cont, column = 14).value = asociado.fechaNacimiento.strftime("%d/%m/%Y")
-                ws.cell(row = cont, column = 15).value = int(asociado.numCelular)
-                ws.cell(row = cont, column = 16).value = asociado.email
-                ws.cell(row = cont, column = 17).value = asociado.estadoAsociado
-                ws.cell(row = cont, column = 18).value = asociado.tAsociado.concepto
-                ws.cell(row = cont, column = 19).value = asociado.fechaIngreso.strftime("%d/%m/%Y")
-                ws.cell(row = cont, column = 20).value = asociado.funeraria
+                ws.cell(row = cont, column = 15).value = getattr(asociado.indicativoCelular, 'indicativo', '')
+                ws.cell(row = cont, column = 16).value = int(asociado.numCelular)
+                ws.cell(row = cont, column = 17).value = asociado.email
+                ws.cell(row = cont, column = 18).value = asociado.estadoAsociado
+                ws.cell(row = cont, column = 19).value = asociado.tAsociado.concepto
+                ws.cell(row = cont, column = 20).value = asociado.fechaIngreso.strftime("%d/%m/%Y")
+                ws.cell(row = cont, column = 21).value = asociado.funeraria
                 if asociado.fechaRetiro:
-                    ws.cell(row = cont, column = 21).value = asociado.fechaRetiro.strftime("%d/%m/%Y")
+                    ws.cell(row = cont, column = 22).value = asociado.fechaRetiro.strftime("%d/%m/%Y")
                 else:
-                    ws.cell(row = cont, column = 21).value = ''
+                    ws.cell(row = cont, column = 22).value = ''
                 cont+=1
                 nombre_archivo = f"Reporte_Listado_Asociados.xlsx"
         elif tipo_formato == 2:

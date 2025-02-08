@@ -1,4 +1,3 @@
-from multiprocessing import context
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, CreateView, UpdateView
 from django.http import HttpResponseRedirect
@@ -10,7 +9,7 @@ from datetime import date, timedelta
 from .models import Asociado, ConveniosAsociado, Laboral, Financiera, ParametroAsociado, TarifaAsociado, RepatriacionTitular
 from beneficiario.models import Beneficiario, Mascota, Coohoperativitos, Parentesco
 from credito.models import Codeudor
-from departamento.models import Departamento, Municipio, PaisRepatriacion
+from departamento.models import Departamento, Municipio, PaisRepatriacion, Pais
 from historico.models import HistoricoAuxilio, HistoricoCredito, HistoricoSeguroVida, HistorialPagos
 from parametro.models import Tarifas, TipoAsociado, TipoAuxilio, ServicioFuneraria, MesTarifa, Convenio, TasasInteresCredito
 from ventas.models import HistoricoVenta
@@ -29,14 +28,19 @@ class Asociados(ListView):
         return render(request, template_name, {'query':query})
     
 class CrearAsociado(CreateView):
-    query_dpto = Departamento.objects.values('id','nombre')
-    query_mpio = Municipio.objects.values('id','nombre','departamento','departamento__nombre')
-    query_tAsociado = TipoAsociado.objects.all()
-    query_parentesco = Parentesco.objects.all().order_by('nombre')
-    template_name = 'base/asociado/crearAsociado.html'
-
+    
     def get(self, request, *args, **kwargs):
-        return render(request, self.template_name, {'query_dpto':self.query_dpto,'query_mpio':self.query_mpio, 'query_tAsociado': self.query_tAsociado, 'query_parentesco':self.query_parentesco, 'create':'yes'})
+        template_name = 'base/asociado/crearAsociado.html'
+        query_dpto = Departamento.objects.values('id','nombre')
+        query_tAsociado = TipoAsociado.objects.all()
+        query_parentesco = Parentesco.objects.all().order_by('nombre')
+
+        context = {
+            'query_dpto': query_dpto,
+            'query_tAsociado': query_tAsociado,
+            'query_parentesco': query_parentesco,
+        }
+        return render(request, template_name, context)
     
     def post(self, request, *args, **kwargs):
         # try:
@@ -61,7 +65,7 @@ class CrearAsociado(CreateView):
             if request.POST['numResidencia'] != "":
                 obj.numResidencia = request.POST['numResidencia']
             obj.numCelular = request.POST['numCelular']
-            
+            obj.indicativoCelular = Pais.objects.get(pk = request.POST['indicativo'])
             envioCorreo = request.POST.getlist('envioInfoCorreo')
             envioMensaje = request.POST.getlist('envioInfoMensaje')
             envioWhatsapp = request.POST.getlist('envioInfoWhatsapp')
@@ -158,27 +162,37 @@ class CrearAsociado(CreateView):
         # except Exception as e:
         #     messages.warning(request, 'Hubo un problema al guardar la información.')
         #     return HttpResponseRedirect(reverse_lazy('asociado:asociado'))          
-        
+
 class VerAsociado(ListView):
-    template_name = 'base/asociado/verAsociado.html'
-
     def get(self, request, *args, **kwargs):
-        try:
-            query_dpto = Departamento.objects.values('id','nombre')
-            query_mpio = Municipio.objects.values('id','nombre','departamento','departamento__nombre')
-            objAsociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
-            objParentesco = Parentesco.objects.all().order_by('nombre')
-            objEmpresa = TipoAsociado.objects.all()
-            objServFuneraria = ServicioFuneraria.objects.all()
-            # objParametroAsociado = ParametroAsociado.objects.get(asociado = kwargs['pkAsociado'])
-            objParametroAsociado = ParametroAsociado.objects.values('id','funeraria','autorizaciondcto','empresa','autorizaciondcto','primerMes').get(asociado = kwargs['pkAsociado'])
-            objMes = MesTarifa.objects.all()
-            objLaboral = Laboral.objects.get(asociado = kwargs['pkAsociado'])
-            objFinanciero = Financiera.objects.get(asociado = kwargs['pkAsociado'])
-            return render(request, self.template_name, {'laboral':'no', 'pkAsociado':kwargs['pkAsociado'], 'query_dpto':query_dpto, 'query_mpio':query_mpio, 'objAsociado':objAsociado, 'objFinanciero': objFinanciero, 'objLaboral':objLaboral, 'objParentesco':objParentesco, 'objEmpresa':objEmpresa, 'objServFuneraria':objServFuneraria, 'objParametroAsociado':objParametroAsociado, 'objMes':objMes, 'vista':1})
-        except Laboral.DoesNotExist:
-            return render(request, self.template_name, {'laboral':'yes', 'pkAsociado':kwargs['pkAsociado'], 'query_dpto':query_dpto, 'query_mpio':query_mpio, 'objAsociado':objAsociado, 'objParentesco':objParentesco, 'objEmpresa':objEmpresa, 'objServFuneraria':objServFuneraria, 'objParametroAsociado':objParametroAsociado, 'objMes':objMes, 'vista':1})
-
+        template_name = 'base/asociado/verAsociado.html'
+        query_dpto = Departamento.objects.values('id','nombre')
+        objAsociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
+        objParentesco = Parentesco.objects.all().order_by('nombre')
+        objEmpresa = TipoAsociado.objects.all()
+        objServFuneraria = ServicioFuneraria.objects.all()
+        # objParametroAsociado = ParametroAsociado.objects.get(asociado = kwargs['pkAsociado'])
+        objParametroAsociado = ParametroAsociado.objects.values('id','funeraria','autorizaciondcto','empresa','autorizaciondcto','primerMes').get(asociado = kwargs['pkAsociado'])
+        objMes = MesTarifa.objects.all()
+        objLaboral = Laboral.objects.get(asociado = kwargs['pkAsociado'])
+        objFinanciero = Financiera.objects.get(asociado = kwargs['pkAsociado'])
+        context = {
+            'laboral':'no',
+            'pkAsociado':kwargs['pkAsociado'],
+            'query_dpto':query_dpto,
+            'objAsociado':objAsociado,
+            'objFinanciero': objFinanciero,
+            'objLaboral':objLaboral,
+            'objParentesco':objParentesco,
+            'objEmpresa':objEmpresa,
+            'objServFuneraria':objServFuneraria,
+            'objParametroAsociado':objParametroAsociado,
+            'objMes':objMes,
+            'vista':1,
+            'pais_seleccionado': objAsociado.indicativoCelular.id,
+        }
+        return render(request, template_name, context)
+        
 class EditarAsociado(UpdateView):
 
     def post(self, request, *args, **kwargs):
@@ -210,10 +224,12 @@ class EditarAsociado(UpdateView):
         obj.genero = request.POST['genero']
         obj.estadoCivil = request.POST['estadoCivil']
         obj.email = request.POST['email']
-        if request.POST['numResidencia'] != "":
+        if request.POST['numResidencia'] != None:
             obj.numResidencia = request.POST['numResidencia']
+        else:
+            obj.numResidencia = None
+        obj.indicativoCelular = Pais.objects.get(pk = request.POST['indicativo'])    
         obj.numCelular = request.POST['numCelular']
-        
         envioCorreo = request.POST.getlist('envioInfoCorreo')
         envioMensaje = request.POST.getlist('envioInfoMensaje')
         envioWhatsapp = request.POST.getlist('envioInfoWhatsapp')
@@ -767,16 +783,15 @@ class EliminarAuxilio(UpdateView):
         queryAuxilio.save()
         messages.info(request, 'Registro Eliminado Correctamente')
         return HttpResponseRedirect(reverse_lazy('asociado:historicoAuxilio', args=[kwargs['pkAsociado']]))
-class VerHistoricoCredito(ListView):
 
-    
+class VerHistoricoCredito(ListView):
+ 
     def get(self, request, *args, **kwargs):
         template_name = 'base/historico/listarHistoricoCredito.html'
         queryCredito = HistoricoCredito.objects.prefetch_related(
                 Prefetch('codeudor_set', queryset=Codeudor.objects.all())
             ).filter(asociado = kwargs['pkAsociado'])
         queryAsociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
-
 
         context = {
             'updateAsociado':'yes',
@@ -792,10 +807,13 @@ class CrearHistoricoCredito(ListView):
         template_name = 'base/historico/crearHistoricoCredito.html'
         form = HistoricoCreditoForm()
         queryAsociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
+        queryFinanciera = queryAsociado.financiera.all().first()
+        queryCodeudor = Codeudor.objects.filter()
         context = {
             'pkAsociado':kwargs['pkAsociado'],
             'form':form,
             'asociado':queryAsociado,
+            'financiera':queryFinanciera,
             'tasasInteresCredito':TasasInteresCredito.objects.all()
         }
         return render(request, template_name, context)
@@ -884,8 +902,7 @@ class VerTarifaAsociado(ListView):
             benef = Beneficiario.objects.filter(asociado = kwargs['pkAsociado'], repatriacion = True).count()
             tarifas = Tarifas.objects.get(pk = 4)
             repatriacionAsociado = tarifas.valor
-            # for pk in queryRepatriacionTitular:
-            #     pkRepatriacion = pk.pk
+            
             # se valida si existen beneficiarios con repatriacion
             if benef > 0:
                 # obtenemos el valor de la tarifa de repatriacion
@@ -1569,7 +1586,7 @@ class CrearConvenio(ListView):
                 estadoRegistro=True,
             )
             # Tarifa del asociado
-            objTarifa = TarifaAsociado.objects.get(pk=kwargs['pkAsociado'])
+            objTarifa = TarifaAsociado.objects.get(asociado=kwargs['pkAsociado'])
             # Tarifa del convenio
             TarifaConvenio = Convenio.objects.get(concepto=form.cleaned_data['convenio'])
             objTarifa.cuotaConvenio += TarifaConvenio.valor

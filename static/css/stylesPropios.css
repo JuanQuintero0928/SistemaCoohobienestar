@@ -45,3 +45,20 @@
 .custom-btn-2:hover .custom-icon-3 {
   fill: white; /* Ícono blanco al pasar el mouse */
 }
+
+.select2-selection {
+  border: 1px solid #ced4da !important; /* Borde igual a Bootstrap */
+  border-radius: 0.375rem !important; /* Bordes redondeados */
+  padding: 0.375rem 0.75rem !important; /* Espaciado interno */
+  height: calc(2.25rem + 2px) !important; /* Misma altura que los inputs */
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Estilos para el span cuando está deshabilitado */
+.select2-container--disabled {
+  background-color: #E9ECEF !important;
+  border-color: #ced4da !important;
+  border-radius: 0.375rem !important; /* Bordes redondeados */
+
+}
