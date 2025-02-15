@@ -1,35 +1,75 @@
 {% extends 'index.html' %}
 {% load static %}
 
+{% block extraHead %}
+    {% comment %} Estilos DataTables Simple {% endcomment %}
+    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
+{% endblock extraHead %}
+
 {% block contenidoPagina %}
-    <div class="card mb-4" style="border:0px">
+    <div class="card" style="border:0px">
         {% block submenu %}
 
         {% endblock submenu %}
-        <div class="card-body">
-            <table id="datatablesSimple">
-                <thead>
-                    
-                    {% block tablaencabezado %}
+
+            <div class="table-responsive">
+
+                <table id="datatablesSimple" class="display" style="width:100%">
+                    <thead>
                         
-                    {% endblock tablaencabezado %}
+                        {% block tablaencabezado %}
+                            
+                        {% endblock tablaencabezado %}
+                            
+                    </thead>
+                    <tbody>
                         
-                </thead>
-                <tbody>
-                    
-                    {% block tablafilas %}
-                       
-                    {% endblock tablafilas %}
-                    
-                </tbody>
-            </table>
-        </div>
+                        {% block tablafilas %}
+                            
+                        {% endblock tablafilas %}
+                        
+                    </tbody>
+                </table>
+            </div>
     </div>
 {% endblock contenidoPagina %}
 
-{% block extrajs %}
-<script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
-<script src="{% static 'lib/startbootstrap-sb-admin-gh-pages/js/datatables-simple-demo.js' %}"></script>
-<script src="{% static 'lib/startbootstrap-sb-admin-gh-pages/js/config.js' %}"></script>
+{% block extrajsTable %}
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
-{% endblock extrajs %}
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+{% comment %} <script src="{% static 'lib/startbootstrap-sb-admin-gh-pages/js/config.js' %}"></script> {% endcomment %}
+
+<script>
+    $(document).ready(function() {
+        $('#datatablesSimple').DataTable({
+            "responsive": true,
+            "autoWidth": false,
+            "paging": true,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "language": {
+                    "lengthMenu": "Mostrar _MENU_ registros por página",
+                    "zeroRecords": "No se encontraron resultados",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                    "infoEmpty": "Mostrando 0 a 0 de 0 registros",
+                    "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                    "search": "Buscar:",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Último",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    },
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                },
+        });
+    });
+</script>
+
+{% endblock extrajsTable %}

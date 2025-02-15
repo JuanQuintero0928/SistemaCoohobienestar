@@ -45,15 +45,15 @@
                             <div class="col-md-12">
                                 <div class="card mb-1">
                                     <div class="card-header">
-                                        <div class="row">
-                                            <div class="col-md-11">
+                                        <div class="row align-items-center">
+                                            <div class="col-9 col-sm-10 col-md-11">
                                                 <h1>
                                                     {% block title %}
                                                         Dashboard
                                                     {% endblock title %}
                                                 </h1>
                                             </div>
-                                            <div class="col-md-1 m-0 row justify-content-center align-items-center">
+                                            <div class="col-3 col-sm-2 col-md-1 d-felx justify-content-center align-items-center">
                                                 {% block button %}
                                                         
                                                 {% endblock button %}
@@ -63,72 +63,73 @@
                                     <div class="card-body">
                                         {% include 'estructura/message.html' %}  
                                         {% block contenidoPagina %}
-                                            <div id="carouselExample" class="carousel slide">
-                                                <div class="carousel-inner">
-
-                                                    {% comment %} FILA 1 {% endcomment %}
-                                                    <div class="row">
-                                                        <div class="col-md-3">
-                                                            <div class="card text-center">
-                                                                <div class="card-header">
-                                                                    <h3>TOTAL ASOCIADOS</h3>
-                                                                </div>
-                                                                <div class="card-body">
-                                                                    <h1 class="card-title">{{total}}</h1>
-                                                                </div>
+                                            
+                                                {% comment %} FILA 1 {% endcomment %}
+                                                <div class="row">
+                                                    <!-- TOTAL -->
+                                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                                        <div class="card text-white bg-primary shadow-lg rounded-3">
+                                                            <div class="card-header text-center">
+                                                                <h5 class="mb-0">TOTAL</h5>
                                                             </div>
-                                                        </div>
-                                                        <div class="col-md-3">
-                                                            <div class="card text-center">
-                                                                <div class="card-header">
-                                                                    <h3>ACTIVOS</h3>
-                                                                </div>
-                                                                <div class="card-body">
-                                                                    <h1 class="card-title">{{activos}}</h1>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-3">
-                                                            <div class="card text-center">
-                                                                <div class="card-header">
-                                                                    <h3>INACTIVOS</h3>
-                                                                </div>
-                                                                <div class="card-body">
-                                                                    <h1 class="card-title">{{inactivos}}</h1>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-3">
-                                                            <div class="card text-center">
-                                                                <div class="card-header">
-                                                                    <h3>RETIRADOS</h3>
-                                                                </div>
-                                                                <div class="card-body">
-                                                                    <h1 class="card-title">{{retirado}}</h1>
-                                                                </div>
+                                                            <div class="card-body text-center">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="white" class="bi bi-person-lines-fill" viewBox="0 0 16 16">
+                                                                    <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5 6s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zM11 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5m.5 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1zm2 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1z"/>
+                                                                  </svg>
+                                                                <h1 class="card-title mt-2">{{total}}</h1>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    {% comment %} FILA 1 {% endcomment %}
-                                                    <hr>
-                                                    <div class="row">
-                                                        
-                                                        
+
+                                                    <!-- ACTIVOS -->
+                                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                                        <div class="card text-white bg-success shadow-lg rounded-3">
+                                                            <div class="card-header text-center">
+                                                                <h5 class="mb-0">ACTIVOS</h5>
+                                                            </div>
+                                                            <div class="card-body text-center">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="white" class="bi bi-check-circle" viewBox="0 0 16 16">
+                                                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                                                    <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05"/>
+                                                                  </svg>
+                                                                <h1 class="card-title mt-2">{{activos}}</h1>
+                                                            </div>
+                                                        </div>
                                                     </div>
-
-
-
-
+                                                
+                                                    <!-- INACTIVOS -->
+                                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                                        <div class="card text-white bg-warning shadow-lg rounded-3">
+                                                            <div class="card-header text-center">
+                                                                <h5 class="mb-0">INACTIVOS</h5>
+                                                            </div>
+                                                            <div class="card-body text-center">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="white" class="bi bi-exclamation-diamond" viewBox="0 0 16 16">
+                                                                    <path d="M6.95.435c.58-.58 1.52-.58 2.1 0l6.515 6.516c.58.58.58 1.519 0 2.098L9.05 15.565c-.58.58-1.519.58-2.098 0L.435 9.05a1.48 1.48 0 0 1 0-2.098zm1.4.7a.495.495 0 0 0-.7 0L1.134 7.65a.495.495 0 0 0 0 .7l6.516 6.516a.495.495 0 0 0 .7 0l6.516-6.516a.495.495 0 0 0 0-.7L8.35 1.134z"/>
+                                                                    <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/>
+                                                                </svg>
+                                                                <h1 class="card-title mt-2">{{inactivos}}</h1>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                
+                                                    <!-- RETIRADOS -->
+                                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                                        <div class="card text-white bg-danger shadow-lg rounded-3">
+                                                            <div class="card-header text-center">
+                                                                <h5 class="mb-0">RETIRADOS</h5>
+                                                            </div>
+                                                            <div class="card-body text-center">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="white" class="bi bi-x-octagon" viewBox="0 0 16 16">
+                                                                    <path d="M4.54.146A.5.5 0 0 1 4.893 0h6.214a.5.5 0 0 1 .353.146l4.394 4.394a.5.5 0 0 1 .146.353v6.214a.5.5 0 0 1-.146.353l-4.394 4.394a.5.5 0 0 1-.353.146H4.893a.5.5 0 0 1-.353-.146L.146 11.46A.5.5 0 0 1 0 11.107V4.893a.5.5 0 0 1 .146-.353zM5.1 1 1 5.1v5.8L5.1 15h5.8l4.1-4.1V5.1L10.9 1z"/>
+                                                                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                                                                  </svg>
+                                                                <h1 class="card-title mt-2">{{retirado}}</h1>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
-                                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                                <span class="visually-hidden">Previous</span>
-                                                </button>
-                                                <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
-                                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                                <span class="visually-hidden">Next</span>
-                                                </button>
-                                            </div>
+                                                
                                         {% endblock contenidoPagina %}
                                     </div>
                                 </div>
@@ -149,8 +150,12 @@
             </div>
         </div>
 
-        <!-- EXTRAJS -->
         {% include 'estructura/extrajs.html' %}
+        <!-- EXTRAJS Table -->
+        {% block extrajsTable %}
+        
+        {% endblock extrajsTable %}
+        <!-- EXTRAJS -->
         {% block extrajs %}
         
         {% endblock extrajs %}

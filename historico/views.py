@@ -1,18 +1,17 @@
-from multiprocessing import context
+from tkinter import N
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
-from django.urls import reverse, reverse_lazy
-from django.views.generic import ListView, CreateView, DeleteView
+from django.urls import reverse
+from django.views.generic import ListView, DeleteView
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.db.models import Sum, F, Q, Subquery
+from django.db.models import Sum, F, Q, Subquery, Case, When, Value, IntegerField
 from django.core.paginator import Paginator
 
-from .models import HistoricoAuxilio, HistorialPagos, HistoricoSeguroVida
+from .models import HistoricoAuxilio, HistorialPagos
 from parametro.models import MesTarifa, FormaPago, Tarifas
 from asociado.models import Asociado, ParametroAsociado, TarifaAsociado
-from beneficiario.models import Mascota, Beneficiario, Coohoperativitos
-from .form import HistorialPagoForm, CargarArchivoForm
+from .form import CargarArchivoForm
 from ventas.models import HistoricoVenta
 from funciones.function import procesar_csv
 
@@ -102,9 +101,16 @@ class ModalPago(ListView):
                             .filter(asociado = kwargs['pkAsociado'], mesPago_id__lt = 9990)
                             .values('mesPago'))
             queryMes = (MesTarifa.objects
-                        .exclude(pk__in=Subquery(mesesPagados))
-                        .filter(pk__gte = queryParamAsoc.primerMes.pk)
-                        .annotate(total=F('aporte') + F('bSocial') + total_tarifa_asociado))
+                            .exclude(pk__in=Subquery(mesesPagados))
+                            .filter(pk__gte = queryParamAsoc.primerMes.pk)
+                            .annotate(
+                                total = Case(
+                                    When(pk__gte=9990, then=Value(0)),           # Se envia valor en 0 para mostrar en el template
+                                    default=F('aporte') + F('bSocial') + total_tarifa_asociado, # se suma al resto de pk el valor de aporte, bsocial y total tarifa
+                                    output_field=IntegerField()
+                                )
+                            )
+                        )
         else:
             queryMes = MesTarifa.objects.filter(pk__gte = queryParamAsoc.primerMes.pk).annotate(total=F('aporte') + F('bSocial') + total_tarifa_asociado)
         
@@ -127,7 +133,21 @@ class ModalPago(ListView):
                 if homeElements.valorNeto % homeElements.pendientePago != 0:
                     if homeElements.cuotas - homeElements.cuotasPagas == 1:
                         homeElements.valorCuotas = homeElements.pendientePago
+        
+        # Se valida si el asociado debe cuotas de la vinculación
+        cuotaVinculacion = None
+        cuotaVinculacionMenorEdad = Tarifas.objects.values('valor').get(pk=8)
+        if queryParamAsoc.vinculacionFormaPago and queryParamAsoc.vinculacionFormaPago.pk == 2 and queryParamAsoc.vinculacionPendientePago > 0:
+            queryPagosVinculacion = HistorialPagos.objects.filter(
+                asociado = kwargs['pkAsociado'],
+                mesPago = 9995, # Id de la vinculación Adulto
+                estadoRegistro = True,
+            ).count()
 
+            if queryPagosVinculacion == (queryParamAsoc.vinculacionCuotas - 1):
+                cuotaVinculacion = queryParamAsoc.vinculacionPendientePago
+            else:
+                cuotaVinculacion = queryParamAsoc.vinculacionValor
 
         context = {
             'pkAsociado':kwargs['pkAsociado'],
@@ -136,7 +156,9 @@ class ModalPago(ListView):
             'queryMes':queryMes,
             'queryPago':queryPago,
             'diferencia':total_diferencia,
-            'queryCreditoProd':queryCreditoProd
+            'queryCreditoProd':queryCreditoProd,
+            'cuotaVinculacion':cuotaVinculacion,
+            'cuotaVinculacionMenorEdad':cuotaVinculacionMenorEdad
         }
         return render(request, template_name, context)
 
@@ -153,26 +175,27 @@ class ModalPago(ListView):
 
         # obtenemos los switchs que se marcaron como activos en el modal
         switches_activos = request.POST.getlist('switches') or []
-
+     
          # saber el tamaño de los botones marcados
         cantidadSwitches = len(switches_activos)
-        
+    
         # Se recorre los switch activos, con el pk del mes activo
         for contador, pk in enumerate(switches_activos, start=1):
-            # si es un abono, se crea un registro de pago con el valor de abono
+            
             split = pk.split('-')
-
-            # Si existe el switch 9997, equivalente a cine se elimina para tener en cuenta la diferencia si se selecciona un mes y cine 
-            numSwithces = request.POST.getlist('switches') or []
-            if '9997' in numSwithces:
-                numSwithces.remove('9997')
-                # saber el tamaño de los botones marcados
-                cantidadSwitches = len(numSwithces)
-            else:
-                # saber el tamaño de los botones marcados
-                cantidadSwitches = len(switches_activos)
+        
+            # # Si existe el switch 9997, equivalente a cine se elimina para tener en cuenta la diferencia si se selecciona un mes y cine 
+            # numSwithces = request.POST.getlist('switches') or []
+            # if '9997' in numSwithces:
+            #     numSwithces.remove('9997')
+            #     # saber el tamaño de los botones marcados
+            #     cantidadSwitches = len(numSwithces)
+            # else:
+            #     # saber el tamaño de los botones marcados
+            #     cantidadSwitches = len(switches_activos)
 
             if len(split) == 1:
+                # Aplica para abonos, se crea un registro de pago con el valor de abono
                 if pk == '9999':
                     pago = {
                         'asociado': Asociado.objects.get(pk = kwargs['pkAsociado']),
@@ -195,15 +218,40 @@ class ModalPago(ListView):
                         'userCreacion': User.objects.get(pk = request.user.pk),
                     }
                     datos_pagos.append(pago)
-                # si es un mes normal, se crea un registro de pago con el valor del mes
-                else:
+
+                # Aplica para pagos de boletas de cine y certificado, pk 9997 y 9996
+                elif pk in ['9997', '9996']:
                     if pk == '9997':
-                        valorPago = request.POST['valorCine']
+                        valorPago = request.POST['valorCine'] if contador < cantidadSwitches else int(request.POST['valorCine']) + valorDiferencia
                     elif pk == '9996':
-                        valorPago = request.POST['valorCertificado']
-                    else:
-                        valorMes = MesTarifa.objects.get(pk = pk).aporte + MesTarifa.objects.get(pk = pk).bSocial + tarifaAsociado.cuotaMascota + tarifaAsociado.cuotaRepatriacion + tarifaAsociado.cuotaSeguroVida + tarifaAsociado.cuotaAdicionales + tarifaAsociado.cuotaCoohopAporte + tarifaAsociado.cuotaCoohopBsocial + tarifaAsociado.cuotaConvenio
-                        valorPago = valorMes if contador < cantidadSwitches else valorMes + valorDiferencia
+                        valorPago = request.POST['valorCertificado'] if contador < cantidadSwitches else int(request.POST['valorCertificado']) + valorDiferencia
+
+                    pago = {
+                            'asociado': Asociado.objects.get(pk = kwargs['pkAsociado']),
+                            'mesPago': MesTarifa.objects.get(pk = pk),
+                            'fechaPago': fechaPago,
+                            'formaPago': FormaPago.objects.get(pk = formaPago),
+                            'aportePago': 0,
+                            'bSocialPago': 0,
+                            'mascotaPago': 0,
+                            'repatriacionPago': 0,
+                            'seguroVidaPago': 0,
+                            'adicionalesPago': 0,
+                            'coohopAporte': 0,
+                            'coohopBsocial': 0,
+                            'convenioPago': 0,
+                            'creditoHomeElements': 0,
+                            'diferencia': valorDiferencia if cantidadSwitches == contador else 0,
+                            'valorPago':  valorPago,
+                            'estadoRegistro': True,
+                            'userCreacion': User.objects.get(pk = request.user.pk),
+                        }
+                    datos_pagos.append(pago)
+
+                # Aplica para pagos de mes normal, se crea un registro de pago con el valor del mes
+                else:
+                    valorMes = MesTarifa.objects.get(pk = pk).aporte + MesTarifa.objects.get(pk = pk).bSocial + tarifaAsociado.cuotaMascota + tarifaAsociado.cuotaRepatriacion + tarifaAsociado.cuotaSeguroVida + tarifaAsociado.cuotaAdicionales + tarifaAsociado.cuotaCoohopAporte + tarifaAsociado.cuotaCoohopBsocial + tarifaAsociado.cuotaConvenio
+                    valorPago = valorMes if contador < cantidadSwitches else valorMes + valorDiferencia
 
                     pago = {
                             'asociado': Asociado.objects.get(pk = kwargs['pkAsociado']),
@@ -226,6 +274,43 @@ class ModalPago(ListView):
                             'userCreacion': User.objects.get(pk = request.user.pk),
                         }
                     datos_pagos.append(pago)
+
+            # Aplica para Pagos de vinculacion de adulto y menores edad, pk 9994, 9995
+            elif len(split) == 2:
+                pk = split[0]   # pk del mes (9994-9995)
+                cuotaVinculacion = int(split[1]) # valor pagado
+         
+                valorPago = cuotaVinculacion + valorDiferencia if cantidadSwitches == contador else cuotaVinculacion
+         
+                pago = {
+                        'asociado': Asociado.objects.get(pk = kwargs['pkAsociado']),
+                        'mesPago': MesTarifa.objects.get(pk = pk),
+                        'fechaPago': fechaPago,
+                        'formaPago': FormaPago.objects.get(pk = formaPago),
+                        'aportePago': 0,
+                        'bSocialPago': 0,
+                        'mascotaPago': 0,
+                        'repatriacionPago': 0,
+                        'seguroVidaPago': 0,
+                        'adicionalesPago': 0,
+                        'coohopAporte': 0,
+                        'coohopBsocial': 0,
+                        'convenioPago': 0,
+                        'creditoHomeElements': 0,
+                        'diferencia': valorDiferencia if cantidadSwitches == contador else 0,
+                        'valorPago':  valorPago,
+                        'estadoRegistro': True,
+                        'userCreacion': User.objects.get(pk = request.user.pk),
+                    }
+                datos_pagos.append(pago)
+
+                if pk == '9995':
+                    # Si es vinculacion de adulto, actualizamos el pendiente de pago
+                    ParametroAsociado.objects.filter(asociado = kwargs['pkAsociado']).update(
+                        vinculacionPendientePago=F('vinculacionPendientePago')- valorPago
+                    )
+
+            # Aplica para Creditos Home Elements
             # desde el modalPago se envia, pkVenta, 9998, valorCuota
             else:
                 extra_param = split[0]  # pk de la venta
@@ -255,11 +340,11 @@ class ModalPago(ListView):
                         'estadoRegistro': True,
                         'userCreacion': User.objects.get(pk = request.user.pk),
                     }
+                    datos_pagos.append(pago)
                     if contador < cantidadSwitches:
                         queryCreditoProd.valorCuotas
                     elif queryCreditoProd.valorCuotas :
                         queryCreditoProd.valorCuotas + valorDiferencia
-                    datos_pagos.append(pago)
                     queryCreditoProd.pendientePago = queryCreditoProd.pendientePago - pago['valorPago']
                     queryCreditoProd.cuotasPagas = queryCreditoProd.cuotasPagas + 1
                     

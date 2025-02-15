@@ -2,23 +2,18 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %}
-    Pagos
-{% endblock title %}
-
-{% block button %}
-    
-{% endblock button %}
-
 {% block breadcrumb %}
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
     <li class="breadcrumb-item"><a href="{% url 'proceso:informacion' %}">Procesos</a></li>
     <li class="breadcrumb-item active" aria-current="page">Pagos</li>
 {% endblock breadcrumb %}
 
+{% block title %}
+    Pagos
+{% endblock title %}
+
 {% block submenu %}
-    <br>
-    <ul class="nav nav-tabs">
+    <ul class="nav nav-tabs mb-4">
         <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="#">Realizar Pago</a>
         </li>
@@ -42,12 +37,12 @@
 {% block tablafilas %}
     {% for obj in query %}
         <tr>
-            <th>{{ forloop.counter }}</th>
-            <th>{{ obj.asociado__nombre }} {{obj.asociado__apellido}}</th>
-            <th>{{ obj.asociado__numDocumento|intcomma }}</th>
-            <th>${{ obj.total|intcomma }}</th>
-            <th>{{ obj.asociado__tAsociado__concepto }}</th>
-            <th>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ obj.asociado__nombre }} {{obj.asociado__apellido}}</td>
+            <td>{{ obj.asociado__numDocumento|intcomma }}</td>
+            <td>${{ obj.total|intcomma }}</td>
+            <td>{{ obj.asociado__tAsociado__concepto }}</td>
+            <td>
                 <center>
                 <button class="btn btn-outline-primary d-flex align-items-center justify-content-center" onclick="abrir_modal_creacion('{% url 'proceso:modalPago' obj.asociado__id 2 %}')">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
@@ -55,7 +50,7 @@
                         <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
                     </svg>
                 </button>   
-            </th>
+            </td>
         </tr>
     {% endfor %}
 
@@ -81,8 +76,5 @@
     }
 
 </script>
-
-<script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
-<script src="{% static 'lib/startbootstrap-sb-admin-gh-pages/js/datatables-simple-demo.js' %}"></script>
 
 {% endblock extrajs %} 

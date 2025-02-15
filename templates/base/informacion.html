@@ -12,201 +12,61 @@
 
 {% block contenidoPagina %}
 
-
-
-<div class="row">
-<div class="col-xl-2 col-md-2">
-    <div class="card text-white mb-3">
-        <div class="card-body">
-            <div class="h1 text-muted text-right mb-3 w-50 p-1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-person-lines-fill" viewBox="0 0 16 16">
-                    <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5 6s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zM11 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5m.5 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1zm2 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1z"/>
-                  </svg>
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+                <div class="card text-white mb-3 shadow-lg border-0 rounded-4">
+                    <div class="card-body">
+                        <div class="h1 text-muted text-right mb-3 w-50 p-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-person-lines-fill" viewBox="0 0 16 16">
+                                <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5 6s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zM11 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5m.5 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1zm2 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1z"/>
+                            </svg>
+                        </div>
+                        <div class="h6 text-muted text-right mb-4">
+                            <a href="{% url 'asociado:asociado' %}" style="text-decoration:none">Asociados</a>
+                        </div>
+                        <div class="progress progress-xs mt-3 mb-0">
+                            <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-info" style="width: 100%" role="progressbar"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="h6 text-muted text-right mb-4">
-                <a href="{% url 'asociado:asociado' %}" style="text-decoration:none">Asociados</a>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+                <div class="card text-white mb-3 shadow-lg border-0 rounded-4">
+                    <div class="card-body">
+                        <div class="h1 text-muted text-right mb-3 w-50 p-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-person-arms-up" viewBox="0 0 16 16">
+                                <path d="M8 3a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
+                                <path d="m5.93 6.704-.846 8.451a.768.768 0 0 0 1.523.203l.81-4.865a.59.59 0 0 1 1.165 0l.81 4.865a.768.768 0 0 0 1.523-.203l-.845-8.451A1.5 1.5 0 0 1 10.5 5.5L13 2.284a.796.796 0 0 0-1.239-.998L9.634 3.84a.7.7 0 0 1-.33.235c-.23.074-.665.176-1.304.176-.64 0-1.074-.102-1.305-.176a.7.7 0 0 1-.329-.235L4.239 1.286a.796.796 0 0 0-1.24.998l2.5 3.216c.317.316.475.758.43 1.204Z"/>
+                            </svg>
+                        </div>
+                        <div class="h6 text-muted text-right mb-4">
+                            <a href="{% url 'beneficiario:beneficiario' %}" style="text-decoration:none">Beneficiarios</a>
+                        </div>
+                        <div class="progress progress-xs mt-3 mb-0">
+                            <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-success" style="width: 100%" role="progressbar"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="progress progress-xs mt-3 mb-0">
-                <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-info" style="width: 100%" role="progressbar"></div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="col-xl-2 col-md-2">
-    <div class="card text-white mb-3">
-        <div class="card-body">
-            <div class="h1 text-muted text-right mb-3 w-50 p-1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-person-arms-up" viewBox="0 0 16 16">
-                    <path d="M8 3a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
-                    <path d="m5.93 6.704-.846 8.451a.768.768 0 0 0 1.523.203l.81-4.865a.59.59 0 0 1 1.165 0l.81 4.865a.768.768 0 0 0 1.523-.203l-.845-8.451A1.5 1.5 0 0 1 10.5 5.5L13 2.284a.796.796 0 0 0-1.239-.998L9.634 3.84a.7.7 0 0 1-.33.235c-.23.074-.665.176-1.304.176-.64 0-1.074-.102-1.305-.176a.7.7 0 0 1-.329-.235L4.239 1.286a.796.796 0 0 0-1.24.998l2.5 3.216c.317.316.475.758.43 1.204Z"/>
-                </svg>
-            </div>
-            <div class="h6 text-muted text-right mb-4">
-                <a href="{% url 'beneficiario:beneficiario' %}" style="text-decoration:none">Beneficiarios</a>
-            </div>
-            <div class="progress progress-xs mt-3 mb-0">
-                <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-success" style="width: 100%" role="progressbar"></div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="col-xl-2 col-md-2">
-    <div class="card text-white mb-3">
-        <div class="card-body">
-            <div class="h1 text-muted text-right mb-3 w-50 p-1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" viewBox="0 0 512 512">
-                    <path d="M326.3 218.8c0 20.5-16.7 37.2-37.2 37.2h-70.3v-74.4h70.3c20.5 0 37.2 16.7 37.2 37.2zM504 256c0 137-111 248-248 248S8 393 8 256 119 8 256 8s248 111 248 248zm-128.1-37.2c0-47.9-38.9-86.8-86.8-86.8H169.2v248h49.6v-74.4h70.3c47.9 0 86.8-38.9 86.8-86.8z"/>
-                </svg>
-            </div>
-            <div class="h6 text-muted text-right mb-4">
-                <a href="{% url 'asociado:listarProductos' %}" style="text-decoration:none">Productos</a>
-            </div>
-            <div class="progress progress-xs mt-3 mb-0">
-                <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-warning" style="width: 100%" role="progressbar"></div>
-            </div>
-        </div>
-    </div>
-</div>
-<div>
-{% comment %} <div class="col-xl-2 col-md-2">
-    <div class="card text-white mb-3">
-        <div class="card-body">
-            <div class="h1 text-muted text-right mb-3 w-50 p-1">
-                <i class="fa-solid fa-file-invoice"></i>
-            </div>
-            <div class="h6 text-muted text-right mb-4">
-                <a href="#" style="text-decoration:none">Minutas</a>
-            </div>
-            <div class="progress progress-xs mt-3 mb-0">
-                <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-danger" style="width: 100%" role="progressbar"></div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+                <div class="card text-white mb-3 shadow-lg border-0 rounded-4">
+                    <div class="card-body">
+                        <div class="h1 text-muted text-right mb-3 w-50 p-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" viewBox="0 0 512 512">
+                                <path d="M326.3 218.8c0 20.5-16.7 37.2-37.2 37.2h-70.3v-74.4h70.3c20.5 0 37.2 16.7 37.2 37.2zM504 256c0 137-111 248-248 248S8 393 8 256 119 8 256 8s248 111 248 248zm-128.1-37.2c0-47.9-38.9-86.8-86.8-86.8H169.2v248h49.6v-74.4h70.3c47.9 0 86.8-38.9 86.8-86.8z"/>
+                            </svg>
+                        </div>
+                        <div class="h6 text-muted text-right mb-4">
+                            <a href="{% url 'asociado:listarProductos' %}" style="text-decoration:none">Productos</a>
+                        </div>
+                        <div class="progress progress-xs mt-3 mb-0">
+                            <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-warning" style="width: 100%" role="progressbar"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<div class="col-xl-2 col-md-2">
-    <div class="card text-white mb-3">
-        <div class="card-body">
-            <div class="h1 text-muted text-right mb-3 w-50 p-1">
-                <i class="fa-solid fa-people-group"></i>
-            </div>
-            <div class="h6 text-muted text-right mb-4">
-                <a href="#" style="text-decoration:none">Rangos Edad</a>
-            </div>
-            <div class="progress progress-xs mt-3 mb-0">
-                <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-info" style="width: 100%" role="progressbar"></div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="col-xl-2 col-md-2">
-    <div class="card text-white mb-3">
-        <div class="card-body">
-            <div class="h1 text-muted text-right mb-3 w-50 p-1">
-                <i class="fa-solid fa-route"></i>
-            </div>
-            <div class="h6 text-muted text-right mb-4">
-                <a href="#" style="text-decoration:none">Rutas</a>
-            </div>
-            <div class="progress progress-xs mt-3 mb-0">
-                <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-success" style="width: 100%" role="progressbar"></div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="col-xl-2 col-md-2">
-    <div class="card text-white mb-3">
-        <div class="card-body">
-            <div class="h1 text-muted text-right mb-3 w-50 p-1">
-                <i class="fa-solid fa-bag-shopping"></i>
-            </div>
-            <div class="h6 text-muted text-right mb-4">
-                <a href="#" style="text-decoration:none">Unidades Empaque</a>
-            </div>
-            <div class="progress progress-xs mt-3 mb-0">
-                <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-warning" style="width: 100%" role="progressbar"></div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="col-xl-2 col-md-2">
-    <div class="card text-white mb-3">
-        <div class="card-body">
-            <div class="h1 text-muted text-right mb-3 w-50 p-1">
-                <i class="fa-solid fa-tags"></i>
-            </div>
-            <div class="h6 text-muted text-right mb-4">
-                <a href="#" style="text-decoration:none">Unidades Entrega</a>
-            </div>
-            <div class="progress progress-xs mt-3 mb-0">
-                <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-danger" style="width: 100%" role="progressbar"></div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="col-xl-2 col-md-2">
-    <div class="card text-white mb-3">
-        <div class="card-body">
-            <div class="h1 text-muted text-right mb-3 w-50 p-1">
-                <i class="fa-solid fa-building"></i>
-            </div>
-            <div class="h6 text-muted text-right mb-4">
-                <a href="#" style="text-decoration:none">Operadores</a>
-            </div>
-            <div class="progress progress-xs mt-3 mb-0">
-                <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-info" style="width: 100%" role="progressbar"></div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="col-xl-2 col-md-2">
-    <div class="card text-white mb-3">
-        <div class="card-body">
-            <div class="h1 text-muted text-right mb-3 w-50 p-1">
-                <i class="fa-solid fa-chalkboard-user"></i>
-            </div>
-            <div class="h6 text-muted text-right mb-4">
-                <a href="#" style="text-decoration:none">Tercero</a>
-            </div>
-            <div class="progress progress-xs mt-3 mb-0">
-                <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-warning" style="width: 100%" role="progressbar"></div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="col-xl-2 col-md-2">
-    <div class="card text-white mb-3">
-        <div class="card-body">
-            <div class="h1 text-muted text-right mb-3 w-50 p-1">
-                <i class="fa-solid fa-barcode"></i>
-            </div>
-            <div class="h6 text-muted text-right mb-4">
-                <a href="#" style="text-decoration:none">Productos</a>
-            </div>
-            <div class="progress progress-xs mt-3 mb-0">
-                <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-success" style="width: 100%" role="progressbar"></div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="col-xl-2 col-md-2">
-    <div class="card text-white mb-3">
-        <div class="card-body">
-            <div class="h1 text-muted text-right mb-3 w-50 p-1">
-                <i class="fa-solid fa-money-bill-1-wave"></i>
-            </div>
-            <div class="h6 text-muted text-right mb-4">
-                <a href="#" style="text-decoration:none">Precios</a>
-            </div>
-            <div class="progress progress-xs mt-3 mb-0">
-                <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar bg-warning" style="width: 100%" role="progressbar"></div>
-            </div>
-        </div>
-    </div>
-</div> {% endcomment %}
-
-{% endblock contenidoPagina %}
-
-
-
-
     
+{% endblock contenidoPagina %}

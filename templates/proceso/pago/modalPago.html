@@ -99,7 +99,7 @@
                         </thead>
                         <tbody>
                             {% for obj in queryMes %}
-                                {% if obj.pk != 9999 and obj.pk != 9998 %}
+                                {% if obj.pk != 9999 and obj.pk != 9998 and obj.pk != 9995 and obj.pk != 9994 %}
                                     <tr>
                                         <th>{{ forloop.counter }}</th>
                                         <td>{{ obj.concepto }}</th>
@@ -132,6 +132,48 @@
                                     </tr>
                                 {% endif %}
                             {% endfor %}
+                            {% if cuotaVinculacion %}
+                                <tr>
+                                    <th>-</th>
+                                    <td>CUOTA VINCULACION</th>
+                                    <td style="text-align: center;">
+                                        <div class="form-check form-switch" style="display: inline-block;">
+                                            <input 
+                                                class="form-check-input switch-mes"
+                                                type="checkbox"
+                                                role="switch"
+                                                name="switches"
+                                                id="flexSwitchCheckDefault9995"
+                                                value="9995-{{cuotaVinculacion}}"
+                                                data-costo="{{ cuotaVinculacion }}"
+                                                onchange="actualizarTotal()"
+                                            >
+                                            <label class="form-check-label" for="flexSwitchCheckDefault9995"></label>
+                                        </div>
+                                    </td>
+                                    <td>${{ cuotaVinculacion|intcomma }}</th>
+                                </tr>
+                            {% endif %}
+                            <tr>
+                                <th>-</th>
+                                <td>CUOTA VINCULACION MENOR EDAD</th>
+                                <td style="text-align: center;">
+                                    <div class="form-check form-switch" style="display: inline-block;">
+                                        <input 
+                                            class="form-check-input switch-mes"
+                                            type="checkbox"
+                                            role="switch"
+                                            name="switches"
+                                            id="flexSwitchCheckDefault9994"
+                                            value="9994-{{cuotaVinculacionMenorEdad.valor}}"
+                                            data-costo="{{ cuotaVinculacionMenorEdad.valor }}"
+                                            onchange="actualizarTotal()"
+                                        >
+                                        <label class="form-check-label" for="flexSwitchCheckDefault9994"></label>
+                                    </div>
+                                </td>
+                                <td>${{ cuotaVinculacionMenorEdad.valor|intcomma }}</th>
+                            </tr>
                             {% if queryCreditoProd %}
                                 {% for homeElements in queryCreditoProd %}
                                 

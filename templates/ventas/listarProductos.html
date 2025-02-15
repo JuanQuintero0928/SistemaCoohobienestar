@@ -2,6 +2,12 @@
 {% load static %}
 {% load humanize %}
 
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'informacion:informacion' %}">Información</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Productos</li>
+{% endblock breadcrumb %}
+
 {% block title %}
     Productos
 {% endblock title %}
@@ -15,15 +21,9 @@
     </a>
 {% endblock button %}
 
-{% block breadcrumb %}
-    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'informacion:informacion' %}">Información</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Productos</li>
-{% endblock breadcrumb %}
 
 {% block submenu %}
-    <br>
-    <ul class="nav nav-tabs">
+    <ul class="nav nav-tabs mb-4">
         <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="#">Lista</a>
         </li>
@@ -31,6 +31,7 @@
             <a class="nav-link" href="#">Utilidades</a>
         </li>
     </ul>
+
 {% endblock submenu %}
 
 {% block tablaencabezado %}
@@ -47,18 +48,18 @@
 {% block tablafilas %}
     {% for obj in query %}
         <tr>
-            <th>{{ obj.id|intcomma }}</th>
-            <th>{{ obj.categoria.nombre }}</th>
-            <th>{{ obj.nombre }}</th>
-            <th>${{ obj.precio|intcomma }}</th>
-            <th>{{ obj.stock }}</th>
-            <th>
+            <td>{{ obj.id|intcomma }}</td>
+            <td>{{ obj.categoria.nombre }}</td>
+            <td>{{ obj.nombre }}</td>
+            <td>${{ obj.precio|intcomma }}</td>
+            <td>{{ obj.stock }}</td>
+            <td>
                 <center><a type="button" class="btn btn-outline-primary custom-btn" href="{% url 'asociado:editarProducto' obj.id %}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon" viewBox="0 0 16 16">
                         <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
                     </svg>
                 </a>
-            </th>
+            </td>
         </tr>
         
     {% endfor %}  

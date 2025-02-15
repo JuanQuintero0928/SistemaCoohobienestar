@@ -165,7 +165,7 @@ function editarInputActualizacion(dato){
             document.getElementById('id_nombreRF').disabled = false;
             document.getElementById('id_parentesco').disabled = false;
             document.getElementById('id_numContacto').disabled = false;
-            document.getElementById('btn-guardar').hidden = false;
+            document.getElementById('btn-guardar').disabled = false;
             document.getElementById('id_fechaRetiro').disabled = false;
         break
         case "no_editar":
@@ -206,7 +206,7 @@ function editarInputActualizacion(dato){
             document.getElementById('id_nombreRF').disabled = true;
             document.getElementById('id_parentesco').disabled = true;
             document.getElementById('id_numContacto').disabled = true;
-            document.getElementById('btn-guardar').hidden = true;
+            document.getElementById('btn-guardar').disabled = true;
             document.getElementById('id_fechaRetiro').disabled = true;
         break
     } 
@@ -243,7 +243,7 @@ function editarInputActualizacion2(dato){
             document.getElementById('id_activos').disabled = false;
             document.getElementById('id_pasivos').disabled = false;
             document.getElementById('id_patrimonio').disabled = false;
-            document.getElementById('btn-guardar2').hidden = false;
+            document.getElementById('btn-guardar2').disabled = false;
         break
         case "no_editar":
             document.getElementById('btn-noeditar2').hidden = true;
@@ -273,7 +273,7 @@ function editarInputActualizacion2(dato){
             document.getElementById('id_activos').disabled = true;
             document.getElementById('id_pasivos').disabled = true;
             document.getElementById('id_patrimonio').disabled = true;
-            document.getElementById('btn-guardar2').hidden = true;
+            document.getElementById('btn-guardar2').disabled = true;
     }
 }
 
@@ -283,43 +283,34 @@ function editarInputActualizacion3(dato){
         case "editar":
             document.getElementById('btn-editar3').hidden = true;
             document.getElementById('btn-noeditar3').hidden = false;
-            document.getElementById('id_empresaDcto').disabled = false;
             document.getElementById('id_primerMes').disabled = false;
             document.getElementById('id_servFuneraria').disabled = false;
             document.getElementById('flexSwitchCheckChecked').disabled = false;
-            document.getElementById('flexSwitchCheckChecked_1').disabled = false;
-            document.getElementById('btn-guardar3').hidden = false;
+            document.getElementById('btn-guardar3').disabled = false;
+            mostrarAutorizacion()
+
         break
         case "no_editar":
             document.getElementById('btn-editar3').hidden = false;
             document.getElementById('btn-noeditar3').hidden = true;
-            document.getElementById('id_empresaDcto').disabled = true;
             document.getElementById('id_servFuneraria').disabled = true;
             document.getElementById('id_primerMes').disabled = true;
             document.getElementById('flexSwitchCheckChecked').disabled = true;
-            document.getElementById('flexSwitchCheckChecked_1').disabled = true;
-            document.getElementById('btn-guardar3').hidden = true;
+            document.getElementById('id_empresaDcto').disabled = true;
+            document.getElementById('btn-guardar3').disabled = true;
         }
 }
 
 // Funcion que muestra y oculta el input de "Autorización Descuento de Nomina" seccion configuracion, VIEW VerAscociado
-function mostrarAutorizacion(dato){
-    switch(dato){
-        case "cambio":
-            document.getElementById('contenedorAutorizacion').style.display = "block";
-            document.getElementById('contenedorAutorizacion2').style.display = "none";
-            document.getElementById('flexSwitchCheckChecked').checked = true;
-        break
-        case "ocultar":
-            document.getElementById('contenedorAutorizacion').style.display = "none";
-            document.getElementById('contenedorAutorizacion2').style.display = "block";
-            document.getElementById('flexSwitchCheckChecked_1').checked = false;
-        case "ocultar2":
-            document.getElementById('contenedorAutorizacion').style.display = "none";
-            document.getElementById('contenedorAutorizacion2').style.display = "block";
-            document.getElementById('flexSwitchCheckChecked_2').hidden = true;
-            document.getElementById('flexSwitchCheckChecked_1').checked = false;   
-    }
+function mostrarAutorizacion(){
+   let checkbox = document.getElementById('flexSwitchCheckChecked');
+   let select = document.getElementById('id_empresaDcto');
+   
+   if(checkbox.checked){
+       select.disabled = false;
+   }else{
+       select.disabled = true;
+   }
 }
 
 document.addEventListener('DOMContentLoaded', function () {

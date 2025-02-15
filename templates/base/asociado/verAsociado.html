@@ -11,7 +11,7 @@
     
 {% block breadcrumb %}
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
-    <li class="breadcrumb-item"><a href="#">Información</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'informacion:informacion' %}">Información</a></li>
     <li class="breadcrumb-item"><a href="{% url 'asociado:asociado' %}">Asociados</a></li>
     <li class="breadcrumb-item active" aria-current="page">Detalle Asociado</li>
     <li class="breadcrumb-item active" aria-current="page">{{objAsociado.nombre}} {{objAsociado.apellido}} - {{objAsociado.numDocumento}}</li>
@@ -20,7 +20,7 @@
 {% block contenidoPagina %}
     {% include 'estructura/asociado/navbar.html' %}
 
-    <div class="card mb-4" style="border:0px">
+    <div class="card" style="border:0px">
         <hr>
 
         {% comment %} INICIO ACORDEON {% endcomment %}
@@ -36,49 +36,10 @@
                     <div class="accordion-body">
                         {% comment %} Formulario Informacion General {% endcomment %}
                         <form method="post" action="{% url 'asociado:editarAsociado' pkAsociado %}" class="row g-3" id="form">
-                            {% csrf_token %}   
-                            {% comment %} Fila 0 {% endcomment %}
-                            <div class="col-md-2">
-                                <label for="id_tPersona" class="form-label">Tipo *</label>
-                                <select name="tPersona" class="form-select" id="id_tPersona" disabled>
-                                    {% if objAsociado.tPersona == 'PERSONA NATURAL' %}
-                                        <option value="PERSONA NATURAL" selected>PERSONAL NATURAL</option>
-                                        <option value="PERSONA JURIDICA">PERSONAL JURIDICA</option>
-                                    {% else %}
-                                    <option value="PERSONA NATURAL">PERSONAL NATURAL</option>
-                                    <option value="PERSONA JURIDICA" selected>PERSONAL JURIDICA</option>
-                                    {% endif %}
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <label for="id_fechaIngreso" class="form-label">Fecha Ingreso *</label>
-                                <input type="date" value="{{objAsociado.fechaIngreso|date:"Y-m-d"}}" class="form-control" name="fechaIngreso" id="id_fechaIngreso" required disabled>
-                            </div>
-                            <div class="col-md-2">
-                                <label for="id_tAsociado" class="form-label">Tipo Asociado *</label>
-                                <select name="tAsociado" class="form-select" id="id_tAsociado" disabled>
-                                    {% for opcion in objEmpresa %}
-                                        <option value="{{opcion.pk}}" {% if objAsociado.tAsociado.pk == opcion.pk %} selected {% endif %}>{{opcion.concepto}}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <label for="id_estadoAsociado" class="form-label">Estado Asociado *</label>
-                                <select name="estadoAsociado" class="form-select" id="id_estadoAsociado" disabled>
-                                    <option value="ACTIVO" {% if objAsociado.estadoAsociado == 'ACTIVO' %} selected {% endif %}>ACTIVO</option>
-                                    <option value="INACTIVO" {% if objAsociado.estadoAsociado == 'INACTIVO' %} selected {% endif %}>INACTIVO</option>
-                                    <option value="RETIRO" {% if objAsociado.estadoAsociado == 'RETIRO' %} selected {% endif %}>RETIRO</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <div id="retiroContainer" hidden>
-                                    <label for="id_fechaRetiro" class="form-label">Fecha Retiro *</label>
-                                    <input type="date" name="fechaRetiro" value="{{objAsociado.fechaRetiro|date:"Y-m-d"}}" class="form-control" id="id_fechaRetiro" required disabled>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="row" style="display:flex; justify-content:flex-end; margin-right:120px; margin-top:15px">
-                                    <div class="col-sm-1">
+                            
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-12 d-flex justify-content-end mt-3">
                                         <div class="btn-group" role="group" aria-label="Basic example">
                                             <a href="{% url 'asociado:asociado' %}" class="btn btn-primary">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
@@ -96,7 +57,7 @@
                                                     <path d="M11.354 4.646a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 .708.708l6-6a.5.5 0 0 0 0-.708"/>
                                                 </svg>
                                             </a>  
-                                            <button type="submit" class="btn btn-primary" id="btn-guardar" hidden>
+                                            <button type="submit" class="btn btn-primary" id="btn-guardar" disabled>
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16">
                                                     <path d="M11 2H9v3h2z"/>
                                                     <path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>
@@ -106,149 +67,209 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                            {% csrf_token %}   
+                            {% comment %} Fila 0 {% endcomment %}
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_tPersona" class="form-label">Tipo *</label>
+                                        <select name="tPersona" class="form-select" id="id_tPersona" disabled>
+                                            {% if objAsociado.tPersona == 'PERSONA NATURAL' %}
+                                                <option value="PERSONA NATURAL" selected>PERSONAL NATURAL</option>
+                                                <option value="PERSONA JURIDICA">PERSONAL JURIDICA</option>
+                                            {% else %}
+                                            <option value="PERSONA NATURAL">PERSONAL NATURAL</option>
+                                            <option value="PERSONA JURIDICA" selected>PERSONAL JURIDICA</option>
+                                            {% endif %}
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_fechaIngreso" class="form-label">Fecha Ingreso *</label>
+                                        <input type="date" value="{{objAsociado.fechaIngreso|date:"Y-m-d"}}" class="form-control" name="fechaIngreso" id="id_fechaIngreso" required disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_tAsociado" class="form-label">Tipo Asociado *</label>
+                                        <select name="tAsociado" class="form-select" id="id_tAsociado" disabled>
+                                            {% for opcion in objEmpresa %}
+                                                <option value="{{opcion.pk}}" {% if objAsociado.tAsociado.pk == opcion.pk %} selected {% endif %}>{{opcion.concepto}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_estadoAsociado" class="form-label">Estado Asociado *</label>
+                                        <select name="estadoAsociado" class="form-select" id="id_estadoAsociado" disabled>
+                                            <option value="ACTIVO" {% if objAsociado.estadoAsociado == 'ACTIVO' %} selected {% endif %}>ACTIVO</option>
+                                            <option value="INACTIVO" {% if objAsociado.estadoAsociado == 'INACTIVO' %} selected {% endif %}>INACTIVO</option>
+                                            <option value="RETIRO" {% if objAsociado.estadoAsociado == 'RETIRO' %} selected {% endif %}>RETIRO</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                                        <div id="retiroContainer" hidden>
+                                            <label for="id_fechaRetiro" class="form-label">Fecha Retiro *</label>
+                                            <input type="date" name="fechaRetiro" value="{{objAsociado.fechaRetiro|date:"Y-m-d"}}" class="form-control" id="id_fechaRetiro" required disabled>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             {% comment %} Fila 1 {% endcomment %}
-                            <div class="col-md-6">
-                                <label for="id_nombre" class="form-label">Nombres *</label>
-                                <input type="text" value="{{objAsociado.nombre}}" class="form-control input-form" name="nombre" id="id_nombre" maxlength="30" required disabled>
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-12 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_nombre" class="form-label">Nombres *</label>
+                                        <input type="text" value="{{objAsociado.nombre}}" class="form-control input-form" name="nombre" id="id_nombre" maxlength="30" required disabled>
+                                    </div>
+                                    <div class="col-12 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_apellido" class="form-label">Apellidos *</label>
+                                        <input type="text" value="{{objAsociado.apellido}}" class="form-control input-form" name="apellido" id="id_apellido" maxlength="30" required disabled>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <label for="id_apellido" class="form-label">Apellidos *</label>
-                                <input type="text" value="{{objAsociado.apellido}}" class="form-control input-form" name="apellido" id="id_apellido" maxlength="30" required disabled>
-                            </div>
-            
+
+                    
                             {% comment %} Fila 2 {% endcomment %}
-                            <div class="col-3">
-                                <label for="id_tipoDocumento" class="form-label">Tipo Documento *</label>
-                                <select name="tipoDocumento" class="form-select" id="id_tipoDocumento" disabled>
-                                    <option value="CEDULA" {% if objAsociado.tipoDocumento == 'CEDULA' %} selected {% endif %}>CEDULA</option>
-                                    <option value="REGISTRO CIVIL" {% if objAsociado.tipoDocumento == 'REGISTRO CIVIL' %} selected {% endif %}>REGISTRO CIVIL</option>
-                                    <option value="TARJETA IDENTIDAD" {% if objAsociado.tipoDocumento == 'TARJETA IDENTIDAD' %} selected {% endif %}>TARJETA IDENTIDAD</option>
-                                    <option value="CEDULA EXTRANJERA" {% if objAsociado.tipoDocumento == 'CEDULA EXTRANJERA' %} selected {% endif %}>CEDULA EXTRANJERA</option>
-                                    <option value="PASAPORTE" {% if objAsociado.tipoDocumento == 'PASAPORTE' %} selected {% endif %}>PASAPORTE</option>
-                                    <option value="PPT" {% if objAsociado.tipoDocumento == 'PPT' %} selected {% endif %}>PPT</option>
-                                </select>
-                            </div>
-                            <div class="col-3">
-                                <label for="id_numDocumento" class="form-label">Número Documento *</label>
-                                <input type="number" value="{{objAsociado.numDocumento}}" class="form-control" name="numDocumento" id="id_numDocumento" min="0" required disabled>
-                            </div>
-                            <div class="col-3">
-                                <label for="id_fechaExpedicion" class="form-label">Fecha Expedición *</label>
-                                <input type="date" value="{{objAsociado.fechaExpedicion|date:"Y-m-d"}}" class="form-control" name="fechaExpedicion" id="id_fechaExpedicion" required disabled>
-                            </div>
-                            <div class="col-3">
-                                <label for="id_mpioDoc" class="form-label">Lugar Expedición *</label>
-                                <select name="mpioDoc" class="form-select form-control" id="id_mpioDoc" required disabled>
-                                    <option value="{{ objAsociado.mpioDoc.id }}" selected>
-                                        {{ objAsociado.mpioDoc.nombre }} - {{ objAsociado.mpioDoc.departamento.nombre }}
-                                    </option>
-                                </select>
-                            </div>
-            
-                            {% comment %} Fila 3 {% endcomment %}
-                            <div class="col-2">
-                                <label for="id_nacionalidad" class="form-label">Nacionalidad *</label>
-                                <input type="text" value="{{objAsociado.nacionalidad}}" class="form-control input-form" name="nacionalidad" id="id_nacionalidad" maxlength="30" required disabled>
-                            </div>
-                            <div class="col-2">
-                                <label for="id_fechaNacimiento" class="form-label">Fecha Nacimiento *</label>
-                                <input type="date" value="{{objAsociado.fechaNacimiento|date:"Y-m-d"}}" class="form-control" name="fechaNacimiento" id="id_fechaNacimiento" required disabled>
-                            </div>
-                            <div class="col-3">
-                                <label for="id_dtoNacimiento" class="form-label">Departamento Nacimiento *</label>
-                                <select name="dtoNacimiento" class="form-select departamento-select" id="id_dtoNacimiento" data-target="#id_mpioNacimiento" required disabled>
-                                    {% for dpto in query_dpto %}
-                                        <option value="{{dpto.id}}" {% if dpto.id == objAsociado.dtoNacimiento.pk %} selected {% endif %}>{{dpto.nombre}}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="col-3">
-                                <label for="id_mpioNacimiento" class="form-label">Municipio Nacimiento *</label>
-                                <select name="mpioNacimiento" class="form form-control" id="id_mpioNacimiento" required disabled>
-                                    <option value="{{ objAsociado.mpioNacimiento.id }}" selected>
-                                        {{ objAsociado.mpioNacimiento.nombre }}
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="col-2">
-                                <label for="id_genero" class="form-label">Género *</label>
-                                <select name="genero" class="form-select" id="id_genero" disabled>
-                                    <option value="FEMENINO" {% if objAsociado.genero == "FEMENINO" %} selected {% endif %}>FEMENINO</option>
-                                    <option value="MASCULINO" {% if objAsociado.genero == "MASCULINO" %} selected {% endif %}>MASCULINO</option>
-                                </select>
-                            </div>
-            
-                            {% comment %} Fila 4 {% endcomment %}
-                            <div class="col-4">
-                                <label for="id_estadoCivil" class="form-label">Estado Civil *</label>
-                                <select name="estadoCivil" class="form-select" id="id_estadoCivil" disabled>
-                                    <option value="SOLTERO(A)" {% if objAsociado.estadoCivil == "SOLTERO(A)" %} selected {% endif %}>SOLTERO(A)</option>
-                                    <option value="CASADO(A)" {% if objAsociado.estadoCivil == "CASADO(A)" %} selected {% endif %}>CASADO(A)</option>
-                                    <option value="UNION LIBRE" {% if objAsociado.estadoCivil == "UNION LIBRE" %} selected {% endif %}>UNION LIBRE</option>
-                                    <option value="SEPARADO(A)" {% if objAsociado.estadoCivil == "SEPARADO(A)" %} selected {% endif %}>SEPARADO(A)</option>
-                                    <option value="DIVORCIADO(A)" {% if objAsociado.estadoCivil == "DIVORCIADO(A)" %} selected {% endif %}>DIVORCIADO(A)</option>
-                                    <option value="VIUDO(A)" {% if objAsociado.estadoCivil == "VIUDO(A)" %} selected {% endif %}>VIUDO(A)</option>
-                                </select>
-                            </div>
-                            <div class="col-4">
-                                <label for="id_tipoVivienda" class="form-label">Tipo Vivienda *</label>
-                                <select name="tipoVivienda" class="form-select" id="id_tipoVivienda" disabled>
-                                    <option value="PROPIA" {% if objAsociado.tipoVivienda == "PROPIA" %} selected {% endif %}>PROPIA</option>
-                                    <option value="FAMILIAR" {% if objAsociado.tipoVivienda == "FAMILIAR" %} selected {% endif %}>FAMILIAR</option>
-                                    <option value="ARRENDADA" {% if objAsociado.tipoVivienda == "ARRENDADA" %} selected {% endif %}>ARRENDADA</option>
-                                </select>
-                            </div>
-                            <div class="col-4">
-                                <label for="id_estrato" class="form-label">Estrato *</label>
-                                <input type="number" value="{{objAsociado.estrato}}" class="form-control" name="estrato" id="id_estrato" min="0" required disabled>
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                                        <label for="id_tipoDocumento" class="form-label">Tipo Documento *</label>
+                                        <select name="tipoDocumento" class="form-select" id="id_tipoDocumento" disabled>
+                                            <option value="CEDULA" {% if objAsociado.tipoDocumento == 'CEDULA' %} selected {% endif %}>CEDULA</option>
+                                            <option value="REGISTRO CIVIL" {% if objAsociado.tipoDocumento == 'REGISTRO CIVIL' %} selected {% endif %}>REGISTRO CIVIL</option>
+                                            <option value="TARJETA IDENTIDAD" {% if objAsociado.tipoDocumento == 'TARJETA IDENTIDAD' %} selected {% endif %}>TARJETA IDENTIDAD</option>
+                                            <option value="CEDULA EXTRANJERA" {% if objAsociado.tipoDocumento == 'CEDULA EXTRANJERA' %} selected {% endif %}>CEDULA EXTRANJERA</option>
+                                            <option value="PASAPORTE" {% if objAsociado.tipoDocumento == 'PASAPORTE' %} selected {% endif %}>PASAPORTE</option>
+                                            <option value="PPT" {% if objAsociado.tipoDocumento == 'PPT' %} selected {% endif %}>PPT</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                                        <label for="id_numDocumento" class="form-label">Número Documento *</label>
+                                        <input type="number" value="{{objAsociado.numDocumento}}" class="form-control" name="numDocumento" id="id_numDocumento" min="0" required disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                                        <label for="id_fechaExpedicion" class="form-label">Fecha Expedición *</label>
+                                        <input type="date" value="{{objAsociado.fechaExpedicion|date:"Y-m-d"}}" class="form-control" name="fechaExpedicion" id="id_fechaExpedicion" required disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                                        <label for="id_mpioDoc" class="form-label">Lugar Expedición *</label>
+                                        <select name="mpioDoc" class="form-select form-control" id="id_mpioDoc" required disabled>
+                                            <option value="{{ objAsociado.mpioDoc.id }}" selected>
+                                                {{ objAsociado.mpioDoc.nombre }} - {{ objAsociado.mpioDoc.departamento.nombre }}
+                                            </option>
+                                        </select>
+                                    </div>
+                              
+                                    {% comment %} Fila 3 {% endcomment %}
+                                    <div class="col-12 col-xl-2 col-lg-4 col-md-6 mb-3">
+                                        <label for="id_nacionalidad" class="form-label">Nacionalidad *</label>
+                                        <input type="text" value="{{objAsociado.nacionalidad}}" class="form-control input-form" name="nacionalidad" id="id_nacionalidad" maxlength="30" required disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-2 col-lg-4 col-md-6 mb-3">
+                                        <label for="id_fechaNacimiento" class="form-label">Fecha Nacimiento *</label>
+                                        <input type="date" value="{{objAsociado.fechaNacimiento|date:"Y-m-d"}}" class="form-control" name="fechaNacimiento" id="id_fechaNacimiento" required disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                                        <label for="id_dtoNacimiento" class="form-label">Departamento Nacimiento *</label>
+                                        <select name="dtoNacimiento" class="form-select departamento-select" id="id_dtoNacimiento" data-target="#id_mpioNacimiento" required disabled>
+                                            {% for dpto in query_dpto %}
+                                                <option value="{{dpto.id}}" {% if dpto.id == objAsociado.dtoNacimiento.pk %} selected {% endif %}>{{dpto.nombre}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                                        <label for="id_mpioNacimiento" class="form-label">Municipio Nacimiento *</label>
+                                        <select name="mpioNacimiento" class="form form-control" id="id_mpioNacimiento" required disabled>
+                                            <option value="{{ objAsociado.mpioNacimiento.id }}" selected>
+                                                {{ objAsociado.mpioNacimiento.nombre }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-xl-2 col-lg-4 col-md-6 mb-3">
+                                        <label for="id_genero" class="form-label">Género *</label>
+                                        <select name="genero" class="form-select" id="id_genero" disabled>
+                                            <option value="FEMENINO" {% if objAsociado.genero == "FEMENINO" %} selected {% endif %}>FEMENINO</option>
+                                            <option value="MASCULINO" {% if objAsociado.genero == "MASCULINO" %} selected {% endif %}>MASCULINO</option>
+                                        </select>
+                                    </div>
+                    
+                                    {% comment %} Fila 4 {% endcomment %}
+                                    <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                                        <label for="id_estadoCivil" class="form-label">Estado Civil *</label>
+                                        <select name="estadoCivil" class="form-select" id="id_estadoCivil" disabled>
+                                            <option value="SOLTERO(A)" {% if objAsociado.estadoCivil == "SOLTERO(A)" %} selected {% endif %}>SOLTERO(A)</option>
+                                            <option value="CASADO(A)" {% if objAsociado.estadoCivil == "CASADO(A)" %} selected {% endif %}>CASADO(A)</option>
+                                            <option value="UNION LIBRE" {% if objAsociado.estadoCivil == "UNION LIBRE" %} selected {% endif %}>UNION LIBRE</option>
+                                            <option value="SEPARADO(A)" {% if objAsociado.estadoCivil == "SEPARADO(A)" %} selected {% endif %}>SEPARADO(A)</option>
+                                            <option value="DIVORCIADO(A)" {% if objAsociado.estadoCivil == "DIVORCIADO(A)" %} selected {% endif %}>DIVORCIADO(A)</option>
+                                            <option value="VIUDO(A)" {% if objAsociado.estadoCivil == "VIUDO(A)" %} selected {% endif %}>VIUDO(A)</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                                        <label for="id_tipoVivienda" class="form-label">Tipo Vivienda *</label>
+                                        <select name="tipoVivienda" class="form-select" id="id_tipoVivienda" disabled>
+                                            <option value="PROPIA" {% if objAsociado.tipoVivienda == "PROPIA" %} selected {% endif %}>PROPIA</option>
+                                            <option value="FAMILIAR" {% if objAsociado.tipoVivienda == "FAMILIAR" %} selected {% endif %}>FAMILIAR</option>
+                                            <option value="ARRENDADA" {% if objAsociado.tipoVivienda == "ARRENDADA" %} selected {% endif %}>ARRENDADA</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                                        <label for="id_estrato" class="form-label">Estrato *</label>
+                                        <input type="number" value="{{objAsociado.estrato}}" class="form-control" name="estrato" id="id_estrato" min="0" required disabled>
+                                    </div>
+                                </div>
                             </div>
             
                             <hr>
                             {% comment %} Fila 5 {% endcomment %}
-                            <div class="col-4">
-                                <label for="id_direccion" class="form-label">Dirección *</label>
-                                <input type="text" value="{{objAsociado.direccion}}" class="form-control input-form" name="direccion" id="id_direccion" maxlength="50" required disabled>
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                                        <label for="id_direccion" class="form-label">Dirección *</label>
+                                        <input type="text" value="{{objAsociado.direccion}}" class="form-control input-form" name="direccion" id="id_direccion" maxlength="50" required disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                                        <label for="id_barrio" class="form-label">Barrio o Condominio *</label>
+                                        <input type="text" value="{{objAsociado.barrio}}" class="form-control input-form" name="barrio" id="id_barrio" maxlength="50" required disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                                        <label for="id_deptoResidencia" class="form-label">Departamento *</label>
+                                        <select name="deptoResidencia" class="form-select departamento-select" id="id_deptoResidencia" data-target="#id_mpioResidencia" disabled>
+                                            {% for dpto in query_dpto %}
+                                                <option value="{{dpto.id}}" {% if dpto.id == objAsociado.deptoResidencia.pk %}selected{% endif %}>{{dpto.nombre}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    
+                                    {% comment %} Fila 6 {% endcomment %}
+                                    <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                                        <label for="id_mpioResidencia" class="form-label">Municipio *</label>
+                                        <select name="mpioResidencia" class="form form-control" id="id_mpioResidencia" disabled>
+                                            <option value="{{ objAsociado.mpioResidencia.id }}" selected>
+                                                {{ objAsociado.mpioResidencia.nombre }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                                        <label for="id_email" class="form-label">Correo Electronico *</label>
+                                        <input type="email" value="{{objAsociado.email}}" class="form-control" name="email" id="id_email" autocomplete="off" required disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-2 col-lg-4 col-md-6 mb-3">
+                                        <label for="id_numResidencia" class="form-label">Telefono Residencia</label>
+                                        <input type="number" {% if objAsociado.numResidencia %} value="{{objAsociado.numResidencia}}" {% endif %} class="form-control" name="numResidencia" id="id_numResidencia" min="0" disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_indicativo" class="form-label">Indicativo *</label>
+                                        <select class="form-control" name="indicativo" id="id_indicativo" required disabled data-pais-seleccionado="{{ pais_seleccionado }}">
+                                            <!-- Aquí se llenarán los países con banderas -->
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_numCelular" class="form-label">Telefono Celular *</label>
+                                        <input type="number" value="{{objAsociado.numCelular}}" class="form-control" name="numCelular" id="id_numCelular" min="0" required disabled>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-4">
-                                <label for="id_barrio" class="form-label">Barrio o Condominio *</label>
-                                <input type="text" value="{{objAsociado.barrio}}" class="form-control input-form" name="barrio" id="id_barrio" maxlength="50" required disabled>
-                            </div>
-                            <div class="col-4">
-                                <label for="id_deptoResidencia" class="form-label">Departamento *</label>
-                                <select name="deptoResidencia" class="form-select departamento-select" id="id_deptoResidencia" data-target="#id_mpioResidencia" disabled>
-                                    {% for dpto in query_dpto %}
-                                        <option value="{{dpto.id}}" {% if dpto.id == objAsociado.deptoResidencia.pk %}selected{% endif %}>{{dpto.nombre}}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            
-                            {% comment %} Fila 6 {% endcomment %}
-                            <div class="col-3">
-                                <label for="id_mpioResidencia" class="form-label">Municipio *</label>
-                                <select name="mpioResidencia" class="form form-control" id="id_mpioResidencia" disabled>
-                                    <option value="{{ objAsociado.mpioResidencia.id }}" selected>
-                                        {{ objAsociado.mpioResidencia.nombre }}
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="col-3">
-                                <label for="id_email" class="form-label">Correo Electronico *</label>
-                                <input type="email" value="{{objAsociado.email}}" class="form-control" name="email" id="id_email" autocomplete="off" required disabled>
-                            </div>
-                            <div class="col-2">
-                                <label for="id_numResidencia" class="form-label">Telefono Residencia</label>
-                                <input type="number" {% if objAsociado.numResidencia %} value="{{objAsociado.numResidencia}}" {% endif %} class="form-control" name="numResidencia" id="id_numResidencia" min="0" disabled>
-                            </div>
-                            <div class="col-2">
-                                <label for="id_indicativo" class="form-label">Indicativo *</label>
-                                <select class="form-control" name="indicativo" id="id_indicativo" required disabled data-pais-seleccionado="{{ pais_seleccionado }}">
-                                    <!-- Aquí se llenarán los países con banderas -->
-                                </select>
-                            </div>
-                            <div class="col-2">
-                                <label for="id_numCelular" class="form-label">Telefono Celular *</label>
-                                <input type="number" value="{{objAsociado.numCelular}}" class="form-control" name="numCelular" id="id_numCelular" min="0" required disabled>
-                            </div>
+
                             <hr>
                             {% comment %} Fila 7 {% endcomment %}
                             <div class="col-12">
@@ -256,71 +277,71 @@
                             </div>
 
                             {% comment %} Fila 8 {% endcomment %}
-                            <div class="col-3">
-                                <label for="id_envioInfoCorreo" class="form-label">Correo Electronico</label>
-                                {% if objAsociado.envioInfoCorreo == True %}
-                                    <input type="checkbox" name="envioInfoCorreo" id="id_envioInfoCorreo" checked disabled>
-                                {% else %}
-                                    <input type="checkbox" name="envioInfoCorreo" id="id_envioInfoCorreo" disabled>
-                                {% endif %}
+                            <div class="col-12 col-lg-3 col-md-12 mb-3 form-check">
+                                <label for="id_envioInfoCorreo" class="form-check-label">Correo Electronico</label>
+                                <input type="checkbox" class="form-check-input" name="envioInfoCorreo" id="id_envioInfoCorreo" {% if objAsociado.envioInfoCorreo == True %} checked {% endif %} disabled>
                             </div>
-                            <div class="col-3">
-                                <label for="id_envioInfoMensaje" class="form-label">Mensaje de Texto</label>
-                                {% if objAsociado.envioInfoMensaje == True %}
-                                    <input type="checkbox" name="envioInfoMensaje" id="id_envioInfoMensaje" checked disabled>
-                                {% else %}
-                                    <input type="checkbox" name="envioInfoMensaje" id="id_envioInfoMensaje" disabled>
-                                {% endif %}
+                            <div class="col-12 col-lg-3 col-md-12 mb-3 form-check">
+                                <label for="id_envioInfoMensaje" class="form-check-label">Mensaje de Texto</label>
+                                <input type="checkbox" class="form-check-input" name="envioInfoMensaje" id="id_envioInfoMensaje" {% if objAsociado.envioInfoMensaje == True %} checked {% endif %} disabled>
                             </div>
-                            <div class="col-3">
-                                <label for="id_envioInfoWhatsapp" class="form-label">WhatsApp</label>
-                                {% if objAsociado.envioInfoWhatsapp == True %}
-                                    <input type="checkbox" name="envioInfoWhatsapp" id="id_envioInfoWhatsapp" checked disabled>
-                                {% else %}
-                                    <input type="checkbox" name="envioInfoWhatsapp" id="id_envioInfoWhatsapp" disabled>
-                                {% endif %}
+                            <div class="col-12 col-lg-3 col-md-12 mb-3 form-check">
+                                <label for="id_envioInfoWhatsapp" class="form-check-label">WhatsApp</label>
+                                <input type="checkbox" class="form-check-input" name="envioInfoWhatsapp" id="id_envioInfoWhatsapp" {% if objAsociado.envioInfoWhatsapp == True %} checked {% endif %} disabled>
                             </div>
+
+                            <hr>
+                            
                             {% comment %} Fila 9 {% endcomment %}
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_nivelEducativo" class="form-label">Nivel Educativo *</label>
+                                        <select name="nivelEducativo" class="form-select" id="id_nivelEducativo" required disabled>
+                                            <option value="PRIMARIA" {% if objAsociado.nivelEducativo == 'PRIMARIA' %} selected {% endif %}>PRIMARIA</option>
+                                            <option value="SECUNDARIA" {% if objAsociado.nivelEducativo == 'SECUNDARIA' %} selected {% endif %}>SECUNDARIA</option>
+                                            <option value="TECNICO" {% if objAsociado.nivelEducativo == 'TECNICO' %} selected {% endif %}>TECNICO</option>
+                                            <option value="TECNOLOGICO" {% if objAsociado.nivelEducativo == 'TECNOLOGICO' %} selected {% endif %} >TECNOLOGICO</option>
+                                            <option value="PREGRADO" {% if objAsociado.nivelEducativo == 'PREGRADO' %} selected {% endif %}>PREGRADO</option>
+                                            <option value="ESPECIALIZACION" {% if objAsociado.nivelEducativo == 'ESPECIALIZACION' %} selected {% endif %}>ESPECIALIZACION</option>
+                                            <option value="MAESTRIA" {% if objAsociado.nivelEducativo == 'MAESTRIA' %} selected {% endif %}>MAESTRIA</option>
+                                            <option value="DOCTORADO" {% if objAsociado.nivelEducativo == 'DOCTORADO' %} selected {% endif %}>DOCTORADO</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_tituloPregrado" class="form-label">Titulo Obtenido de Pregrado</label>
+                                        <input type="text" {% if objAsociado.tituloPregrado %}value="{{ objAsociado.tituloPregrado }}"{% endif %} class="form-control input-form" name="tituloPregrado" id="id_tituloPregrado" maxlength="100" disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-4 col-lg-12 col-md-12 mb-3">
+                                        <label for="id_tituloPosgrado" class="form-label">Titulo Obtenido de Posgrado</label>
+                                        <input type="text" {% if objAsociado.tituloPosgrado %} value="{{ objAsociado.tituloPosgrado }}" {% endif %} class="form-control input-form" name="tituloPosgrado" id="id_tituloPosgrado" maxlength="100" disabled>
+                                    </div>
+                                </div>
+                            </div>
+
                             <hr>
-                            <div class="col-4">
-                                <label for="id_nivelEducativo" class="form-label">Nivel Educativo *</label>
-                                <select name="nivelEducativo" class="form-select" id="id_nivelEducativo" required disabled>
-                                    <option value="PRIMARIA" {% if objAsociado.nivelEducativo == 'PRIMARIA' %} selected {% endif %}>PRIMARIA</option>
-                                    <option value="SECUNDARIA" {% if objAsociado.nivelEducativo == 'SECUNDARIA' %} selected {% endif %}>SECUNDARIA</option>
-                                    <option value="TECNICO" {% if objAsociado.nivelEducativo == 'TECNICO' %} selected {% endif %}>TECNICO</option>
-                                    <option value="TECNOLOGICO" {% if objAsociado.nivelEducativo == 'TECNOLOGICO' %} selected {% endif %} >TECNOLOGICO</option>
-                                    <option value="PREGRADO" {% if objAsociado.nivelEducativo == 'PREGRADO' %} selected {% endif %}>PREGRADO</option>
-                                    <option value="ESPECIALIZACION" {% if objAsociado.nivelEducativo == 'ESPECIALIZACION' %} selected {% endif %}>ESPECIALIZACION</option>
-                                    <option value="MAESTRIA" {% if objAsociado.nivelEducativo == 'MAESTRIA' %} selected {% endif %}>MAESTRIA</option>
-                                    <option value="DOCTORADO" {% if objAsociado.nivelEducativo == 'DOCTORADO' %} selected {% endif %}>DOCTORADO</option>
-                                </select>
-                            </div>
-                            <div class="col-4">
-                                <label for="id_tituloPregrado" class="form-label">Titulo Obtenido de Pregrado</label>
-                                <input type="text" {% if objAsociado.tituloPregrado %}value="{{ objAsociado.tituloPregrado }}"{% endif %} class="form-control input-form" name="tituloPregrado" id="id_tituloPregrado" maxlength="100" disabled>
-                            </div>
-                            <div class="col-4">
-                                <label for="id_tituloPosgrado" class="form-label">Titulo Obtenido de Posgrado</label>
-                                <input type="text" {% if objAsociado.tituloPosgrado %} value="{{ objAsociado.tituloPosgrado }}" {% endif %} class="form-control input-form" name="tituloPosgrado" id="id_tituloPosgrado" maxlength="100" disabled>
-                            </div>
-                            <hr>
+
                             <center><h3>REFERENCIA FAMILIAR</h3></center>
-                            <div class="col-4">
-                                <label for="id_nombreRF" class="form-label">Nombre Familiar de Contacto *</label>
-                                <input type="text" class="form-control input-form" {% if objAsociado.nombreRF %}value="{{ objAsociado.nombreRF }}"{% endif %} name="nombreRF" id="id_nombreRF" maxlength="50" disabled>
-                            </div>
-                            <div class="col-4">
-                                <label for="id_parentesco" class="form-label">Parentesco *</label>
-                                <select name="parentesco" class="form-select" id="id_parentesco" disabled>
-                                    <option value="0" selected>&nbsp;</option>
-                                    {% for parent in objParentesco %}
-                                        <option value="{{parent.nombre}}" {% if parent.nombre == objAsociado.parentesco %} selected {% endif %}>{{parent.nombre}}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="col-4">
-                                <label for="id_numContacto" class="form-label">Teléfono de Familiar *</label>
-                                <input type="number" class="form-control" {% if objAsociado.numContacto %}value="{{ objAsociado.numContacto }}"{% endif %} name="numContacto" id="id_numContacto" min="0" disabled>
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-12 col-xl-4 col-lg-12 col-md-12 mb-3">
+                                        <label for="id_nombreRF" class="form-label">Nombre Familiar de Contacto *</label>
+                                        <input type="text" class="form-control input-form" {% if objAsociado.nombreRF %}value="{{ objAsociado.nombreRF }}"{% endif %} name="nombreRF" id="id_nombreRF" maxlength="50" disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_parentesco" class="form-label">Parentesco *</label>
+                                        <select name="parentesco" class="form-select" id="id_parentesco" disabled>
+                                            <option value="0" selected>&nbsp;</option>
+                                            {% for parent in objParentesco %}
+                                                <option value="{{parent.nombre}}" {% if parent.nombre == objAsociado.parentesco %} selected {% endif %}>{{parent.nombre}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_numContacto" class="form-label">Teléfono de Familiar *</label>
+                                        <input type="number" class="form-control" {% if objAsociado.numContacto %}value="{{ objAsociado.numContacto }}"{% endif %} name="numContacto" id="id_numContacto" min="0" disabled>
+                                    </div>
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -339,178 +360,201 @@
                         {% comment %} Formulario Informacion Laboral {% endcomment %}
                         <form method="post" class="row g-3" id="form" action="{% url 'asociado:editarLaboral' pkAsociado %}">
                             {% csrf_token %}   
-                            {% comment %} Fila 0 {% endcomment %}
-                            <div class="col-md-4">
-                            </div>                            
-                            <div class="col-md-8">
-                                <div class="row" style="display:flex; justify-content:flex-end; margin-right:55px; margin-top:15px">
-                                    <div class="col-sm-1">
-                                        {% if laboral == 'no' %}
-                                            <div class="btn-group" role="group" aria-label="Basic example">
-                                                <a href="{% url 'asociado:asociado' %}" class="btn btn-primary">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
-                                                        <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
-                                                    </svg>
-                                                </a>
-                                                <a class="btn btn-primary" onclick="editarInputActualizacion2('editar')" id="btn-editar2">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon-2" viewBox="0 0 16 16">
-                                                        <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
-                                                    </svg>
-                                                </a>  
-                                                <a class="btn btn-danger" onclick="editarInputActualizacion2('no_editar')" id="btn-noeditar2" hidden>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-slash-circle" viewBox="0 0 16 16">
-                                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-                                                        <path d="M11.354 4.646a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 .708.708l6-6a.5.5 0 0 0 0-.708"/>
-                                                    </svg>
-                                                </a>  
-                                                <button type="submit" class="btn btn-primary" id="btn-guardar2" {% if laboral == 'no' %} hidden {% endif %}>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16">
-                                                        <path d="M11 2H9v3h2z"/>
-                                                        <path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        {% else %}
-                                            <button type="submit" class="btn btn-primary" id="btn-guardar2"><i class="fa-solid fa-floppy-disk"></i></button>
-                                        {% endif %}
+                            
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-12 d-flex justify-content-end mt-3">
+                                        <div class="btn-group" role="group" aria-label="Basic example">
+                                            <a href="{% url 'asociado:asociado' %}" class="btn btn-primary">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                                                    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+                                                </svg>
+                                            </a>
+                                            <a class="btn btn-primary" onclick="editarInputActualizacion2('editar')" id="btn-editar2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon-2" viewBox="0 0 16 16">
+                                                    <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                                                </svg>
+                                            </a>  
+                                            <a class="btn btn-danger" onclick="editarInputActualizacion2('no_editar')" id="btn-noeditar2" hidden>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-slash-circle" viewBox="0 0 16 16">
+                                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                                    <path d="M11.354 4.646a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 .708.708l6-6a.5.5 0 0 0 0-.708"/>
+                                                </svg>
+                                            </a>  
+                                            <button type="submit" class="btn btn-primary" id="btn-guardar2" disabled>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16">
+                                                    <path d="M11 2H9v3h2z"/>
+                                                    <path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% comment %} Fila 1 {% endcomment %}
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-12 col-xl-4 col-lg-12 col-md-12 mb-3">
+                                        <label for="id_ocupacion" class="form-label">Ocupacion *</label>
+                                        <input type="text" {% if objLaboral.ocupacion != None %} value="{{ objLaboral.ocupacion }}" {% endif %} class="form-control input-form" name="ocupacion" id="id_ocupacion" maxlength="50" required disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_nombreEmpresa" class="form-label">Nombre Empresa</label>
+                                        <input type="text" {% if objLaboral.nombreEmpresa != None %} value="{{ objLaboral.nombreEmpresa }}" {% endif %} class="form-control input-form" name="nombreEmpresa" id="id_nombreEmpresa" maxlength="50" disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_cargo" class="form-label">Cargo</label>
+                                        <input type="text" {% if objLaboral.cargo != None %} value="{{ objLaboral.cargo }}" {% endif %} class="form-control input-form" name="cargo" id="id_cargo" maxlength="50" disabled>
                                     </div>
                                 </div>
                             </div>
 
-                            {% comment %} Fila 1 {% endcomment %}
-                            <div class="col-4">
-                                <label for="id_ocupacion" class="form-label">Ocupacion *</label>
-                                <input type="text" {% if objLaboral.ocupacion != None %} value="{{ objLaboral.ocupacion }}" {% endif %} class="form-control input-form" name="ocupacion" id="id_ocupacion" maxlength="50" required {% if laboral == 'no' %} disabled {% endif %}>
-                            </div>
-                            <div class="col-4">
-                                <label for="id_nombreEmpresa" class="form-label">Nombre Empresa</label>
-                                <input type="text" {% if objLaboral.nombreEmpresa != None %} value="{{ objLaboral.nombreEmpresa }}" {% endif %} class="form-control input-form" name="nombreEmpresa" id="id_nombreEmpresa" maxlength="50" {% if laboral == 'no' %} disabled {% endif %}>
-                            </div>
-                            <div class="col-4">
-                                <label for="id_cargo" class="form-label">Cargo</label>
-                                <input type="text" {% if objLaboral.cargo != None %} value="{{ objLaboral.cargo }}" {% endif %} class="form-control input-form" name="cargo" id="id_cargo" maxlength="50" {% if laboral == 'no' %} disabled {% endif %}>
-                            </div>
-
                             {% comment %} Fila 2 {% endcomment %}
-                            <div class="col-3">
-                                <label for="id_nomRepresenLegal" class="form-label">Nombre Representante Legal</label>
-                                <input type="text" {% if objLaboral.nomRepresenLegal != None %} value="{{ objLaboral.nomRepresenLegal }}" {% endif %} class="form-control input-form" name="nomRepresenLegal" id="id_nomRepresenLegal" maxlength="50" {% if laboral == 'no' %} disabled {% endif %}>
-                            </div>
-                            <div class="col-3">
-                                <label for="id_numDocRL" class="form-label">N° Identificación Representante Legal</label>
-                                <input type="number" {% if objLaboral.numDocRL %} value="{{objLaboral.numDocRL}}" {% endif %} class="form-control" name="numDocRL" id="id_numDocRL" min="0" {% if laboral == 'no' %} disabled {% endif %}>
-                            </div>
-                            <div class="col-3">
-                                <label for="id_fechaInicio" class="form-label">Fecha Inicio</label>
-                                <input type="date" value="{{objLaboral.fechaInicio|date:"Y-m-d"}}" class="form-control" name="fechaInicio" id="id_fechaInicio" {% if laboral == 'no' %} disabled {% endif %}>
-                            </div>
-                            <div class="col-3">
-                                <label for="id_fechaTerminacion" class="form-label">Fecha Terminación</label>
-                                <input type="date" value="{{objLaboral.fechaTerminacion|date:"Y-m-d"}}" class="form-control" name="fechaTerminacion" id="id_fechaTerminacion" {% if laboral == 'no' %} disabled {% endif %}>
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_nomRepresenLegal" class="form-label">Nombre Representante Legal</label>
+                                        <input type="text" {% if objLaboral.nomRepresenLegal != None %} value="{{ objLaboral.nomRepresenLegal }}" {% endif %} class="form-control input-form" name="nomRepresenLegal" id="id_nomRepresenLegal" maxlength="50" disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_numDocRL" class="form-label">N° Documento Representante Legal</label>
+                                        <input type="number" {% if objLaboral.numDocRL %} value="{{objLaboral.numDocRL}}" {% endif %} class="form-control" name="numDocRL" id="id_numDocRL" min="0" disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_fechaInicio" class="form-label">Fecha Inicio</label>
+                                        <input type="date" value="{{objLaboral.fechaInicio|date:"Y-m-d"}}" class="form-control" name="fechaInicio" id="id_fechaInicio" disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_fechaTerminacion" class="form-label">Fecha Terminación</label>
+                                        <input type="date" value="{{objLaboral.fechaTerminacion|date:"Y-m-d"}}" class="form-control" name="fechaTerminacion" id="id_fechaTerminacion" disabled>
+                                    </div>
+                                </div>
                             </div>
 
                             {% comment %} Fila 3 {% endcomment %}
-                            <div class="col-3">
-                                <label for="id_direccion2" class="form-label">Dirección</label>
-                                <input type="text" {% if objLaboral.direccion != None %} value="{{ objLaboral.direccion }}" {% endif %} class="form-control input-form" name="direccion" id="id_direccion2" maxlength="100" {% if laboral == 'no' %} disabled {% endif %}>
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_direccion2" class="form-label">Dirección</label>
+                                        <input type="text" {% if objLaboral.direccion != None %} value="{{ objLaboral.direccion }}" {% endif %} class="form-control input-form" name="direccion" id="id_direccion2" maxlength="100" disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_dptoTrabajo" class="form-label">Departamento</label>
+                                        <select name="dptoTrabajo" class="form-select departamento-select" id="id_dptoTrabajo" data-target="#id_mpioTrabajo" disabled>
+                                            <option value="0" selected>&nbsp;</option>
+                                            {% for dpto in query_dpto %}
+                                                <option value="{{dpto.id}}" {% if dpto.id == objLaboral.dptoTrabajo.pk %} selected {% endif %}>{{dpto.nombre}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_mpioTrabajo" class="form-label">Municipio</label>
+                                        <select name="mpioTrabajo" class="form form-control" id="id_mpioTrabajo" disabled>
+                                            <option value="{{ objLaboral.mpioTrabajo.id }}" selected>
+                                                {{ objLaboral.mpioTrabajo.nombre }}
+                                            </option>
+                                        </select>  
+                                    </div>
+                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_telefono" class="form-label">Telefono</label>
+                                        <input type="number" {% if objLaboral.telefono %} value="{{objLaboral.telefono}}" {% endif %} class="form-control" name="telefono" id="id_telefono" min="0" max="9999999999" disabled>   
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-3">
-                                <label for="id_dptoTrabajo" class="form-label">Departamento</label>
-                                <select name="dptoTrabajo" class="form-select departamento-select" id="id_dptoTrabajo" data-target="#id_mpioTrabajo" {% if laboral == 'no' %} disabled {% endif %}>
-                                    <option value="0" selected>&nbsp;</option>
-                                    {% for dpto in query_dpto %}
-                                        <option value="{{dpto.id}}" {% if dpto.id == objLaboral.dptoTrabajo.pk %} selected {% endif %}>{{dpto.nombre}}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="col-3">
-                                <label for="id_mpioTrabajo" class="form-label">Municipio</label>
-                                <select name="mpioTrabajo" class="form form-control" id="id_mpioTrabajo" {% if laboral == 'no' %} disabled {% endif %}>
-                                    <option value="{{ objLaboral.mpioTrabajo.id }}" selected>
-                                        {{ objLaboral.mpioTrabajo.nombre }}
-                                    </option>
-                                </select>  
-                            </div>
-                            <div class="col-3">
-                                <label for="id_telefono" class="form-label">Telefono</label>
-                                <input type="number" {% if objLaboral.telefono %} value="{{objLaboral.telefono}}" {% endif %} class="form-control" name="telefono" id="id_telefono" min="0" max="9999999999" {% if laboral == 'no' %} disabled {% endif %}>   
-                            </div>
+
 
                             {% comment %} Fila 4 {% endcomment %}
-                            <div class="col-2">
-                                <label for="id_admRP" class="form-label">¿Administra Recursos Públicos?</label>
-                                <select name="admRP" class="form-select" id="id_admRP" {% if laboral == 'no' %} disabled {% endif %}>
-                                    <option value="NO" {%if objLaboral.admRP == 'NO' %} selected {% endif %}>NO</option>
-                                    <option value="SI" {%if objLaboral.admRP == 'SI' %} selected {% endif %}>SI</option>
-                                </select>
-                            </div>
-                            <div class="col-4">
-                                <label for="id_pep" class="form-label">¿Esta catalogado como PEP? (Persona Expuesta Publicamente?</label>
-                                <select name="pep" class="form-select" id="id_pep" {% if laboral == 'no' %} disabled {% endif %}>
-                                    <option value="NO" {%if objLaboral.pep == 'NO' %} selected {% endif %}>NO</option>
-                                    <option value="SI" {%if objLaboral.pep == 'SI' %} selected {% endif %}>SI</option>
-                                </select>
-                            </div>
-                            <div class="col-3">
-                                <label for="id_activEcono" class="form-label">Describa Actividad Economica</label>
-                                <input type="text" {% if objLaboral.activEcono != None %} value="{{ objLaboral.activEcono }}" {% endif %} class="form-control input-form" name="activEcono" id="id_activEcono" maxlength="30" {% if laboral == 'no' %} disabled {% endif %}>
-                            </div>
-                            <div class="col-3">
-                                <label for="id_ciiu" class="form-label">CIIU</label>
-                                <input type="text" {% if objLaboral.ciiu != None %} value="{{ objLaboral.ciiu }}" {% endif %} class="form-control input-form" name="ciiu" id="id_ciiu" maxlength="6" {% if laboral == 'no' %} disabled {% endif %}>
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_admRP" class="form-label">¿Administra Recursos Públicos?</label>
+                                        <select name="admRP" class="form-select" id="id_admRP" disabled> 
+                                            <option value="NO" {%if objLaboral.admRP == 'NO' %} selected {% endif %}>NO</option>
+                                            <option value="SI" {%if objLaboral.admRP == 'SI' %} selected {% endif %}>SI</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_pep" class="form-label">¿Esta catalogado como PEP? (Persona Expuesta Publicamente?</label>
+                                        <select name="pep" class="form-select" id="id_pep" disabled>
+                                            <option value="NO" {%if objLaboral.pep == 'NO' %} selected {% endif %}>NO</option>
+                                            <option value="SI" {%if objLaboral.pep == 'SI' %} selected {% endif %}>SI</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-xl-3 col-lg-6 col-md-12 mb-3">
+                                        <label for="id_activEcono" class="form-label">Describa Actividad Economica</label>
+                                        <input type="text" {% if objLaboral.activEcono != None %} value="{{ objLaboral.activEcono }}" {% endif %} class="form-control input-form" name="activEcono" id="id_activEcono" maxlength="30" disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_ciiu" class="form-label">CIIU</label>
+                                        <input type="text" {% if objLaboral.ciiu != None %} value="{{ objLaboral.ciiu }}" {% endif %} class="form-control input-form" name="ciiu" id="id_ciiu" maxlength="6" disabled>
+                                    </div>
+
+                                    {% comment %} Fila 5 {% endcomment %}
+                           
+                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_banco" class="form-label">Banco o Entidad Bancaria</label>
+                                        <input type="text" {% if objLaboral.banco != None %} value="{{ objLaboral.banco }}" {% endif %} class="form-control input-form" name="banco" id="id_banco" maxlength="30" disabled> 
+                                    </div>
+                                    
+                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_numCuenta" class="form-label">Número Cuenta Bancaria</label>
+                                        <input type="number" value="{{objLaboral.numCuenta}}" class="form-control" name="numCuenta" id="id_numCuenta" min="0" disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_tipoCuenta" class="form-label">Tipo de Cuenta Bancaria</label>
+                                        <select name="tipoCuenta" class="form-select" id="id_tipoCuenta" disabled>
+                                            <option value="0" selected>&nbsp;</option>
+                                            <option value="CUENTA AHORROS" {%if objLaboral.tipoCuenta == 'CUENTA AHORROS' %} selected {% endif %}>CUENTA AHORROS</option>
+                                            <option value="CUENTA CORRIENTE" {%if objLaboral.tipoCuenta == 'CUENTA CORRIENTE' %} selected {% endif %}>CUENTA CORRIENTE</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
 
-                            {% comment %} Fila 5 {% endcomment %}
-                            <div class="col-4">
-                                <label for="id_banco" class="form-label">Banco o Entidad Bancaria</label>
-                                <input type="text" {% if objLaboral.banco != None %} value="{{ objLaboral.banco }}" {% endif %} class="form-control input-form" name="banco" id="id_banco" maxlength="30" {% if laboral == 'no' %} disabled {% endif %}>
-                            </div>
-                            
-                            <div class="col-4">
-                                <label for="id_numCuenta" class="form-label">Número Cuenta Bancaria</label>
-                                <input type="number" value="{{objLaboral.numCuenta}}" class="form-control" name="numCuenta" id="id_numCuenta" min="0" {% if laboral == 'no' %} disabled {% endif %}>
-                            </div>
-                            <div class="col-4">
-                                <label for="id_tipoCuenta" class="form-label">Tipo de Cuenta Bancaria</label>
-                                <select name="tipoCuenta" class="form-select" id="id_tipoCuenta" {% if laboral == 'no' %} disabled {% endif %}>
-                                    <option value="0" selected>&nbsp;</option>
-                                    <option value="CUENTA AHORROS" {%if objLaboral.tipoCuenta == 'CUENTA AHORROS' %} selected {% endif %}>CUENTA AHORROS</option>
-                                    <option value="CUENTA CORRIENTE" {%if objLaboral.tipoCuenta == 'CUENTA CORRIENTE' %} selected {% endif %}>CUENTA CORRIENTE</option>
-                                </select>
-                            </div>
                             <hr>
 
                             {% comment %} Fila 6 {% endcomment %}
                             <center><h3>INFORMACION FINANCIERA</h3></center>
-                            <div class="col-3">
-                                <label for="id_ingresosActPrin" class="form-label">Ingresos Mensuales</label>
-                                <input type="number" value="{{objFinanciero.ingresosActPrin}}" class="form-control" name="ingresosActPrin" id="id_ingresosActPrin" min="0" {% if laboral == 'no' %} disabled {% endif %}>
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_ingresosActPrin" class="form-label">Ingresos Mensuales</label>
+                                        <input type="number" value="{{objFinanciero.ingresosActPrin}}" class="form-control" name="ingresosActPrin" id="id_ingresosActPrin" min="0" disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_otroIngreso1" class="form-label">Otros Ingresos</label>
+                                        <input type="number" value="{{objFinanciero.otroIngreso1}}" class="form-control" name="otroIngreso1" id="id_otroIngreso1" min="0" disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_otroIngreso2" class="form-label">Otros Ingresos</label>
+                                        <input type="number" value="{{objFinanciero.otroIngreso2}}" class="form-control" name="otroIngreso2" id="id_otroIngreso2" min="0" disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_egresos" class="form-label">Egresos</label>
+                                        <input type="number" value="{{objFinanciero.egresos}}" class="form-control" name="egresos" id="id_egresos" min="0" disabled>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-3">
-                                <label for="id_otroIngreso1" class="form-label">Otros Ingresos</label>
-                                <input type="number" value="{{objFinanciero.otroIngreso1}}" class="form-control" name="otroIngreso1" id="id_otroIngreso1" min="0" {% if laboral == 'no' %} disabled {% endif %}>
-                            </div>
-                            <div class="col-3">
-                                <label for="id_otroIngreso2" class="form-label">Otros Ingresos</label>
-                                <input type="number" value="{{objFinanciero.otroIngreso2}}" class="form-control" name="otroIngreso2" id="id_otroIngreso2" min="0" {% if laboral == 'no' %} disabled {% endif %}>
-                            </div>
-                            <div class="col-3">
-                                <label for="id_egresos" class="form-label">Egresos</label>
-                                <input type="number" value="{{objFinanciero.egresos}}" class="form-control" name="egresos" id="id_egresos" min="0" {% if laboral == 'no' %} disabled {% endif %}>
-                            </div>
+
                             {% comment %} Fila 7 {% endcomment %}
-                            <div class="col-4">
-                                <label for="id_activos" class="form-label">Total Activos</label>
-                                <input type="number" value="{{objFinanciero.activos}}" class="form-control" name="activos" id="id_activos" min="0" {% if laboral == 'no' %} disabled {% endif %}>
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_activos" class="form-label">Total Activos</label>
+                                        <input type="number" value="{{objFinanciero.activos}}" class="form-control" name="activos" id="id_activos" min="0" disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_pasivos" class="form-label">Total Pasivos</label>
+                                        <input type="number" value="{{objFinanciero.pasivos}}" class="form-control" name="pasivos" id="id_pasivos" min="0" disabled>
+                                    </div>
+                                    <div class="col-12 col-xl-4 col-lg-12 col-md-12 mb-3">
+                                        <label for="id_patrimonio" class="form-label">Total Patrimonio</label>
+                                        <input type="number" value="{{objFinanciero.patrimonio}}" class="form-control" name="patrimonio" id="id_patrimonio" readonly disabled>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-4">
-                                <label for="id_pasivos" class="form-label">Total Pasivos</label>
-                                <input type="number" value="{{objFinanciero.pasivos}}" class="form-control" name="pasivos" id="id_pasivos" min="0" {% if laboral == 'no' %} disabled {% endif %}>
-                            </div>
-                            <div class="col-4">
-                                <label for="id_patrimonio" class="form-label">Total Patrimonio</label>
-                                <input type="number" value="{{objFinanciero.patrimonio}}" class="form-control" name="patrimonio" id="id_patrimonio" {% if laboral == 'no' %} disabled {% endif %}>
-                            </div>
+
                         </form>
                     </div>
                 </div>
@@ -530,93 +574,86 @@
                             {% csrf_token %}
 
                             {% comment %} Fila 0 {% endcomment %}
-                            <div class="col-md-4">
-                            </div>                            
-                            <div class="col-md-8">
-                                <div class="row" style="display:flex; justify-content:flex-end; margin-right:47px; margin-top:15px">
-                                    <div class="col-sm-1">
-                                        {% if laboral == 'no' %}
-                                            <div class="btn-group" role="group" aria-label="Basic example">
-                                                <a href="{% url 'asociado:asociado' %}" class="btn btn-primary">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
-                                                        <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
-                                                    </svg>
-                                                </a>
-                                                <a class="btn btn-primary" onclick="editarInputActualizacion3('editar')" id="btn-editar3">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon-2" viewBox="0 0 16 16">
-                                                        <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
-                                                    </svg>
-                                                </a>  
-                                                <a class="btn btn-danger" onclick="editarInputActualizacion3('no_editar')" id="btn-noeditar3" hidden>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-slash-circle" viewBox="0 0 16 16">
-                                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-                                                        <path d="M11.354 4.646a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 .708.708l6-6a.5.5 0 0 0 0-.708"/>
-                                                    </svg>
-                                                </a>  
-                                                <button type="submit" class="btn btn-primary" id="btn-guardar3" {% if laboral == 'no' %} hidden {% endif %}>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16">
-                                                        <path d="M11 2H9v3h2z"/>
-                                                        <path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        {% else %}
-                                            <button type="submit" class="btn btn-primary" id="btn-guardar3"><i class="fa-solid fa-floppy-disk"></i></button>
-                                        {% endif %}
+                            
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-12 d-flex justify-content-end mt-3">
+                                        <div class="btn-group" role="group" aria-label="Basic example">
+                                            <a href="{% url 'asociado:asociado' %}" class="btn btn-primary">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                                                    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+                                                </svg>
+                                            </a>
+                                            <a class="btn btn-primary" onclick="editarInputActualizacion3('editar')" id="btn-editar3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon-2" viewBox="0 0 16 16">
+                                                    <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                                                </svg>
+                                            </a>  
+                                            <a class="btn btn-danger" onclick="editarInputActualizacion3('no_editar')" id="btn-noeditar3" hidden>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-slash-circle" viewBox="0 0 16 16">
+                                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                                    <path d="M11.354 4.646a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 .708.708l6-6a.5.5 0 0 0 0-.708"/>
+                                                </svg>
+                                            </a>  
+                                            <button type="submit" class="btn btn-primary" id="btn-guardar3" disabled>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16">
+                                                    <path d="M11 2H9v3h2z"/>
+                                                    <path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
                             {% comment %} Fila 1 {% endcomment %}
                             
-                            <div class="col-4">
-                                <label for="id_servFuneraria" class="form-label">Servicio Funeraria</label>
-                                <select name="servFuneraria" class="form-select" id="id_servFuneraria" {% if laboral == 'no' %} disabled {% endif %}>
-                                    {% for serFuneria in objServFuneraria %}
-                                        <option value="{{serFuneria.pk}}" {% if objParametroAsociado.funeraria == serFuneria.pk %} selected {% endif %}>{{serFuneria.concepto}}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            
-                            <div class="col-4" id="contenedorAutorizacion" {% if objParametroAsociado.autorizaciondcto == False %} style="display:none" {% else %} style="display:block" {% endif %}>
-                                <div class="form-check form-switch">
-                                    <label class="form-check-label" for="flexSwitchCheckChecked">Autorización Descuento de Nomina</label>
-                                    <input class="form-check-input" name="autorizaciondcto" type="checkbox" role="switch" id="flexSwitchCheckChecked" onclick="mostrarAutorizacion('ocultar')" {% if objParametroAsociado.autorizaciondcto == True %} checked {% endif %} {% if laboral == 'no' %} disabled {% endif %}>
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                                        <label for="id_servFuneraria" class="form-label">Servicio Funeraria</label>
+                                        <select name="servFuneraria" class="form-select" id="id_servFuneraria" disabled>
+                                            {% for serFuneria in objServFuneraria %}
+                                                <option value="{{serFuneria.pk}}" {% if objParametroAsociado.funeraria == serFuneria.pk %} selected {% endif %}>{{serFuneria.concepto}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3" id="contenedorAutorizacion">
+                                        <div class="form-check form-switch">
+                                            <label class="form-label" for="flexSwitchCheckChecked">Autorización Descuento de Nomina</label>
+                                            <input class="form-check-input" name="autorizaciondcto" type="checkbox" role="switch" id="flexSwitchCheckChecked" onclick="mostrarAutorizacion()" {% if objParametroAsociado.autorizaciondcto == True %} checked {% endif %} disabled>
+                                        </div>
+                                        <select name="empresaDcto" class="form-select" id="id_empresaDcto" required disabled>
+                                            <option value="">Seleccione una empresa</option>
+                                            {% for empresas in objEmpresa %}
+                                            <option value="{{empresas.pk}}" {% if objParametroAsociado.empresa == empresas.pk %} selected {% endif %}>{{empresas.concepto}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12 col-xl-4 col-lg-6 col-md-12 md-3">
+                                        
+                                            <label for="id_primerMes" class="form-label">Mes inicio de pago</label>
+                                            <select name="primesMes" class="form-select" id="id_primerMes" disabled> 
+                                                {% for mes in objMes %}
+                                                    <option value="{{mes.pk}}" {% if objParametroAsociado.primerMes == mes.pk %} selected {% endif %}>{{mes.concepto}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        
+                                    </div>
                                 </div>
-                                <label for="id_empresaDcto" class="form-label" hidden></label>
-                                <select name="empresaDcto" class="form-select" id="id_empresaDcto" {% if laboral == 'no' %} disabled {% endif %}>
-                                    {% for empresas in objEmpresa %}
-                                        <option value="{{empresas.pk}}" {% if objParametroAsociado.empresa == empresas.pk %} selected {% endif %}>{{empresas.concepto}}</option>
-                                    {% endfor %}
-                                </select>
                             </div>
 
-                            <div class="col-4" id="contenedorAutorizacion2" {% if objParametroAsociado.autorizaciondcto == False %} style="display:block" {% else %} style="display:none" {% endif %}>
-                                <div class="form-check form-switch">
-                                    <label class="form-check-label" for="flexSwitchCheckChecked" id="label">Autorización Descuento de Nomina</label>
-                                    <input class="form-check-input" name="autorizaciondcto" type="checkbox" role="switch" onclick="mostrarAutorizacion('cambio')" id="flexSwitchCheckChecked_1" {% if laboral == 'no' %} disabled {% endif %}>
-                                </div>
-                            </div>
-
-                            <div class="col-4">
-                                <div class="form-check form-switch">
-                                    <label for="id_primerMes" class="form-label">Mes inicio de pago</label>
-                                    <select name="primesMes" class="form-select" id="id_primerMes" {% if laboral == 'no' %} disabled {% endif %}>
-                                        {% for mes in objMes %}
-                                            <option value="{{mes.pk}}" {% if objParametroAsociado.primerMes == mes.pk %} selected {% endif %}>{{mes.concepto}}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
 
-    <div class="modal fade" id="creacion" role="dialog">
-        <!-- En este div se visualiza la informacion para la creacion de un nuevo registro de entrada -->
     </div>
+    
+    
 
 {% endblock contenidoPagina %}
 
@@ -628,11 +665,22 @@
 
     
     <script type="text/javascript">
-        document.getElementById('id_mpioNacimiento').disabled = true;
-        document.getElementById('id_mpioResidencia').disabled = true;
-        {% if laboral == 'no' %} 
-            document.getElementById('id_mpioTrabajo').disabled = true;
-        {% endif %}
+        
+        document.addEventListener('DOMContentLoaded', function () {
+            const inputActivos = document.getElementById('id_activos');
+            const inputPasivos = document.getElementById('id_pasivos');
+            const inputPatrimonio = document.getElementById('id_patrimonio');;
+            
+            function calcularPatrimonio(){
+                const activos = parseFloat(inputActivos.value) || 0;
+                const pasivos = parseFloat(inputPasivos.value) || 0;
+                inputPatrimonio.value = activos - pasivos;
+            }
+                
+            inputActivos.addEventListener("input", calcularPatrimonio);
+            inputPasivos.addEventListener("input", calcularPatrimonio);
+        });
+        
     </script>
 
 {% endblock extrajs %} 

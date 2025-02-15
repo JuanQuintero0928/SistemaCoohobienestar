@@ -13,106 +13,105 @@
 {% endblock breadcrumb %}
 
 {% block contenidoPagina %}
-
-    <div class="col-xl-12 col-md-12 mb-12">
-        <div class="row">
-            <form action="{% url 'reportes:descuentosNomina' %}" method="post">
-                {% csrf_token %}
-                <div class="row">
-                    <p>Seleccione las opciones que desea descargar:</p>
-                    <div class="col-xl-11 col-md-11 mb-11">
+    
+    <form action="{% url 'reportes:descuentosNomina' %}" method="post">
+    {% csrf_token %}
+        <div class="container-fluid">
+            <div class="row">
+                <div class="container mt-3">
+                    <label class="fw-bold mb-2">Seleccione las opciones que desea descargar:</label>
+                    <div class="row row-cols-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-2">
                         {% for empresa in empresas %}
                             {% if empresa.pk != 1 %}
-                                <div class="form-check form-check-inline">
-                                        <input name="select{{empresa.pk}}" class="form-check-input" type="checkbox" id="inlineCheckbox{{empresa.pk}}" value="{{empresa.pk}}" 
+                                <div class="form-check form-switch">
+                                    <input name="select{{ empresa.pk }}" class="form-check-input" type="checkbox" id="switch{{ empresa.pk }}" value="{{ empresa.pk }}"
                                         {% for check in arrayEmp %}
-                                            {% if check == empresa.pk %}
-                                                checked
-                                            {% endif %}
+                                            {% if check == empresa.pk %} checked {% endif %}
                                         {% endfor %}
-                                            >
-                                    <label class="form-check-label" for="inlineCheckbox{{empresa.pk}}">{{empresa.concepto}}</label>
+                                    >
+                                    <label class="form-check-label fw-semibold" for="switch{{ empresa.pk }}">
+                                        {{ empresa.concepto }}
+                                    </label>
                                 </div>
                             {% endif %}
                         {% endfor %}
                     </div>
+                </div>                
+                <div class="col-12 mt-4 d-flex justify-content-center">
+                    <button type="submit" class="btn btn-primary mb-3 mx-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-display" viewBox="0 0 16 16">
+                            <path d="M0 4s0-2 2-2h12s2 0 2 2v6s0 2-2 2h-4q0 1 .25 1.5H11a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1h.75Q6 13 6 12H2s-2 0-2-2zm1.398-.855a.76.76 0 0 0-.254.302A1.5 1.5 0 0 0 1 4.01V10c0 .325.078.502.145.602q.105.156.302.254a1.5 1.5 0 0 0 .538.143L2.01 11H14c.325 0 .502-.078.602-.145a.76.76 0 0 0 .254-.302 1.5 1.5 0 0 0 .143-.538L15 9.99V4c0-.325-.078-.502-.145-.602a.76.76 0 0 0-.302-.254A1.5 1.5 0 0 0 13.99 3H2c-.325 0-.502.078-.602.145"/>
+                        </svg>
+                        Consultar
+                    </button>
+                    <button type="button" class="btn btn-success mb-3 mx-2" id="btnExcel">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-excel" viewBox="0 0 16 16">
+                            <path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/>
+                            <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
+                        </svg>
+                        Descargar
+                    </button>
                 </div>
-                <div class="row" style="margin-top:10px">
-                    <div class="col-xl-3 col-md-3 mb-3">
-                        <button type="submit" class="btn btn-primary">Consultar</button>
-                    </div>
-                </div>
-            </form>
-            
-            {% if post %}
-                <form action="{% url 'reportes:excelDescuentosNomina' %}" method="get">
-                    {% for empresa in empresas %}
-                        {% if empresa.pk != 1 %}
-                            <div class="form-check form-check-inline" style="display:none">
-                                    <input name="select{{empresa.pk}}" class="form-check-input" type="checkbox" id="inlineCheckbox{{empresa.pk}}" value="{{empresa.pk}}" 
-                                    {% for check in arrayEmp %}
-                                        {% if check == empresa.pk %}
-                                            checked
-                                        {% endif %}
-                                    {% endfor %}
-                                        >
-                                <label class="form-check-label" for="inlineCheckbox{{empresa.pk}}">{{empresa.concepto}}</label>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                    <div class="row" style="margin-top:10px">
-                        <div class="col-xl-3 col-md-3 mb-3">
-                            <button type="submit" class="btn btn-success">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-excel" viewBox="0 0 16 16">
-                                    <path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/>
-                                    <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            {% endif %}
-           
+            </div>
         </div>
-    </div>
+    </form>
+       
     {% if post %}
         <div class="card-body">
-            <table class="table table-striped table-hover">
-                <thead>    
+            <table class="table table-striped table-hover table-bordered align-middle">
+                <thead class="table-dark text-center">
                     <tr>
-                        <th>N°</th>
-                        <th>N° Documento Titular</th>
-                        <th>Nombre Completo Titular</th>
-                        <th>Empresa</th>
-                        <th>Valor</th>
+                        <th scope="col">#</th>
+                        <th scope="col">N° Documento Titular</th>
+                        <th scope="col">Nombre Completo Titular</th>
+                        <th scope="col">Empresa</th>
+                        <th scope="col">Valor</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for asociado in array %}
-                        {% for query in asociado %}
-                            <tr>
-                                <th>{{ forloop.counter }}</th>
-                                <th>{{ query.asociado.numDocumento|intcomma }}</th>
-                                <th>{{ query.asociado.nombre }} {{query.asociado.apellido}}</th>
-                                <th>{{ query.empresa.concepto}}</th>
-                                <th>${{ query.tarifaAsociado.total|intcomma}}</th>
-                                <th></th>                                 
-                            </tr>
-                        {% endfor %}
-
+                    {% for obj in array %}
+                        <tr>
+                            <td class="text-center fw-bold">{{ forloop.counter }}</td>
+                            <td class="text-center">{{ obj.asociado.numDocumento|intcomma }}</td>
+                            <td>{{ obj.asociado.nombre }} {{ obj.asociado.apellido }}</td>
+                            <td class="text-center">{{ obj.empresa.concepto }}</td>
+                            <td class="text-end fw-bold text-success">${{ obj.total_final|intcomma }}</td>
+                        </tr>
                     {% empty %}
                         <tr>
-                            <th colspan="6"><center>No existen datos en la consulta.</th> 
+                            <td colspan="5" class="text-center text-muted py-3">No existen datos en la consulta.</td>
                         </tr>
                     {% endfor %}
+                    <tr>
+                        <td colspan="4" class="text-center fw-bold py-3">Total Generado</td>
+                        <td class="text-end fw-bold text-success">${{granTotalGeneral|intcomma}}</td>
+                    </tr>
                 </tbody>
-            </table>       
+            </table>
+               
         </div>
     {% endif %}
 
 
 {% endblock contenidoPagina %}
 
+{% block extrajs %}
+<script>
+    document.getElementById("btnExcel").addEventListener("click", function () {
+        let selected = [];
+        document.querySelectorAll(".form-check-input:checked").forEach(function (checkedBox) {
+            selected.push(checkedBox.value);
+        });
+    
+        if (selected.length > 0) {
+            let url = `{% url 'reportes:excelDescuentosNomina' %}?` + selected.map(id => `select${id}=${id}`).join("&");
+            window.location.href = url; // Redirige para descargar el archivo
+        } else {
+            alert("Seleccione al menos una empresa para descargar.");
+        }
+    });
+    </script>
+{% endblock extrajs %}
 
 
 

@@ -8,7 +8,7 @@
     
 {% block breadcrumb %}
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
-    <li class="breadcrumb-item"><a href="#">Información</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'informacion:informacion' %}">Información</a></li>
     <li class="breadcrumb-item"><a href="{% url 'asociado:asociado' %}">Asociados</a></li>
     <li class="breadcrumb-item active" aria-current="page">Detalle Asociado</li>
     <li class="breadcrumb-item active" aria-current="page">{{ query.asociado.nombre }} {{ query.asociado.apellido }} - {{query.asociado.numDocumento}}</li>
@@ -46,131 +46,148 @@
         </div> 
         {% comment %} contenido {% endcomment %}
     </div>
-    <table class="table table-hover">
-        <thead>
+    <style>
+        .custom-header {
+            background-color: #F8F9FA;
+            color: black;
+        }
+        .total-row {
+            background-color: #F8F9FA; /* Fondo gris claro */
+            font-weight: bold;
+            color:rgb(74, 79, 83); /* Texto oscuro */
+        }
+    </style>
+    <table class="table table-hover shadow-sm border rounded-4">
+        <thead class="custom-header text-center">
             <tr>
               <th style="width: 40%;" scope="col">Servicios</th>
               <th style="width: 40%;" scope="col">Valores</th>
               <th style="width: 20%;" scope="col">Opciones</th>
             </tr>
         </thead>
-        <tbody class="table-group-divider">
+        <tbody class="table-group-divider text-center">
             <tr>
-                <th>Nombre Asociado</th>
-                <th>{{ query.asociado.nombre }} {{query.asociado.apellido}}</th>
+                <th class="fw-bold text-start">Nombre Asociado</th>
+                <th class="text-muted text-start">{{ query.asociado.nombre }} {{query.asociado.apellido}}</th>
                 <th></th>
             </tr>
             <tr>
-                <th>Aporte</th>
-                <th>${{ query.cuotaAporte|intcomma }}</th>
+                <th class="fw-bold text-start">Aporte</th>
+                <th class="text-muted text-start">${{ query.cuotaAporte|intcomma }}</th>
                 <th></th>
             </tr>
             <tr>
-                <th>Bienestar Social</th>
-                <th>${{ query.cuotaBSocial|intcomma }}</th>
+                <th class="fw-bold text-start">Bienestar Social</th>
+                <th class="text-muted text-start">${{ query.cuotaBSocial|intcomma }}</th>
                 <th></th>
             </tr>
             {% if query.cuotaMascota != 0 %}
                 <tr>
-                    <th>Mascota</th>
-                    <th>${{ query.cuotaMascota|intcomma }}</th>
+                    <th class="fw-bold text-start">Mascota</th>
+                    <th class="text-muted text-start">${{ query.cuotaMascota|intcomma }}</th>
                     <th></th>
                 </tr>
             {% endif %}
             {% if queryRepatriacionTitular %}
                 <tr>
-                    <th>Repatriación Titular - {{ queryRepatriacionTitular.paisRepatriacion }}</th>
-                    <th>${{ repatriacion|intcomma }}</th>
+                    <th class="fw-bold text-start">Repatriación Titular - {{ queryRepatriacionTitular.paisRepatriacion }}</th>
+                    <th class="text-muted text-start">${{ repatriacion|intcomma }}</th>
                     <th>
-                        <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_creacion('{% url 'asociado:verRepatriacionTitular' pkAsociado queryRepatriacionTitular.pk %}')">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon" viewBox="0 0 16 16">
-                                <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
-                            </svg>
-                        </button>
-                        <button class="btn btn-outline-primary" onclick="abrir_modal_creacion('{% url 'asociado:eliminarRepatriacionTitular' pkAsociado queryRepatriacionTitular.pk %}')">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
-                            </svg>
-                        </button>
+                        <div class="btn-group" role="group" aria-label="Basic example">
+                            <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_creacion('{% url 'asociado:verRepatriacionTitular' pkAsociado queryRepatriacionTitular.pk %}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
+                                    <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                                </svg>
+                            </button>
+                            <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_creacion('{% url 'asociado:eliminarRepatriacionTitular' pkAsociado queryRepatriacionTitular.pk %}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                    <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
+                                </svg>
+                            </button>
+                        </div>
                     </th>
                 </tr>
             {% endif %}
             {% if query.cuotaRepatriacion != 0 %}
                 <tr>
-                    <th>Repatriación Beneficiarios</th>
-                    <th>${{ query.cuotaRepatriacion|intcomma }}</th>
+                    <th class="fw-bold text-start">Repatriación Beneficiarios</th>
+                    <th class="text-muted text-start">${{ query.cuotaRepatriacion|intcomma }}</th>
                     <th></th>
                 </tr>
             {% endif %}
             {% if query.cuotaSeguroVida != 0 %}
                 <tr>
-                    <th>Seguro Vida</th>
-                    <th>${{ query.cuotaSeguroVida|intcomma }}</th>
+                    <th class="fw-bold text-start">Seguro Vida</th>
+                    <th class="text-muted text-start">${{ query.cuotaSeguroVida|intcomma }}</th>
                     <th></th>
                 </tr>
             {% endif %}
             {% if query.cuotaCoohopAporte != 0 %}
                 <tr>
-                    <th>Coohoperativitos Aporte</th>
-                    <th>${{ query.cuotaCoohopAporte|intcomma }}</th>
+                    <th class="fw-bold text-start">Coohoperativitos Aporte</th>
+                    <th class="text-muted text-start">${{ query.cuotaCoohopAporte|intcomma }}</th>
                     <th></th>
                 </tr>
             {% endif %}
             {% if query.cuotaCoohopAporte != 0 %}
                 <tr>
-                    <th>Coohoperativitos Bienestar Social</th>
-                    <th>${{ query.cuotaCoohopBsocial|intcomma }}</th>
+                    <th class="fw-bold text-start">Coohoperativitos Bienestar Social</th>
+                    <th class="text-muted text-start">${{ query.cuotaCoohopBsocial|intcomma }}</th>
                     <th></th>
                 </tr>
             {% endif %}
             {% if query.cuotaAdicionales != 0 %}
                 <tr>
-                    <th>Adicionales</th>
-                    <th>${{ query.cuotaAdicionales|intcomma }}</th>
+                    <th class="fw-bold text-start">Adicionales</th>
+                    <th class="text-muted text-start">${{ query.cuotaAdicionales|intcomma }}</th>
                     <th>
-                        <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_creacion('{% url 'asociado:editarAdicional' pkAsociado query.pk %}')">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon" viewBox="0 0 16 16">
-                                <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
-                            </svg>
-                        </button>
-                        <button class="btn btn-outline-primary" onclick="abrir_modal_creacion('{% url 'asociado:eliminarAdicional' pkAsociado query.pk %}')">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
-                            </svg>
-                        </button>
+                        <div class="btn-group" role="group" aria-label="Basic example">
+                            <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_creacion('{% url 'asociado:editarAdicional' pkAsociado query.pk %}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
+                                    <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                                </svg>
+                            </button>
+                            <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_creacion('{% url 'asociado:eliminarAdicional' pkAsociado query.pk %}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                    <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
+                                </svg>
+                            </button>
+                        </div>
                     </th>
                 </tr>
             {% endif %}
             {% if query.cuotaConvenio != 0 %}
                 {% for convenio in queryConvenio %}
                     <tr>
-                        <th>Convenio - {{ convenio.convenio.concepto }}</th>
-                        <th>${{ convenio.convenio.valor|intcomma }}</th>
+                        <th class="fw-bold text-start">Convenio - {{ convenio.convenio.concepto }}</th>
+                        <th class="text-muted text-start">${{ convenio.convenio.valor|intcomma }}</th>
                         <th>
-                            <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_creacion('{% url 'asociado:editarConvenio' pkAsociado convenio.pk %}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon" viewBox="0 0 16 16">
-                                    <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
-                                </svg>
-                            </button>
-                            <button class="btn btn-outline-primary" onclick="abrir_modal_creacion('{% url 'asociado:eliminarConvenio' pkAsociado convenio.pk %}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                                    <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
-                                </svg>
-                            </button>
+                            <div class="btn-group" role="group" aria-label="Basic example">
+                                <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_creacion('{% url 'asociado:editarConvenio' pkAsociado convenio.pk %}')">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
+                                        <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                                    </svg>
+                                </button>
+                                <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_creacion('{% url 'asociado:eliminarConvenio' pkAsociado convenio.pk %}')">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                        <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
+                                    </svg>
+                                </button>
+                            </div>
                         </th>
                     </tr>
                 {% endfor %}
             {% endif %}
             {% if queryCreditoProd > 0 %}
                 <tr>
-                    <th>Creditos Home Elements</th>
-                    <th>${{ queryCreditoProd|intcomma }}</th>
+                    <th class="fw-bold text-start">Creditos Home Elements</th>
+                    <th class="text-muted text-start">${{ queryCreditoProd|intcomma }}</th>
                     <th></th>
                 </tr>
             {% endif %}
-            <tr>
-                <th>Total</th>
-                <th>${{ totalTarifaAsociado|intcomma }}</th>
+            <tr class="total-row">
+                <th class="text-start">Total</th>
+                <th class="text-primary text-start">${{ totalTarifaAsociado|intcomma }}</th>
                 <th></th>
             </tr>
         <tbody>   

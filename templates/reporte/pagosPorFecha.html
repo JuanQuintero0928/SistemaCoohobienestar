@@ -2,111 +2,105 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %}
-    Pagos Por Fecha
-{% endblock title %}
-    
 {% block breadcrumb %}
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
     <li class="breadcrumb-item"><a href="{% url 'reportes:informacionReporte' %}">Reportes</a></li>
     <li class="breadcrumb-item active" aria-current="page">Reporte Pagos Por Fecha</li>
 {% endblock breadcrumb %}
 
+{% block title %}
+    Pagos Por Fecha
+{% endblock title %}    
+
 {% block contenidoPagina %}
 
-    <div class="col-xl-12 col-md-12 mb-12">
-        <div class="row">
-            <div class="col-xl-5 col-md-5 mb-5">
-                <form action="{% url 'reportes:verPagosPorFecha' %}" method="post">
-                    {% csrf_token %}
-                    <div class="row">
-                        <div class="col-xl-6 col-md-6 mb-6">
-                            <label>Fecha Inicial</label>
-                            {% if post %}
-                                <input class="form-control" type="date" value="{{ fechaIncialF }}" name="fechaInicial" required>
-                            {% else %}
-                                <input class="form-control" type="date" name="fechaInicial" required>
-                            {% endif %}
-                            </div>
-                        <div class="col-xl-6 col-md-6 mb-6">
-                            <label>Fecha Final</label>
-                            {% if post %}
-                                <input class="form-control" type="date" value="{{ fechaFinalF }}" name="fechaFinal" required>
-                            {% else %}
-                                <input class="form-control" type="date" name="fechaFinal" required>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="row" style="margin-top:10px">
-                        <div class="col-xl-3 col-md-3 mb-3">
-                            <button type="submit" class="btn btn-primary">Consultar</button>
-                        </div>
-                    </div>
-                </form>
+    <form action="{% url 'reportes:verPagosPorFecha' %}" method="post">
+        {% csrf_token %}
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4 mb-3">
+                    <label>Fecha Inicial</label>
+                    {% if post %}
+                        <input class="form-control" type="date" value="{{ fechaIncialF }}" name="fechaInicial" required id="id_fechaInicial">
+                    {% else %}
+                        <input class="form-control" type="date" name="fechaInicial" id="id_fechaInicial" required>
+                    {% endif %}
+                </div>
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4 mb-3">
+                    <label>Fecha Final</label>
+                    {% if post %}
+                        <input class="form-control" type="date" value="{{ fechaFinalF }}" name="fechaFinal" required id="id_fechaFinal">
+                    {% else %}
+                        <input class="form-control" type="date" name="fechaFinal" required id="id_fechaFinal">
+                    {% endif %}
+                </div>
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-4 mt-4 mb-3 d-flex justify-content-center">
+                    <button type="submit" class="btn btn-primary mb-3 mx-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-display" viewBox="0 0 16 16">
+                            <path d="M0 4s0-2 2-2h12s2 0 2 2v6s0 2-2 2h-4q0 1 .25 1.5H11a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1h.75Q6 13 6 12H2s-2 0-2-2zm1.398-.855a.76.76 0 0 0-.254.302A1.5 1.5 0 0 0 1 4.01V10c0 .325.078.502.145.602q.105.156.302.254a1.5 1.5 0 0 0 .538.143L2.01 11H14c.325 0 .502-.078.602-.145a.76.76 0 0 0 .254-.302 1.5 1.5 0 0 0 .143-.538L15 9.99V4c0-.325-.078-.502-.145-.602a.76.76 0 0 0-.302-.254A1.5 1.5 0 0 0 13.99 3H2c-.325 0-.502.078-.602.145"/>
+                        </svg>
+                        Consultar
+                    </button>
+                    <button type="button" class="btn btn-success mb-3 mx-2" onclick="descargarExcel()" id="id_descargarExcel" data-url="{% url 'reportes:generarPagoExcel' %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-excel" viewBox="0 0 16 16">
+                            <path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/>
+                            <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
+                        </svg>
+                        Descargar
+                    </button>
+                </div>
             </div>
-            <div class="col-xl-5 col-md-5 mb-5">
-            {% if post %}
-                <form action="{% url 'reportes:generarPagoExcel' %}" method="get">
-                    <input class="form-control" type="date" value="{{ fechaIncialF }}" name="fechaInicial" hidden>
-                    <input class="form-control" type="date" value="{{ fechaFinalF }}" name="fechaFinal" hidden>
-                    <div class="row" style="margin-top:10px">
-                        <div class="col-xl-3 col-md-3 mb-3">
-                            <button type="submit" class="btn btn-success">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-excel" viewBox="0 0 16 16">
-                                    <path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/>
-                                    <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            {% endif %}
         </div>
+    </form>
 
-        </div>
-        
     {% if post %}
-    <div class="card-body">
-            <h1>Pagos</h1>
-            <table class="table table-striped table-hover">
-                <thead>    
+
+        <div class="card-body">
+            <table class="table table-striped table-hover table-bordered align-middle">
+                <thead class="table-dark text-center">
                     <tr>
-                        <th>N°</th>
-                        <th>N° Documento Titular</th>
-                        <th>Nombre Completo Titular</th>
-                        <th>Mes Pago</th>
-                        <th>Valor Pago</th>
-                        <th>Diferencia</th>
-                        <th>Fecha Pago</th>
+                        <th scope="col">N°</th>
+                        <th scope="col">Fecha Pago</th>
+                        <th scope="col">N° Documento Titular</th>
+                        <th scope="col">Nombre Completo Titular</th>
+                        <th scope="col">Mes Pago</th>
+                        <th scope="col">Diferencia</th>
+                        <th scope="col">Valor Pago</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% if query %}
                         {% for pagos in query %}
                             <tr>
-                                <th>{{ forloop.counter }}</th>
-                                <th>{{ pagos.asociado.numDocumento|intcomma }}</th>
-                                <th>{{ pagos.asociado.nombre }} {{ pagos.asociado.apellido }}</th>
-                                <th>{{ pagos.mesPago }}</th>
-                                <th>${{ pagos.valorPago|intcomma }}</th>
-                                <th>${{ pagos.diferencia|intcomma }}</th>
-                                <th>{{ pagos.fechaPago|date:"d/m/Y" }}</th> 
+                                <td class="text-center fw-bold">{{ forloop.counter }}</td>
+                                <td class="text-center">{{ pagos.fechaPago|date:"d/m/Y" }}</td>
+                                <td class="text-center">{{ pagos.asociado.numDocumento|intcomma }}</td>
+                                <td>{{ pagos.asociado.nombre }} {{ pagos.asociado.apellido }}</td>
+                                <td class="text-center">{{ pagos.mesPago }}</td>
+                                <td {% if pagos.diferencia > 0 %} class="text-end fw-bold text-success" {% elif pagos.diferencia == 0 %} class="text-end fw-bold text-secondary" {% else %} class="text-end fw-bold text-danger" {% endif %}>${{ pagos.diferencia|intcomma }}</td>
+                                <td class="text-end fw-bold text-success">${{ pagos.valorPago|intcomma }}</td>
                             </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <th colspan="6"><center>No existen datos en la consulta.</th> 
+                            <th colspan="7" class="text-center text-muted py-3">No existen datos en la consulta.</th> 
                         </tr>
                     {% endif %}
+                    <tr>
+                        <td colspan="6" class="text-center fw-bold py-3">Total Generado</td>
+                        <td class="text-end fw-bold text-success">${{totalPago|intcomma}}</td>
+                    </tr>
                 </tbody>
-            </table>
-            
-        </div>        
-    </div>
+            </table>        
+        </div>
+
     {% endif %}
 
-
 {% endblock contenidoPagina %}
+
+{% block extrajs %}
+    <script src="{% static 'js/funcionesReportes.js' %}"></script>    
+{% endblock extrajs %}
 
 
 

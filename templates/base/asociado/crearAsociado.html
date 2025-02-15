@@ -11,7 +11,7 @@
     
 {% block breadcrumb %}
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
-    <li class="breadcrumb-item"><a href="#">Información</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'informacion:informacion' %}">Información</a></li>
     <li class="breadcrumb-item"><a href="{% url 'asociado:asociado' %}">Asociados</a></li>
     <li class="breadcrumb-item active" aria-current="page">Creación Asociado</li>
 {% endblock breadcrumb %}
@@ -23,186 +23,209 @@
             <a class="nav-link active" aria-current="page" href="#">Información Personal</a>
         </li>
     </ul>
-    <div class="card mb-4" style="border:0px">
-        <div class="row" style="display:flex; justify-content:flex-end; margin-right:25px; margin-top:15px">
-            <div class="col-sm-1">
-                <div class="btn-group" role="group" aria-label="Basic example">
-                    <a href="{% url 'asociado:asociado' %}" class="btn btn-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
-                        </svg>
-                    </a>
-                </div>
-            </div>
-        </div> 
+    <div class="container-fluid" style="margin-top:30px">      
+
         <form method="post" class="row g-3" id="form">
             {% csrf_token %}
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 d-flex justify-content-end">
+                        <a href="{% url 'asociado:asociado' %}" class="btn btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
                 
-                {% comment %} Fila 1 {% endcomment %}
-                <div class="col-md-2">
-                    <label for="id_tPersona" class="form-label">Tipo</label>
-                    <select name="tPersona" class="form-select" id="id_tPersona">
-                        <option value="PERSONA NATURAL" select>PERSONAL NATURAL</option>
-                        <option value="PERSONA JURIDICA">PERSONAL JURIDICA</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label for="id_fechaIngreso" class="form-label">Fecha Ingreso *</label>
-                    <input type="date" class="form-control" name="fechaIngreso" id="id_fechaIngreso" required>
-                </div>
-                <div class="col-md-2">
-                    <label for="id_tAsociado" class="form-label">Tipo Asociado</label>
-                    <select name="tAsociado" class="form-select" id="id_tAsociado">
-                        {% for tAsociado in query_tAsociado %}
-                            <option value="{{tAsociado.pk}}">{{tAsociado.concepto}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label for="id_estadoAsociado" class="form-label">Estado Asociado</label>
-                    <select name="estadoAsociado" class="form-select" id="id_estadoAsociado">
-                        <option value="ACTIVO" select>ACTIVO</option>
-                    </select>
-                </div>
-                
-                <div class="col-md-4">
-                </div>
-                {% comment %} Fila 1 {% endcomment %}
-                <div class="col-md-6">
-                    <label for="id_nombre" class="form-label">Nombres *</label>
-                    <input type="text" class="form-control input-form" name="nombre" id="id_nombre" maxlength="30" required>
-                </div>
-                <div class="col-md-6">
-                    <label for="id_apellido" class="form-label">Apellidos *</label>
-                    <input type="text" class="form-control input-form" name="apellido" maxlength="30" id="id_apellido" required>
-                </div>
-
-                {% comment %} Fila 2 {% endcomment %}
-                <div class="col-3">
-                    <label for="id_tipoDocumento" class="form-label">Tipo Documento</label>
-                    <select name="tipoDocumento" class="form-select" id="id_tipoDocumento">
-                        <option value="CEDULA" select>CEDULA</option>
-                        <option value="REGISTRO CIVIL">REGISTRO CIVIL</option>
-                        <option value="TARJETA IDENTIDAD">TARJETA IDENTIDAD</option>
-                        <option value="CEDULA EXTRANJERA">CEDULA EXTRANJERA</option>
-                        <option value="PASAPORTE">PASAPORTE</option>
-                        <option value="PPT">PPT</option>
-                    </select>
-                </div>
-                <div class="col-3">
-                    <label for="id_numDocumento" class="form-label">Número Documento *</label>
-                    <input type="number" class="form-control" name="numDocumento" id="id_numDocumento" min="0" required>
-                </div>
-                <div class="col-3">
-                    <label for="id_fechaExpedicion" class="form-label">Fecha Expedición *</label>
-                    <input type="date" class="form-control" name="fechaExpedicion" id="id_fechaExpedicion" required>
-                </div>
-                <div class="col-3">
-                    <label for="id_mpioDoc" class="form-label">Lugar Expedición *</label>
-                    <select name="mpioDoc" class="form-select form-control" id="id_mpioDoc" required></select>
-                </div>
-
-                {% comment %} Fila 3 {% endcomment %}
-                <div class="col-2">
-                    <label for="id_nacionalidad" class="form-label">Nacionalidad *</label>
-                    <input type="text" class="form-control input-form" name="nacionalidad" maxlength="30" id="id_nacionalidad" required>
-                </div>
-                <div class="col-2">
-                    <label for="id_fechaNacimiento" class="form-label">Fecha Nacimiento *</label>
-                    <input type="date" class="form-control" name="fechaNacimiento" id="id_fechaNacimiento" required>
-                </div>
-                <div class="col-3">
-                    <label for="dtoNacimiento" class="form-label">Departamento Nacimiento *</label>
-                    <select name="dtoNacimiento" class="form-select departamento-select" id="dtoNacimiento" data-target="#id_mpioNacimiento" required>
-                        {% for dpto in query_dpto %}
-                            <option value="{{dpto.id}}">{{dpto.nombre}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-3">
-                    <label for="id_mpioNacimiento" class="form-label">Municipio Nacimiento *</label>
-                    <select id="id_mpioNacimiento" name="mpioNacimiento" class="form form-control" required>
-                        <option value="">Seleccione un municipio</option>
-                    </select>
-                </div>
-                <div class="col-2">
-                    <label for="id_genero" class="form-label">Género</label>
-                    <select name="genero" class="form-select" id="id_genero">
-                        <option value="FEMENINO" select>FEMENINO</option>
-                        <option value="MASCULINO">MASCULINO</option>
-                    </select>
-                </div>
-
-                {% comment %} Fila 4 {% endcomment %}
-                <div class="col-4">
-                    <label for="id_estadoCivil" class="form-label">Estado Civil</label>
-                    <select name="estadoCivil" class="form-select" id="id_estadoCivil">
-                        <option value="SOLTERO(A)" select>SOLTERO(A)</option>
-                        <option value="CASADO(A)">CASADO(A)</option>
-                        <option value="UNION LIBRE">UNION LIBRE</option>
-                        <option value="SEPARADO(A)">SEPARADO(A)</option>
-                        <option value="DIVORCIADO(A)">DIVORCIADO(A)</option>
-                        <option value="VIUDO(A)">VIUDO(A)</option>
-                    </select>
-                </div>
-                <div class="col-4">
-                    <label for="id_tipoVivienda" class="form-label">Tipo Vivienda</label>
-                    <select name="tipoVivienda" class="form-select" id="id_tipoVivienda">
-                        <option value="PROPIA" select>PROPIA</option>
-                        <option value="FAMILIAR">FAMILIAR</option>
-                        <option value="ARRENDADA">ARRENDADA</option>
-                    </select>
-                </div>
-                <div class="col-4">
-                    <label for="id_estrato" class="form-label">Estrato *</label>
-                    <input type="number" class="form-control" name="estrato" id="id_estrato" min="0" required>
+                {% comment %} Fila 0 {% endcomment %}
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                            <label for="id_tPersona" class="form-label">Tipo</label>
+                            <select name="tPersona" class="form-select" id="id_tPersona">
+                                <option value="PERSONA NATURAL" select>PERSONAL NATURAL</option>
+                                <option value="PERSONA JURIDICA">PERSONAL JURIDICA</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                            <label for="id_fechaIngreso" class="form-label">Fecha Ingreso *</label>
+                            <input type="date" class="form-control" name="fechaIngreso" id="id_fechaIngreso" required>
+                        </div>
+                        <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                            <label for="id_tAsociado" class="form-label">Tipo Asociado</label>
+                            <select name="tAsociado" class="form-select" id="id_tAsociado">
+                                {% for tAsociado in query_tAsociado %}
+                                    <option value="{{tAsociado.pk}}">{{tAsociado.concepto}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                            <label for="id_estadoAsociado" class="form-label">Estado Asociado</label>
+                            <select name="estadoAsociado" class="form-select" id="id_estadoAsociado">
+                                <option value="ACTIVO" select>ACTIVO</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 <hr>
+                
+                {% comment %} Fila 1 {% endcomment %}
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 col-lg-6 col-md-6 mb-3">
+                            <label for="id_nombre" class="form-label">Nombres *</label>
+                            <input type="text" class="form-control input-form" name="nombre" id="id_nombre" maxlength="30" required>
+                        </div>
+                        <div class="col-12 col-lg-6 col-md-6 mb-3">
+                            <label for="id_apellido" class="form-label">Apellidos *</label>
+                            <input type="text" class="form-control input-form" name="apellido" maxlength="30" id="id_apellido" required>
+                        </div>
+                    </div>
+                </div>
+
+                {% comment %} Fila 2 {% endcomment %}
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                            <label for="id_tipoDocumento" class="form-label">Tipo Documento</label>
+                            <select name="tipoDocumento" class="form-select" id="id_tipoDocumento">
+                                <option value="CEDULA" select>CEDULA</option>
+                                <option value="REGISTRO CIVIL">REGISTRO CIVIL</option>
+                                <option value="TARJETA IDENTIDAD">TARJETA IDENTIDAD</option>
+                                <option value="CEDULA EXTRANJERA">CEDULA EXTRANJERA</option>
+                                <option value="PASAPORTE">PASAPORTE</option>
+                                <option value="PPT">PPT</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                            <label for="id_numDocumento" class="form-label">Número Documento *</label>
+                            <input type="number" class="form-control" name="numDocumento" id="id_numDocumento" min="0" required>
+                        </div>
+                        <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                            <label for="id_fechaExpedicion" class="form-label">Fecha Expedición *</label>
+                            <input type="date" class="form-control" name="fechaExpedicion" id="id_fechaExpedicion" required>
+                        </div>
+                        <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                            <label for="id_mpioDoc" class="form-label">Lugar Expedición *</label>
+                            <select name="mpioDoc" class="form-select form-control" id="id_mpioDoc" required></select>
+                        </div>
+                    
+                        {% comment %} Fila 3 {% endcomment %}
+                
+                        <div class="col-12 col-xl-2 col-lg-4 col-md-6 mb-3">
+                            <label for="id_nacionalidad" class="form-label">Nacionalidad *</label>
+                            <input type="text" class="form-control input-form" name="nacionalidad" maxlength="30" id="id_nacionalidad" required>
+                        </div>
+                        <div class="col-12 col-xl-2 col-lg-4 col-md-6 mb-3">
+                            <label for="id_fechaNacimiento" class="form-label">Fecha Nacimiento *</label>
+                            <input type="date" class="form-control" name="fechaNacimiento" id="id_fechaNacimiento" required>
+                        </div>
+                        <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                            <label for="dtoNacimiento" class="form-label">Departamento Nacimiento *</label>
+                            <select name="dtoNacimiento" class="form-select departamento-select" id="dtoNacimiento" data-target="#id_mpioNacimiento" required>
+                                {% for dpto in query_dpto %}
+                                    <option value="{{dpto.id}}">{{dpto.nombre}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                            <label for="id_mpioNacimiento" class="form-label">Municipio Nacimiento *</label>
+                            <select id="id_mpioNacimiento" name="mpioNacimiento" class="form form-control" required>
+                                <option value="">Seleccione un municipio</option>
+                            </select>
+                        </div>
+            
+                       {% comment %} Fila 4 {% endcomment %}
+         
+                        <div class="col-12 col-xl-2 col-lg-4 col-md-6 mb-3">
+                            <label for="id_genero" class="form-label">Género</label>
+                            <select name="genero" class="form-select" id="id_genero">
+                                <option value="FEMENINO" select>FEMENINO</option>
+                                <option value="MASCULINO">MASCULINO</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                            <label for="id_estadoCivil" class="form-label">Estado Civil</label>
+                            <select name="estadoCivil" class="form-select" id="id_estadoCivil">
+                                <option value="SOLTERO(A)" select>SOLTERO(A)</option>
+                                <option value="CASADO(A)">CASADO(A)</option>
+                                <option value="UNION LIBRE">UNION LIBRE</option>
+                                <option value="SEPARADO(A)">SEPARADO(A)</option>
+                                <option value="DIVORCIADO(A)">DIVORCIADO(A)</option>
+                                <option value="VIUDO(A)">VIUDO(A)</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                            <label for="id_tipoVivienda" class="form-label">Tipo Vivienda</label>
+                            <select name="tipoVivienda" class="form-select" id="id_tipoVivienda">
+                                <option value="PROPIA" select>PROPIA</option>
+                                <option value="FAMILIAR">FAMILIAR</option>
+                                <option value="ARRENDADA">ARRENDADA</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                            <label for="id_estrato" class="form-label">Estrato *</label>
+                            <input type="number" class="form-control" name="estrato" id="id_estrato" min="0" required>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+                
                 {% comment %} Fila 5 {% endcomment %}
-                <div class="col-4">
-                    <label for="id_direccion" class="form-label">Dirección *</label>
-                    <input type="select" class="form-control input-form" name="direccion" maxlength="50" id="id_direccion" required>
-                </div>
-                <div class="col-4">
-                    <label for="id_barrio" class="form-label">Barrio o Condominio *</label>
-                    <input type="text" class="form-control input-form" name="barrio" maxlength="50" id="id_barrio" required>
-                </div>
-                <div class="col-4">
-                    <label for="id_deptoResidencia" class="form-label">Departamento *</label>
-                    <select name="deptoResidencia" class="form-select departamento-select" id="id_deptoResidencia"  data-target="#id_mpioResidencia" required>
-                        {% for dpto in query_dpto %}
-                            <option value="{{dpto.id}}">{{dpto.nombre}}</option>
-                        {% endfor %}
-                    </select>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                            <label for="id_direccion" class="form-label">Dirección *</label>
+                            <input type="select" class="form-control input-form" name="direccion" maxlength="50" id="id_direccion" required>
+                        </div>
+                        <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                            <label for="id_barrio" class="form-label">Barrio o Condominio *</label>
+                            <input type="text" class="form-control input-form" name="barrio" maxlength="50" id="id_barrio" required>
+                        </div>
+                        <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                            <label for="id_deptoResidencia" class="form-label">Departamento *</label>
+                            <select name="deptoResidencia" class="form-select departamento-select" id="id_deptoResidencia"  data-target="#id_mpioResidencia" required>
+                                {% for dpto in query_dpto %}
+                                    <option value="{{dpto.id}}">{{dpto.nombre}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% comment %}  {% endcomment %}
+                        <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                            <label for="id_mpioResidencia" class="form-label">Municipio Residencia *</label>
+                            <select id="id_mpioResidencia" name="mpioResidencia" class="form form-control" required>
+                                <option value="">Seleccione un municipio</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                            <label for="id_email" class="form-label">Correo Electronico *</label>
+                            <input type="email" class="form-control input-email" name="email" id="id_email" autocomplete="off" lowercase required>
+                        </div>
+                        <div class="col-12 col-xl-2 col-lg-4 col-md-6 mb-3">
+                            <label for="id_numResidencia" class="form-label">Telefono Residencia</label>
+                            <input type="number" class="form-control" name="numResidencia" id="id_numResidencia" min="0">
+                        </div>
+                        <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                            <label for="id_indicativo" class="form-label">Indicativo *</label>
+                            <select class="form-control" name="indicativo" id="id_indicativo" required>
+                                <!-- Aquí se llenarán los países con banderas -->
+                            </select>
+                        </div>
+                        <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                            <label for="id_numCelular" class="form-label">Telefono Celular *</label>
+                            <input type="number" class="form-control" name="numCelular" id="id_numCelular" min="0" required>
+                        </div>
+                    </div>
                 </div>
                 
                 {% comment %} Fila 6 {% endcomment %}
                
-                <div class="col-3">
-                    <label for="id_mpioResidencia" class="form-label">Municipio Residencia *</label>
-                    <select id="id_mpioResidencia" name="mpioResidencia" class="form form-control" required>
-                        <option value="">Seleccione un municipio</option>
-                    </select>
-                </div>
-                <div class="col-3">
-                    <label for="id_email" class="form-label">Correo Electronico *</label>
-                    <input type="email" class="form-control input-email" name="email" id="id_email" autocomplete="off" lowercase required>
-                </div>
-                <div class="col-2">
-                    <label for="id_numResidencia" class="form-label">Telefono Residencia</label>
-                    <input type="number" class="form-control" name="numResidencia" id="id_numResidencia" min="0">
-                </div>
-                <div class="col-2">
-                    <label for="id_indicativo" class="form-label">Indicativo *</label>
-                    <select class="form-control" name="indicativo" id="id_indicativo" required>
-                        <!-- Aquí se llenarán los países con banderas -->
-                    </select>
-                </div>
-                <div class="col-2">
-                    <label for="id_numCelular" class="form-label">Telefono Celular *</label>
-                    <input type="number" class="form-control" name="numCelular" id="id_numCelular" min="0" required>
-                </div>
+                
                 <hr>
                 {% comment %} Fila 7 {% endcomment %}
                 <div class="col-12">
@@ -210,61 +233,105 @@
                 </div>
 
                 {% comment %} Fila 8 {% endcomment %}
-                <div class="col-3">
-                    <label for="id_envioInfoCorreo" class="form-label">Correo Electronico</label>
-                    <input type="checkbox" name="envioInfoCorreo" id="id_envioInfoCorreo">
+                <div class="col-12 col-lg-3 col-md-12 mb-3 form-check">
+                    <label for="id_envioInfoCorreo" class="form-check-label">Correo Electronico</label>
+                    <input type="checkbox" class="form-check-input" name="envioInfoCorreo" id="id_envioInfoCorreo">
                 </div>
-                <div class="col-3">
-                    <label for="id_envioInfoMensaje" class="form-label">Mensaje de Texto</label>
-                    <input type="checkbox" name="envioInfoMensaje" id="id_envioInfoMensaje">
+                <div class="col-12 col-lg-3 col-md-12 mb-3 form-check">
+                    <label for="id_envioInfoMensaje" class="form-check-label">Mensaje de Texto</label>
+                    <input type="checkbox" class="form-check-input" name="envioInfoMensaje" id="id_envioInfoMensaje">
                 </div>
-                <div class="col-3">
-                    <label for="id_envioInfoWhatsapp" class="form-label">WhatsApp</label>
-                    <input type="checkbox" name="envioInfoWhatsapp" id="id_envioInfoWhatsapp">
+                <div class="col-12 col-lg-3 col-md-12 mb-3 form-check">
+                    <label for="id_envioInfoWhatsapp" class="form-check-label">WhatsApp</label>
+                    <input type="checkbox" class="form-check-input" name="envioInfoWhatsapp" id="id_envioInfoWhatsapp">
                 </div>
+
+                <hr>
+
                 {% comment %} Fila 9 {% endcomment %}
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                            <label for="id_nivelEducativo" class="form-label">Nivel Educativo</label>
+                            <select name="nivelEducativo" class="form-select" id="id_nivelEducativo">
+                                <option value="PRIMARIA">PRIMARIA</option>
+                                <option value="SECUNDARIA" selected>SECUNDARIA</option>
+                                <option value="TECNICO">TECNICO</option>
+                                <option value="TECNOLOGICO">TECNOLOGICO</option>
+                                <option value="PREGRADO">PREGRADO</option>
+                                <option value="ESPECIALIZACION">ESPECIALIZACION</option>
+                                <option value="MAESTRIA">MAESTRIA</option>
+                                <option value="DOCTORADO">DOCTORADO</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                            <label for="id_tituloPregrado" class="form-label">Titulo Obtenido de Pregrado</label>
+                            <input type="text" class="form-control input-form" name="tituloPregrado" maxlength="100" id="id_tituloPregrado">
+                        </div>
+                        <div class="col-12 col-xl-4 col-lg-12 col-md-12 mb-3">
+                            <label for="id_tituloPosgrado" class="form-label">Titulo Obtenido de Posgrado</label>
+                            <input type="text" class="form-control input-form" name="tituloPosgrado" maxlength="100" id="id_tituloPosgrado">
+                        </div>
+                    </div>
+                </div>
+                    
                 <hr>
-                <div class="col-4">
-                    <label for="id_nivelEducativo" class="form-label">Nivel Educativo</label>
-                    <select name="nivelEducativo" class="form-select" id="id_nivelEducativo">
-                        <option value="PRIMARIA">PRIMARIA</option>
-                        <option value="SECUNDARIA" selected>SECUNDARIA</option>
-                        <option value="TECNICO">TECNICO</option>
-                        <option value="TECNOLOGICO">TECNOLOGICO</option>
-                        <option value="PREGRADO">PREGRADO</option>
-                        <option value="ESPECIALIZACION">ESPECIALIZACION</option>
-                        <option value="MAESTRIA">MAESTRIA</option>
-                        <option value="DOCTORADO">DOCTORADO</option>
-                    </select>
-                </div>
-                <div class="col-4">
-                    <label for="id_tituloPregrado" class="form-label">Titulo Obtenido de Pregrado</label>
-                    <input type="text" class="form-control input-form" name="tituloPregrado" maxlength="100" id="id_tituloPregrado">
-                </div>
-                <div class="col-4">
-                    <label for="id_tituloPosgrado" class="form-label">Titulo Obtenido de Posgrado</label>
-                    <input type="text" class="form-control input-form" name="tituloPosgrado" maxlength="100" id="id_tituloPosgrado">
-                </div>
-                <hr>
+
                 <center><h3>REFERENCIA FAMILIAR</h3></center>
-                <div class="col-4">
-                    <label for="id_nombreRF" class="form-label">Nombre Familiar de Contacto *</label>
-                    <input type="text" class="form-control input-form" name="nombreRF" maxlength="50" id="id_nombreRF" required>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 col-xl-4 col-lg-12 col-md-12 mb-3">
+                            <label for="id_nombreRF" class="form-label">Nombre Familiar de Contacto *</label>
+                            <input type="text" class="form-control input-form" name="nombreRF" maxlength="50" id="id_nombreRF" required>
+                        </div>
+                        <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                            <label for="id_parentesco" class="form-label">Parentesco *</label>
+                            <select name="parentesco" class="form-select" id="id_parentesco">
+                                {% for parent in query_parentesco %}
+                                    <option value="{{parent.nombre}}">{{parent.nombre}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                            <label for="id_numContacto" class="form-label">Teléfono de Familiar *</label>
+                            <input type="number" class="form-control" name="numContacto" min="0" id="id_numContacto" required>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-4">
-                    <label for="id_parentesco" class="form-label">Parentesco *</label>
-                    <select name="parentesco" class="form-select" id="id_parentesco">
-                        {% for parent in query_parentesco %}
-                            <option value="{{parent.nombre}}">{{parent.nombre}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-4">
-                    <label for="id_numContacto" class="form-label">Teléfono de Familiar *</label>
-                    <input type="number" class="form-control" name="numContacto" min="0" id="id_numContacto" required>
-                </div>
+                    
                 <hr>
-                <div class="col-4">
+                <div class="col-12">
+                    <h3 class="text-center">FORMA DE PAGO</h3>
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                            <label for="id_valorVinculacion" class="form-label">Valor Vinculación</label>
+                            <input type="number" value="{{query_tarifa}}" class="form-control" name="valorVinculacion" id="id_valorVinculacion" min="0" readonly>
+                        </div>
+                        <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                            <label for="id_formaPago" class="form-label">Forma de Pago</label>
+                            <select name="formaPago" class="form-select" id="id_formaPago">
+                                {% for formaPago in query_formaPago %}
+                                    <option value="{{ formaPago.id }}" select>{{ formaPago.formaPago }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3 d-none inputOculto">
+                            <label for="id_cuotasPago" class="form-label">Número de Cuotas</label>
+                            <input type="number" class="form-control" name="cuotasPago" id="id_cuotasPago" min="2" value="3">
+                        </div>
+                        <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3 d-none inputOculto">
+                            <label for="id_valorCuota" class="form-label">Valor Cuota</label>
+                            <input type="number" class="form-control" name="valorCuota" id="id_valorCuota" min="0" readonly>
+                        </div>
+
+                    </div>
+                </div>
+                
+                <hr>
+                <div class="col-12">
                     <button type="submit" class="btn btn-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16">
                             <path d="M11 2H9v3h2z"/>
@@ -273,6 +340,7 @@
                         Guardar
                     </button>
                 </div>
+
         </form>
     </div>
     <div class="modal fade" id="creacion" role="dialog">
@@ -285,5 +353,75 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/i18n/es.js"></script>
     <script src="{% static 'js/getMunicipios.js' %}"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const formaPago = document.getElementById('id_formaPago');
+            const valorVinculacion = document.getElementById('id_valorVinculacion');
+            const inputCuotas = document.getElementById('id_cuotasPago');
+            const inputValorCuota = document.getElementById('id_valorCuota');
+            const inputTipoAsociado = document.getElementById('id_tAsociado');
+            
+            if (inputTipoAsociado){
+                inputTipoAsociado.addEventListener('change', function () {
+                    if (formaPago.value === '2') {
+                        formaPago.value = '1';
+                        document.querySelectorAll('.inputOculto').forEach(div => {
+                            div.classList.add('d-none');
+                        });
+                        inputCuotas.removeAttribute('required');
+                        inputValorCuota.value = '';
+                    }
+                });
+            }
 
+            if (formaPago) {
+                formaPago.addEventListener('change', function () {
+                    if (formaPago.value === '2') {
+                        if (inputTipoAsociado.value > 1) {
+                            document.querySelectorAll('.inputOculto').forEach(div => {
+                                div.classList.remove('d-none');
+                            });
+                            inputCuotas.setAttribute('required', 'required');
+                            calcularValorCuota();
+                        } else {
+                            alert("Para realizar Descuento de Nomina, debe seleccionar un tipo de asociado distinto a INDEPENDIENTE");
+                            // Hacer scroll hasta el input
+                            formaPago.value = '1';
+                            inputTipoAsociado.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                            // Resaltar el input con un borde rojo por un momento
+                            inputTipoAsociado.classList.add('border', 'border-danger');
+                            setTimeout(() => {
+                                inputTipoAsociado.classList.remove('border', 'border-danger');
+                            }, 2000);
+                        }
+                    }
+                    else {
+                        document.querySelectorAll('.inputOculto').forEach(div => {
+                            div.classList.add('d-none');
+                        });
+                        inputCuotas.removeAttribute('required');
+                        inputValorCuota.value = '';
+                    }
+                });
+
+                // Escuchar cambios en el input de cuotas para recalcular el valor de la cuota
+                inputCuotas.addEventListener('input', calcularValorCuota);
+            }
+
+            // Función para calcular el valor de la cuota
+            function calcularValorCuota() {
+                const cuotas = parseInt(inputCuotas.value) || 1; // Aseguramos que siempre sea al menos 1 para evitar división por 0
+                const vinculacion = parseFloat(valorVinculacion.value) || 0;
+
+                if (cuotas > 0) {
+                    inputValorCuota.value = (vinculacion / cuotas).toFixed(0);  // Mostramos con 0 decimales
+                } else {
+                    inputValorCuota.value = '';
+                }
+            }
+        });
+
+    </script>
 {% endblock extrajs %} 

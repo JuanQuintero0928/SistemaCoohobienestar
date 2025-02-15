@@ -1,8 +1,12 @@
 {% load static %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+
 {% comment %} Script para desplegar el slider {% endcomment %}
 <script src="{% static 'lib/startbootstrap-sb-admin-gh-pages/js/scripts.js' %} "></script>
+
+{% comment %} Jquery V3.6.0{% endcomment %}
 <script src="{% static 'lib/bootstrap-5.2.3-dist/jquery/jquery.min.js' %}"></script>
+
 {% comment %} Se guarda la variable de tiempo de sesión para que el js pueda acceder a ella {% endcomment %}
 <script>
     const sessionTimeouDjango = {{ session_timeout }};

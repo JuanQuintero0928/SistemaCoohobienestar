@@ -2,39 +2,38 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %}
-    Asociado
-{% endblock title %}
-
-{% block button %}
-{% endblock button %}
-
 {% block breadcrumb %}
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
-    <li class="breadcrumb-item"><a href="#">Información</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'informacion:informacion' %}">Información</a></li>
     <li class="breadcrumb-item"><a href="{% url 'asociado:asociado' %}">Asociados</a></li>
     <li class="breadcrumb-item active" aria-current="page">Detalle Asociado</li>
     <li class="breadcrumb-item active" aria-current="page">{{queryAsociado.nombre}} {{queryAsociado.apellido}} - {{queryAsociado.numDocumento}}</li>
 {% endblock breadcrumb %}
 
+{% block title %}
+    Asociado
+{% endblock title %}
+
 {% block submenu %}
 
     {% include 'estructura/asociado/navbar.html' %}
 
-    <div class="row" style="display:flex; justify-content:flex-end; margin-right:25px; margin-top:15px">
-        <div class="col-sm-1">
-            <div class="btn-group" role="group" aria-label="Basic example">
-                <a href="{% url 'asociado:asociado' %}" class="btn btn-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
-                    </svg>
-                </a>
-                <button class="btn btn-primary d-flex align-items-center justify-content-center" onclick="abrir_modal_creacion('{% url 'asociado:crearHistoricoCredito' pkAsociado %}')">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
-                    </svg>
-                </button>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12 d-flex justify-content-end mt-4 mb-4">
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                    <a href="{% url 'asociado:asociado' %}" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
+                        </svg>
+                    </a>
+                    <button class="btn btn-primary d-flex align-items-center justify-content-center" onclick="abrir_modal_creacion('{% url 'asociado:crearHistoricoCredito' pkAsociado %}')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
     </div> 
@@ -64,21 +63,21 @@
 {% block tablafilas %}
     {% for obj in query %}
         <tr>
-            <th>{{ forloop.counter }}</th>
-            <th>{{ obj.fechaSolicitud|date:"d/m/Y" }}</th>
-            <th>${{ obj.valor|intcomma }}</th>
-            <th>{{ obj.cuotas }}</th>
-            <th>${{ obj.valorCuota|intcomma }}</th>
-            <th>${{ obj.totalCredito|intcomma }}</th>
-            <th>{{ obj.lineaCredito }}</th>
-            <th>{{ obj.tasaInteres }}</th>
-            <th>{{ obj.estado }}</th>
-            <th>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ obj.fechaSolicitud|date:"d/m/Y" }}</td>
+            <td>${{ obj.valor|intcomma }}</td>
+            <td>{{ obj.cuotas }}</td>
+            <td>${{ obj.valorCuota|intcomma }}</td>
+            <td>${{ obj.totalCredito|intcomma }}</td>
+            <td>{{ obj.lineaCredito }}</td>
+            <td>{{ obj.tasaInteres }}</td>
+            <td>{{ obj.estado }}</td>
+            <td>
                 <center>
                 {% for codeudor in obj.codeudor_set.all %}
                     {% if codeudor.id %}
                         <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_edicion('{% url 'asociado:editarCodeudor' codeudor.pk pkAsociado%}')">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon" viewBox="0 0 16 16">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
                                 <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
                             </svg>
                         </button>
@@ -92,15 +91,15 @@
                     </button>
                 {% endfor %}
               
-            </th>
-            <th>
+            </td>
+            <td>
                 <center>
                 <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_creacion('{% url 'asociado:editarHistoricoCredito' pkAsociado obj.pk %}')">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon" viewBox="0 0 16 16">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
                         <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
                     </svg>
                 </button>
-            </th>
+            </td>
         </tr>
     {% endfor %}
 
@@ -132,10 +131,7 @@
     }
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
-<script src="{% static 'lib/startbootstrap-sb-admin-gh-pages/js/datatables-simple-demo.js' %}"></script>
 <script src="{% static 'js/tablaAmortizacion.js' %}"></script>
-
 
 {% endblock extrajs %}  
 

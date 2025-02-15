@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.views.generic import ListView, TemplateView
 from django.http import HttpResponse
-from django.db.models.functions import TruncDate, TruncSecond
-from django.db.models import Sum, F, Subquery
+from django.db.models.functions import TruncDate, TruncSecond, Coalesce
+from django.db.models import Sum, F, Subquery, Value, OuterRef, Case, When, IntegerField, Count
 from datetime import timedelta
 from datetime import datetime
 
@@ -10,7 +10,7 @@ from asociado.models import Asociado, ParametroAsociado, TarifaAsociado, Repatri
 from beneficiario.models import Mascota, Beneficiario
 from historico.models import HistorialPagos, HistoricoAuxilio, HistoricoCredito
 from parametro.models import FormaPago, MesTarifa, TipoAsociado
-from .queries import obtenerNovedades
+from .queries import obtenerNovedades, obtenerDescuentoNomina
 
 #Funciones
 from funciones.function import separarFecha, convertirFecha
@@ -307,10 +307,12 @@ class VerPagosFecha(ListView):
         fechaFinal = separarFecha(fechaFinalForm, 'final')
         # consulta por rango de fecha inicial y final
         queryHistorial = HistorialPagos.objects.filter(
-            fechaPago__range=[fechaInicial, fechaFinal]
-        )
+                                fechaPago__range=[fechaInicial, fechaFinal]
+                            )
+        totalPago = queryHistorial.aggregate(total=Sum('valorPago'))['total'] or 0
+
         template_name = 'reporte/pagosPorFecha.html'
-        return render(request, template_name, {'query':queryHistorial,'post':'yes', 'fechaIncialF':fechaInicialForm, 'fechaFinalF':fechaFinalForm})
+        return render(request, template_name, {'query':queryHistorial,'post':'yes', 'fechaIncialF':fechaInicialForm, 'fechaFinalF':fechaFinalForm, 'totalPago':totalPago})
 
 class ReporteExcelPago(TemplateView):
     def get(self, request, *args, **kwargs):
@@ -426,7 +428,7 @@ class FormatoExtracto(ListView):
     def post(self, request, *args, **kwargs):
         template_name = 'reporte/generarExtracto.html'
         
-        objAsoc = Asociado.objects.filter(estadoAsociado = 'RETIRO')
+        objAsoc = Asociado.objects.exclude(estadoAsociado = 'RETIRO')
         mesExtracto = request.POST['mesExtracto']
         asociados = []
         for asociado in objAsoc:
@@ -640,27 +642,31 @@ class VerDescuentosNomina(ListView):
         return render(request, self.template_name, {'empresas':empresas})
     
     def post(self, request, *args, **kwargs):
-        # variable = request.POST.getlist('variable')
         empresas = TipoAsociado.objects.all()
         array = []
         arrayEmp = []
+        granTotalGeneral = 0
+
         for empresa in empresas:
             if len(request.POST.getlist('select'+str(empresa.pk))) == 1:
-                query = ParametroAsociado.objects.filter(empresa = empresa.pk, asociado__estadoAsociado = 'ACTIVO')
-                array.append(query)
+                query = obtenerDescuentoNomina(empresa.pk)
+                array.extend(query['query'])
                 arrayEmp.append(empresa.pk)
-        return render(request, self.template_name,{'array':array, 'post':'yes', 'empresas':empresas, 'arrayEmp':arrayEmp})
+                granTotalGeneral += query['granTotal']
+
+        return render(request, self.template_name,{'array':array, 'post':'yes', 'empresas':empresas, 'arrayEmp':arrayEmp, 'granTotalGeneral':granTotalGeneral})
 
 class ExcelDescuentosNomina(TemplateView):
     def get(self, request, *args, **kwargs):
-        empresas = TipoAsociado.objects.all()
+        empresas_ids = [key.replace("select", "") for key in request.GET.keys() if key.startswith("select")]
+        
+        if not empresas_ids:
+            return HttpResponse("No se seleccionaron empresas.", content_type="text/plain")
+
         array = []
-        arrayEmp = []
-        for empresa in empresas:
-            if len(request.GET.getlist('select'+str(empresa.pk))) == 1:
-                query = ParametroAsociado.objects.filter(empresa = empresa.pk, asociado__estadoAsociado = 'ACTIVO')
-                array.append(query)
-                arrayEmp.append(empresa.pk)
+        for empresa_id in empresas_ids:
+            query = obtenerDescuentoNomina(empresa_id)
+            array.extend(query['query'])
 
         # Estilos
         bold_font = Font(bold=True, size=16, color="FFFFFF")  # Fuente en negrita, tamaño 12 y color blanco
@@ -673,7 +679,7 @@ class ExcelDescuentosNomina(TemplateView):
         ws.title = 'Descuentos'
         titulo1 = f"Reporte descuentos nomina"
         ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
-        ws.merge_cells('A1:O1')
+        ws.merge_cells('A1:P1')
         ws['A1'].font = bold_font
         ws['A1'].alignment = alignment_center
         ws['A1'].fill = fill
@@ -693,11 +699,12 @@ class ExcelDescuentosNomina(TemplateView):
         ws['M2'] = 'Coohoperativitos Aporte'
         ws['N2'] = 'Coohoperativitos B Social'
         ws['O2'] = 'Convenios'
+        ws['P2'] = 'Descuento Vinculación'
      
         bold_font2 = Font(bold=True)
         center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
 
-        for col in range(1,16):
+        for col in range(1,17):
             cell = ws.cell(row=2, column=col)
             cell.font = bold_font2
             cell.alignment = center_alignment
@@ -717,30 +724,31 @@ class ExcelDescuentosNomina(TemplateView):
         ws.column_dimensions['M'].width = 14
         ws.column_dimensions['N'].width = 14
         ws.column_dimensions['O'].width = 14
+        ws.column_dimensions['P'].width = 14
 
         #Inicia el primer registro en la celda numero 3
         cont = 3
         i = 1
-        for asociado in array:
-            for query in asociado:
-                #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
-                ws.cell(row = cont, column = 1).value = i
-                ws.cell(row = cont, column = 2).value = query.asociado.pk
-                ws.cell(row = cont, column = 3).value = int(query.asociado.numDocumento)
-                ws.cell(row = cont, column = 4).value = f'{query.asociado.nombre}' + ' ' + f'{query.asociado.apellido}'
-                ws.cell(row = cont, column = 5).value = query.empresa.concepto
-                ws.cell(row = cont, column = 6).value = query.tarifaAsociado.total
-                ws.cell(row = cont, column = 7).value = query.tarifaAsociado.cuotaAporte
-                ws.cell(row = cont, column = 8).value = query.tarifaAsociado.cuotaBSocial
-                ws.cell(row = cont, column = 9).value = query.tarifaAsociado.cuotaMascota
-                ws.cell(row = cont, column = 10).value = query.tarifaAsociado.cuotaRepatriacion
-                ws.cell(row = cont, column = 11).value = query.tarifaAsociado.cuotaSeguroVida
-                ws.cell(row = cont, column = 12).value = query.tarifaAsociado.cuotaAdicionales
-                ws.cell(row = cont, column = 13).value = query.tarifaAsociado.cuotaCoohopAporte
-                ws.cell(row = cont, column = 14).value = query.tarifaAsociado.cuotaCoohopBsocial
-                ws.cell(row = cont, column = 15).value = query.tarifaAsociado.cuotaConvenio
-                i+=1
-                cont+=1
+        for obj in array:
+            #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
+            ws.cell(row = cont, column = 1).value = i
+            ws.cell(row = cont, column = 2).value = obj.asociado.pk
+            ws.cell(row = cont, column = 3).value = int(obj.asociado.numDocumento)
+            ws.cell(row = cont, column = 4).value = f'{obj.asociado.nombre}' + ' ' + f'{obj.asociado.apellido}'
+            ws.cell(row = cont, column = 5).value = obj.empresa.concepto
+            ws.cell(row = cont, column = 6).value = obj.total_final
+            ws.cell(row = cont, column = 7).value = obj.tarifaAsociado.cuotaAporte
+            ws.cell(row = cont, column = 8).value = obj.tarifaAsociado.cuotaBSocial
+            ws.cell(row = cont, column = 9).value = obj.tarifaAsociado.cuotaMascota
+            ws.cell(row = cont, column = 10).value = obj.tarifaAsociado.cuotaRepatriacion
+            ws.cell(row = cont, column = 11).value = obj.tarifaAsociado.cuotaSeguroVida
+            ws.cell(row = cont, column = 12).value = obj.tarifaAsociado.cuotaAdicionales
+            ws.cell(row = cont, column = 13).value = obj.tarifaAsociado.cuotaCoohopAporte
+            ws.cell(row = cont, column = 14).value = obj.tarifaAsociado.cuotaCoohopBsocial
+            ws.cell(row = cont, column = 15).value = obj.tarifaAsociado.cuotaConvenio
+            ws.cell(row = cont, column = 16).value = obj.cuota_vinculacion if obj.cuota_vinculacion else 0
+            i+=1
+            cont+=1
 
         nombre_archivo = f"Reporte_Descuento_Nomina.xlsx"
         response = HttpResponse(content_type = "application/ms-excel")
@@ -774,8 +782,11 @@ class VerConciliacionBancaria(ListView):
                  'formaPago_id__formaPago',
                 'fechaPago',
             ).annotate(total_pagado=Sum('valorPago')).order_by('fechaPago')
+        
+        totalPago = queryHistorial.aggregate(total=Sum('total_pagado'))['total'] or 0
+            
         template_name = 'reporte/listarConciliacionBancaria.html'
-        return render(request, template_name, {'query':queryHistorial,'post':'post', 'fechaIncialF':fechaInicialForm, 'fechaFinalF':fechaFinalForm, 'formaPago':formaPago, 'banco':banco})
+        return render(request, template_name, {'query':queryHistorial,'post':'post', 'fechaIncialF':fechaInicialForm, 'fechaFinalF':fechaFinalForm, 'formaPago':formaPago, 'banco':banco, 'totalPago':totalPago})
 
 class ExcelConciliacionBancaria(TemplateView):
     def get(self, request, *args, **kwargs):
@@ -973,8 +984,11 @@ class DescargarExcel(ListView):
                     ws.cell(row = cont, column = 22).value = asociado.fechaRetiro.strftime("%d/%m/%Y")
                 else:
                     ws.cell(row = cont, column = 22).value = ''
+                i+=1
                 cont+=1
-                nombre_archivo = f"Reporte_Listado_Asociados.xlsx"
+
+            nombre_archivo = f"Reporte_Listado_Asociados.xlsx"
+
         elif tipo_formato == 2:
             ws.title = 'Listado '
             titulo1 = f"Listado Tarifas Asociados"
@@ -1053,8 +1067,10 @@ class DescargarExcel(ListView):
                 i+=1
                 cont+=1
             nombre_archivo = f"Reporte_Tarifas_Asociado.xlsx"
+
         elif tipo_formato == 3:
             pass
+        
         response = HttpResponse(content_type = "application/ms-excel")
         content = "attachment; filename = {0}".format(nombre_archivo)
         response['Content-Disposition'] = content
@@ -1241,7 +1257,7 @@ class DescargaAuxilio(ListView):
 
         wb = Workbook() #Creamos la instancia del Workbook
         ws = wb.active
-        ws.title = 'Pagos'
+        ws.title = 'Auxilios'
         titulo1 = f"Reporte de Auxilios desde {fecha_formateada1} - {fecha_formateada2}"
         ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
         ws.merge_cells('A1:K1')

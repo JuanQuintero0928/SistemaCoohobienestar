@@ -98,7 +98,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 // Si el país es el seleccionado, se marca como "selected"
                 if (pais.id == paisSeleccionado) {
                     option.selected = true;
-                    console.log("seleccionado");
                 }
 
                 select.appendChild(option);

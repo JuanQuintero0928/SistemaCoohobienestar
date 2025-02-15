@@ -1,7 +1,7 @@
 from turtle import mode
 from django.db import models
 from departamento.models import Departamento, Municipio, PaisRepatriacion, Pais
-from parametro.models import TipoAsociado, ServicioFuneraria, MesTarifa, Convenio
+from parametro.models import FormaPago, TipoAsociado, ServicioFuneraria, MesTarifa, Convenio
 # from historico.models import HistoricoCredito
 
 # Create your models here.
@@ -199,6 +199,10 @@ class ParametroAsociado(models.Model):
     funeraria = models.ForeignKey(ServicioFuneraria, on_delete=models.RESTRICT, blank=False, null=False)
     primerMes = models.ForeignKey(MesTarifa, on_delete=models.RESTRICT, blank=True, null=True)
     tarifaAsociado = models.ForeignKey(TarifaAsociado, on_delete=models.RESTRICT, blank=True, null=True)
+    vinculacionFormaPago = models.ForeignKey(FormaPago, on_delete=models.RESTRICT, blank=True, null=True)
+    vinculacionCuotas = models.IntegerField('Vincualacion cuotas', blank=True, null=True)
+    vinculacionValor = models.IntegerField('Vinculacion valor', blank=True, null=True)
+    vinculacionPendientePago = models.IntegerField('Vinculacion valor', blank=True, null=True)
     estadoRegistro = models.BooleanField('Estado')
     fechaCreacion = models.DateTimeField(auto_now_add=True)
     fechaModificacion = models.DateTimeField(auto_now=True)
