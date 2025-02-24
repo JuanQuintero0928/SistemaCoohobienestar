@@ -69,6 +69,10 @@ class HistoricoAuxilio(models.Model):
     def __str__(self):
         return f"{self.id}"
 
+class TipoCuentaOp(models.TextChoices):
+        ahorros = 'CUENTA AHORROS', 'CUENTA AHORROS'
+        corriente = 'CUENTA CORRIENTE', 'CUENTA CORRIENTE'
+
 class HistoricoCredito(models.Model):
     id = models.AutoField(primary_key=True)
     fechaSolicitud = models.DateField('Fecha Solicitud', blank=False, null=False)
@@ -83,6 +87,9 @@ class HistoricoCredito(models.Model):
     medioPago = models.CharField('Medio de Pago', choices=mediodePagoOp.choices, default=mediodePagoOp.pagoDirecto, blank=False, null=False)
     formaDesembolso = models.CharField('Forma de Desembolso', choices=formaDesembolsoOp.choices, default=formaDesembolsoOp.transferenciaElectronica, blank=False, null=False)
     estado = models.CharField('Estado', choices=estadoOp.choices, default=estadoOp.revision, blank=False, null=False)
+    banco = models.CharField('Banco', max_length=30, blank=True, null=True)
+    numCuenta = models.CharField('Numero Cuenta', max_length=30, blank=True, null=True)
+    tipoCuenta = models.CharField('Tipo Cuenta', choices=TipoCuentaOp.choices, blank=True, null=True)
     estadoRegistro = models.BooleanField('Estado')
     fechaCreacion = models.DateTimeField(auto_now_add=True)
     fechaModificacion = models.DateTimeField(auto_now=True)

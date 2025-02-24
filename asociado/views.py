@@ -951,7 +951,11 @@ class EditarHistoricoCredito(ListView):
                                             'totalCredito':form_update.totalCredito,
                                             'medioPago':form_update.medioPago,
                                             'formaDesembolso':form_update.formaDesembolso,
-                                            'estado':form_update.estado})
+                                            'estado':form_update.estado,
+                                            'banco':form_update.banco,
+                                            'numCuenta':form_update.numCuenta,
+                                            'tipoCuenta':form_update.tipoCuenta,
+                                            })
         template_name = 'base/historico/editarHistoricoCredito.html'
         context = {
             'form':form,
@@ -976,6 +980,9 @@ class EditarHistoricoCredito(ListView):
             obj.cuotas = formulario.cleaned_data['cuotas']
             obj.formaDesembolso = formulario.cleaned_data['formaDesembolso']
             obj.estado = formulario.cleaned_data['estado']
+            obj.banco = formulario.cleaned_data['banco'].upper()
+            obj.tipoCuenta = formulario.cleaned_data['tipoCuenta']
+            obj.numCuenta = formulario.cleaned_data['numCuenta']
             obj.save()
             messages.info(request, 'Registro Editado Correctamente')
             return HttpResponseRedirect(reverse_lazy('asociado:historicoCredito', args=[kwargs['pkAsociado']]))

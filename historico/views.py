@@ -1,15 +1,16 @@
-from tkinter import N
-from django.http import HttpResponseRedirect
+import json
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.views.generic import ListView, DeleteView
+from django.views.generic import ListView, DeleteView, TemplateView
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db.models import Sum, F, Q, Subquery, Case, When, Value, IntegerField
+from django.db import transaction
 from django.core.paginator import Paginator
 
 from .models import HistoricoAuxilio, HistorialPagos
-from parametro.models import MesTarifa, FormaPago, Tarifas
+from parametro.models import MesTarifa, FormaPago, Tarifas, TipoAsociado
 from asociado.models import Asociado, ParametroAsociado, TarifaAsociado
 from .form import CargarArchivoForm
 from ventas.models import HistoricoVenta
@@ -479,37 +480,109 @@ class cargarCSV(ListView):
                 messages.error(request, f"Error: {str(e)}")
                 
         return redirect('proceso:cargarCSV')    
+            
+class ActualizarEstadoAsoc(TemplateView):
+    template_name = 'proceso/actualizarEstadoAsoc.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['TipoAsociado'] = TipoAsociado.objects.all()
+        context['mes'] = MesTarifa.objects.filter(pk__lte=9990)
+        return context
 
-# PRUEBA
-class ProcesarPagos(ListView):
-    def get(self, request, *args, **kwargs):
-        template_name = 'proceso/procesarPagos.html'
-        return render(request, template_name)
-    
     def post(self, request, *args, **kwargs):
-        query = Asociado.objects.get(pk = 436)
-        valorActual = TarifaAsociado.objects.get(asociado = 436)
-        
-        queryParamAsoc = ParametroAsociado.objects.get(asociado = kwargs['pkAsociado'])
-        queryHistorial = HistorialPagos.objects.filter(asociado = kwargs['pkAsociado']).exists()
+        tipoAsociado = request.POST['tipoAsociado']
+        mes = int(request.POST['mes'])
 
-        # Obtener la suma de los adicionales del asociado, se suma todo menos el aporte y el bSocial
-        queryTarifa = TarifaAsociado.objects.filter(asociado = kwargs['pkAsociado']).aggregate(
-            total_tarifa_asociado=Sum(
-                F('cuotaMascota') + 
-                F('cuotaRepatriacion') + 
-                F('cuotaSeguroVida') + 
-                F('cuotaAdicionales') + 
-                F('cuotaCoohopAporte') + 
-                F('cuotaCoohopBsocial')
-            )
-        )
-   
-        total_tarifa_asociado = queryTarifa['total_tarifa_asociado'] or 0  # Se obtiene el valor de la suma a 0 si no hay datos
-        if queryHistorial:
-            mesesPagados = HistorialPagos.objects.filter(asociado = kwargs['pkAsociado']).values('mesPago')
-            queryMes = (MesTarifa.objects
-                        .exclude(pk__in=Subquery(mesesPagados))
-                        .filter(pk__gte = queryParamAsoc.primerMes.pk)
-                        .annotate(total=F('aporte') + F('bSocial') + total_tarifa_asociado))
+        resultado = []
+
+        if tipoAsociado == '0':
+            asociados = Asociado.objects.filter(~Q(estadoAsociado = 'RETIRO')).values('id','nombre','apellido','numDocumento','estadoAsociado')
+        else:
+            asociados = Asociado.objects.filter(~Q(estadoAsociado = 'RETIRO'), tAsociado = tipoAsociado).values('id','nombre','apellido','numDocumento', 'estadoAsociado')
+        
+        for asociado in asociados:
+            # query de primer mes del asociado
+            primerMes = ParametroAsociado.objects.filter(asociado=asociado['id']).values_list('primerMes', flat=True).first()
+            # Si el asociado se vinculo antes del mes seleccionado
+            if primerMes <= mes:
+                # numero de pagos del asociado del mes seleccionado hacia atras
+                pagosRealizados = HistorialPagos.objects.filter(asociado = asociado['id'], mesPago__lte = mes).count()
+                pagosEsperados = mes - (primerMes -1)
+                # tiene el mismo numero de pagos que el mes seleccionado
+                if pagosEsperados == pagosRealizados:
+                    diferencia = HistorialPagos.objects.filter(asociado = asociado['id'], mesPago__lte = mes).aggregate(totalDiferencia=Sum('diferencia'))['totalDiferencia'] or 0
+                    # Activo
+                    if diferencia >= 0:
+                        resultado.append({
+                            'id':asociado['id'],
+                            'numero_documento':asociado['numDocumento'],
+                            'nombre_completo':asociado['nombre'] + ' ' + asociado['apellido'],
+                            'estado_actual':asociado['estadoAsociado'],
+                            'estado_calculado':"ACTIVO",
+                            'observaciones':'',
+                        })
+                    # Inactivo, diferencia negativa
+                    else:
+                        resultado.append({
+                            'id':asociado['id'],
+                            'numero_documento':asociado['numDocumento'],
+                            'nombre_completo':asociado['nombre'] + ' ' + asociado['apellido'],
+                            'estado_actual':asociado['estadoAsociado'],
+                            'estado_calculado':"INACTIVO",
+                            'observaciones': f'Inactivo, diferencia negativa {diferencia}',
+                        })
+                else:
+                    # listado de meses los cuales el asociado debe tener pagado
+                    listaMeses = MesTarifa.objects.filter(id__gte=primerMes, id__lte=mes).values_list('id', 'concepto')
+                    mesesPagados = HistorialPagos.objects.filter(
+                                    asociado_id=asociado['id'],
+                                    mesPago__id__gte=primerMes,
+                                    mesPago__id__lte=mes
+                                    ).values_list('mesPago__id', flat=True)
+                    mesesFaltantes = [mes for mes in listaMeses if mes[0] not in mesesPagados]
+                    soloMeses = [mes[1] for mes in mesesFaltantes]
+                    resultado.append({
+                        'id':asociado['id'],
+                        'numero_documento':asociado['numDocumento'],
+                        'nombre_completo':asociado['nombre'] + ' ' + asociado['apellido'],
+                        'estado_actual':asociado['estadoAsociado'],
+                        'estado_calculado':"INACTIVO",
+                        'observaciones': f'Meses faltantes: {soloMeses}',
+                    })
+            # El asociado se vinculo despues del mes seleccionado, activo
+            else:
+                resultado.append({
+                    'id':asociado['id'],
+                    'numero_documento':asociado['numDocumento'],
+                    'nombre_completo':asociado['nombre'] + ' ' + asociado['apellido'],
+                    'estado_actual':asociado['estadoAsociado'],
+                    'estado_calculado':"ACTIVO",
+                    'observaciones':'',
+                })
+        return JsonResponse({'resultados':resultado})
+
+def actualizarEstadoMasivo(request):
+    if request.method == "POST":
+        data = json.loads(request.body) # Convertir la peticion Json a un diccionario
+        asociados = data.get("asociados", [])  # Obtenemos los datos enviados
+
+        print("Datos recibidos:", asociados)
+        if not asociados:
+            return JsonResponse({"success": False, "error": "No se enviaron datos"}, status=400)
+
+        with transaction.atomic():  #  se usa una transacción para mayor eficiencia
+            registroActualizar =[]
+            for asociado_data in asociados:
+                asociado = Asociado.objects.filter(id=asociado_data["id"]).first()
+                if asociado:
+                    asociado.estadoAsociado = asociado_data["estado"]
+                    registroActualizar.append(asociado)
+                    print(f"Actualizando estado de {asociado.id} a {asociado.estadoAsociado}")
+            
+            Asociado.objects.bulk_update(registroActualizar, ["estadoAsociado"])
+            
+        return JsonResponse({"success": True, "actualizados": len(asociados)})
+    
+    # Manejo de error si no es un POST
+    return JsonResponse({"success": False, "error": "Método no permitido"}, status=400)

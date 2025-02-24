@@ -1,10 +1,6 @@
 {% extends 'parametro/parametros.html' %}
 {% load static %}
 
-{% comment %} {% block title %}
-
-{% endblock title %} {% endcomment %}
-
 {% block button %}
     <a href="{% url 'asociado:crearAsociado' %}"><i class="fa-solid fa-plus"></i></a>
 {% endblock button %}
@@ -14,14 +10,6 @@
     <li class="breadcrumb-item"><a href="{% url 'parametro:parametro' %}">Parametros</a></li>
     <li class="breadcrumb-item active" aria-current="page">Tipo Auxilio</li>
 {% endblock breadcrumb %}
-
-{% block barraLateral %}
-    <li class="list-group-item"><a href="{% url 'parametro:pais' %}" style="text-decoration:none">Paises Repatriación</a></li>
-    <li class="list-group-item"><a href="{% url 'parametro:parentesco' %}" style="text-decoration:none">Parentesco</a></li>
-    <li class="list-group-item"><a href="{% url 'parametro:tarifa' %}" style="text-decoration:none">Tarifas</a></li>
-    <li class="list-group-item"><a href="{% url 'parametro:tipoAsociado' %}" style="text-decoration:none">Tipo Asociado</a></li>
-    <li class="list-group-item active"><a href="{% url 'parametro:tipoAuxilio' %}" style="text-decoration:none; color:white">Tipo Auxilio</a></li>
-{% endblock barraLateral %}
 
 {% block contenidoParametros %}
 

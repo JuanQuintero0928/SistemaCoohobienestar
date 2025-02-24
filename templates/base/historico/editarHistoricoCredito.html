@@ -11,55 +11,64 @@
             <form action="{% url 'asociado:editarHistoricoCredito' pkAsociado pk %}" method="post" id="form">
                 {% csrf_token %}
                 <div class="row">
-                  <div class="col-12 col-md-3 mb-3">
+                  <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
                     {{ form.fechaSolicitud.label_tag }}
                     {{ form.fechaSolicitud }}
                   </div>
-                  <div class="col-12 col-md-3 mb-3">
+                  <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
                     {{ form.valor.label_tag }}
                     {{ form.valor }}
                   </div>
-                  <div class="col-12 col-md-3 mb-3">
+                  <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
                     {{ form.lineaCredito.label_tag }}
                     {{ form.lineaCredito }}
                   </div>
-                  <div class="col-12 col-md-3 mb-3">
+                  <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
                     {{ form.amortizacion.label_tag }}
                     {{ form.amortizacion }}
                   </div>
-                </div>
-                <div class="row">
-                  <div class="col-12 col-md-3 mb-3">
+                
+                  <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
                     {{ form.tasaInteres.label_tag }}
                     {{ form.tasaInteres }}
                   </div>
-                  <div class="col-12 col-md-3 mb-3">
+                  <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
                     {{ form.medioPago.label_tag }}
                     {{ form.medioPago }}
                   </div>
-                  <div class="col-12 col-md-3 mb-3">
+                  <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
                     {{ form.cuotas.label_tag }}
                     {{ form.cuotas }}
                   </div>
-                  <div class="col-12 col-md-3 mb-3">
+                  <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
                     {{ form.formaDesembolso.label_tag }}
                     {{ form.formaDesembolso }}
                   </div>
-                </div>
 
-                <div class="row">
-                    <div class="col-12 col-md-3 mb-3">
-                        {{ form.estado.label_tag }}
-                        {{ form.estado }}
-                    </div>
-                    <div class="col-12 col-md-3 mb-3" style="display:none">
-                        {{ form.valorCuota.label_tag }}
-                        {{ form.valorCuota }}
-                    </div>
-                    <div class="col-12 col-md-3 mb-3" style="display:none">
-                        {{ form.totalCredito.label_tag }}
-                        {{ form.totalCredito }}
-                    </div>
+                  <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
+                      {{ form.estado.label_tag }}
+                      {{ form.estado }}
+                  </div>
+                  <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
+                    {{ form.banco.label_tag }}
+                    {{ form.banco }}
+                  </div>
+                  <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
+                    {{ form.tipoCuenta.label_tag }}
+                    {{ form.tipoCuenta }}
+                  </div>
+                  <div class="col-12 col-md-6 col-lg-3 col-xl-3 mb-3">
+                    {{ form.numCuenta.label_tag }}
+                    {{ form.numCuenta }}
+                  </div>
+                  <div class="col-12 col-md-3 mb-3" style="display:none">
+                      {{ form.valorCuota.label_tag }}
+                      {{ form.valorCuota }}
+                  </div>
+                  <div class="col-12 col-md-3 mb-3" style="display:none">
+                      {{ form.totalCredito.label_tag }}
+                      {{ form.totalCredito }}
+                  </div>
                 </div>
                     
                 <div class="row">

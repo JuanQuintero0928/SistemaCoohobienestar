@@ -1359,7 +1359,7 @@ class DescargaCredito(ListView):
         ws.title = 'Creditos'
         titulo1 = f"Reporte de Créditos desde {fecha_formateada1} - {fecha_formateada2}"
         ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
-        ws.merge_cells('A1:N1')
+        ws.merge_cells('A1:R1')
         ws['A1'].font = bold_font
         ws['A1'].alignment = alignment_center
         ws['A1'].fill = fill
@@ -1378,11 +1378,15 @@ class DescargaCredito(ListView):
         ws['L2'] = 'Tasa Interes'
         ws['M2'] = 'Forma Desembolso'
         ws['N2'] = 'Medio de Pago'
+        ws['O2'] = 'Tipo Asociado'
+        ws['P2'] = 'Banco'
+        ws['Q2'] = 'Tipo de Cuenta'
+        ws['R2'] = 'Número de Cuenta'
         
         bold_font2 = Font(bold=True)
         center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
 
-        for col in range(1,15):
+        for col in range(1,19):
             cell = ws.cell(row=2, column=col)
             cell.font = bold_font2
             cell.alignment = center_alignment
@@ -1401,6 +1405,10 @@ class DescargaCredito(ListView):
         ws.column_dimensions['L'].width = 13
         ws.column_dimensions['M'].width = 28
         ws.column_dimensions['N'].width = 15
+        ws.column_dimensions['O'].width = 17
+        ws.column_dimensions['P'].width = 16
+        ws.column_dimensions['Q'].width = 18
+        ws.column_dimensions['R'].width = 15
 
         #Inicia el primer registro en la celda numero 3
         cont = 3
@@ -1418,9 +1426,13 @@ class DescargaCredito(ListView):
             ws.cell(row = cont, column = 9).value = credito.estado
             ws.cell(row = cont, column = 10).value = credito.lineaCredito
             ws.cell(row = cont, column = 11).value = credito.amortizacion
-            ws.cell(row = cont, column = 12).value = credito.tasaInteres.porcentaje
+            ws.cell(row = cont, column = 12).value = credito.tasaInteres.porcentaje * 100 if credito.tasaInteres else 0
             ws.cell(row = cont, column = 13).value = credito.formaDesembolso
             ws.cell(row = cont, column = 14).value = credito.medioPago
+            ws.cell(row = cont, column = 15).value = credito.asociado.tAsociado.concepto
+            ws.cell(row = cont, column = 16).value = credito.banco
+            ws.cell(row = cont, column = 17).value = credito.tipoCuenta
+            ws.cell(row = cont, column = 18).value = credito.numCuenta
             i+=1
             cont+=1
 

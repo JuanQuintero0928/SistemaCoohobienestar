@@ -147,7 +147,7 @@ class HistoricoCreditoForm(forms.ModelForm):
         label="Tasa de interés mensual (%)",
         empty_label="Seleccione una tasa",
         widget=forms.Select(attrs={'class': 'form-select', 'id': 'tasaInteres'}),
-        to_field_name="porcentaje"  # <-- Aquí se define que el value sea el porcentaje en vez del ID
+        to_field_name="porcentaje"  # Se define que el value sea el porcentaje en vez del ID
     )
 
     class Meta:
@@ -162,7 +162,10 @@ class HistoricoCreditoForm(forms.ModelForm):
                   'formaDesembolso',
                   'valorCuota',
                   'totalCredito',
-                  'estado'
+                  'estado',
+                  'banco',
+                  'numCuenta',
+                  'tipoCuenta',
                   ]
         labels = {
             'fechaSolicitud': 'Fecha Solicitud',
@@ -172,7 +175,10 @@ class HistoricoCreditoForm(forms.ModelForm):
             'amortizacion': 'Amortización',
             'medioPago': 'Medio de Pago',
             'formaDesembolso': 'Forma de Desembolso',
-            'estado': 'Estado'
+            'estado': 'Estado',
+            'Banco': 'Banco',
+            'numCuenta': 'Número de Cuenta',
+            'Tipo Cuenta': 'Tipo Cuenta'
         }
         widgets = {
             'fechaSolicitud': forms.DateInput(
@@ -231,6 +237,23 @@ class HistoricoCreditoForm(forms.ModelForm):
             'estado': forms.Select(
                 attrs={ 
                     'class':'form-control'
+                }
+            ),
+            'numCuenta': forms.NumberInput(
+                attrs={
+                    'class':'form-control',
+                    # 'hidden':'hidden',
+                }
+            ),
+            'tipoCuenta': forms.Select(
+                attrs={ 
+                    'class':'form-control'
+                }
+            ),
+            'banco': forms.TextInput(
+                attrs={ 
+                    'class':'form-control',
+                    'style': 'text-transform: uppercase;',
                 }
             ),
         }

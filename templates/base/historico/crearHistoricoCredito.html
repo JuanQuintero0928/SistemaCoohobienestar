@@ -12,51 +12,49 @@
           <form action="{% url 'asociado:crearHistoricoCredito' pkAsociado %}" method="post" id="form">
             {% csrf_token %}
             <div class="row">
-              <div class="col-12 col-lg-3 col-md-6 mb-3">
+              <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
                 <label for="fechaSolicitud">Fecha Solicitud:</label>
                 <input type="date" id="fechaSolicitud" name="fechaSolicitud" class="form-control">
               </div>
-              <div class="col-12 col-lg-3 col-md-6 mb-3">
+              <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
                 <label for="valor">Valor del crédito</label>
                 <input name="valor" id="valor" type="number" class="form-control" min="0">
               </div>
-              <div class="col-12 col-lg-3 col-md-6 mb-3">
+              <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
                 {{ form.lineaCredito.label_tag }}
                 {{ form.lineaCredito }}
               </div>
-              <div class="col-12 col-lg-3 col-md-6 mb-3">
+              <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
                 {{ form.amortizacion.label_tag }}
                 {{ form.amortizacion }}
               </div>
-            </div>
-            <div class="row">
-              <div class="col-12 col-lg-3 col-md-6 mb-3">
+            
+              <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
                 {{ form.tasaInteres.label_tag }}
                 {{ form.tasaInteres }}
               </div>
-              <div class="col-12 col-lg-3 col-md-6 mb-3">
+              <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
                 {{ form.medioPago.label_tag }}
                 {{ form.medioPago }}
               </div>
-              <div class="col-12 col-lg-3 col-md-6 mb-3">
+              <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
                 <label for="cuotas">Número de cuotas</label>
                 <input name="cuotas" id="cuotas" type="number" class="form-control" min="0" value="6">
               </div>
-              <div class="col-12 col-lg-3 col-md-6 mb-3">
+              <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
                 {{ form.formaDesembolso.label_tag }}
                 {{ form.formaDesembolso }}
               </div>
-            </div>
-            <div class="row">
-              <div class="col-12 col-lg-2 col-md-12 col-sm-12 mb-3">
+         
+              <div class="col-12 col-md-12 col-lg-4 col-xl-4 mb-3">
                 {{ form.estado.label_tag }}
                 {{ form.estado }}
               </div>
-              <div class="col-12 col-lg-5 col-md-12 mb-3 d-none" id="divAnalisis">
+              <div class="col-12 col-md-6 col-lg-6 col-xl-4 mb-3 d-none" id="divAnalisis">
                 <label for="analisisCodeudor">Capacidad de Endeudamiento</label>
                 <input type="text" name="analisisCodeudor" class="form form-control" id="analisisCodeudor" readonly>
               </div>
-              <div class="col-12 col-lg-5 col-md-12 mb-3 d-none" id="divCapacidadPago">
+              <div class="col-12 col-md-6 col-lg-6 col-xl-4 mb-3 d-none" id="divCapacidadPago">
                 <label for="analisisCodeudor">Capacidad de Pago</label>
                 <input type="text" name="analisisCodeudor" class="form form-control" id="analisisCapacidadPago" readonly>
               </div>

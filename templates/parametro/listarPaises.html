@@ -1,10 +1,6 @@
 {% extends 'parametro/parametros.html' %}
 {% load static %}
 
-{% comment %} {% block title %}
-
-{% endblock title %} {% endcomment %}
-
 {% block button %}
     <a href="{% url 'asociado:crearAsociado' %}"><i class="fa-solid fa-plus"></i></a>
 {% endblock button %}
@@ -15,38 +11,31 @@
     <li class="breadcrumb-item active" aria-current="page">Tipo Auxilio</li>
 {% endblock breadcrumb %}
 
-{% block barraLateral %}
-    <li class="list-group-item active"><a href="{% url 'parametro:pais' %}" style="text-decoration:none; color:white">Paises Repatriación</a></li>
-    <li class="list-group-item"><a href="{% url 'parametro:parentesco' %}" style="text-decoration:none">Parentesco</a></li>
-    <li class="list-group-item"><a href="{% url 'parametro:tarifa' %}" style="text-decoration:none">Tarifas</a></li>
-    <li class="list-group-item"><a href="{% url 'parametro:tipoAsociado' %}" style="text-decoration:none">Tipo Asociado</a></li>
-    <li class="list-group-item"><a href="{% url 'parametro:tipoAuxilio' %}" style="text-decoration:none">Tipo Auxilio</a></li>
-{% endblock barraLateral %}
-
 {% block contenidoParametros %}
-        <table id="datatablesSimple">
-            <thead>
-                <tr>
-                    <th>N°</th>
-                    <th>Nombre</th>
-                    <th>Opciones</th>
-                </tr>    
-            </thead>
-            <tbody>
-                {% for obj in query %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{ obj.nombre }}</td>
-                        <td>Editar</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<table id="datatablesSimple" class="display" style="width:100%">
+    <thead class="table-dark">
+        <tr>
+            <th scope="col">N°</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Opciones</th>
+        </tr>    
+    </thead>
+    <tbody>
+        {% for obj in query %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ obj.nombre }}</td>
+                <td>
+                    <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_creacion('{% url 'parametro:editar' obj.pk %}')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
+                            <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                        </svg>
+                    </button>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
-{% endblock contenidoParametros %}
 
-
-
-
-
-    
+{% endblock contenidoParametros %}    

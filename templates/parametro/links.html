@@ -1,0 +1,30 @@
+
+<div class="col-12 col-lg-3 col-xl-2 mb-2">
+    <div class="card">
+        <ul class="list-group list-group-flush">
+            <li {% if vista == 3 %} class="list-group-item active" {% else %} class="list-group-item"{% endif %}>
+                <a href="{% url 'parametro:pais' %}" {% if vista == 3 %} style="text-decoration:none; color:white" {% else %} style="text-decoration:none" {% endif %}>
+                    Paises Repatriación
+                </a>
+            </li>
+            <li {% if vista == 4 %} class="list-group-item active" {% else %} class="list-group-item"{% endif %}>
+                <a href="{% url 'parametro:parentesco' %}" {% if vista == 4 %} style="text-decoration:none; color:white" {% else %} style="text-decoration:none" {% endif %}>
+                    Parentesco</a></li>
+            <li {% if vista == 5 %} class="list-group-item active" {% else %} class="list-group-item"{% endif %}>
+                <a href="{% url 'parametro:tipoAsociado' %}" {% if vista == 5 %} style="text-decoration:none; color:white" {% else %}  style="text-decoration:none" {% endif %}>
+                Tipo Asociado
+            </a>
+            </li>
+            <li {% if vista == 2 %} class="list-group-item active" {% else %} class="list-group-item"{% endif %}>
+                <a href="{% url 'parametro:tarifa' %}" {% if vista == 2 %} style="text-decoration:none; color:white" {% else %}  style="text-decoration:none" {% endif %}>
+                    Tarifas
+                </a>
+            </li>
+            <li {% if vista == 1 %} class="list-group-item active" {% else %} class="list-group-item"{% endif %}>
+                <a href="{% url 'parametro:tipoAuxilio' %}" {% if vista == 1 %} style="text-decoration:none; color:white" {% else %}  style="text-decoration:none" {% endif %}>
+                    Tipo Auxilio
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
