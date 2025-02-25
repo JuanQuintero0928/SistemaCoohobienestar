@@ -11,31 +11,39 @@
     <li class="breadcrumb-item active" aria-current="page">Tipo Auxilio</li>
 {% endblock breadcrumb %}
 
-{% block contenidoParametros %}
-<table id="datatablesSimple" class="display" style="width:100%">
-    <thead class="table-dark">
-        <tr>
-            <th scope="col">N°</th>
-            <th scope="col">Nombre</th>
-            <th scope="col">Opciones</th>
-        </tr>    
-    </thead>
-    <tbody>
-        {% for obj in query %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ obj.nombre }}</td>
-                <td>
-                    <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_creacion('{% url 'parametro:editar' obj.pk %}')">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
-                            <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
-                        </svg>
-                    </button>
-                </td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
+{% block buttonCrear %}
+    <button class="btn btn-outline-primary d-flex align-items-center gap-2" onclick="abrir_modal_creacion('{% url 'parametro:crearPaisR' %}')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+        </svg>
+    </button>
+{% endblock buttonCrear %}
 
+{% block contenidoParametros %}
+    <table id="datatablesSimple" class="display" style="width:100%">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">N°</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Opciones</th>
+            </tr>    
+        </thead>
+        <tbody>
+            {% for obj in query %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ obj.nombre }}</td>
+                    <td>
+                        <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_creacion('{% url 'parametro:editarPaisR' obj.pk %}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
+                                <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
 {% endblock contenidoParametros %}    

@@ -18,6 +18,7 @@ class lineaCreditoOp(models.TextChoices):
     crediContigo = 'CREDICONTIGO', 'CREDICONTIGO'
     kupi = 'KUPI', 'KUPI'
     crediSeguro = 'CREDISEGURO', 'CREDISEGURO'
+    creditoSoat = 'CREDITO SOAT', 'CREDITO SOAT'
 
 class amortizacionOP(models.TextChoices):
     cuotaFija = 'CUOTA FIJA', 'CUOTA FIJA'
@@ -90,6 +91,8 @@ class HistoricoCredito(models.Model):
     banco = models.CharField('Banco', max_length=30, blank=True, null=True)
     numCuenta = models.CharField('Numero Cuenta', max_length=30, blank=True, null=True)
     tipoCuenta = models.CharField('Tipo Cuenta', choices=TipoCuentaOp.choices, blank=True, null=True)
+    cuotasPagas = models.IntegerField(blank=True, null=True)
+    pendientePago = models.IntegerField(blank=True, null=True)
     estadoRegistro = models.BooleanField('Estado')
     fechaCreacion = models.DateTimeField(auto_now_add=True)
     fechaModificacion = models.DateTimeField(auto_now=True)
@@ -118,6 +121,7 @@ class HistorialPagos(models.Model):
     coohopBsocial = models.IntegerField('Coohoperativitos B Social', blank=True, null=True)
     convenioPago = models.IntegerField('Convenio', blank=True, null=True)
     creditoHomeElements = models.IntegerField('Credito Home Elements', blank=False, null=False)
+    credito = models.IntegerField('Credito', blank=True, null=True)
     diferencia = models.IntegerField('Diferencia', blank=True, null=True)
     formaPago = models.ForeignKey(FormaPago, on_delete=models.RESTRICT, blank=False, null=False)
     userCreacion = models.ForeignKey(User, related_name='usuario_creacion', on_delete=models.CASCADE, blank=True, null=True)

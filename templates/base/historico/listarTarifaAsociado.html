@@ -180,10 +180,19 @@
             {% endif %}
             {% if queryCreditoProd > 0 %}
                 <tr>
-                    <th class="fw-bold text-start">Creditos Home Elements</th>
+                    <th class="fw-bold text-start">Crédito - Home Elements</th>
                     <th class="text-muted text-start">${{ queryCreditoProd|intcomma }}</th>
                     <th></th>
                 </tr>
+            {% endif %}
+            {% if queryCredito %}
+                {% for credito in queryCredito %}
+                    <tr>
+                        <th class="fw-bold text-start">Crédito - {{credito.lineaCredito}}</th>
+                        <th class="text-muted text-start">${{ credito.valorCuota|intcomma }}</th>
+                        <th></th>
+                    </tr>
+                {% endfor %}
             {% endif %}
             <tr class="total-row">
                 <th class="text-start">Total</th>

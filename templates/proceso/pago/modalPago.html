@@ -179,7 +179,7 @@
                                 
                                     <tr>
                                         <th>-</th>
-                                        <td>CREDITOS HOME ELEMENTS</th>
+                                        <td>CREDITO HOME ELEMENTS</th>
                                         <td style="text-align: center;">
                                             <div class="form-check form-switch" style="display: inline-block;">
                                                 <input 
@@ -196,6 +196,31 @@
                                             </div>
                                         </td>
                                         <td>${{ homeElements.valorCuotas|intcomma }}</th>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                            {% if queryCredito %}
+                                {% for credito in queryCredito %}
+                                
+                                    <tr>
+                                        <th>-</th>
+                                        <td>CREDITO - {{credito.lineaCredito}} </th>
+                                        <td style="text-align: center;">
+                                            <div class="form-check form-switch" style="display: inline-block;">
+                                                <input 
+                                                    class="form-check-input switch-mes"
+                                                    type="checkbox"
+                                                    role="switch"
+                                                    name="switches"
+                                                    id="flexSwitchCheckDefault{{credito.pk}}"
+                                                    value="{{ credito.pk }}-9993-{{ credito.valorCuota }}"
+                                                    data-costo="{{ credito.valorCuota }}"
+                                                    onchange="actualizarTotal()"
+                                                >
+                                                <label class="form-check-label" for="flexSwitchCheckDefault{{credito.pk}}"></label>
+                                            </div>
+                                        </td>
+                                        <td>${{ credito.valorCuota|intcomma }}</th>
                                     </tr>
                                 {% endfor %}
                             {% endif %}

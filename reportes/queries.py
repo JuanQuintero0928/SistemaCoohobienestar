@@ -3,7 +3,7 @@ from django.db.models import OuterRef, Subquery, Count, IntegerField, Value, Cas
 
 from beneficiario.models import Asociado, Mascota, Beneficiario
 from asociado.models import RepatriacionTitular, ParametroAsociado
-from historico.models import HistorialPagos
+from historico.models import HistorialPagos, HistoricoCredito
 
 def obtenerNovedades(fecha_inicial, fecha_final):
     asociadoRetiro = Asociado.objects.filter(
@@ -45,6 +45,14 @@ def obtenerDescuentoNomina(empresa_pk):
                             total_pagos=Count('id')
                         ).values('total_pagos')
 
+    credito_pendiente = HistoricoCredito.objects.filter(
+                                asociado=OuterRef('asociado'),
+                                estadoRegistro=True,
+                                pendientePago__gt=0
+                            ).values('asociado').annotate(
+                                total_cuotas=Sum('valorCuota')
+                            ).values('total_cuotas')
+
     query = ParametroAsociado.objects.filter(
                             empresa=empresa_pk,
                             asociado__estadoAsociado='ACTIVO'
@@ -60,7 +68,8 @@ def obtenerDescuentoNomina(empresa_pk):
                                 default=F('vinculacionValor'),
                                 output_field=IntegerField()
                             ),
-                            total_final=F('tarifaAsociado__total') + Coalesce(F('cuota_vinculacion'), Value(0))
+                            cuota_credito=Coalesce(Subquery(credito_pendiente, output_field=IntegerField()), Value(0)),
+                            total_final=F('tarifaAsociado__total') + Coalesce(F('cuota_vinculacion'), Value(0)) + F('cuota_credito')
                         )
 
     # Obtener la suma total de 'total_final'

@@ -930,6 +930,8 @@ class CrearHistoricoCredito(ListView):
             obj.medioPago = formulario.cleaned_data['medioPago']
             obj.formaDesembolso = formulario.cleaned_data['formaDesembolso']
             obj.estado = formulario.cleaned_data['estado']
+            obj.pendientePago = formulario.cleaned_data['totalCredito']
+            obj.cuotasPagas = 0
             obj.estadoRegistro = True
             obj.save()
             messages.info(request, 'Registro Creado Correctamente')
@@ -1026,7 +1028,21 @@ class VerTarifaAsociado(ListView):
                 ).aggregate(total=Sum('valorCuotas'))
             totalCredito = queryCreditoProd.get('total') or 0 # se utiliza 0 en caso que no exista valor
         
-        totalTarifaAsociado = totalCredito + queryTarifaAsociado.total
+        # Se valida si cuenta con credito
+        queryCreditoValidacion = HistoricoCredito.objects.filter(asociado = kwargs['pkAsociado'], pendientePago__gt = 0, estadoRegistro = True).exists()
+        queryCredito = None
+        creditos = 0
+        if queryCreditoValidacion:
+            queryCredito = HistoricoCredito.objects.filter(
+                asociado = kwargs['pkAsociado'],
+                estadoRegistro = True,
+                pendientePago__gt = 0
+                )
+
+            for credito in queryCredito:
+                creditos += credito.valorCuota 
+                
+        totalTarifaAsociado = totalCredito + queryTarifaAsociado.total + creditos
 
         context = {
             'updateAsociado':'yes',
@@ -1039,6 +1055,7 @@ class VerTarifaAsociado(ListView):
             'queryConvenio':queryConvenio,
             'vista':8,
             'queryCreditoProd':totalCredito,
+            'queryCredito':queryCredito,
             'totalTarifaAsociado':totalTarifaAsociado
         }
         return render(request, template_name, context)

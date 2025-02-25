@@ -9,7 +9,7 @@ from django.db.models import Sum, F, Q, Subquery, Case, When, Value, IntegerFiel
 from django.db import transaction
 from django.core.paginator import Paginator
 
-from .models import HistoricoAuxilio, HistorialPagos
+from .models import HistoricoAuxilio, HistorialPagos, HistoricoCredito
 from parametro.models import MesTarifa, FormaPago, Tarifas, TipoAsociado
 from asociado.models import Asociado, ParametroAsociado, TarifaAsociado
 from .form import CargarArchivoForm
@@ -135,6 +135,20 @@ class ModalPago(ListView):
                     if homeElements.cuotas - homeElements.cuotasPagas == 1:
                         homeElements.valorCuotas = homeElements.pendientePago
         
+        # Se valida si el asociado cuenta con credito
+        queryValidacionCredito = HistoricoCredito.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True, pendientePago__gt = 0).exists()
+        queryCredito = None
+        if queryValidacionCredito:
+            queryCredito = HistoricoCredito.objects.filter(
+                    asociado = kwargs['pkAsociado'],
+                    estadoRegistro = True,
+                    pendientePago__gt = 0
+                )
+            for credito in queryCredito:
+                if credito.totalCredito % credito.pendientePago != 0:
+                    if credito.cuotas - credito.cuotasPagas == 1:
+                        credito.valorCuota = credito.pendientePago
+        
         # Se valida si el asociado debe cuotas de la vinculación
         cuotaVinculacion = None
         cuotaVinculacionMenorEdad = Tarifas.objects.values('valor').get(pk=8)
@@ -158,6 +172,7 @@ class ModalPago(ListView):
             'queryPago':queryPago,
             'diferencia':total_diferencia,
             'queryCreditoProd':queryCreditoProd,
+            'queryCredito':queryCredito,
             'cuotaVinculacion':cuotaVinculacion,
             'cuotaVinculacionMenorEdad':cuotaVinculacionMenorEdad
         }
@@ -184,16 +199,6 @@ class ModalPago(ListView):
         for contador, pk in enumerate(switches_activos, start=1):
             
             split = pk.split('-')
-        
-            # # Si existe el switch 9997, equivalente a cine se elimina para tener en cuenta la diferencia si se selecciona un mes y cine 
-            # numSwithces = request.POST.getlist('switches') or []
-            # if '9997' in numSwithces:
-            #     numSwithces.remove('9997')
-            #     # saber el tamaño de los botones marcados
-            #     cantidadSwitches = len(numSwithces)
-            # else:
-            #     # saber el tamaño de los botones marcados
-            #     cantidadSwitches = len(switches_activos)
 
             if len(split) == 1:
                 # Aplica para abonos, se crea un registro de pago con el valor de abono
@@ -350,6 +355,36 @@ class ModalPago(ListView):
                     queryCreditoProd.cuotasPagas = queryCreditoProd.cuotasPagas + 1
                     
                     queryCreditoProd.save()
+
+                # Pk 9993 credito
+                else:
+                    queryCredito = HistoricoCredito.objects.get(pk = extra_param)
+                    valorPago = queryCredito.valorCuota if contador < cantidadSwitches else valorCuota + valorDiferencia
+                    pago = {
+                        'asociado': Asociado.objects.get(pk = kwargs['pkAsociado']),
+                        'mesPago': MesTarifa.objects.get(pk = pk),
+                        'fechaPago': fechaPago,
+                        'formaPago': FormaPago.objects.get(pk = formaPago),
+                        'aportePago': 0,
+                        'bSocialPago': 0,
+                        'mascotaPago': 0,
+                        'repatriacionPago': 0,
+                        'seguroVidaPago': 0,
+                        'adicionalesPago': 0,
+                        'coohopAporte': 0,
+                        'coohopBsocial': 0,
+                        'convenioPago': 0,
+                        'creditoHomeElements': 0,
+                        'credito': queryCredito.valorCuota,
+                        'diferencia': valorCuota - queryCredito.valorCuota + valorDiferencia if cantidadSwitches == contador else 0,
+                        'valorPago':  valorPago,
+                        'estadoRegistro': True,
+                        'userCreacion': User.objects.get(pk = request.user.pk),
+                    }
+                    datos_pagos.append(pago)
+                    queryCredito.pendientePago = queryCredito.pendientePago - valorPago
+                    queryCredito.cuotasPagas = queryCredito.cuotasPagas + 1
+                    queryCredito.save()
 
         # Crear cada registro en un bucle
         for data in datos_pagos:

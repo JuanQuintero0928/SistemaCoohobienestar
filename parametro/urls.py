@@ -9,7 +9,9 @@ urlpatterns = [
     path('pais/', login_required(ListarPaises.as_view()), name='pais'),
     path('parentesco/', login_required(ListarParentesco.as_view()), name='parentesco'),
     path('tipoAsociado/', login_required(ListarTipoAsociado.as_view()), name='tipoAsociado'),
-    path('crear/', login_required(CrearPaisRepatriacion.as_view()), name='crear'),
-    path('editar/<int:pk>', login_required(EditarPaisRepatriacion.as_view()), name='editar'),
-
+    path('crearPaisR/', login_required(CrearPaisRepatriacion.as_view()), name='crearPaisR'),
+    path('editarPaisR/<int:pk>', login_required(EditarPaisRepatriacion.as_view()), name='editarPaisR'),
+    path('crearParentesco/', login_required(CrearParentesco.as_view()), name='crearParentesco'),
+    path('editarParentesco/<int:pk>', login_required(EditarParentesco.as_view()), name='editarParentesco'),
+    path('editarTarifa/<int:pk>', login_required(EditarTarifa.as_view()), name='editarTarifa'),
 ]
