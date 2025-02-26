@@ -132,7 +132,7 @@
                   </tr>
                 {% endfor %}
               </table>
-              <form style="display:none">
+              <form style="display:block">
                 <h2>Tabla Asociado</h2>
                 <input type="date" id="id_fechaActual" value="{{fechaActual|date:"Y-m-d"}}">
                 <input type="text" id="id_tipoAsociado" value="{{queryAsociado.tipo}}" readonly>
@@ -182,7 +182,7 @@
                 <input type="text" id="id_tipoCuenta" value="{{queryLab.tipoCuenta}}">
                 <h2>Tabla Parametro Asociado</h2>
                 <input type="text" id="id_autorizaciondcto" value="{{queryParametroAsoc.autorizaciondcto}}">           
-                <input type="text" id="id_empresa" value="{{queryParametroAsoc.empresa__concepto}}">
+                <input type="text" id="id_empresa" value="{{queryParametroAsoc.asociado__tAsociado__concepto}}">
               </form>
             </div>
           {% endif %}

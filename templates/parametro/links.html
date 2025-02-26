@@ -7,6 +7,11 @@
                     Paises Repatriación
                 </a>
             </li>
+            <li {% if vista == 6 %} class="list-group-item active" {% else %} class="list-group-item"{% endif %}>
+                <a href="{% url 'parametro:paisIndicativo' %}" {% if vista == 6 %} style="text-decoration:none; color:white" {% else %}  style="text-decoration:none" {% endif %}>
+                    Indicativo Celular
+                </a>
+            </li>
             <li {% if vista == 4 %} class="list-group-item active" {% else %} class="list-group-item"{% endif %}>
                 <a href="{% url 'parametro:parentesco' %}" {% if vista == 4 %} style="text-decoration:none; color:white" {% else %} style="text-decoration:none" {% endif %}>
                     Parentesco</a></li>

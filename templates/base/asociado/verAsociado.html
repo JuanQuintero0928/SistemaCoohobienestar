@@ -626,8 +626,8 @@
                                         </div>
                                         <select name="empresaDcto" class="form-select" id="id_empresaDcto" required disabled>
                                             <option value="">Seleccione una empresa</option>
-                                            {% for empresas in objEmpresa %}
-                                            <option value="{{empresas.pk}}" {% if objParametroAsociado.empresa == empresas.pk %} selected {% endif %}>{{empresas.concepto}}</option>
+                                            {% for empresa in objEmpresa %}
+                                                <option value="{{empresa.pk}}" {% if objAsociado.tAsociado.pk == empresa.pk %} selected {% endif %}>{{empresa.concepto}}</option>
                                             {% endfor %}
                                         </select>
                                     </div>

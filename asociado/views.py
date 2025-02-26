@@ -214,7 +214,6 @@ class CrearAsociado(CreateView):
                 # se guarda informacion en el modelo PARAMETROASOCIADO
                 objParametro = ParametroAsociado.objects.create(
                     asociado = obj,
-                    empresa = obj.tAsociado if obj.tAsociado.pk == 2 else None,
                     autorizaciondcto = False if obj.tAsociado.pk == 1 else True,
                     funeraria = servicioFuneraria,
                     primerMes = primerMesPago,
@@ -266,7 +265,7 @@ class VerAsociado(ListView):
         objParentesco = Parentesco.objects.all().order_by('nombre')
         objEmpresa = TipoAsociado.objects.all()
         objServFuneraria = ServicioFuneraria.objects.all()
-        objParametroAsociado = ParametroAsociado.objects.values('id','funeraria','autorizaciondcto','empresa','autorizaciondcto','primerMes').get(asociado = kwargs['pkAsociado'])
+        objParametroAsociado = ParametroAsociado.objects.values('id','funeraria','autorizaciondcto','autorizaciondcto','primerMes').get(asociado = kwargs['pkAsociado'])
         objMes = MesTarifa.objects.all()
         objLaboral = Laboral.objects.get(asociado = kwargs['pkAsociado'])
         objFinanciero = Financiera.objects.get(asociado = kwargs['pkAsociado'])
@@ -359,19 +358,6 @@ class EditarAsociado(UpdateView):
         obj.parentesco = request.POST['parentesco']
         obj.numContacto = request.POST['numContacto']
         obj.save()
-        # Si tipo Asociado cambia, se cambia en el modelo PARAMETRO ASOCIADO
-        objParamatro = ParametroAsociado.objects.get(asociado = kwargs['pkAsociado'])
-        if objParamatro.autorizaciondcto == False:
-            if obj.tAsociado.pk != objParamatro.empresa:
-                objParamatro.empresa = TipoAsociado.objects.get(pk = obj.tAsociado.pk)
-                objParamatro.autorizaciondcto = True
-        else:
-            if obj.tAsociado.pk == 1:
-                objParamatro.empresa = None
-                objParamatro.autorizaciondcto = False
-            else:
-                objParamatro.empresa = TipoAsociado.objects.get(pk = obj.tAsociado.pk)
-        objParamatro.save()
         messages.info(request, 'Información Modificada Correctamente')
         return HttpResponseRedirect(reverse_lazy('asociado:verAsociado', args=[kwargs['pkAsociado']]))
 
@@ -482,11 +468,9 @@ class EditarParametroAsociado(CreateView):
         objAsociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
         if len(autorizacion) >= 1:
             obj.autorizaciondcto = True
-            obj.empresa = TipoAsociado.objects.get(pk = request.POST['empresaDcto'])
             objAsociado.tAsociado = TipoAsociado.objects.get(pk = request.POST['empresaDcto'])
         else:
             obj.autorizaciondcto = False
-            obj.empresa = None
             # Si se desactiva el check el asociado pasa a indenpendeinte
             objAsociado.tAsociado = TipoAsociado.objects.get(pk = 1)
         obj.funeraria = ServicioFuneraria.objects.get(pk = request.POST['servFuneraria'])
@@ -982,7 +966,7 @@ class EditarHistoricoCredito(ListView):
             obj.cuotas = formulario.cleaned_data['cuotas']
             obj.formaDesembolso = formulario.cleaned_data['formaDesembolso']
             obj.estado = formulario.cleaned_data['estado']
-            obj.banco = formulario.cleaned_data['banco'].upper()
+            obj.banco = (formulario.cleaned_data['banco'] or '').upper()
             obj.tipoCuenta = formulario.cleaned_data['tipoCuenta']
             obj.numCuenta = formulario.cleaned_data['numCuenta']
             obj.save()
@@ -1029,14 +1013,15 @@ class VerTarifaAsociado(ListView):
             totalCredito = queryCreditoProd.get('total') or 0 # se utiliza 0 en caso que no exista valor
         
         # Se valida si cuenta con credito
-        queryCreditoValidacion = HistoricoCredito.objects.filter(asociado = kwargs['pkAsociado'], pendientePago__gt = 0, estadoRegistro = True).exists()
+        queryCreditoValidacion = HistoricoCredito.objects.filter(asociado = kwargs['pkAsociado'], pendientePago__gt = 0, estadoRegistro = True, estado = 'OTORGADO').exists()
         queryCredito = None
         creditos = 0
         if queryCreditoValidacion:
             queryCredito = HistoricoCredito.objects.filter(
                 asociado = kwargs['pkAsociado'],
                 estadoRegistro = True,
-                pendientePago__gt = 0
+                pendientePago__gt = 0,
+                estado = 'OTORGADO'
                 )
 
             for credito in queryCredito:
@@ -1356,7 +1341,7 @@ class ModalFormato(ListView):
                 Prefetch('codeudor_set', queryset=Codeudor.objects.all(), to_attr='codeudores')
             )
             queryAsociado = Asociado.objects.get(pk=kwargs['pkAsociado'])
-            queryParametroAsoc = ParametroAsociado.objects.filter(asociado = kwargs['pkAsociado']).values('autorizaciondcto','empresa__concepto').first()
+            queryParametroAsoc = ParametroAsociado.objects.filter(asociado = kwargs['pkAsociado']).values('autorizaciondcto','asociado__tAsociado__concepto').first()
             queryLaboral = Laboral.objects.get(asociado = kwargs['pkAsociado'])
             fechaActual = date.today()
             context = {

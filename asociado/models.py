@@ -194,7 +194,6 @@ class TarifaAsociado(models.Model):
 class ParametroAsociado(models.Model):
     id = models.AutoField(primary_key=True)
     asociado = models.ForeignKey(Asociado, on_delete=models.RESTRICT, blank=False, null=False)
-    empresa = models.ForeignKey(TipoAsociado, on_delete=models.RESTRICT, blank=True, null=True)
     autorizaciondcto = models.BooleanField('Estado', blank=True, null=True)
     funeraria = models.ForeignKey(ServicioFuneraria, on_delete=models.RESTRICT, blank=False, null=False)
     primerMes = models.ForeignKey(MesTarifa, on_delete=models.RESTRICT, blank=True, null=True)

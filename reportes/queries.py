@@ -48,14 +48,15 @@ def obtenerDescuentoNomina(empresa_pk):
     credito_pendiente = HistoricoCredito.objects.filter(
                                 asociado=OuterRef('asociado'),
                                 estadoRegistro=True,
-                                pendientePago__gt=0
+                                pendientePago__gt=0,
+                                estado = 'OTORGADO'
                             ).values('asociado').annotate(
                                 total_cuotas=Sum('valorCuota')
                             ).values('total_cuotas')
 
     query = ParametroAsociado.objects.filter(
-                            empresa=empresa_pk,
-                            asociado__estadoAsociado='ACTIVO'
+                            asociado__tAsociado=empresa_pk,
+                            asociado__estadoAsociado__in=['ACTIVO', 'INACTIVO']
                         ).annotate(
                             pagos_realizados=Coalesce(Subquery(pagos_vinculacion, output_field=IntegerField()), Value(0)),
                             cuota_vinculacion=Case(

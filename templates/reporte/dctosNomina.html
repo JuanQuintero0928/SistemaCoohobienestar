@@ -74,7 +74,7 @@
                             <td class="text-center fw-bold">{{ forloop.counter }}</td>
                             <td class="text-center">{{ obj.asociado.numDocumento|intcomma }}</td>
                             <td>{{ obj.asociado.nombre }} {{ obj.asociado.apellido }}</td>
-                            <td class="text-center">{{ obj.empresa.concepto }}</td>
+                            <td class="text-center">{{ obj.asociado.tAsociado.concepto }}</td> 
                             <td class="text-end fw-bold text-success">${{ obj.total_final|intcomma }}</td>
                         </tr>
                     {% empty %}

@@ -1,12 +1,11 @@
 from django.shortcuts import render
 from django.views.generic import ListView, TemplateView
 from django.http import HttpResponse
-from django.db.models.functions import TruncDate, TruncSecond, Coalesce
-from django.db.models import Sum, F, Subquery, Value, OuterRef, Case, When, IntegerField, Count
+from django.db.models import Sum, F, Subquery
 from datetime import timedelta
 from datetime import datetime
 
-from asociado.models import Asociado, ParametroAsociado, TarifaAsociado, RepatriacionTitular
+from asociado.models import Asociado, ParametroAsociado, TarifaAsociado
 from beneficiario.models import Mascota, Beneficiario
 from historico.models import HistorialPagos, HistoricoAuxilio, HistoricoCredito
 from parametro.models import FormaPago, MesTarifa, TipoAsociado
@@ -737,7 +736,7 @@ class ExcelDescuentosNomina(TemplateView):
             ws.cell(row = cont, column = 2).value = obj.asociado.pk
             ws.cell(row = cont, column = 3).value = int(obj.asociado.numDocumento)
             ws.cell(row = cont, column = 4).value = f'{obj.asociado.nombre}' + ' ' + f'{obj.asociado.apellido}'
-            ws.cell(row = cont, column = 5).value = obj.empresa.concepto
+            ws.cell(row = cont, column = 5).value = obj.asociado.tAsociado.concepto
             ws.cell(row = cont, column = 6).value = obj.total_final
             ws.cell(row = cont, column = 7).value = obj.tarifaAsociado.cuotaAporte
             ws.cell(row = cont, column = 8).value = obj.tarifaAsociado.cuotaBSocial
@@ -894,7 +893,7 @@ class DescargarExcel(ListView):
             ws.title = 'Listado Asociados'
             titulo1 = f"Listado Asociados"
             ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
-            ws.merge_cells('A1:U1')
+            ws.merge_cells('A1:V1')
             ws['A1'].font = bold_font
             ws['A1'].alignment = alignment_center
             ws['A1'].fill = fill
@@ -925,7 +924,7 @@ class DescargarExcel(ListView):
             bold_font2 = Font(bold=True)
             center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
 
-            for col in range(1,23):
+            for col in range(1,24):
                 cell = ws.cell(row=2, column=col)
                 cell.font = bold_font2
                 cell.alignment = center_alignment
