@@ -1,14 +1,10 @@
 {% extends 'parametro/parametros.html' %}
 {% load static %}
 
-{% block button %}
-    <a href="{% url 'asociado:crearAsociado' %}"><i class="fa-solid fa-plus"></i></a>
-{% endblock button %}
-
 {% block breadcrumb %}
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
     <li class="breadcrumb-item"><a href="{% url 'parametro:parametro' %}">Parametros</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Tipo Auxilio</li>
+    <li class="breadcrumb-item active" aria-current="page">Pais Repatriación</li>
 {% endblock breadcrumb %}
 
 {% block buttonCrear %}
@@ -32,7 +28,7 @@
         <tbody>
             {% for obj in query %}
                 <tr>
-                    <td>{{ forloop.counter }}</td>
+                    <td>{{ obj.pk }}</td>
                     <td>{{ obj.nombre }}</td>
                     <td>
                         <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_creacion('{% url 'parametro:editarPaisR' obj.pk %}')">

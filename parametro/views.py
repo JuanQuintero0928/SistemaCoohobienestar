@@ -5,8 +5,8 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.contrib.messages.views import SuccessMessageMixin
 
-from .models import Tarifas, TipoAuxilio, TipoAsociado
-from .forms import PaisRepatriacionForm, ParentescoForm, TarifasForm, TipoAsociadoForm, TipoAuxilioForm, PaisForm
+from .models import Tarifas, TipoAuxilio, TipoAsociado, MesTarifa, Convenio, TasasInteresCredito
+from .forms import *
 from departamento.models import PaisRepatriacion, Pais
 from beneficiario.models import Parentesco 
 # Create your views here.
@@ -53,6 +53,7 @@ class ListarPaises(StaffRequiredMixin, ListView):
             'vista': 3,
         })
         return context
+
 class ListarParentesco(StaffRequiredMixin,ListView):
     template_name = 'parametro/listarParentesco.html'
     model = Parentesco
@@ -89,6 +90,40 @@ class ListarIndicativoCelular(StaffRequiredMixin, ListView):
         })
         return context
 
+class ListarMesTarifa(StaffRequiredMixin, ListView):
+    template_name = 'parametro/listarMesTarifa.html'
+    model = MesTarifa
+    context_object_name = 'query'
+
+    def get_queryset(self):
+        return MesTarifa.objects.filter(pk__lt = 9000)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'vista': 7,
+        })
+        return context
+
+class ListarConvenio(StaffRequiredMixin, ListView):
+    template_name = 'parametro/listarConvenio.html'
+    model = Convenio
+    context_object_name = 'query'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['vista'] = 8
+        return context
+
+class ListarTasasInteresCredito(StaffRequiredMixin, ListView):
+    template_name = 'parametro/listarTasaInteresCredito.html'
+    model = TasasInteresCredito
+    context_object_name = 'query'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['vista'] = 9
+        return context
 
 class CrearPaisRepatriacion(StaffRequiredMixin, CreateView, SuccessMessageMixin):
     model = PaisRepatriacion
@@ -122,6 +157,11 @@ class EditarPaisRepatriacion(StaffRequiredMixin, UpdateView):
             'operation': 'paisR',
         })
         return context
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return response
 class CrearParentesco(StaffRequiredMixin,CreateView, SuccessMessageMixin):
     model = Parentesco
     form_class = ParentescoForm
@@ -155,6 +195,11 @@ class EditarParentesco(StaffRequiredMixin, UpdateView):
         })
         return context
     
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return response
+
 class EditarTarifa(StaffRequiredMixin, UpdateView):
     model = Tarifas
     form_class = TarifasForm
@@ -168,6 +213,11 @@ class EditarTarifa(StaffRequiredMixin, UpdateView):
             'operation': 'tarifa',
         })
         return context
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return response
 
 class CrearTipoAsociado(StaffRequiredMixin, CreateView, SuccessMessageMixin):
     model = TipoAsociado
@@ -201,6 +251,11 @@ class EditarTipoAsociado(StaffRequiredMixin, UpdateView):
             'operation': 'tipoAsociado',
         })
         return context
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return response
 
 class EditarTipoAuxilio(StaffRequiredMixin, UpdateView):
     model = TipoAuxilio
@@ -215,6 +270,11 @@ class EditarTipoAuxilio(StaffRequiredMixin, UpdateView):
             'operation': 'tipoAuxilio',
         })
         return context
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return response
 
 class CrearIndicativoCelular(StaffRequiredMixin, CreateView, SuccessMessageMixin):
     model = Pais
@@ -238,5 +298,139 @@ class CrearIndicativoCelular(StaffRequiredMixin, CreateView, SuccessMessageMixin
     def form_valid(self, form):
         response = super().form_valid(form)
         if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            messages.success(self.request, self.success_message)
             return JsonResponse({'success': True})
         return response
+    
+class EditarIndicativoCelular(StaffRequiredMixin, UpdateView, SuccessMessageMixin):
+    model = Pais
+    form_class = PaisForm
+    template_name = 'parametro/formulario.html'
+    success_url = reverse_lazy('parametro:paisIndicativo')
+    success_message = "Editado exitosamente"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['operation'] = 'paisIndicativo'
+        return context
+    
+    def form_invalid(self, form):
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'errors': form.errors}, status=400)
+        return super().form_invalid(form)
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            messages.success(self.request, self.success_message)
+            return JsonResponse({'success': True})
+        return response
+
+class CrearMesTarifa(StaffRequiredMixin, CreateView, SuccessMessageMixin):
+    model = MesTarifa
+    form_class = MesTarifaForm
+    template_name = 'parametro/formulario.html'
+    success_url = reverse_lazy('parametro:mesTarifa')
+    success_message = "Creado exitosamente"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['operation'] = 'mesTarifa'
+        return context
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return response
+    
+class EditarMesTarifa(StaffRequiredMixin, UpdateView):
+    model = MesTarifa
+    form_class = MesTarifaForm
+    template_name = 'parametro/formulario.html'
+    success_url = reverse_lazy('parametro:mesTarifa')
+    success_message = "Editado exitosamente"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'operation': 'mesTarifa',
+        })
+        return context
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return response
+
+class CrearConvenio(StaffRequiredMixin, CreateView, SuccessMessageMixin):
+    model = Convenio
+    form_class = ConvenioForm
+    template_name = 'parametro/formulario.html'
+    success_url = reverse_lazy('parametro:convenio')
+    success_message = "Creado exitosamente"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['operation'] = 'convenio'
+        return context
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return response
+    
+class EditarConvenio(StaffRequiredMixin, UpdateView):
+    model = Convenio
+    form_class = ConvenioForm
+    template_name = 'parametro/formulario.html'
+    success_url = reverse_lazy('parametro:convenio')
+    success_message = "Editado exitosamente"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['operation'] = 'convenio'
+        return context
+    
+    def form_valid(self, form):
+        if form.instance.fechaTerminacion:
+            form.instance.estado = False
+        else:
+            form.instance.estado = True
+        response = super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return response
+    
+class CrearTasasInteresCredito(StaffRequiredMixin, CreateView, SuccessMessageMixin):
+    model = TasasInteresCredito
+    form_class = TasasInteresCreditoForm
+    template_name = 'parametro/formulario.html'
+    success_url = reverse_lazy('parametro:tasasInteresCredito')
+    success_message = "Creado exitosamente"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['operation'] = 'tasasInteresCredito'
+        return context
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return response
+
+class EditarTasasInteresCredito(StaffRequiredMixin, UpdateView):
+    model = TasasInteresCredito
+    form_class = TasasInteresCreditoForm
+    template_name = 'parametro/formulario.html'
+    success_url = reverse_lazy('parametro:tasasInteresCredito')
+    success_message = "Editado exitosamente"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['operation'] = 'tasasInteresCredito'
+        return context
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return response
+    

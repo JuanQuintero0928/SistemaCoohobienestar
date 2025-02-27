@@ -2,14 +2,29 @@
 <div class="col-12 col-lg-3 col-xl-2 mb-2">
     <div class="card">
         <ul class="list-group list-group-flush">
-            <li {% if vista == 3 %} class="list-group-item active" {% else %} class="list-group-item"{% endif %}>
-                <a href="{% url 'parametro:pais' %}" {% if vista == 3 %} style="text-decoration:none; color:white" {% else %} style="text-decoration:none" {% endif %}>
-                    Paises Repatriación
+            <li {% if vista == 8 %} class="list-group-item active" {% else %} class="list-group-item"{% endif %}>
+                <a href="{% url 'parametro:convenio' %}" {% if vista == 8 %} style="text-decoration:none; color:white" {% else %}  style="text-decoration:none" {% endif %}>
+                    Convenios
                 </a>
             </li>
             <li {% if vista == 6 %} class="list-group-item active" {% else %} class="list-group-item"{% endif %}>
                 <a href="{% url 'parametro:paisIndicativo' %}" {% if vista == 6 %} style="text-decoration:none; color:white" {% else %}  style="text-decoration:none" {% endif %}>
                     Indicativo Celular
+                </a>
+            </li>
+            <li {% if vista == 7 %} class="list-group-item active" {% else %} class="list-group-item"{% endif %}>
+                <a href="{% url 'parametro:mesTarifa' %}" {% if vista == 7 %} style="text-decoration:none; color:white" {% else %}  style="text-decoration:none" {% endif %}>
+                    Mes Tarifa
+                </a>
+            </li>
+            <li {% if vista == 3 %} class="list-group-item active" {% else %} class="list-group-item"{% endif %}>
+                <a href="{% url 'parametro:pais' %}" {% if vista == 3 %} style="text-decoration:none; color:white" {% else %} style="text-decoration:none" {% endif %}>
+                    Paises Repatriación
+                </a>
+            </li>
+            <li {% if vista == 9 %} class="list-group-item active" {% else %} class="list-group-item"{% endif %}>
+                <a href="{% url 'parametro:tasasInteresCredito' %}" {% if vista == 9 %} style="text-decoration:none; color:white" {% else %} style="text-decoration:none" {% endif %}>
+                    Tasas Interes Crédito
                 </a>
             </li>
             <li {% if vista == 4 %} class="list-group-item active" {% else %} class="list-group-item"{% endif %}>

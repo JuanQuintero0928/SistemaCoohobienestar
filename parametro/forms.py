@@ -1,7 +1,7 @@
 from django import forms
 from beneficiario.models import Parentesco
 from departamento.models import PaisRepatriacion, Pais
-from parametro.models import Tarifas, TipoAsociado, TipoAuxilio
+from .models import Tarifas, TipoAsociado, TipoAuxilio, MesTarifa, Convenio, TasasInteresCredito
 
 class PaisRepatriacionForm(forms.ModelForm):
     class Meta:
@@ -154,3 +154,119 @@ class PaisForm(forms.ModelForm):
     
     def clean_bandera(self):
         return self.cleaned_data['bandera'].lower()
+
+class MesTarifaForm(forms.ModelForm):
+    class Meta:
+        model = MesTarifa
+        fields = ['concepto','aporte','bSocial','fechaInicio','fechaFinal']
+        labels = {
+            'concepto':'Concepto',
+            'aporte':'Valor Aporte',
+            'bSocial':'Valor Bienestar Social',
+            'fechaInicio':'Fecha Inicial',
+            'fechaFinal':'Fecha Final',
+        }
+        widgets = {
+            'concepto' : forms.TextInput(
+                attrs={
+                    'class':'form-control',
+                    'style':'text-transform: uppercase;',
+                }
+            ),
+            'aporte': forms.NumberInput(
+                attrs={
+                    'class':'form-control',
+                }
+            ),
+            'bSocial': forms.NumberInput(
+                attrs={
+                    'class':'form-control',
+                }
+            ),
+            'fechaInicio': forms.DateInput(
+                attrs={
+                    'class':'form-control',
+                    'type': 'date',
+                },
+                format='%Y-%m-%d'
+            )
+            ,'fechaFinal': forms.DateInput(
+                attrs={
+                    'class':'form-control',
+                    'type': 'date',
+                },
+                format='%Y-%m-%d'
+            ),
+        }
+    
+    def clean_concepto(self):
+        return self.cleaned_data['concepto'].upper()
+    
+class ConvenioForm(forms.ModelForm):
+    class Meta:
+        model = Convenio
+        fields = ['concepto', 'valor', 'fechaInicio', 'fechaTerminacion']
+        labels = {
+            'concepto':'Nombre del Convenio',
+            'valor':'Valor del Convenio',
+            'fechaInicio':'Fecha Inicial',
+            'fechaTerminacion':'Fecha Terminación',
+        }
+        widgets = {
+            'concepto': forms.TextInput(
+                attrs={
+                    'class':'form-control',
+                    'style':'text-transform: uppercase;',
+                }
+            ),
+            'valor': forms.NumberInput(
+                attrs={
+                    'class':'form-control',
+                }
+            ),
+            'fechaInicio': forms.DateInput(
+                attrs={
+                    'class':'form-control',
+                    'type': 'date',
+                },
+                format='%Y-%m-%d'
+            ),
+            'fechaTerminacion': forms.DateInput(
+                attrs={
+                    'class':'form-control',
+                    'type': 'date',
+                },
+                format='%Y-%m-%d'
+            ),
+        }
+
+    def clean_concepto(self):
+        return self.cleaned_data['concepto'].upper()
+    
+class TasasInteresCreditoForm(forms.ModelForm):
+    class Meta:
+        model = TasasInteresCredito
+        fields = ['concepto', 'porcentaje']
+        labels = {
+            'concepto':'Concepto',
+            'porcentaje':'Porcentaje',
+        }
+        widgets = {
+            'concepto': forms.TextInput(
+                attrs={
+                    'class':'form-control',
+                    'style':'text-transform: uppercase;',
+                }
+            ),
+            'porcentaje': forms.NumberInput(
+                attrs={
+                    'class':'form-control',
+                    'step':'0.0001',
+                    'min':'0',
+                    'placeholder':'0.0024',
+                }
+            ),
+        }
+    
+    def clean_concepto(self):
+        return self.cleaned_data['concepto'].upper()

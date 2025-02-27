@@ -89,7 +89,7 @@ class Convenio(models.Model):
     concepto = models.CharField('Convenio Asociado', max_length=30, null=False, blank=False)
     valor = models.IntegerField('Valor', null=False, blank=False)
     fechaTerminacion = models.DateField('Fecha Terminacion', null=True, blank=True)
-    estado = models.BooleanField('Estado')
+    estado = models.BooleanField('Estado', default=True)
 
     class Meta:
         verbose_name = 'Convenio Asociado'
