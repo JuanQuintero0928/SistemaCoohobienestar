@@ -1,0 +1,229 @@
+{% extends 'perfil/inicio.html' %}
+{% load static %}
+
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="row bg-light p-4 rounded-3 mb-4">
+
+            <div class="h2 text-center mb-4">
+                Información Personal ℹ️
+            </div>
+            <div class="col-12 col-md-6 col-lg-6">
+                <label for="nombre" class="form-label">Nombre</label>
+                <input type="text" class="form-control" name="nombre" value="{{ query.nombre }}" id="nombre">
+            </div>
+            <div class="col-12 col-md-6 col-lg-6">
+                <label for="nombre" class="form-label">Apellido</label>
+                <input type="text" class="form-control" name="apellido" value="{{query.apellido}}" id="apellido">
+            </div>
+            <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                <label for="id_tipoDocumento" class="form-label">Tipo Documento</label>
+                <select name="tipoDocumento" class="form-select" id="id_tipoDocumento">
+                    <option {% if query.tipoDocumento == 'CEDULA' %} selected {% endif %} value="CEDULA" select>CEDULA</option>
+                    <option {% if query.tipoDocumento == 'REGISTRO CIVIL' %} selected {% endif %} value="REGISTRO CIVIL">REGISTRO CIVIL</option>
+                    <option {% if query.tipoDocumento == 'TARJETA IDENTIDAD' %} selected {% endif %} value="TARJETA IDENTIDAD">TARJETA IDENTIDAD</option>
+                    <option {% if query.tipoDocumento == 'CEDULA EXTRANJERA' %} selected {% endif %} value="CEDULA EXTRANJERA">CEDULA EXTRANJERA</option>
+                    <option {% if query.tipoDocumento == 'PASAPORTE' %} selected {% endif %} value="PASAPORTE">PASAPORTE</option>
+                    <option {% if query.tipoDocumento == 'PPT' %} selected {% endif %} value="PPT">PPT</option>
+                </select>
+            </div>
+            <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                <label for="id_numDocumento" class="form-label">Número Documento *</label>
+                <input type="number" class="form-control" name="numDocumento" id="id_numDocumento" min="0" value="{{query.numDocumento}}" required>
+            </div>
+            <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                <label for="id_fechaExpedicion" class="form-label">Fecha Expedición *</label>
+                <input type="date" class="form-control" name="fechaExpedicion" id="id_fechaExpedicion" value="{{query.fechaExpedicion|date:'Y-m-d'}}" required>
+            </div>
+            <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                <label for="id_mpioDoc" class="form-label">Lugar Expedición *</label>
+                <select name="mpioDoc" class="form-select form-control" id="id_mpioDoc" required></select>
+            </div>
+        
+            {% comment %} Fila 3 {% endcomment %}
+    
+            <div class="col-12 col-xl-2 col-lg-4 col-md-6 mb-3">
+                <label for="id_nacionalidad" class="form-label">Nacionalidad *</label>
+                <input type="text" class="form-control input-form" name="nacionalidad" maxlength="30" value="{{query.nacionalidad}}" id="id_nacionalidad" required>
+            </div>
+            <div class="col-12 col-xl-2 col-lg-4 col-md-6 mb-3">
+                <label for="id_fechaNacimiento" class="form-label">Fecha Nacimiento *</label>
+                <input type="date" class="form-control" name="fechaNacimiento" id="id_fechaNacimiento" value="{{query.fechaNacimiento|date:'Y-m-d'}}" required>
+            </div>
+            <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                <label for="dtoNacimiento" class="form-label">Departamento Nacimiento *</label>
+                <select name="dtoNacimiento" class="form-select departamento-select" id="dtoNacimiento" data-target="#id_mpioNacimiento" required>
+                    {% for dpto in query_dpto %}
+                        <option value="{{dpto.id}}">{{dpto.nombre}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                <label for="id_mpioNacimiento" class="form-label">Municipio Nacimiento *</label>
+                <select id="id_mpioNacimiento" name="mpioNacimiento" class="form form-control" required>
+                    <option value="">Seleccione un municipio</option>
+                </select>
+            </div>
+
+            {% comment %} Fila 4 {% endcomment %}
+
+            <div class="col-12 col-xl-2 col-lg-4 col-md-6 mb-3">
+                <label for="id_genero" class="form-label">Género</label>
+                <select name="genero" class="form-select" id="id_genero">
+                    <option {% if query.genero == 'FEMENINO' %} selected {% endif %}  value="FEMENINO" select>FEMENINO</option>
+                    <option value="MASCULINO">MASCULINO</option>
+                </select>
+            </div>
+            <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                <label for="id_estadoCivil" class="form-label">Estado Civil</label>
+                <select name="estadoCivil" class="form-select" id="id_estadoCivil">
+                    <option value="SOLTERO(A)" select>SOLTERO(A)</option>
+                    <option value="CASADO(A)">CASADO(A)</option>
+                    <option value="UNION LIBRE">UNION LIBRE</option>
+                    <option value="SEPARADO(A)">SEPARADO(A)</option>
+                    <option value="DIVORCIADO(A)">DIVORCIADO(A)</option>
+                    <option value="VIUDO(A)">VIUDO(A)</option>
+                </select>
+            </div>
+            <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                <label for="id_tipoVivienda" class="form-label">Tipo Vivienda</label>
+                <select name="tipoVivienda" class="form-select" id="id_tipoVivienda">
+                    <option value="PROPIA" select>PROPIA</option>
+                    <option value="FAMILIAR">FAMILIAR</option>
+                    <option value="ARRENDADA">ARRENDADA</option>
+                </select>
+            </div>
+            <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                <label for="id_estrato" class="form-label">Estrato *</label>
+                <input type="number" class="form-control" name="estrato" id="id_estrato" min="0" required>
+            </div>
+
+            <hr>
+            
+            {% comment %} Fila 5 {% endcomment %}
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                        <label for="id_direccion" class="form-label">Dirección *</label>
+                        <input type="select" class="form-control input-form" name="direccion" maxlength="50" id="id_direccion" required>
+                    </div>
+                    <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                        <label for="id_barrio" class="form-label">Barrio o Condominio *</label>
+                        <input type="text" class="form-control input-form" name="barrio" maxlength="50" id="id_barrio" required>
+                    </div>
+                    <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                        <label for="id_deptoResidencia" class="form-label">Departamento *</label>
+                        <select name="deptoResidencia" class="form-select departamento-select" id="id_deptoResidencia"  data-target="#id_mpioResidencia" required>
+                            {% for dpto in query_dpto %}
+                                <option value="{{dpto.id}}">{{dpto.nombre}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% comment %}  {% endcomment %}
+                    <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                        <label for="id_mpioResidencia" class="form-label">Municipio Residencia *</label>
+                        <select id="id_mpioResidencia" name="mpioResidencia" class="form form-control" required>
+                            <option value="">Seleccione un municipio</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                        <label for="id_email" class="form-label">Correo Electronico *</label>
+                        <input type="email" class="form-control input-email" name="email" id="id_email" autocomplete="off" lowercase required>
+                    </div>
+                    <div class="col-12 col-xl-2 col-lg-4 col-md-6 mb-3">
+                        <label for="id_numResidencia" class="form-label">Telefono Residencia</label>
+                        <input type="number" class="form-control" name="numResidencia" id="id_numResidencia" min="0">
+                    </div>
+                    <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                        <label for="id_indicativo" class="form-label">Indicativo *</label>
+                        <select class="form-control" name="indicativo" id="id_indicativo" required>
+                            <!-- Aquí se llenarán los países con banderas -->
+                        </select>
+                    </div>
+                    <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                        <label for="id_numCelular" class="form-label">Telefono Celular *</label>
+                        <input type="number" class="form-control" name="numCelular" id="id_numCelular" min="0" required>
+                    </div>
+                </div>
+            </div>
+            
+            {% comment %} Fila 6 {% endcomment %}
+           
+            
+            <hr>
+            {% comment %} Fila 7 {% endcomment %}
+            <div class="col-12">
+                <p class="form-label">De acuerdo con la Ley 1581 de octubre de 2012, autorizo el tratamiento de mis datos así como el envío de información por medios electrónicos</p>
+            </div>
+
+            {% comment %} Fila 8 {% endcomment %}
+            <div class="col-12 col-lg-3 col-md-12 mb-3 form-check">
+                <label for="id_envioInfoCorreo" class="form-check-label">Correo Electronico</label>
+                <input type="checkbox" class="form-check-input" name="envioInfoCorreo" id="id_envioInfoCorreo">
+            </div>
+            <div class="col-12 col-lg-3 col-md-12 mb-3 form-check">
+                <label for="id_envioInfoMensaje" class="form-check-label">Mensaje de Texto</label>
+                <input type="checkbox" class="form-check-input" name="envioInfoMensaje" id="id_envioInfoMensaje">
+            </div>
+            <div class="col-12 col-lg-3 col-md-12 mb-3 form-check">
+                <label for="id_envioInfoWhatsapp" class="form-check-label">WhatsApp</label>
+                <input type="checkbox" class="form-check-input" name="envioInfoWhatsapp" id="id_envioInfoWhatsapp">
+            </div>
+
+            <hr>
+
+            {% comment %} Fila 9 {% endcomment %}
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                        <label for="id_nivelEducativo" class="form-label">Nivel Educativo</label>
+                        <select name="nivelEducativo" class="form-select" id="id_nivelEducativo">
+                            <option value="PRIMARIA">PRIMARIA</option>
+                            <option value="SECUNDARIA" selected>SECUNDARIA</option>
+                            <option value="TECNICO">TECNICO</option>
+                            <option value="TECNOLOGICO">TECNOLOGICO</option>
+                            <option value="PREGRADO">PREGRADO</option>
+                            <option value="ESPECIALIZACION">ESPECIALIZACION</option>
+                            <option value="MAESTRIA">MAESTRIA</option>
+                            <option value="DOCTORADO">DOCTORADO</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                        <label for="id_tituloPregrado" class="form-label">Titulo Obtenido de Pregrado</label>
+                        <input type="text" class="form-control input-form" name="tituloPregrado" maxlength="100" id="id_tituloPregrado">
+                    </div>
+                    <div class="col-12 col-xl-4 col-lg-12 col-md-12 mb-3">
+                        <label for="id_tituloPosgrado" class="form-label">Titulo Obtenido de Posgrado</label>
+                        <input type="text" class="form-control input-form" name="tituloPosgrado" maxlength="100" id="id_tituloPosgrado">
+                    </div>
+                </div>
+            </div>
+                
+            <hr>
+
+            <center><h3>REFERENCIA FAMILIAR</h3></center>
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 col-xl-4 col-lg-12 col-md-12 mb-3">
+                        <label for="id_nombreRF" class="form-label">Nombre Familiar de Contacto *</label>
+                        <input type="text" class="form-control input-form" name="nombreRF" maxlength="50" id="id_nombreRF" required>
+                    </div>
+                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                        <label for="id_parentesco" class="form-label">Parentesco *</label>
+                        <select name="parentesco" class="form-select" id="id_parentesco">
+                            {% for parent in query_parentesco %}
+                                <option value="{{parent.nombre}}">{{parent.nombre}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                        <label for="id_numContacto" class="form-label">Teléfono de Familiar *</label>
+                        <input type="number" class="form-control" name="numContacto" min="0" id="id_numContacto" required>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+{% endblock content %}

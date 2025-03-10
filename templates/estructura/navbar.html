@@ -31,7 +31,7 @@
                 <li><a class="dropdown-item" href="#!">Activity Log</a></li>
                 <li><hr class="dropdown-divider" /></li> {% endcomment %}
                 <li>
-                    <form action="{% url 'logout' %}" method="post">
+                    <form action="{% url 'logout_admin' %}" method="post">
                         {%csrf_token%}
                         <button type="submit" class="dropdown-item">Cerrar Sesión</a>
                     </form>

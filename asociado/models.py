@@ -1,4 +1,3 @@
-from turtle import mode
 from django.db import models
 from departamento.models import Departamento, Municipio, PaisRepatriacion, Pais
 from parametro.models import FormaPago, TipoAsociado, ServicioFuneraria, MesTarifa, Convenio

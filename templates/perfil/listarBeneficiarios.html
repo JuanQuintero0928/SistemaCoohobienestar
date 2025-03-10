@@ -1,0 +1,84 @@
+{% extends 'perfil/inicio.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="row bg-light p-4 rounded-3 mb-4">
+            <div class="h2 text-center mb-4">
+                Beneficiarios 🌟
+            </div>
+            <div class="col-12">
+                <table class="table table-striped table-hover table-bordered align-middle">
+                    <thead class="table-dark text-center">
+                        <tr>
+                            <th scope="col">N°</th>
+                            <th scope="col">Nombre Completo</th>
+                            <th scope="col">Número Documento</th>
+                            <th scope="col">Fecha Nacimiento</th>
+                            <th scope="col">Parentesco</th>
+                            {% if repatriacion %}
+                                <th scope="col">Repatriación</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for beneficiario in query %}
+                            <tr>
+                                <td class="text-center fw-bold">{{ forloop.counter }}</td>
+                                <td>{{ beneficiario.nombre }} {{ beneficiario.apellido }}</td>
+                                <td>{{ beneficiario.numDocumento|intcomma }}</td>
+                                <td>{{ beneficiario.fechaNacimiento|date:"d/m/Y" }}</td>
+                                <td>{{ beneficiario.parentesco }}</td>
+                                {% if repatriacion %}
+                                    <td>
+                                        {% if beneficiario.repatriacion %}
+                                            {{ beneficiario.paisRepatriacion }}
+                                        {% endif %}
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <th colspan="4" class="text-center text-muted py-3">No existen datos en la consulta.</th> 
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if queryMascota %}
+                <div class="h2 text-center mb-4">
+                    Mascotas 🐈 🐕
+                </div>
+                <div class="col-12">
+                    <table class="table table-striped table-hover table-bordered align-middle">
+                        <thead class="table-dark text-center">
+                            <tr>
+                                <th scope="col">N°</th>
+                                <th scope="col">Mascota</th>
+                                <th scope="col">Tipo</th>
+                                <th scope="col">Raza</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for mascota in queryMascota %}
+                                <tr>
+                                    <td class="text-center fw-bold">{{ forloop.counter }}</td>
+                                    <td>{{ mascota.nombre }}</td>
+                                    <td>{{ mascota.tipo }}</td>
+                                    <td>{{ mascota.raza }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <th colspan="4" class="text-center text-muted py-3">No existen datos en la consulta.</th> 
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+{% endblock content %}

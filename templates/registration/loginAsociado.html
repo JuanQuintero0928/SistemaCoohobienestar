@@ -1,0 +1,77 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Coohobienestar</title>
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  
+  <link rel="icon" href="{% static 'img/icons/logo.png' %}" type="image/png" />
+  <link rel="stylesheet" href="{% static 'lib/startbootstrap-sb-admin-gh-pages/css/adminlte.min.css' %}">
+</head>
+<body class="hold-transition login-page">
+<div class="login-box">
+  {% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-danger text-center">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+  <!-- /.login-logo -->
+  <div class="card card-outline card-primary">
+    <div class="card-header text-center d-flex align-items-center justify-content-center">
+        <!-- Logo -->
+        <img src="{% static 'img/icons/logo.png' %}" alt="Logo" style="height: 50px; margin-right: 10px;">
+        <!-- Texto -->
+        <p class="h1 mb-0"><b>Coohobienestar</b></p>
+    </div>
+
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        {% comment %} {{ form.as_p }} {% endcomment %}
+        
+        <div class="input-group mb-3">
+          <input type="email" class="form-control" name="username" placeholder="Email"> 
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <i class="fa-solid fa-user"></i>
+            </div>
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <input type="password" class="form-control" name="password" placeholder="Password">
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-lock"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- /.col -->
+        <button type="submit" class="btn btn-primary btn-block mb-3">Acceder</button>
+        <a href="#" class="d-flex justify-content-center" onclick="alerta('Esta funcionalidad no esta disponible en este momento.')">¿Has olvidado tu contraseña? </a>
+        <hr>
+        <div class="d-flex justify-content-center">
+          <a type="button" href="{% url 'usuarios:crearCuenta' %}" class="btn btn-success">Crear una cuenta</a>
+        </div>
+        <!-- /.col -->
+      </form>
+    </div>
+      
+    <!-- /.card-body -->
+  </div>
+  <!-- /.card -->
+</div>
+<!-- /.login-box -->
+
+</body>
+</html>
+
+<script>
+    function alerta(mensaje) {
+        alert(mensaje);
+    }
+</script>

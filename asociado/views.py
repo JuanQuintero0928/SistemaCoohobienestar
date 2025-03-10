@@ -3,11 +3,12 @@ from django.views.generic import ListView, CreateView, UpdateView
 from django.http import HttpResponseRedirect, JsonResponse
 from django.core.paginator import Paginator
 from django.contrib import messages
-from django.contrib.auth.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.db import transaction
 from django.db.models import Sum, Prefetch, Subquery, Max, Q
 from datetime import date, timedelta
+from funciones.function import StaffRequiredMixin
 
 from .models import Asociado, ConveniosAsociado, Laboral, Financiera, ParametroAsociado, TarifaAsociado, RepatriacionTitular
 from beneficiario.models import Beneficiario, Mascota, Coohoperativitos, Parentesco
@@ -24,7 +25,7 @@ from historico.form import HistoricoSeguroVidaForm, HistoricoAuxilioForm, Histor
 
 # Create your views here.
 
-class Asociados(ListView):
+class Asociados(LoginRequiredMixin, StaffRequiredMixin, ListView):
     template_name = 'base/asociado/listarAsociado.html'
 
     def get(self, request, *args, **kwargs):
@@ -246,7 +247,7 @@ class CrearAsociado(CreateView):
                         creditoHomeElements = 0,
                         diferencia = 0,
                         formaPago = vinculacionForma,
-                        userCreacion = User.objects.get(pk = request.user.pk),
+                        userCreacion = request.user,
                         estadoRegistro = True
                     )
                 

@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import ListView, DeleteView, TemplateView
-from django.contrib.auth.models import User
+from usuarios.models import UsuarioAsociado
 from django.contrib import messages
 from django.db.models import Sum, F, Q, Subquery, Case, When, Value, IntegerField
 from django.db import transaction
@@ -194,6 +194,8 @@ class ModalPago(ListView):
      
          # saber el tamaño de los botones marcados
         cantidadSwitches = len(switches_activos)
+
+        usuario = request.user
     
         # Se recorre los switch activos, con el pk del mes activo
         for contador, pk in enumerate(switches_activos, start=1):
@@ -221,7 +223,7 @@ class ModalPago(ListView):
                         'diferencia': valorDiferencia if cantidadSwitches == contador else 0,
                         'valorPago':  valorDiferencia if cantidadSwitches == contador else 0,
                         'estadoRegistro': True,
-                        'userCreacion': User.objects.get(pk = request.user.pk),
+                        'userCreacion': usuario,
                     }
                     datos_pagos.append(pago)
 
@@ -250,7 +252,7 @@ class ModalPago(ListView):
                             'diferencia': valorDiferencia if cantidadSwitches == contador else 0,
                             'valorPago':  valorPago,
                             'estadoRegistro': True,
-                            'userCreacion': User.objects.get(pk = request.user.pk),
+                            'userCreacion': usuario,
                         }
                     datos_pagos.append(pago)
 
@@ -277,7 +279,7 @@ class ModalPago(ListView):
                             'diferencia': valorDiferencia if cantidadSwitches == contador else 0,
                             'valorPago':  valorPago,
                             'estadoRegistro': True,
-                            'userCreacion': User.objects.get(pk = request.user.pk),
+                            'userCreacion': usuario,
                         }
                     datos_pagos.append(pago)
 
@@ -306,7 +308,7 @@ class ModalPago(ListView):
                         'diferencia': valorDiferencia if cantidadSwitches == contador else 0,
                         'valorPago':  valorPago,
                         'estadoRegistro': True,
-                        'userCreacion': User.objects.get(pk = request.user.pk),
+                        'userCreacion': usuario,
                     }
                 datos_pagos.append(pago)
 
@@ -344,7 +346,7 @@ class ModalPago(ListView):
                         'diferencia': valorCuota - queryCreditoProd.valorCuotas + valorDiferencia if cantidadSwitches == contador else 0,
                         'valorPago':  queryCreditoProd.valorCuotas if contador < cantidadSwitches else valorCuota + valorDiferencia,
                         'estadoRegistro': True,
-                        'userCreacion': User.objects.get(pk = request.user.pk),
+                        'userCreacion': usuario,
                     }
                     datos_pagos.append(pago)
                     if contador < cantidadSwitches:
@@ -379,7 +381,7 @@ class ModalPago(ListView):
                         'diferencia': valorCuota - queryCredito.valorCuota + valorDiferencia if cantidadSwitches == contador else 0,
                         'valorPago':  valorPago,
                         'estadoRegistro': True,
-                        'userCreacion': User.objects.get(pk = request.user.pk),
+                        'userCreacion': usuario,
                     }
                     datos_pagos.append(pago)
                     queryCredito.pendientePago = queryCredito.pendientePago - valorPago
@@ -434,7 +436,7 @@ class EditarPago(ListView):
             objHistorico.coohopBsocial = request.POST['coohopBsocial']
         if objHistorico.convenioPago != 0:
             objHistorico.convenioPago = request.POST['convenioPago']
-        objHistorico.userModificacion = User.objects.get(pk = request.user.pk)
+        objHistorico.userModificacion = UsuarioAsociado.objects.get(pk = request.user.pk)
         objHistorico.save()
         messages.info(request, 'Pago Modificado Correctamente')
 

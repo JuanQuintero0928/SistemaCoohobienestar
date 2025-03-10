@@ -1,0 +1,133 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Coohobienestar</title>
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  
+  <link rel="icon" href="{% static 'img/icons/logo.png' %}" type="image/png" />
+  <link rel="stylesheet" href="{% static 'lib/startbootstrap-sb-admin-gh-pages/css/adminlte.min.css' %}">
+</head>
+<body class="hold-transition login-page">
+
+<script>
+    async function verificacionCuenta(event) {
+        event.preventDefault();
+    
+        const form = event.target;
+        const formData = new FormData(form);
+
+        // Deshabilitar el botón y mostrar el spinner
+        const submitBtn = document.getElementById("submitBtn");
+        const spinner = document.getElementById("spinner");
+
+        submitBtn.disabled = true;
+        spinner.classList.remove("d-none");
+    
+        const response = await fetch("/api/verificar-codigo/", { 
+            method: "POST",
+            body: JSON.stringify(Object.fromEntries(formData)),
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": formData.get("csrfmiddlewaretoken"),
+            },
+        });
+    
+        const data = await response.json();
+        const errorDiv = document.getElementById("error-messages");
+    
+        if (response.ok) {
+            errorDiv.innerHTML = "";  // Limpia mensajes anteriores
+            errorDiv.classList.remove("alert", "alert-danger");  // Oculta el error
+            const form = document.getElementById("contenedor");
+            form.classList.add("d-none");
+            Swal.fire({
+                title: '¡Éxito!',
+                text: 'La cuenta se activo correctamente.',
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 2000 // Se cierra automáticamente en 2 segundos
+            }).then(() => {
+                window.location.href = "/login/";  // Redirigir al login
+            });
+        } else {
+            // Habilitar el botón y ocultar el spinner
+            submitBtn.disabled = false;
+            spinner.classList.add("d-none");
+
+            errorDiv.innerHTML = "";  // Limpiar mensajes previos
+            errorDiv.classList.add("alert", "alert-danger");  // Agregar clases de error
+    
+            // Mostrar todos los errores de forma más legible
+            if (data.non_field_errors) {
+                data.non_field_errors.forEach(error => {
+                    errorDiv.innerHTML += `<p>${error}</p>`;
+                });
+            } else {
+                for (const key in data) {
+                    errorDiv.innerHTML += `<p><strong>${key}:</strong> ${data[key]}</p>`;
+                }
+            }
+        }
+    }
+    
+</script>
+
+<div class="login-box">
+
+    <div id="error-messages" class="mb-3"></div>
+    
+
+    <div class="card card-outline card-primary" id="contenedor">
+        <div class="card-header text-center d-flex align-items-center justify-content-center">
+            <img src="{% static 'img/icons/logo.png' %}" alt="Logo" style="height: 50px; margin-right: 10px;">
+            <p class="h1 mb-0"><b>Coohobienestar</b></p>
+        </div>
+
+        <div class="card-body">
+            <div class="text-center mb-4">
+                <p>Para verificar tu cuenta, ingresa el código de verificación que te hemos enviado por correo.</p>
+            </div>
+            <form onsubmit="verificacionCuenta(event)">
+                {% csrf_token %}
+                
+                <input type="hidden" id="email" name="email" value="">
+                <script>
+                    // Obtener el email de la URL
+                    const params = new URLSearchParams(window.location.search);
+                    document.getElementById("email").value = params.get("email");
+                </script>
+
+                <div class="input-group mb-3">
+                <input type="text" class="form-control" name="codigo" id="codigo" placeholder="Código de verificación" maxlength="6">
+                <div class="input-group-append">
+                    <div class="input-group-text">
+                    <span class="fas fa-lock"></span>
+                    </div>
+                </div>
+                </div>
+                
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-danger text-center">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            
+                <button class="btn btn-primary btn-block" type="submit" id="submitBtn">
+                    <span id="spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    Registrar
+                </button>
+            </form>
+        </div>   
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+</body>
+</html>
+

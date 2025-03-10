@@ -14,6 +14,11 @@
 </head>
 <body class="hold-transition login-page">
 <div class="login-box">
+  {% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-danger text-center">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
   <!-- /.login-logo -->
   <div class="card card-outline card-primary">
     <div class="card-header text-center d-flex align-items-center justify-content-center">
@@ -45,13 +50,12 @@
           </div>
         </div>
 
-          <!-- /.col -->
-          <div class="col-4">
-            <button type="submit" class="btn btn-primary btn-block">Acceder</button>
-          </div>
-          <!-- /.col -->
-        </div>
+        <!-- /.col -->
+        <button type="submit" class="btn btn-primary btn-block">Acceder</button>
+        
+        <!-- /.col -->
       </form>
+    </div>
       
     <!-- /.card-body -->
   </div>

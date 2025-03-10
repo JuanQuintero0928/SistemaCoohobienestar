@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
 
 from asociado.models import Asociado
 import historico
@@ -63,7 +63,7 @@ class HistoricoVenta(models.Model):
     descuento = models.ForeignKey(PorcentajeDescuento, on_delete=models.CASCADE, blank=True, null=True)
     valorDescuento = models.IntegerField(blank=True, null=True)
     valorNeto = models.IntegerField(blank=False, null=False)
-    userCreacion = models.ForeignKey(User, on_delete=models.CASCADE, blank=False, null=False)
+    userCreacion = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=False, null=False)
     estadoRegistro = models.BooleanField(default=True)
     fechaCreacion = models.DateTimeField(auto_now_add=True)
     fechaModificacion = models.DateTimeField(auto_now=True)

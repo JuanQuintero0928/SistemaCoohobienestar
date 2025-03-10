@@ -1,6 +1,17 @@
 import datetime, csv
 from zoneinfo import ZoneInfo
 from historico.models import HistorialPagos
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.shortcuts import redirect
+from django.contrib import messages
+
+class StaffRequiredMixin(UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.is_staff or self.request.user.is_superuser
+
+    def handle_no_permission(self):
+        messages.error(self.request, "No tiene permisos para acceder a esta sección.")
+        return redirect('perfil:inicio')
 
 def separarFecha(fecha, parametro):
     from datetime import datetime 
