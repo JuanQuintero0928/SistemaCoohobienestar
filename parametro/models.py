@@ -50,6 +50,7 @@ class MesTarifa(models.Model):
 class FormaPago(models.Model):
     id = models.AutoField(primary_key=True)
     formaPago = models.CharField('Forma Pago', max_length=30, null=False, blank=False)
+    estadoRegistro = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = 'Forma de Pago'
