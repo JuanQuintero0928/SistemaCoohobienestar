@@ -1,0 +1,63 @@
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background: url('/static/img/perfilAsociado/wallpaper.jpg') no-repeat center center fixed;
+    background-size: cover;
+    background-attachment: fixed; /* Hace que el fondo se mueva lento (parallax) */
+}
+
+.card:hover {
+    transform: scale(1.05);
+    transition: 0.3s;
+}
+
+.navbar-gradient {
+    background: linear-gradient(to right, #E6AB10, #E9510F);
+}
+
+.logo-navbar {
+    height: 40px; /* Ajusta según necesites */
+}
+
+/* Oculta el menú en pantallas pequeñas y solo muestra logo + mensaje */
+@media (max-width: 768px) {
+    .navbar-collapse {
+        display: none;
+    }
+}
+
+.content {
+    flex: 1;
+}
+.footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.8); /* Semi-transparente */
+    padding: 10px 0;
+    text-align: center;
+}
+
+.footer-item::after {
+    display: none !important;
+}
+
+.footer-menu {
+    display: flex;
+    justify-content: space-around;
+}
+
+.footer-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.footer-item i {
+    font-size: 20px;
+}
+
