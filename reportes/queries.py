@@ -4,6 +4,7 @@ from django.db.models import OuterRef, Subquery, Count, IntegerField, Value, Cas
 from beneficiario.models import Asociado, Mascota, Beneficiario
 from asociado.models import RepatriacionTitular, ParametroAsociado
 from historico.models import HistorialPagos, HistoricoCredito
+from ventas.models import HistoricoVenta
 
 def obtenerNovedades(fecha_inicial, fecha_final):
     asociadoRetiro = Asociado.objects.filter(
@@ -42,8 +43,8 @@ def obtenerDescuentoNomina(empresa_pk):
                             mesPago=9995,
                             estadoRegistro=True
                         ).values('asociado').annotate(
-                            total_pagos=Count('id')
-                        ).values('total_pagos')
+                            total_pagos=Count('id')     # Cuenta cuántos pagos de vinculación ha hecho el asociado
+                        ).values('total_pagos')         # Devuelve solo el número de pagos realizados
 
     credito_pendiente = HistoricoCredito.objects.filter(
                                 asociado=OuterRef('asociado'),
@@ -53,6 +54,15 @@ def obtenerDescuentoNomina(empresa_pk):
                             ).values('asociado').annotate(
                                 total_cuotas=Sum('valorCuota')
                             ).values('total_cuotas')
+    
+    credito_home_elements = HistoricoVenta.objects.filter(
+                                asociado=OuterRef('asociado'),
+                                formaPago='DESCUENTO NOMINA',
+                                estadoRegistro=True,
+                                pendientePago__gt=0,
+                            ).values('asociado').annotate(
+                                total_cuota_home_element=Sum('valorCuotas')
+                            ).values('total_cuota_home_element')
 
     query = ParametroAsociado.objects.filter(
                             asociado__tAsociado=empresa_pk,
@@ -60,9 +70,14 @@ def obtenerDescuentoNomina(empresa_pk):
                         ).annotate(
                             pagos_realizados=Coalesce(Subquery(pagos_vinculacion, output_field=IntegerField()), Value(0)),
                             cuota_vinculacion=Case(
+                                When(
+                                    # Si ya pagó todo, no se debe sumar nada
+                                    Q(vinculacionPendientePago=0),
+                                    then=Value(0)
+                                ),
                                 # Si está en la última cuota, usar vinculaciónPendientePago
                                 When(
-                                    Q(pagos_realizados=F('vinculacionCuotas') - 1) & Q(vinculacionFormaPago__pk=2) & Q(vinculacionPendientePago__gt=0),
+                                    Q(pagos_realizados=F('vinculacionCuotas') - 1) & Q(vinculacionFormaPago__pk=2) & Q(vinculacionPendientePago__gt=0), # se obtiene la cantidad de pagos de vinculacion, sino hay pagos el coalse devuelve 0
                                     then=F('vinculacionPendientePago')
                                 ),
                                 # Si no es la última cuota, usar vinculaciónValor
@@ -70,7 +85,8 @@ def obtenerDescuentoNomina(empresa_pk):
                                 output_field=IntegerField()
                             ),
                             cuota_credito=Coalesce(Subquery(credito_pendiente, output_field=IntegerField()), Value(0)),
-                            total_final=F('tarifaAsociado__total') + Coalesce(F('cuota_vinculacion'), Value(0)) + F('cuota_credito')
+                            cuota_credito_home_elements=Coalesce(Subquery(credito_home_elements, output_field=IntegerField()), Value(0)),
+                            total_final=F('tarifaAsociado__total') + Coalesce(F('cuota_vinculacion'), Value(0)) + F('cuota_credito') + F('cuota_credito_home_elements')
                         )
 
     # Obtener la suma total de 'total_final'

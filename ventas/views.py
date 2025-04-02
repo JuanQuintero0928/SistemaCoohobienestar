@@ -3,13 +3,12 @@ from django.views.generic import ListView, CreateView, UpdateView
 from django.urls import reverse_lazy, reverse
 from django.contrib import messages
 from django.http import HttpResponseRedirect
-from django.forms import inlineformset_factory
-
-from historico.models import HistorialPagos
 
 from .models import Producto, HistoricoVenta, DetalleVenta, PorcentajeDescuento
 from .form import ProductoForm, HistoricoVentaForm, DetalleVentaForm
 from asociado.models import Asociado
+from historico.models import HistorialPagos
+from parametro.models import FormaPago, TasasInteresCredito, MesTarifa
 
 # Create your views here.
 
@@ -89,7 +88,7 @@ class ListarVentasAsociado(ListView):
     context_object_name = 'ventas'
 
     def get_queryset(self):
-        return HistoricoVenta.objects.filter(asociado = self.kwargs['pkAsociado'],estadoRegistro=True)
+        return HistoricoVenta.objects.filter(asociado = self.kwargs['pkAsociado'],estadoRegistro=True).order_by('fechaVenta')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -111,7 +110,8 @@ class CrearVentaAsociado(CreateView):
             'asociado': Asociado.objects.get(pk = self.kwargs['pkAsociado']),
             'pkAsociado': self.kwargs['pkAsociado'],
             'queryProducto': Producto.objects.all(),
-            'descuento': PorcentajeDescuento.objects.filter(estado = True)
+            'descuento': PorcentajeDescuento.objects.filter(estado = True),
+            'metodoPago': FormaPago.objects.all().exclude(id = 2)
         })
         return context
 
@@ -120,19 +120,42 @@ class CrearVentaAsociado(CreateView):
         objHistoricoVenta.asociado = Asociado.objects.get(pk = self.kwargs['pkAsociado'])
         objHistoricoVenta.fechaVenta = request.POST['fechaVenta']
         objHistoricoVenta.formaPago = request.POST['formaPago']
-        if objHistoricoVenta.formaPago == 'CREDITO':
+        if objHistoricoVenta.formaPago == 'CREDITO' or objHistoricoVenta.formaPago == 'DESCUENTO NOMINA':
             objHistoricoVenta.cuotas = request.POST['cuotas']
             objHistoricoVenta.valorCuotas = int(request.POST['valorCuotas'].replace('.', ''))
             objHistoricoVenta.pendientePago = int(request.POST['valorNeto'].replace('.', ''))
+            objHistoricoVenta.tasaInteres = TasasInteresCredito.objects.get(porcentaje = request.POST['tasaInteres'])
             objHistoricoVenta.cuotasPagas = 0
         else:
-            objHistoricoVenta.descuento = PorcentajeDescuento.objects.get(pk = request.POST['descuento'])
-            objHistoricoVenta.valorDescuento = int(request.POST['valorDescuento'].replace('.', ''))
+            objHistoricoVenta.descuento = PorcentajeDescuento.objects.get(pk = 1)
+            objHistoricoVenta.valorDescuento = 0
+            # Se crea el HistoricoPago
+            objHistoricoPago = HistorialPagos()
+            objHistoricoPago.asociado = objHistoricoVenta.asociado
+            objHistoricoPago.mesPago = MesTarifa.objects.get(pk = 9993)
+            objHistoricoPago.fechaPago = objHistoricoVenta.fechaVenta
+            objHistoricoPago.formaPago = FormaPago.objects.get(pk = 1)
+            objHistoricoPago.aportePago = 0
+            objHistoricoPago.bSocialPago = 0
+            objHistoricoPago.mascotaPago = 0
+            objHistoricoPago.repatriacionPago = 0
+            objHistoricoPago.seguroVidaPago = 0
+            objHistoricoPago.adicionalesPago = 0
+            objHistoricoPago.coohopAporte = 0
+            objHistoricoPago.coohopBsocial = 0
+            objHistoricoPago.convenioPago = 0
+            objHistoricoPago.creditoHomeElements = 0
+            objHistoricoPago.diferencia = 0
+            objHistoricoPago.valorPago = 111
+            objHistoricoPago.estadoRegistro = True
+            objHistoricoPago.userCreacion = request.user
+            objHistoricoPago.save()
+
         objHistoricoVenta.valorBruto = int(request.POST['valorBruto'].replace('.', ''))
         objHistoricoVenta.valorNeto = int(request.POST['valorNeto'].replace('.', ''))
         objHistoricoVenta.userCreacion = request.user
         objHistoricoVenta.estadoRegistro = True
-        objDetalleVenta = DetalleVenta()
+    
         objHistoricoVenta.save()
         # objDetalleVenta.historicoVenta = objHistoricoVenta.pk
 
@@ -155,7 +178,7 @@ class CrearVentaAsociado(CreateView):
                     "precio": precio,
                     "cantidad": cantidad,
                     "totalBruto": total_bruto,
-                    "totalNeto": precio * cantidad if objHistoricoVenta.formaPago == "CREDITO" else (precio * cantidad * (1 - objHistoricoVenta.descuento.porcentaje)),
+                    "totalNeto": precio * cantidad if objHistoricoVenta.formaPago == "CREDITO" or objHistoricoVenta.formaPago == "DESCUENTO NOMINA" else (precio * cantidad * (1 - objHistoricoVenta.descuento.porcentaje)),
                 })
 
         # Crear cada registro en un bucle
@@ -179,7 +202,7 @@ class ListarDetalleVenta(ListView):
             'pkAsociado': self.kwargs['pkAsociado'],
             'vista': 11,
             'asociado': Asociado.objects.get(id = self.kwargs['pkAsociado']),
-            'historicoVenta': HistoricoVenta.objects.get(id = self.kwargs['pk'])
+            'historicoVenta': HistoricoVenta.objects.get(id = self.kwargs['pk']),
         })
         return context
     

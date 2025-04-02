@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 
 from asociado.models import Asociado
-import historico
+from parametro.models import TasasInteresCredito
 
 # Create your models here.
 
@@ -48,8 +48,9 @@ class Producto(models.Model):
 class HistoricoVenta(models.Model):
 
     class FormaPago(models.TextChoices):
-        credito = 'CREDITO', 'CREDITO'
         contado = 'CONTADO', 'CONTADO'
+        credito = 'CREDITO', 'CREDITO'
+        descuentoNomina = 'DESCUENTO NOMINA', 'DESCUENTO NOMINA'
 
     id = models.AutoField(primary_key=True)
     asociado = models.ForeignKey(Asociado, on_delete=models.CASCADE, blank=False, null=False)
@@ -61,6 +62,7 @@ class HistoricoVenta(models.Model):
     cuotasPagas = models.IntegerField(blank=True, null=True)
     pendientePago = models.IntegerField(blank=True, null=True)
     descuento = models.ForeignKey(PorcentajeDescuento, on_delete=models.CASCADE, blank=True, null=True)
+    tasaInteres = models.ForeignKey(TasasInteresCredito, on_delete=models.CASCADE, blank=True, null=True)
     valorDescuento = models.IntegerField(blank=True, null=True)
     valorNeto = models.IntegerField(blank=False, null=False)
     userCreacion = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=False, null=False)

@@ -50,6 +50,7 @@
         <th>Fecha Venta</th>
         <th>Forma de Pago</th>
         <th>Cuotas</th>
+        <th>Cuotas Pagadas</th>
         <th>Valor Cuota</th>
         <th>Pendiente Pago</th>
         <th>Valor Neto</th>
@@ -64,21 +65,26 @@
             <td>{{ obj.fechaVenta|date:"d/m/Y" }}</td>
             <td>{{ obj.formaPago }}</td>
             <td>
-                {% if obj.formaPago == 'CREDITO' %}
+                {% if obj.formaPago == 'CREDITO' or obj.formaPago == 'DESCUENTO NOMINA' %}
                     {{ obj.cuotas }}
                 {% endif %}
             </td>
             <td>
-                {% if obj.formaPago == 'CREDITO' %}
+                {% if obj.formaPago == 'CREDITO' or obj.formaPago == 'DESCUENTO NOMINA' %}
+                    {{ obj.cuotasPagas }}
+                {% endif %}
+            </td>
+            <td class="fw-bold text-success">
+                {% if obj.formaPago == 'CREDITO' or obj.formaPago == 'DESCUENTO NOMINA' %}
                     ${{ obj.valorCuotas|intcomma }}
                 {% endif %}
             </td>
-            <td>
-                {% if obj.formaPago == 'CREDITO' %}
+            <td class="fw-bold text-primary">
+                {% if obj.formaPago == 'CREDITO' or obj.formaPago == 'DESCUENTO NOMINA' %}
                     ${{ obj.pendientePago|intcomma }}
                 {% endif %}
             </td>
-            <td>${{ obj.valorNeto|intcomma }}</td>
+            <td class="fw-bold">${{ obj.valorNeto|intcomma }}</td>
             <td>
                 <center>
                 <div class="btn-group" role="group" aria-label="Basic example">

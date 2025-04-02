@@ -678,7 +678,7 @@ class ExcelDescuentosNomina(TemplateView):
         ws.title = 'Descuentos'
         titulo1 = f"Reporte descuentos nomina"
         ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
-        ws.merge_cells('A1:Q1')
+        ws.merge_cells('A1:R1')
         ws['A1'].font = bold_font
         ws['A1'].alignment = alignment_center
         ws['A1'].fill = fill
@@ -700,11 +700,13 @@ class ExcelDescuentosNomina(TemplateView):
         ws['O2'] = 'Convenios'
         ws['P2'] = 'Descuento Vinculación'
         ws['Q2'] = 'Descuento Crédito'
+        ws['R2'] = 'Descuento Crédito Home Elements'
+
      
         bold_font2 = Font(bold=True)
         center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
 
-        for col in range(1,18):
+        for col in range(1,19):
             cell = ws.cell(row=2, column=col)
             cell.font = bold_font2
             cell.alignment = center_alignment
@@ -726,6 +728,7 @@ class ExcelDescuentosNomina(TemplateView):
         ws.column_dimensions['O'].width = 14
         ws.column_dimensions['P'].width = 14
         ws.column_dimensions['Q'].width = 14
+        ws.column_dimensions['R'].width = 14
 
         #Inicia el primer registro en la celda numero 3
         cont = 3
@@ -749,6 +752,7 @@ class ExcelDescuentosNomina(TemplateView):
             ws.cell(row = cont, column = 15).value = obj.tarifaAsociado.cuotaConvenio
             ws.cell(row = cont, column = 16).value = obj.cuota_vinculacion if obj.cuota_vinculacion else 0
             ws.cell(row = cont, column = 17).value = obj.cuota_credito if obj.cuota_credito else 0
+            ws.cell(row = cont, column = 18).value = obj.cuota_credito_home_elements if obj.cuota_credito_home_elements else 0
             i+=1
             cont+=1
 

@@ -1,6 +1,7 @@
 from tkinter import Widget
 from django import forms
 from .models import Producto, HistoricoVenta, DetalleVenta
+from parametro.models import TasasInteresCredito
 
 class ProductoForm(forms.ModelForm):
     class Meta:
@@ -36,20 +37,30 @@ class ProductoForm(forms.ModelForm):
         }
 
 class HistoricoVentaForm(forms.ModelForm):
+
+    tasaInteres = forms.ModelChoiceField(
+        queryset=TasasInteresCredito.objects.all(),
+        label="Tasa de interés mensual (%)",
+        empty_label="Seleccione una tasa",
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_tasaInteres'}),
+        to_field_name="porcentaje"  # Se define que el value sea el porcentaje en vez del ID
+    )
     class Meta:
         model = HistoricoVenta
         fields = ['fechaVenta',
                   'formaPago',
                   'cuotas',
                   'descuento',
+                  'tasaInteres',
                   'valorBruto',
                   'valorNeto',
         ]
         widgets = {
             'fechaVenta': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'},format='%Y-%m-%d',),
             'formaPago': forms.Select(attrs={'class': 'form-control'}),
-            'cuotas': forms.NumberInput(attrs={'class': 'form-control', 'min':2, 'max':3}),
+            'cuotas': forms.NumberInput(attrs={'class': 'form-control', 'min':2, 'max':5}),
             'descuento': forms.Select(attrs={'class': 'form-control','disabled':'disabled'}),
+            'tasaInteres': forms.Select(attrs={'class': 'form-control'}),
             'valorBruto': forms.NumberInput(attrs={'class': 'form-control', 'readonly':'readonly'}),
             'valorNeto': forms.TextInput(attrs={'class': 'form-control', 'readonly':'readonly'}),
         }

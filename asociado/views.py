@@ -429,31 +429,31 @@ class EditarLaboral(CreateView):
         objFinanciera = Financiera.objects.get(asociado = kwargs['pkAsociado'])
         objFinanciera.asociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
         if request.POST['ingresosActPrin'] != "":
-            objFinanciera.ingresosActPrin = request.POST['ingresosActPrin']
+            objFinanciera.ingresosActPrin = int(request.POST['ingresosActPrin'].replace('.', ''))
         else:
             objFinanciera.ingresosActPrin = None
         if request.POST['otroIngreso1'] != "":
-            objFinanciera.otroIngreso1 = request.POST['otroIngreso1']
+            objFinanciera.otroIngreso1 = int(request.POST['otroIngreso1'].replace('.', ''))
         else:
             objFinanciera.otroIngreso1 = None
         if request.POST['otroIngreso2'] != "":
-            objFinanciera.otroIngreso2 = request.POST['otroIngreso2']
+            objFinanciera.otroIngreso2 = int(request.POST['otroIngreso2'].replace('.', ''))
         else:
             objFinanciera.otroIngreso2 = None
         if request.POST['egresos'] != "":
-            objFinanciera.egresos = request.POST['egresos']
+            objFinanciera.egresos = int(request.POST['egresos'].replace('.', ''))
         else:
             objFinanciera.egresos = None
         if request.POST['activos'] != "":
-            objFinanciera.activos = request.POST['activos']
+            objFinanciera.activos = int(request.POST['activos'].replace('.', ''))
         else:
             objFinanciera.activos = None
         if request.POST['pasivos'] != "":
-            objFinanciera.pasivos = request.POST['pasivos']
+            objFinanciera.pasivos = int(request.POST['pasivos'].replace('.', ''))
         else:
             objFinanciera.pasivos = None
         if request.POST['patrimonio'] != "":
-            objFinanciera.patrimonio = request.POST['patrimonio']
+            objFinanciera.patrimonio = int(request.POST['patrimonio'].replace('.', ''))
         else:
             objFinanciera.patrimonio = None
         objFinanciera.estadoRegistro = True
@@ -1007,7 +1007,7 @@ class VerTarifaAsociado(ListView):
         if queryValidacion:
             queryCreditoProd = HistoricoVenta.objects.filter(
                 asociado = kwargs['pkAsociado'],
-                formaPago = 'CREDITO',
+                formaPago__in = ['CREDITO', 'DESCUENTO NOMINA'],
                 estadoRegistro = True,
                 pendientePago__gt = 0
                 ).aggregate(total=Sum('valorCuotas'))

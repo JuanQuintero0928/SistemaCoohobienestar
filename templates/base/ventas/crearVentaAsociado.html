@@ -33,27 +33,31 @@
                     
                     {% comment %} Primera Fila {% endcomment %}
                     <div class="row">
-                        <div class="col-12 col-lg-3 col-md-6 mb-3">
+                        <div class="col-12 col-lg-6 col-md-6 mb-3">
                             {{ form.fechaVenta.label_tag }}
                             {{ form.fechaVenta }} 
                         </div>
-                        <div class="col-12 col-lg-3 col-md-6 mb-3">
+                        <div class="col-12 col-lg-6 col-md-6 mb-3">
                             {{ form.formaPago.label_tag }}
                             {{ form.formaPago }}
                         </div>
-                        <div class="col-12 col-lg-3 col-md-6 mb-3" id="contenedorCuotas">
+                        <div class="col-12 col-lg-6 mb-3" id="contenedorMetodoPago" hidden>
+                            <label for="id_metodoPago">Método de Pago:</label>
+                            <select name="metodoPago" class="form-select" id="id_metodoPago" required>
+                                {% for metodo in metodoPago %}
+                                    <option value="{{ metodo.id }}">{{ metodo.formaPago }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12 col-lg-4 mb-3" id="contenedorTasaInteres">
+                            {{ form.tasaInteres.label_tag }}
+                            {{ form.tasaInteres }}
+                        </div>
+                        <div class="col-12 col-lg-4 mb-3" id="contenedorCuotas">
                             {{ form.cuotas.label_tag }}
                             {{ form.cuotas }} 
                         </div>
-                        <div class="col-12 col-lg-3 col-md-6 mb-3" id="contenedorDescuento" hidden>
-                            {{ form.descuento.label_tag }}
-                            {{ form.descuento }}
-                        </div>
-                        <div class="col-12 col-lg-3 col-md-6 mb-3" id="contenedorValorDesc" hidden>
-                            <label for="id_valorDescuento">Valor Descuento:</label>
-                            <input type="text" name="valorDescuento" id="id_valorDescuento" class="form-control" readonly>
-                        </div>
-                        <div class="col-12 col-lg-3 col-md-6 mb-3" id="contenedorValorCuotas">
+                        <div class="col-12 col-lg-4 mb-3" id="contenedorValorCuotas">
                             <label for="id_valorCuotas">Valor Cuotas:</label>
                             <input type="text" name="valorCuotas" id="id_valorCuotas" class="form-control" readonly>
                         </div>
@@ -71,7 +75,6 @@
                             {{ form.valorNeto }} 
                         </div>
                     </div>
-
 
                     <!-- Formulario de productos -->
                     <hr>
@@ -121,11 +124,11 @@
 <script>
     $('#creacion').on('shown.bs.modal', function () {
         const formaPago = document.getElementById('id_formaPago');
-        const contenedorDesc = document.getElementById('contenedorDescuento');
-        const contenedorValorDesc = document.getElementById('contenedorValorDesc');
+        const contenedorMetodoPago = document.getElementById('contenedorMetodoPago');
         const contenedorCuotas = document.getElementById('contenedorCuotas');
         const contenedorValorCuotas = document.getElementById('contenedorValorCuotas');
-        const descuento = document.getElementById('id_descuento');
+        const contenedorTasaInteres = document.getElementById('contenedorTasaInteres');
+        const tasaInteres = document.getElementById('id_tasaInteres');
         const encabezado = document.getElementById('encabezados-container');
         const submit = document.getElementById('submit');
         const cuotas = document.getElementById('id_cuotas');
@@ -140,31 +143,41 @@
                 cuotas.disabled = true;
                 cuotas.value = 0;
                 cuotas.removeAttribute('required');
-                contenedorDesc.removeAttribute('hidden');
-                contenedorValorDesc.removeAttribute('hidden');
+                tasaInteres.removeAttribute('required');
+                contenedorTasaInteres.setAttribute('hidden', 'hidden');
                 contenedorCuotas.setAttribute('hidden', 'hidden');
                 contenedorValorCuotas.setAttribute('hidden', 'hidden');
-                descuento.disabled = false;
-                descuento.setAttribute('required', 'required');
+                contenedorMetodoPago.removeAttribute('hidden');
             } else {
                 cuotas.disabled = false;
                 cuotas.setAttribute('required', 'required');
-                contenedorDesc.setAttribute('hidden', 'hidden');
-                contenedorValorDesc.setAttribute('hidden', 'hidden');
+                tasaInteres.setAttribute('required', 'required');
+                contenedorMetodoPago.setAttribute('hidden', 'hidden');
+                contenedorTasaInteres.removeAttribute('hidden');
                 contenedorCuotas.removeAttribute('hidden');
                 contenedorValorCuotas.removeAttribute('hidden');
-                descuento.selectedIndex = 0;
-                descuento.disabled = true;
-                descuento.removeAttribute('required');
 
             }
             actualizarValorBruto();
-            actualizarValorNeto();
             actualizarValorCuotas();
+            actualizarValorNeto();
         }
 
         formaPago.addEventListener('change', toggleCuotas);
         toggleCuotas();
+
+      
+        tasaInteres.addEventListener('change', function () {
+            actualizarValorBruto();
+            actualizarValorCuotas();
+            actualizarValorNeto();
+        });
+     
+        cuotas.addEventListener('change', (event) => {
+            actualizarValorBruto();
+            actualizarValorCuotas();
+            actualizarValorNeto();
+        });
 
         // Evento que agrega una nueva fila de producto
         addButton.addEventListener('click', () => {
@@ -206,8 +219,8 @@
             
             // Recalcular el valor total
             actualizarValorBruto();
-            actualizarValorNeto();
             actualizarValorCuotas();
+            actualizarValorNeto();
         });
     
         // Evento delegado para manejar cambios en los productos
@@ -219,8 +232,8 @@
             }
             // Recalcular el valor total de todos los productos
             actualizarValorBruto();
-            actualizarValorNeto();
             actualizarValorCuotas();
+            actualizarValorNeto();
         });
 
         // Evento delegado para manejar cambios en los productos
@@ -233,19 +246,6 @@
             // Recalcular el valor total de todos los productos
             actualizarValorBruto();
             actualizarValorNeto();
-        });
-
-        // Evento delegado para cuando cambie el descuento se actualice el total neto y el total bruto
-        descuento.addEventListener('change', (event) => {
-            actualizarValorBruto();
-            actualizarValorNeto();
-            actualizarValorCuotas();
-        });
-
-        cuotas.addEventListener('change', (event) => {
-            actualizarValorBruto();
-            actualizarValorNeto();
-            actualizarValorCuotas();
         });
 
         // Evento delegado para calcular el total por producto
@@ -261,8 +261,8 @@
 
             // Recalcular el valor total de todos los productos
             actualizarValorBruto();
-            actualizarValorNeto();
             actualizarValorCuotas();
+            actualizarValorNeto();
         });
 
         // Función para calcular el valor total de todos los productos
@@ -282,53 +282,47 @@
             valorBrutoInput.value = totalBruto.toLocaleString('es-ES'); // Mostrar con separador de miles
         }
 
-        function actualizarValorNeto() {
-            let totalNetoInput = 0;
-
-            // Iterar por todos los elementos de productos
-            document.querySelectorAll('.producto-item').forEach(item => {
-                const totalNetoItem = item.querySelector('input[name^="totalNeto"]').value
-                    .replace(/\./g, '') // Eliminar puntos de miles
-                    .replace(',', '.'); // Reemplazar coma decimal por punto
-                totalNetoInput += parseFloat(totalNetoItem) || 0; // Convertir a número flotante
-            });
-            const valorNeto = document.querySelector('#id_valorNeto');
-            let totalNeto;
-
-            const selectDescuento = document.querySelector('#id_descuento');
-
-            if (formaPago.value === 'CONTADO') {
-                // Obtener el descuento como decimal
-                const descuentoTexto = selectDescuento.options[selectDescuento.selectedIndex].textContent;
-                const descuento = parseFloat(descuentoTexto.replace('%', '')) / 100;
-                
-                // Calcular el total neto con descuento
-                totalNeto = totalNetoInput * (1 - descuento);
-                contenedorValorDesc.querySelector('input').value = (totalNetoInput * descuento).toLocaleString('es-ES'); // Mostrar con separador de miles
-            } else {
-                // Si no hay descuento, el valor neto es igual al bruto
-                totalNeto = totalNetoInput;
-            }
-
-            // Actualizar el campo valorNeto
-            valorNeto.value = totalNeto.toLocaleString('es-ES'); // Mostrar con separador de miles
-        }
-
         function actualizarValorCuotas() {
-            let totalNetoInput = 0;
-            const valorCuota = document.querySelector('#id_valorCuotas');
-            const cuotas = parseInt(document.querySelector('#id_cuotas').value, 10) || 1;
+            const valorCuota = document.getElementById("id_valorCuotas");
+            const valorBruto = parseFloat(document.getElementById("id_valorBruto").value.replace(/\./g, ''));
+            const tasaMensual = parseFloat(document.getElementById("id_tasaInteres").value);
+            const numCuotas = parseInt(document.getElementById("id_cuotas").value, 10);
+        
+            if (isNaN(valorBruto) || isNaN(tasaMensual) || isNaN(numCuotas) || numCuotas <= 0) {
+                valorCuota.value = 0;
+                return;
+            }
+        
+            const calcularCuotaFija = (monto, tasa, cuotas) => {
+                if (tasa === 0) return monto / cuotas; // Si tasa es 0, es un pago fijo sin intereses
+                return (monto * tasa * Math.pow(1 + tasa, cuotas)) / (Math.pow(1 + tasa, cuotas) - 1);
+            };
+        
+            const cuota = Math.round(calcularCuotaFija(valorBruto, tasaMensual, numCuotas));
+            valorCuota.value = cuota.toLocaleString('es-ES');
+        }
+        
+        function actualizarValorNeto() {
+            const formaPago = document.getElementById('id_formaPago').value;
+            if (formaPago === 'CONTADO'){
+                document.getElementById("id_valorNeto").value = document.getElementById("id_valorBruto").value;
+            } else {
 
-            // Iterar por todos los elementos de productos
-            document.querySelectorAll('.producto-item').forEach(item => {
-                const totalNetoItem = item.querySelector('input[name^="totalNeto"]').value
-                    .replace(/\./g, '') // Eliminar puntos de miles
-                    .replace(',', '.'); // Reemplazar coma decimal por punto
-                totalNetoInput += parseFloat(totalNetoItem) || 0; // Convertir a número flotante
-            });
-            let cuota = 0;
-            cuota = parseInt(totalNetoInput / cuotas, 10);
-            valorCuota.value = cuota.toLocaleString('es-ES'); // Mostrar con separador de miles
+                let valorCuota = document.getElementById("id_valorCuotas").value.replace(/\./g, ''); 
+                let cuotas = parseInt(document.getElementById("id_cuotas").value);
+                
+                if (isNaN(valorCuota) || isNaN(cuotas) || cuotas <= 0) {
+                    document.getElementById("id_valorNeto").value = 0;
+                    return;
+                }
+                // Convertimos a número solo si valorCuota tiene contenido válido
+                valorCuota = valorCuota ? parseInt(valorCuota, 10) : 0;
+                cuotas = isNaN(cuotas) ? 0 : cuotas;
+            
+                let valorNeto = valorCuota * cuotas;
+                
+                document.getElementById("id_valorNeto").value = valorNeto.toLocaleString('es-ES');
+            }
         }
 
         // Función para eliminar una fila de producto
@@ -337,8 +331,8 @@
             row.remove(); // Elimina la fila
             productCount--;
             actualizarValorBruto();
-            actualizarValorNeto();
             actualizarValorCuotas();
+            actualizarValorNeto();
 
             if (productCount == 0) {
                 // Si el contador de productos es 0, se oculta el boton de guardar y el encabezado
