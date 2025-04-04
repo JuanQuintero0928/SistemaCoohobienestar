@@ -38,6 +38,7 @@
     <tr>
         <th>ID</th>
         <th>Categoria</th>
+        <th>Referencia</th>
         <th>Nombre</th>
         <th>Precio</th>
         <th>Stock</th>
@@ -50,6 +51,7 @@
         <tr>
             <td>{{ obj.id|intcomma }}</td>
             <td>{{ obj.categoria.nombre }}</td>
+            <td>{{ obj.referencia }}</td>
             <td>{{ obj.nombre }}</td>
             <td>${{ obj.precio|intcomma }}</td>
             <td>{{ obj.stock }}</td>

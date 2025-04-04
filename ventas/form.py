@@ -58,7 +58,7 @@ class HistoricoVentaForm(forms.ModelForm):
         widgets = {
             'fechaVenta': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'},format='%Y-%m-%d',),
             'formaPago': forms.Select(attrs={'class': 'form-control'}),
-            'cuotas': forms.NumberInput(attrs={'class': 'form-control', 'min':2, 'max':5}),
+            'cuotas': forms.NumberInput(attrs={'class': 'form-control', 'min':1, 'max':5}),
             'descuento': forms.Select(attrs={'class': 'form-control','disabled':'disabled'}),
             'tasaInteres': forms.Select(attrs={'class': 'form-control'}),
             'valorBruto': forms.NumberInput(attrs={'class': 'form-control', 'readonly':'readonly'}),

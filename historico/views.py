@@ -103,6 +103,7 @@ class ModalPago(ListView):
                             .values('mesPago'))
             queryMes = (MesTarifa.objects
                             .exclude(pk__in=Subquery(mesesPagados))
+                            .exclude(pk=9993)
                             .filter(pk__gte = queryParamAsoc.primerMes.pk)
                             .annotate(
                                 total = Case(
@@ -113,7 +114,7 @@ class ModalPago(ListView):
                             )
                         )
         else:
-            queryMes = MesTarifa.objects.filter(pk__gte = queryParamAsoc.primerMes.pk).annotate(total=F('aporte') + F('bSocial') + total_tarifa_asociado)
+            queryMes = MesTarifa.objects.filter(pk__gte = queryParamAsoc.primerMes.pk).annotate(total=F('aporte') + F('bSocial') + total_tarifa_asociado).exclude(pk=9993)
         
         queryPago = FormaPago.objects.all()
 
@@ -121,12 +122,12 @@ class ModalPago(ListView):
         total_diferencia = queryHistorial['total'] or 0  # Se obtiene el valor de la suma a 0 si no hay datos
 
         # Se valida si el asociado cuenta con credito de productos home elements
-        queryValidacion = HistoricoVenta.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True, formaPago = 'CREDITO').exists()
+        queryValidacion = HistoricoVenta.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True, formaPago__in = ['CREDITO', 'DESCUENTO NOMINA']).exists()
         queryCreditoProd = None
         if queryValidacion:
             queryCreditoProd = HistoricoVenta.objects.filter(
                     asociado = kwargs['pkAsociado'],
-                    formaPago = 'CREDITO',
+                    formaPago__in = ['CREDITO', 'DESCUENTO NOMINA'],
                     estadoRegistro = True,
                     pendientePago__gt = 0
                 )
