@@ -132,7 +132,7 @@ class CrearVentaAsociado(CreateView):
             # Se crea el HistoricoPago
             objHistoricoPago = HistorialPagos()
             objHistoricoPago.asociado = objHistoricoVenta.asociado
-            objHistoricoPago.mesPago = MesTarifa.objects.get(pk = 9993)
+            objHistoricoPago.mesPago = MesTarifa.objects.get(pk = 9992)
             objHistoricoPago.fechaPago = objHistoricoVenta.fechaVenta
             objHistoricoPago.formaPago = FormaPago.objects.get(pk = 1)
             objHistoricoPago.aportePago = 0
@@ -146,7 +146,7 @@ class CrearVentaAsociado(CreateView):
             objHistoricoPago.convenioPago = 0
             objHistoricoPago.creditoHomeElements = 0
             objHistoricoPago.diferencia = 0
-            objHistoricoPago.valorPago = 111
+            objHistoricoPago.valorPago = int(request.POST['valorNeto'].replace('.', ''))
             objHistoricoPago.estadoRegistro = True
             objHistoricoPago.userCreacion = request.user
             objHistoricoPago.save()
