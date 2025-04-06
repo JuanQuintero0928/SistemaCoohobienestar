@@ -134,7 +134,7 @@ class CrearVentaAsociado(CreateView):
             objHistoricoPago.asociado = objHistoricoVenta.asociado
             objHistoricoPago.mesPago = MesTarifa.objects.get(pk = 9992)
             objHistoricoPago.fechaPago = objHistoricoVenta.fechaVenta
-            objHistoricoPago.formaPago = FormaPago.objects.get(pk = 1)
+            objHistoricoPago.formaPago = FormaPago.objects.get(pk = request.POST['metodoPago'])
             objHistoricoPago.aportePago = 0
             objHistoricoPago.bSocialPago = 0
             objHistoricoPago.mascotaPago = 0
