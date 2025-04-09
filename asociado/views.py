@@ -1397,7 +1397,7 @@ class GenerarFormato(ListView):
                     queryParamAsoc = ParametroAsociado.objects.get(asociado=kwargs['pkAsociado'])
                     queryMes = (MesTarifa.objects
                                     .exclude(pk__in=Subquery(mesesPagados))
-                                    .exclude(pk__in=[9998, 9999])  # Excluir también en MesTarifa
+                                    .exclude(pk__in=[9998, 9999,9997,9996,9995,9994,9993,9992])  # Excluir también en MesTarifa
                                     .filter(pk__gte=queryParamAsoc.primerMes.pk, pk__lte=mes.pk))
                     
                     queryParamAsoc = ParametroAsociado.objects.get(asociado = kwargs['pkAsociado'])

@@ -39,9 +39,15 @@
             </table>
             <div class="alert alert-warning" role="alert">
                 <strong>Alerta: </strong>
-                <p>
-                    Antes de eliminar el registro asegurese que no hayan pagos asignados al crédito, de lo contrario no se podra eliminar.
-                </p>
+                {% if historicoVenta.formaPago != 'CONTADO' %}  
+                  <p>
+                      Antes de eliminar el registro asegurese que no hayan pagos asignados al crédito, de lo contrario no se podra eliminar.
+                  </p>
+                {% else %}
+                  <p>
+                      Antes de eliminar el registro asegurese que no hayan pagos asignados a la venta, de lo contrario no se podra eliminar.
+                  </p>
+                {% endif %}
             </div>
         </div>
         

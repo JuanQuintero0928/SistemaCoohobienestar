@@ -346,6 +346,7 @@ class ModalPago(ListView):
                         'creditoHomeElements': queryCreditoProd.valorCuotas,
                         'diferencia': valorCuota - queryCreditoProd.valorCuotas + valorDiferencia if cantidadSwitches == contador else 0,
                         'valorPago':  queryCreditoProd.valorCuotas if contador < cantidadSwitches else valorCuota + valorDiferencia,
+                        'ventaHE': queryCreditoProd,
                         'estadoRegistro': True,
                         'userCreacion': usuario,
                     }
@@ -380,6 +381,7 @@ class ModalPago(ListView):
                         'creditoHomeElements': 0,
                         'credito': queryCredito.valorCuota,
                         'diferencia': valorCuota - queryCredito.valorCuota + valorDiferencia if cantidadSwitches == contador else 0,
+                        'creditoId': queryCredito,
                         'valorPago':  valorPago,
                         'estadoRegistro': True,
                         'userCreacion': usuario,

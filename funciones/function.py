@@ -56,27 +56,49 @@ def procesar_csv(archivo_csv, user_creacion_id):
             if HistorialPagos.objects.filter(asociado_id=asociado_id, mesPago_id=mesPago_id).exists():
                 raise ValueError(f"El asociado con ID {asociado_id} ya tiene un registro para el mes con ID {mesPago_id}.")
 
-            # print("Fila leída:", row)
+            # Extraer y convertir los campos numéricos
+            aporte = int(row['aportePago'])
+            bsocial = int(row['bSocialPago'])
+            mascota = int(row['mascotaPago']) if row['mascotaPago'] else 0
+            repatriacion = int(row['repatriacionPago']) if row['repatriacionPago'] else 0
+            seguro = int(row['seguroVidaPago']) if row['seguroVidaPago'] else 0
+            adicionales = int(row['adicionalesPago']) if row['adicionalesPago'] else 0
+            coohop_aporte = int(row['coohopAporte']) if row['coohopAporte'] else 0
+            coohop_bsocial = int(row['coohopBsocial']) if row['coohopBsocial'] else 0
+            convenio = int(row['convenioPago']) if row['convenioPago'] else 0
+            # credito_home = int(row['creditoHomeElements']) if row.get('creditoHomeElements') else 0
+            diferencia = int(row['diferencia']) if row['diferencia'] else 0
+
+            valor_pago = int(row['valorPago'])
+
+            suma_total = (
+                aporte + bsocial + mascota + repatriacion + seguro + adicionales +
+                coohop_aporte + coohop_bsocial + convenio + diferencia
+            )
+
+            if suma_total != valor_pago:
+                raise ValueError(f"La suma de los campos no coincide con valorPago ({valor_pago}) "
+                                 f"para el asociado ID {asociado_id}, mes ID {mesPago_id}. Suma calculada: {suma_total}")
+
             registros.append(
                 HistorialPagos(
-                    asociado_id=int(row['asociado_id']),  # Relación con el modelo `Asociado`
-                    mesPago_id=int(row['mesPago_id']),  # Relación con el modelo `MesTarifa`
-                    fechaPago=row['fechaPago'] or None,
-                    valorPago=int(row['valorPago']),
-                    aportePago=int(row['aportePago']),
-                    bSocialPago=int(row['bSocialPago']),
-                    mascotaPago=int(row['mascotaPago']) if row['mascotaPago'] else None,
-                    repatriacionPago=int(row['repatriacionPago']) if row['repatriacionPago'] else None,
-                    seguroVidaPago=int(row['seguroVidaPago']) if row['seguroVidaPago'] else None,
-                    adicionalesPago=int(row['adicionalesPago']) if row['adicionalesPago'] else None,
-                    coohopAporte=int(row['coohopAporte']) if row['coohopAporte'] else None,
-                    coohopBsocial=int(row['coohopBsocial']) if row['coohopBsocial'] else None,
-                    convenioPago=int(row['convenioPago']) if row['convenioPago'] else None,
-                    creditoHomeElements=int(row['creditoHomeElements']) if row['creditoHomeElements'] else None,
-                    diferencia=int(row['diferencia']) if row['diferencia'] else None,
-                    formaPago_id=int(row['formaPago_id']),  # Relación con el modelo `FormaPago`
-                    userCreacion_id=user_creacion_id,  # Relación con `User`
-                    estadoRegistro=True,  # Convertir a booleano
+                    asociado_id=asociado_id,
+                    mesPago_id=mesPago_id,
+                    fechaPago=row['fechaPago'],
+                    valorPago=valor_pago,
+                    aportePago=aporte,
+                    bSocialPago=bsocial,
+                    mascotaPago=mascota,
+                    repatriacionPago=repatriacion,
+                    seguroVidaPago=seguro,
+                    adicionalesPago=adicionales,
+                    coohopAporte=coohop_aporte,
+                    coohopBsocial=coohop_bsocial,
+                    convenioPago=convenio,
+                    diferencia=diferencia,
+                    formaPago_id=int(row['formaPago_id']),
+                    userCreacion_id=user_creacion_id,
+                    estadoRegistro=True,
                 )
             )
     except Exception as e:

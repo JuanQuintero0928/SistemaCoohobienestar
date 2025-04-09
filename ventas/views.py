@@ -1,8 +1,11 @@
 from django.shortcuts import render
 from django.views.generic import ListView, CreateView, UpdateView
+from django.db import transaction
 from django.urls import reverse_lazy, reverse
 from django.contrib import messages
 from django.http import HttpResponseRedirect
+
+import historico
 
 from .models import Producto, HistoricoVenta, DetalleVenta, PorcentajeDescuento
 from .form import ProductoForm, HistoricoVentaForm, DetalleVentaForm
@@ -116,48 +119,51 @@ class CrearVentaAsociado(CreateView):
         return context
 
     def post(self, request, *args, **kwargs):
-        objHistoricoVenta = HistoricoVenta()
-        objHistoricoVenta.asociado = Asociado.objects.get(pk = self.kwargs['pkAsociado'])
-        objHistoricoVenta.fechaVenta = request.POST['fechaVenta']
-        objHistoricoVenta.formaPago = request.POST['formaPago']
-        if objHistoricoVenta.formaPago == 'CREDITO' or objHistoricoVenta.formaPago == 'DESCUENTO NOMINA':
-            objHistoricoVenta.cuotas = request.POST['cuotas']
-            objHistoricoVenta.valorCuotas = int(request.POST['valorCuotas'].replace('.', ''))
-            objHistoricoVenta.pendientePago = int(request.POST['valorNeto'].replace('.', ''))
-            objHistoricoVenta.tasaInteres = TasasInteresCredito.objects.get(porcentaje = request.POST['tasaInteres'])
-            objHistoricoVenta.cuotasPagas = 0
-        else:
-            objHistoricoVenta.descuento = PorcentajeDescuento.objects.get(pk = 1)
-            objHistoricoVenta.valorDescuento = 0
-            # Se crea el HistoricoPago
-            objHistoricoPago = HistorialPagos()
-            objHistoricoPago.asociado = objHistoricoVenta.asociado
-            objHistoricoPago.mesPago = MesTarifa.objects.get(pk = 9992)
-            objHistoricoPago.fechaPago = objHistoricoVenta.fechaVenta
-            objHistoricoPago.formaPago = FormaPago.objects.get(pk = request.POST['metodoPago'])
-            objHistoricoPago.aportePago = 0
-            objHistoricoPago.bSocialPago = 0
-            objHistoricoPago.mascotaPago = 0
-            objHistoricoPago.repatriacionPago = 0
-            objHistoricoPago.seguroVidaPago = 0
-            objHistoricoPago.adicionalesPago = 0
-            objHistoricoPago.coohopAporte = 0
-            objHistoricoPago.coohopBsocial = 0
-            objHistoricoPago.convenioPago = 0
-            objHistoricoPago.creditoHomeElements = 0
-            objHistoricoPago.diferencia = 0
-            objHistoricoPago.valorPago = int(request.POST['valorNeto'].replace('.', ''))
-            objHistoricoPago.estadoRegistro = True
-            objHistoricoPago.userCreacion = request.user
-            objHistoricoPago.save()
+        with transaction.atomic():
+            objHistoricoVenta = HistoricoVenta()
+            objHistoricoVenta.asociado = Asociado.objects.get(pk = self.kwargs['pkAsociado'])
+            objHistoricoVenta.fechaVenta = request.POST['fechaVenta']
+            objHistoricoVenta.formaPago = request.POST['formaPago']
+            objHistoricoVenta.valorBruto = int(request.POST['valorBruto'].replace('.', ''))
+            objHistoricoVenta.valorNeto = int(request.POST['valorNeto'].replace('.', ''))
+            objHistoricoVenta.userCreacion = request.user
+            objHistoricoVenta.estadoRegistro = True
 
-        objHistoricoVenta.valorBruto = int(request.POST['valorBruto'].replace('.', ''))
-        objHistoricoVenta.valorNeto = int(request.POST['valorNeto'].replace('.', ''))
-        objHistoricoVenta.userCreacion = request.user
-        objHistoricoVenta.estadoRegistro = True
-    
-        objHistoricoVenta.save()
-        # objDetalleVenta.historicoVenta = objHistoricoVenta.pk
+            if objHistoricoVenta.formaPago == 'CREDITO' or objHistoricoVenta.formaPago == 'DESCUENTO NOMINA':
+                objHistoricoVenta.cuotas = request.POST['cuotas']
+                objHistoricoVenta.valorCuotas = int(request.POST['valorCuotas'].replace('.', ''))
+                objHistoricoVenta.pendientePago = int(request.POST['valorNeto'].replace('.', ''))
+                objHistoricoVenta.tasaInteres = TasasInteresCredito.objects.get(porcentaje = request.POST['tasaInteres'])
+                objHistoricoVenta.cuotasPagas = 0
+            else:
+                objHistoricoVenta.descuento = PorcentajeDescuento.objects.get(pk = 1)
+                objHistoricoVenta.valorDescuento = 0
+            
+            objHistoricoVenta.save()
+
+            if objHistoricoVenta.formaPago == 'CONTADO':
+                # Se crea el HistoricoPago
+                objHistoricoPago = HistorialPagos()
+                objHistoricoPago.asociado = objHistoricoVenta.asociado
+                objHistoricoPago.mesPago = MesTarifa.objects.get(pk = 9992)
+                objHistoricoPago.fechaPago = objHistoricoVenta.fechaVenta
+                objHistoricoPago.formaPago = FormaPago.objects.get(pk = request.POST['metodoPago'])
+                objHistoricoPago.aportePago = 0
+                objHistoricoPago.bSocialPago = 0
+                objHistoricoPago.mascotaPago = 0
+                objHistoricoPago.repatriacionPago = 0
+                objHistoricoPago.seguroVidaPago = 0
+                objHistoricoPago.adicionalesPago = 0
+                objHistoricoPago.coohopAporte = 0
+                objHistoricoPago.coohopBsocial = 0
+                objHistoricoPago.convenioPago = 0
+                objHistoricoPago.creditoHomeElements = 0
+                objHistoricoPago.diferencia = 0
+                objHistoricoPago.valorPago = int(request.POST['valorNeto'].replace('.', ''))
+                objHistoricoPago.estadoRegistro = True
+                objHistoricoPago.userCreacion = request.user
+                objHistoricoPago.ventaHE = objHistoricoVenta
+                objHistoricoPago.save()
 
         products = []
         for key, value in request.POST.items():
@@ -242,9 +248,14 @@ class EliminarDetalleVenta(UpdateView):
         # Obtener el objeto de la venta actual
         venta = self.get_object()
         # Comprobar si las cuotas de la venta son iguales a las cuotas pagadas
-        if venta.formaPago == 'CREDITO':
+        if venta.formaPago in ['CREDITO', 'DESCUENTO NOMINA']:
             if venta.valorNeto == venta.pendientePago:
                 return True
         else:
-            return True
+            print(venta.pk)
+            # Se comprueba si hay un pago relacionado a la venta   
+            if not HistorialPagos.objects.filter(asociado = self.kwargs['pkAsociado'], ventaHE = venta.pk).exists():
+                return True
+
+        # Si no se cumplen las condiciones, se devuelve False, no se puede eliminar la venta
         return False
