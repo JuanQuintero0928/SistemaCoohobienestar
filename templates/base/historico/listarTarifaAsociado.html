@@ -36,7 +36,7 @@
                         {% if adicional == False %}
                         <li><a class="btn btn-primary dropdown-item" onclick="abrir_modal_creacion('{% url 'asociado:crearAdicional' pkAsociado %}')">Crear Valor Adicional Funcionaria</a></li>
                         {% endif %}
-                        {% if queryRepatriacionTitular == False %}
+                        {% if not queryRepatriacionTitular %}
                             <li><a class="btn btn-primary dropdown-item" onclick="abrir_modal_creacion('{% url 'asociado:repatriacionTitular' pkAsociado %}')">Crear Repatriación Titular</a></li>
                         {% endif %}
                         <li><a class="btn btn-primary dropdown-item" onclick="abrir_modal_creacion('{% url 'asociado:crearConvenio' pkAsociado %}')">Crear Convenio</a></li>
@@ -90,7 +90,7 @@
             {% endif %}
             {% if queryRepatriacionTitular %}
                 <tr>
-                    <th class="fw-bold text-start">Repatriación Titular - {{ queryRepatriacionTitular.paisRepatriacion }}</th>
+                    <th class="fw-bold text-start">Repatriación Titular - {{ queryRepatriacionTitular.paisRepatriacion|lower|capfirst }}</th>
                     <th class="text-muted text-start">${{ repatriacion|intcomma }}</th>
                     <th>
                         <div class="btn-group" role="group" aria-label="Basic example">
@@ -159,7 +159,7 @@
             {% if query.cuotaConvenio != 0 %}
                 {% for convenio in queryConvenio %}
                     <tr>
-                        <th class="fw-bold text-start">Convenio - {{ convenio.convenio.concepto }}</th>
+                        <th class="fw-bold text-start">Convenio - {{ convenio.convenio.concepto|lower|capfirst }}</th>
                         <th class="text-muted text-start">${{ convenio.convenio.valor|intcomma }}</th>
                         <th>
                             <div class="btn-group" role="group" aria-label="Basic example">
@@ -178,21 +178,30 @@
                     </tr>
                 {% endfor %}
             {% endif %}
-            {% if queryCreditoProd > 0 %}
-                <tr>
-                    <th class="fw-bold text-start">Crédito - Home Elements</th>
-                    <th class="text-muted text-start">${{ queryCreditoProd|intcomma }}</th>
-                    <th></th>
-                </tr>
+            {% if query_credito_prod %}
+                {% for homeElements in query_credito_prod %}
+                    <tr>
+                        <th class="fw-bold text-start">Crédito - Home Elements {{homeElements.cuotasPagas}}/{{homeElements.cuotas}}</th>
+                        <th class="text-muted text-start">${{ homeElements.valorCuotas|intcomma }}</th>
+                        <th></th>
+                    </tr>
+                {% endfor %}
             {% endif %}
             {% if queryCredito %}
                 {% for credito in queryCredito %}
                     <tr>
-                        <th class="fw-bold text-start">Crédito - {{credito.lineaCredito}}</th>
+                        <th class="fw-bold text-start">Crédito - {{credito.lineaCredito|lower|capfirst}} {{credito.cuotasPagas}}/{{credito.cuotas}}</th>
                         <th class="text-muted text-start">${{ credito.valorCuota|intcomma }}</th>
                         <th></th>
                     </tr>
                 {% endfor %}
+            {% endif %}
+            {% if queryVinculacion %}    
+                <tr>
+                    <th class="fw-bold text-start">Vinculación - Cuota {{vinculacionCuotasPte}}/{{queryVinculacion.vinculacionCuotas}}</th>
+                    <th class="text-muted text-start">${{ queryVinculacion.vinculacionValor|intcomma }}</th>
+                    <th></th>
+                </tr>
             {% endif %}
             <tr class="total-row">
                 <th class="text-start">Total</th>

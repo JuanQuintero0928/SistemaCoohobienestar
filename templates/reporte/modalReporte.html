@@ -2,7 +2,14 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">{% if tipoReporte == 'auxilio' %}Descargar Auxilio por fecha{% elif tipoReporte == 'credito' %}Descargar Créditos por fecha{% endif %}</h1>
+          <h1 class="modal-title fs-5" id="exampleModalLabel">
+            {% if tipoReporte == 'auxilio' %}
+                Descargar Auxilio por fecha
+            {% elif tipoReporte == 'credito' %}
+                Descargar Créditos por fecha
+            {% elif tipoReporte == 'ventasHE' %}
+                Descargar Ventas Home Elements
+            {% endif %}</h1>
           <hr>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
@@ -11,6 +18,8 @@
                 <form action="{% url 'reportes:descargarAuxilio' %}" method="post">
             {% elif tipoReporte == 'credito' %}
                 <form action="{% url 'reportes:descargarCredito' %}" method="post">
+            {% elif tipoReporte == 'ventasHE' %}
+                <form action="{% url 'reportes:descargarVentasHE' %}" method="post">
             {% endif %}
                 {% csrf_token %}
                 <div class="row">

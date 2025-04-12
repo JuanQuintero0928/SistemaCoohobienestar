@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import ListView, CreateView, UpdateView, DetailView
 from django.http import HttpResponseRedirect, JsonResponse
 from django.core.paginator import Paginator
 from django.contrib import messages
@@ -22,12 +22,12 @@ from .form import ConvenioAsociadoForm, RepatriacionTitularForm
 from beneficiario.form import BeneficiarioForm, MascotaForm, CoohoperativitoForm
 from credito.form import CodeudorForm
 from historico.form import HistoricoSeguroVidaForm, HistoricoAuxilioForm, HistoricoCreditoForm
+from reportes.utils.medicion import medir_rendimiento
 
 # Create your views here.
 
 class Asociados(LoginRequiredMixin, StaffRequiredMixin, ListView):
     template_name = 'base/asociado/listarAsociado.html'
-
     def get(self, request, *args, **kwargs):
         # Si es una petición AJAX, devolver JSON con paginación
         
@@ -89,7 +89,6 @@ class Asociados(LoginRequiredMixin, StaffRequiredMixin, ListView):
 
 
 class CrearAsociado(CreateView):
-    
     def get(self, request, *args, **kwargs):
         template_name = 'base/asociado/crearAsociado.html'
         query_dpto = Departamento.objects.values('id','nombre')
@@ -262,13 +261,13 @@ class VerAsociado(ListView):
     def get(self, request, *args, **kwargs):
         template_name = 'base/asociado/verAsociado.html'
         query_dpto = Departamento.objects.values('id','nombre')
-        objAsociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
+        objAsociado = Asociado.objects.select_related('tAsociado','mpioNacimiento','mpioResidencia','mpioDoc','deptoResidencia','dtoNacimiento').get(pk=kwargs['pkAsociado'])
         objParentesco = Parentesco.objects.all().order_by('nombre')
         objEmpresa = TipoAsociado.objects.all()
         objServFuneraria = ServicioFuneraria.objects.all()
         objParametroAsociado = ParametroAsociado.objects.values('id','funeraria','autorizaciondcto','autorizaciondcto','primerMes').get(asociado = kwargs['pkAsociado'])
         objMes = MesTarifa.objects.all()
-        objLaboral = Laboral.objects.get(asociado = kwargs['pkAsociado'])
+        objLaboral = Laboral.objects.select_related('mpioTrabajo','dptoTrabajo').get(asociado = kwargs['pkAsociado'])
         objFinanciero = Financiera.objects.get(asociado = kwargs['pkAsociado'])
         context = {
             'pkAsociado':kwargs['pkAsociado'],
@@ -483,13 +482,31 @@ class EditarParametroAsociado(CreateView):
 
 class Beneficiarios(ListView):
     template_name = 'base/asociado/listarBeneficiarios.html'
-
+    
     def get(self, request, *args, **kwargs):
-        queryBeneficiarios = Beneficiario.objects.filter(asociado = kwargs['pkAsociado']).filter(estadoRegistro = True)
+        queryBeneficiarios = Beneficiario.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True).select_related('parentesco','paisRepatriacion')
         numBenef = queryBeneficiarios.count()
         queryAsociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
         return render(request, self.template_name, {'updateAsociado':'yes','pkAsociado':kwargs['pkAsociado'],'query':queryBeneficiarios, 'queryAsociado':queryAsociado, 'cuenta':numBenef ,'vista':2})
-        
+# class Beneficiarios(DetailView):
+#     model = Asociado
+#     template_name = 'base/asociado/listarBeneficiarios.html'
+#     context_object_name = 'asociado'
+#     pk_url_kwarg = 'pkAsociado'
+
+#     @medir_rendimiento("reporte_excel")
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         beneficiarios = Beneficiario.objects.filter(asociado = self.object.pk, estadoRegistro = True).select_related('parentesco','paisRepatriacion')
+#         context.update({
+#             'query': beneficiarios,
+#             'cuenta': beneficiarios.count(),
+#             'updateAsociado': 'yes',
+#             'pkAsociado': self.object.pk,
+#             'vista': 2
+#         })
+#         return context
+
 class CrearBeneficiario(CreateView):
     form_class = BeneficiarioForm
     template_name = 'base/beneficiario/crearBeneficiario.html'
@@ -975,76 +992,80 @@ class EditarHistoricoCredito(ListView):
             return HttpResponseRedirect(reverse_lazy('asociado:historicoCredito', args=[kwargs['pkAsociado']]))
 
 class VerTarifaAsociado(ListView):
+    template_name = 'base/historico/listarTarifaAsociado.html'
+
+    def get_repatriacion_data(self, asociado):
+        repatriacion_titular = RepatriacionTitular.objects.filter(asociado=asociado, estadoRegistro=True).first()
+        repatriacion_valor = 0
+
+        if repatriacion_titular:
+            tarifa_repatriacion = Tarifas.objects.filter(pk=4).first()
+            repatriacion_valor = tarifa_repatriacion.valor if tarifa_repatriacion else 0
+
+        return repatriacion_titular, repatriacion_valor
+
+    def get_credito_productos_data(self, asociado):
+        queryset = HistoricoVenta.objects.filter(
+            asociado=asociado,
+            formaPago__in=['CREDITO', 'DESCUENTO NOMINA'],
+            estadoRegistro=True,
+            pendientePago__gt=0
+        )
+        total = queryset.aggregate(total=Sum('valorCuotas'))['total'] or 0
+        return queryset, total
+
+    def get_credito_general_data(self, asociado):
+        queryset = HistoricoCredito.objects.filter(
+            asociado=asociado,
+            estadoRegistro=True,
+            pendientePago__gt=0,
+            estado='OTORGADO'
+        )
+        total = queryset.aggregate(total=Sum('valorCuota'))['total'] or 0
+        return queryset, total
+
+    def get_vinculacion_data(self, asociado):
+        param = ParametroAsociado.objects.filter(asociado=asociado, vinculacionPendientePago__gt=0).first()
+        if param and param.vinculacionValor:
+            cuotas_pendientes = round(param.vinculacionPendientePago / param.vinculacionValor) - param.vinculacionCuotas
+        else:
+            cuotas_pendientes = None
+        return param, param.vinculacionValor if param else 0, cuotas_pendientes
+    
     def get(self, request, *args, **kwargs):
-        template_name = 'base/historico/listarTarifaAsociado.html'
-        queryTarifaAsociado = TarifaAsociado.objects.get(asociado = kwargs['pkAsociado'])
-        queryConvenio = ConveniosAsociado.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True)
-        queryRepatriacionTitular = RepatriacionTitular.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True).exists()
-        repatriacionAsociado = 0
-        pkRepatriacion = 0
-        # se valida si hay titulares de repatriacion
-        if queryRepatriacionTitular:
-            queryRepatriacionTitular = RepatriacionTitular.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True).first()
-            benef = Beneficiario.objects.filter(asociado = kwargs['pkAsociado'], repatriacion = True).count()
-            tarifas = Tarifas.objects.get(pk = 4)
-            repatriacionAsociado = tarifas.valor
-            
-            # se valida si existen beneficiarios con repatriacion
-            if benef > 0:
-                # obtenemos el valor de la tarifa de repatriacion
-                queryTarifaAsociado.cuotaRepatriacion = benef * tarifas.valor
-            else:
-                queryTarifaAsociado.cuotaRepatriacion = 0
+        asociado = get_object_or_404(Asociado, pk=kwargs['pkAsociado'])
+        tarifa_asociado = TarifaAsociado.objects.select_related('asociado').get(asociado=asociado)
+        convenios = ConveniosAsociado.objects.filter(asociado=asociado, estadoRegistro=True)
+        adicional = tarifa_asociado.cuotaAdicionales > 0
 
-        adicional = False
-        if queryTarifaAsociado.cuotaAdicionales > 0:
-            adicional = True
+        repatriacion_titular, repatriacion_valor = self.get_repatriacion_data(asociado)
         
-        # Se valida si el asociado cuenta con credito de productos home elements
-        queryValidacion = HistoricoVenta.objects.filter(asociado = kwargs['pkAsociado']).exists()
-        queryCreditoProd = None
-        totalCredito = 0
-        if queryValidacion:
-            queryCreditoProd = HistoricoVenta.objects.filter(
-                asociado = kwargs['pkAsociado'],
-                formaPago__in = ['CREDITO', 'DESCUENTO NOMINA'],
-                estadoRegistro = True,
-                pendientePago__gt = 0
-                ).aggregate(total=Sum('valorCuotas'))
-            totalCredito = queryCreditoProd.get('total') or 0 # se utiliza 0 en caso que no exista valor
-        
-        # Se valida si cuenta con credito
-        queryCreditoValidacion = HistoricoCredito.objects.filter(asociado = kwargs['pkAsociado'], pendientePago__gt = 0, estadoRegistro = True, estado = 'OTORGADO').exists()
-        queryCredito = None
-        creditos = 0
-        if queryCreditoValidacion:
-            queryCredito = HistoricoCredito.objects.filter(
-                asociado = kwargs['pkAsociado'],
-                estadoRegistro = True,
-                pendientePago__gt = 0,
-                estado = 'OTORGADO'
-                )
+        if repatriacion_titular:
+            tarifa_asociado.cuotaRepatriacion = (tarifa_asociado.cuotaRepatriacion or None) - repatriacion_valor
 
-            for credito in queryCredito:
-                creditos += credito.valorCuota 
-                
-        totalTarifaAsociado = totalCredito + queryTarifaAsociado.total + creditos
+        credito_productos_qs, total_credito_productos = self.get_credito_productos_data(asociado)
+        credito_general_qs, total_credito_general = self.get_credito_general_data(asociado)
+        vinculacion_param, cuota_vinculacion, vinculacion_cuotas_pte = self.get_vinculacion_data(asociado)
+
+        total_tarifa = tarifa_asociado.total + total_credito_productos + total_credito_general + cuota_vinculacion
 
         context = {
-            'updateAsociado':'yes',
-            'pkAsociado':kwargs['pkAsociado'],
-            'query':queryTarifaAsociado,
-            'adicional':adicional,
-            'queryRepatriacionTitular':queryRepatriacionTitular,
-            'repatriacion':repatriacionAsociado,
-            'pk':pkRepatriacion,
-            'queryConvenio':queryConvenio,
-            'vista':8,
-            'queryCreditoProd':totalCredito,
-            'queryCredito':queryCredito,
-            'totalTarifaAsociado':totalTarifaAsociado
+            'updateAsociado': 'yes',
+            'pkAsociado': asociado.pk,
+            'query': tarifa_asociado,
+            'adicional': adicional,
+            'queryRepatriacionTitular': repatriacion_titular,
+            'repatriacion': repatriacion_valor,
+            'pk': repatriacion_titular.pk if repatriacion_titular else 0,
+            'queryConvenio': convenios,
+            'vista': 8,
+            'query_credito_prod': credito_productos_qs,
+            'queryCredito': credito_general_qs,
+            'queryVinculacion': vinculacion_param,
+            'vinculacionCuotasPte': vinculacion_cuotas_pte,
+            'totalTarifaAsociado': total_tarifa
         }
-        return render(request, template_name, context)
+        return render(request, self.template_name, context)
 
 class CrearAdicionalAsociado(ListView):
     def get(self, request, *args, **kwargs):

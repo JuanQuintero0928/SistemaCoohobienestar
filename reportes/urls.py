@@ -13,8 +13,15 @@ urlpatterns = [
     path('excelDescuentosNomina/', login_required(ExcelDescuentosNomina.as_view()), name='excelDescuentosNomina'),
     path('verConciliacionBancaria/', login_required(VerConciliacionBancaria.as_view()), name='verConciliacionBancaria'),
     path('excelConciliacionBancaria/', login_required(ExcelConciliacionBancaria.as_view()), name='excelConciliacionBancaria'),
-    path('descargarExcel/<int:tipoFormato>', login_required(DescargarExcel.as_view()), name='descargarExcel'),
-    path('descargarExcelBeneficiarios/<int:tipoFormato>', login_required(DescargarExcelBeneficiarios.as_view()), name='descargarExcelBeneficiarios'),
-    path('descargarAuxilio/', login_required(DescargaAuxilio.as_view()), name='descargarAuxilio'),
-    path('descargarCredito/', login_required(DescargaCredito.as_view()), name='descargarCredito'),
+    path('descargarAsociados/', login_required(DescargarAsociados.as_view()), name='descargarAsociados'),
+    path('descargarTarifasAsociados/', login_required(DescargarTarifasAsociados.as_view()), name='descargarTarifasAsociados'),
+    path('descargarBeneficiarios/', login_required(DescargarBeneficiarios.as_view()), name='descargarBeneficiarios'),
+    path('descargarAuxilio/', login_required(DescargarAuxilios.as_view()), name='descargarAuxilio'),
+    path('descargarCredito/', login_required(DescargarCreditos.as_view()), name='descargarCredito'),
+    path('descargarVentasHE/', login_required(DescargarVentasHE.as_view()), name='descargarVentasHE'),
+    path('descargarProductosHE/', login_required(DescargarProductosHE.as_view()), name='descargarProductosHE'),
+    path('descargarMascotas/', login_required(DescargarMascotas.as_view()), name='descargarMascotas'),
+    path('descargarAdicionalesFuneraria/', login_required(DescargarAdicionalesFuneraria.as_view()), name='descargarAdicionalesFuneraria'),
+
+
 ]

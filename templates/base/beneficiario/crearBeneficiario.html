@@ -46,13 +46,13 @@
                 </div>
                 <div id="contenedor" class="d-none mb-3" style="background-color: #f2f2f2; padding: 10px; border-radius: 10px;">
                   <div id="id_fechaRepatriacion_div"class="form-group d-none mb-3">
-                      {{ form.fechaRepatriacion.label_tag }}
-                      <input id="id_fechaRepatriacion" name="fechaRepatriacion" type="date" class="form-control">
+                    {{ form.fechaRepatriacion.label_tag }}
+                    {{ form.fechaRepatriacion }}
                   </div>
-                    <div id="id_ciudadRepatriacion_div"class="form-group d-none mb-3">
-                      {{ form.ciudadRepatriacion.label_tag }}
-                      <input id="id_ciudadRepatriacion" name="ciudadRepatriacion" type="text" class="form-control">
-                    </div>
+                  <div id="id_ciudadRepatriacion_div"class="form-group d-none mb-3">
+                    {{ form.ciudadRepatriacion.label_tag }}
+                    {{ form.ciudadRepatriacion }}
+                  </div>
                 </div>
                 <div class="form-group mb-3">
                     {{ form.fechaIngreso.label_tag }}

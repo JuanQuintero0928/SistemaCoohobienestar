@@ -2,12 +2,14 @@ import json
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.views.generic import ListView, DeleteView, TemplateView
+from django.views.generic import ListView, DeleteView, TemplateView, DetailView
 from usuarios.models import UsuarioAsociado
 from django.contrib import messages
 from django.db.models import Sum, F, Q, Subquery, Case, When, Value, IntegerField
 from django.db import transaction
 from django.core.paginator import Paginator
+from django.utils.timezone import timedelta
+from reportes.utils.medicion import medir_rendimiento
 
 from .models import HistoricoAuxilio, HistorialPagos, HistoricoCredito
 from parametro.models import MesTarifa, FormaPago, Tarifas, TipoAsociado
@@ -607,7 +609,6 @@ def actualizarEstadoMasivo(request):
         data = json.loads(request.body) # Convertir la peticion Json a un diccionario
         asociados = data.get("asociados", [])  # Obtenemos los datos enviados
 
-        print("Datos recibidos:", asociados)
         if not asociados:
             return JsonResponse({"success": False, "error": "No se enviaron datos"}, status=400)
 
@@ -618,7 +619,6 @@ def actualizarEstadoMasivo(request):
                 if asociado:
                     asociado.estadoAsociado = asociado_data["estado"]
                     registroActualizar.append(asociado)
-                    print(f"Actualizando estado de {asociado.id} a {asociado.estadoAsociado}")
             
             Asociado.objects.bulk_update(registroActualizar, ["estadoAsociado"])
             
@@ -626,3 +626,36 @@ def actualizarEstadoMasivo(request):
     
     # Manejo de error si no es un POST
     return JsonResponse({"success": False, "error": "Método no permitido"}, status=400)
+
+class ComprobantePago(DetailView):
+    model = HistorialPagos
+    template_name = "proceso/pago/comprobante.html"
+    context_object_name = "pago"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        pago_principal = self.get_object()
+        asociado = pago_principal.asociado
+        fecha_objetivo = pago_principal.fechaCreacion
+
+        # Rango de 2 segundos antes y después
+        rango_inicio = fecha_objetivo - timedelta(seconds=2)
+        rango_fin = fecha_objetivo + timedelta(seconds=2)
+
+        pagos_relacionados = HistorialPagos.objects.filter(
+            asociado=asociado,
+            fechaCreacion__range=(rango_inicio, rango_fin),
+            fechaPago = pago_principal.fechaPago
+        ).order_by('fechaCreacion').annotate(
+            total_aporte_bsocial=Sum(F('aportePago') + F('bSocialPago')),
+            total_coohop = Sum(F('coohopAporte') + F('coohopBsocial')),
+        )
+
+        pago_total = pagos_relacionados.aggregate(total=Sum('valorPago'))['total'] or 0
+
+        context['pagos_relacionados'] = pagos_relacionados
+        context['pago_total'] = pago_total
+
+        return context
+
+

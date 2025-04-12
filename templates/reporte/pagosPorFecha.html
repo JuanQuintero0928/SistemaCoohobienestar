@@ -21,7 +21,7 @@
                 <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-4 mb-3">
                     <label>Fecha Inicial</label>
                     {% if post %}
-                        <input class="form-control" type="date" value="{{ fechaIncialF }}" name="fechaInicial" required id="id_fechaInicial">
+                        <input class="form-control" type="date" value="{{ fechaInicialF }}" name="fechaInicial" required id="id_fechaInicial">
                     {% else %}
                         <input class="form-control" type="date" name="fechaInicial" id="id_fechaInicial" required>
                     {% endif %}
@@ -64,6 +64,7 @@
                         <th scope="col">N° Documento Titular</th>
                         <th scope="col">Nombre Completo Titular</th>
                         <th scope="col">Mes Pago</th>
+                        <th scope="col">Forma Pago</th>
                         <th scope="col">Diferencia</th>
                         <th scope="col">Valor Pago</th>
                     </tr>
@@ -77,17 +78,18 @@
                                 <td class="text-center">{{ pagos.asociado.numDocumento|intcomma }}</td>
                                 <td>{{ pagos.asociado.nombre }} {{ pagos.asociado.apellido }}</td>
                                 <td class="text-center">{{ pagos.mesPago }}</td>
+                                <td class="text-center">{{ pagos.formaPago }}</td>
                                 <td {% if pagos.diferencia > 0 %} class="text-end fw-bold text-success" {% elif pagos.diferencia == 0 %} class="text-end fw-bold text-secondary" {% else %} class="text-end fw-bold text-danger" {% endif %}>${{ pagos.diferencia|intcomma }}</td>
                                 <td class="text-end fw-bold text-success">${{ pagos.valorPago|intcomma }}</td>
                             </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <th colspan="7" class="text-center text-muted py-3">No existen datos en la consulta.</th> 
+                            <th colspan="8" class="text-center text-muted py-3">No existen datos en la consulta.</th> 
                         </tr>
                     {% endif %}
                     <tr>
-                        <td colspan="6" class="text-center fw-bold py-3">Total Generado</td>
+                        <td colspan="7" class="text-center fw-bold py-3">Total Generado</td>
                         <td class="text-end fw-bold text-success">${{totalPago|intcomma}}</td>
                     </tr>
                 </tbody>

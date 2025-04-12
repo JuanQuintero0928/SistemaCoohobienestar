@@ -12,4 +12,5 @@ urlpatterns = [
     path('eliminarPago/<int:pk>/<int:pkAsociado>/<int:vista>', login_required(EliminarPago.as_view()), name='eliminarPago'),
     path('actualizarEstadoAsoc/', login_required(ActualizarEstadoAsoc.as_view()), name='actualizarEstadoAsoc'),
     path("actualizarEstadoMasivo/", actualizarEstadoMasivo, name="actualizarEstadoMasivo"),
+    path("comprobantePago/<int:pk>", login_required(ComprobantePago.as_view()), name="comprobantePago"),
 ]

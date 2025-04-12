@@ -1,0 +1,110 @@
+<!-- templates/pagos/comprobante.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Comprobante de Pago</title>
+  <style>
+    @media print {
+      body {
+        width: 80mm;
+        font-family: monospace;
+        font-size: 12px;
+        margin: 0;
+      }
+    }
+
+    .comprobante {
+      width: 80mm;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 12px;
+    }
+
+    .centrado {
+      text-align: center;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px dashed #000;
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="comprobante">
+    <div class="centrado">
+      <strong>COOHOBIENESTAR</strong><br>
+      NIT 801000102-9<br>
+      Calle 7 #16-16<br>
+      Tel: 313 5600507<br>
+      --------------------------
+    </div>
+
+    <p>
+      Recibo No: {{ pago.id }}<br>
+      Fecha: {{ pago.fechaCreacion|date:"d/m/Y H:i:s" }}<br>
+      Asociado: {{ pago.asociado.nombre }} {{ pago.asociado.apellido }}<br>
+      Documento: {{ pago.asociado.numDocumento }}<br>
+      --------------------------
+    </p>
+
+    {% for item in pagos_relacionados %}
+    <div class="comprobante">
+      <p>
+        Concepto: {{ item.mesPago.concepto }}<br>
+        {% if item.total_aporte_bsocial > 0 %}
+          Cuota Periodica: ${{ item.total_aporte_bsocial|floatformat:0 }}<br>
+        {% endif %}
+        {% if item.mascotaPago > 0 %}
+          Mascota: ${{ item.mascotaPago|floatformat:0 }}<br>
+        {% endif %}
+        {% if item.repatriacionPago > 0 %}
+          Repatriación: ${{ item.repatriacionPago|floatformat:0 }}<br>
+        {% endif %}
+        {% if item.seguroVidaPago > 0 %}
+          Seguro Vida: ${{ item.seguroVidaPago|floatformat:0 }}<br>
+        {% endif %}
+        {% if item.adicionalesPago > 0 %}
+          Adicionales: ${{ item.adicionalesPago|floatformat:0 }}<br>
+        {% endif %}
+        {% if item.total_coohop > 0 %}
+          Coohoperativitos: ${{ item.total_coohop|floatformat:0 }}<br>
+        {% endif %}
+        {% if item.convenioPago > 0 %}
+          Convenios: ${{ item.convenioPago|floatformat:0 }}<br>
+        {% endif %}
+        {% if item.total_coohop > 0 %}
+          Crédito Home Elements: ${{ item.creditoHomeElements|floatformat:0 }}<br>   
+        {% endif %}
+        {% if item.credito %}
+          Crédito: ${{ item.credito|floatformat:0 }}<br>   
+        {% endif %}
+        {% if item.diferencia > 0 %}
+          Saldo a favor: ${{ item.diferencia|floatformat:0 }}<br>
+        {% elif item.diferencia < 0 %}
+          Saldo a contra: ${{ item.diferencia|floatformat:0 }}<br>
+        {% endif %}
+        
+        <strong>Subtotal: ${{ item.valorPago|floatformat:0 }}</strong><br>
+      </p>
+    </div>
+  {% endfor %}
+    <p>
+      Total: ${{ pago_total|floatformat:0 }}<br>
+    </p>
+
+    <div class="centrado">
+      --------------------------<br>
+      ¡Gracias por su pago!<br>
+    </div>
+  </div>
+
+  <script>
+    window.onload = function() {
+      window.print();
+    }
+  </script>
+</body>
+</html>

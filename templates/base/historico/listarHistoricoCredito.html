@@ -50,7 +50,9 @@
         <th>Fecha Solicitud</th>
         <th>Valor</th>
         <th>Cuotas</th>
+        <th>Cuotas Pagadas</th>
         <th>Valor Cuotas</th>
+        <th>Pendiente Pago</th>
         <th>Valor Total</th>
         <th>Linea de Crédito</th>
         <th>Tasa Interes</th>
@@ -67,8 +69,10 @@
             <td>{{ obj.fechaSolicitud|date:"d/m/Y" }}</td>
             <td>${{ obj.valor|intcomma }}</td>
             <td>{{ obj.cuotas }}</td>
-            <td>${{ obj.valorCuota|intcomma }}</td>
-            <td>${{ obj.totalCredito|intcomma }}</td>
+            <td>{{ obj.cuotasPagas }}</td>
+            <td class="fw-bold text-success">${{ obj.valorCuota|intcomma }}</td>
+            <td class="fw-bold text-primary">${{ obj.pendientePago|intcomma }}</td>
+            <td class="fw-bold">${{ obj.totalCredito|intcomma }}</td>
             <td>{{ obj.lineaCredito }}</td>
             <td>{{ obj.tasaInteres }}</td>
             <td>{{ obj.estado }}</td>

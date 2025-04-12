@@ -1,13 +1,16 @@
-from django.shortcuts import render
-from django.views.generic import ListView, TemplateView
+from django.shortcuts import render, redirect
+from django.views.generic import ListView, TemplateView, View
 from django.http import HttpResponse
 from django.db.models import Sum, F, Subquery
 from datetime import timedelta
 from datetime import datetime
+from django.contrib import messages
+from .utils.medicion import medir_rendimiento
 
 from asociado.models import Asociado, ParametroAsociado, TarifaAsociado
 from beneficiario.models import Mascota, Beneficiario
 from historico.models import HistorialPagos, HistoricoAuxilio, HistoricoCredito
+from ventas.models import HistoricoVenta, Producto
 from parametro.models import FormaPago, MesTarifa, TipoAsociado
 from .queries import obtenerNovedades, obtenerDescuentoNomina
 
@@ -17,7 +20,97 @@ from funciones.function import separarFecha, convertirFecha
 #Libreria para generar el Excel
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill
+from openpyxl.utils import get_column_letter
+
+# Clase base para los reportes en Excel
+class BaseReporteExcel(View):
+
+    nombre_hoja = "Reporte"
+    titulo = "Reporte General"
+    columnas = []
+    ancho_columnas = []
     
+    def get_queryset(self, request, *args, **kwargs):
+        raise NotImplementedError("Debes implementar 'get_queryset' en la subclase.")
+
+    def preparar_fila(self, obj):
+        raise NotImplementedError("Debes implementar 'preparar_fila' en la subclase.")
+    
+    # @medir_rendimiento("reporte_excel")
+    def generar_excel(self, queryset, titulo):
+        wb = Workbook()
+        ws = wb.active
+        ws.title = self.nombre_hoja
+
+        # Estilos
+        bold_font = Font(bold=True, size=16, color="FFFFFF")
+        bold_font_header = Font(bold=True, size=11, color="000000")
+        alignment_center = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        fill_header = PatternFill(start_color="85B84C", end_color="85B84C", fill_type="solid")
+
+        ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=len(self.columnas))
+        ws.cell(row=1, column=1).value = titulo
+        ws.cell(row=1, column=1).font = bold_font
+        ws.cell(row=1, column=1).alignment = alignment_center
+        ws.cell(row=1, column=1).fill = fill_header
+
+        # Encabezados
+        for idx, encabezado in enumerate(self.columnas, 1):
+            celda = ws.cell(row=2, column=idx)
+            celda.value = encabezado
+            celda.font = bold_font_header
+            celda.alignment = alignment_center
+
+        # Ancho de columnas
+        for idx, width in enumerate(self.ancho_columnas, start=1):
+            col_letter = get_column_letter(idx)
+            ws.column_dimensions[col_letter].width = width
+
+        # Llenar datos
+        for i, obj in enumerate(queryset, start=3):
+            fila = self.preparar_fila(obj)
+            for j, valor in enumerate(fila, start=1):
+                ws.cell(row=i, column=j).value = valor
+
+        return wb
+
+    # Se utiliza cuando es llamado la clase directamente con el get
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset(request, *args, **kwargs)
+        titulo = self.titulo
+        if not queryset.exists():
+            messages.error(request, "No se encontraron resultados. Verifica las fechas.")
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+        
+        wb = self.generar_excel(queryset, titulo)
+        fecha = datetime.now().strftime("%d-%m-%Y")
+        nombre_archivo = f"{self.nombre_hoja}_{fecha}.xlsx"
+        response = HttpResponse(content_type="application/ms-excel")
+        response["Content-Disposition"] = f"attachment; filename={nombre_archivo}"
+        wb.save(response)
+        return response
+    
+    def exportar_excel(self, request, *args, **kwargs):
+        queryset = self.get_queryset(request, *args, **kwargs)
+        wb = self.generar_excel(queryset, self.titulo)
+        fecha = datetime.now().strftime("%Y-%m-%d")
+        nombre_archivo = f"{self.nombre_hoja}_{fecha}.xlsx"
+        response = HttpResponse(content_type="application/ms-excel")
+        response["Content-Disposition"] = f"attachment; filename={nombre_archivo}"
+        wb.save(response)
+        return response
+    
+    # se utiliza cuando se llama a la clase desde un formulario POST, llamando a la funcion exportar_excel
+    def post(self, request, *args, **kwargs):
+        queryset = self.get_queryset(request, *args, **kwargs)
+        if not queryset.exists():
+            messages.error(request, "No se encontraron resultados. Verifica las fechas.")
+            return render(request, 'mi_template.html', {
+                'post': 'yes',
+                # otras variables necesarias para que el template cargue bien
+            })
+        return self.exportar_excel(request, *args, **kwargs)
+
 class InformacionReporte(ListView):
     def get(self, request, *args, **kwargs):
         template_name = 'reporte/informacion.html'
@@ -32,8 +125,12 @@ class VerModificacionesFecha(ListView):
         fechaInicialForm = request.POST['fechaInicial']
         fechaFinalForm = request.POST['fechaFinal']
         # funcion que separa año, mes y dia de la fecha ingresada por el usuario.
-        fechaInicial = separarFecha(fechaInicialForm, 'inicial')
-        fechaFinal = separarFecha(fechaFinalForm, 'final')
+        try:
+            fechaInicial = separarFecha(fechaInicialForm, 'inicial')
+            fechaFinal = separarFecha(fechaFinalForm, 'final')
+        except (ValueError, TypeError):
+            messages.error(request, f"La fecha ingresada no es válida. Fecha Inicial {fechaInicialForm}, Fecha Final {fechaFinalForm}")
+            return render(request, 'reporte/modificacionesPorFecha.html', {'post':'post', 'fechaIncialF':fechaInicialForm, 'fechaFinalF':fechaFinalForm})
         
         # Obtenemos las queries de las novedades
         queries = obtenerNovedades(fechaInicial, fechaFinal)
@@ -51,8 +148,12 @@ class ReporteExcelFecha(TemplateView):
         fechaInicialForm = request.GET.get('fechaInicial')
         fechaFinalForm = request.GET.get('fechaFinal')
         # funcion que separa año, mes y dia de la fecha ingresada por el usuario.
-        fechaInicial = separarFecha(fechaInicialForm, 'inicial')
-        fechaFinal = separarFecha(fechaFinalForm, 'final')
+        try:
+            fechaInicial = separarFecha(fechaInicialForm, 'inicial')
+            fechaFinal = separarFecha(fechaFinalForm, 'final')
+        except (ValueError, TypeError):
+            messages.error(request, f"La fecha ingresada no es válida. Fecha Inicial {fechaInicialForm}, Fecha Final {fechaFinalForm}")
+            return render(request, 'reporte/modificacionesPorFecha.html', {'post':'post', 'fechaIncialF':fechaInicialForm, 'fechaFinalF':fechaFinalForm})
 
         # Funcion para formatear la fecha en el formato d-m-Y
         fecha_formateada1 = convertirFecha(fechaInicialForm)
@@ -293,130 +394,82 @@ class ReporteExcelFecha(TemplateView):
         wb.save(response)
         return response
 
-class VerPagosFecha(ListView):
+class VerPagosFecha(TemplateView):
+    template_name = 'reporte/pagosPorFecha.html'
+
     def get(self, request, *args, **kwargs):
-        template_name = 'reporte/pagosPorFecha.html'
-        return render(request, template_name)
+        return render(request, self.template_name)
     
     def post(self, request, *args, **kwargs):
         fechaInicialForm = request.POST['fechaInicial']
         fechaFinalForm = request.POST['fechaFinal']
-        # funcion que separa año, mes y dia de la fecha ingresada por el usuario.
-        fechaInicial = separarFecha(fechaInicialForm, 'inicial')
-        fechaFinal = separarFecha(fechaFinalForm, 'final')
-        # consulta por rango de fecha inicial y final
+        try:
+            # Convertir fechas al formato datetime directamente
+            fechaInicial = datetime.strptime(fechaInicialForm, "%Y-%m-%d")
+            fechaFinal = datetime.strptime(fechaFinalForm, "%Y-%m-%d")
+        except (ValueError, TypeError):
+            messages.error(request, f"La fecha ingresada no es válida. Fecha Inicial {fechaInicialForm}, Fecha Final {fechaFinalForm}")
+            return render(request, 'reporte/pagosPorFecha.html', {'post':'post', 'fechaInicialF':fechaInicialForm, 'fechaFinalF':fechaFinalForm})
+
         queryHistorial = HistorialPagos.objects.filter(
-                                fechaPago__range=[fechaInicial, fechaFinal]
-                            )
+            fechaPago__range=[fechaInicial, fechaFinal]
+        ).select_related('asociado', 'mesPago', 'formaPago')
+
         totalPago = queryHistorial.aggregate(total=Sum('valorPago'))['total'] or 0
 
-        template_name = 'reporte/pagosPorFecha.html'
-        return render(request, template_name, {'query':queryHistorial,'post':'yes', 'fechaIncialF':fechaInicialForm, 'fechaFinalF':fechaFinalForm, 'totalPago':totalPago})
+        context = {
+            'query': queryHistorial,
+            'post': 'yes',
+            'fechaInicialF': fechaInicialForm,
+            'fechaFinalF': fechaFinalForm,
+            'totalPago': totalPago
+        }
 
-class ReporteExcelPago(TemplateView):
-    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name, context)
+    
+class ReporteExcelPago(BaseReporteExcel):
+    nombre_hoja = "Pagos"
+    columnas = [
+        'Número Registro', 'Número Documento', 'Nombre Completo', 'Mes Pago',
+        'Valor Pago', 'Aporte', 'Bienestar Social', 'Mascota', 'Repatriación',
+        'Seguro Vida', 'Adicionales', 'Coohoperativitos', 'Diferencia', 'Forma Pago'
+    ]
+    ancho_columnas = [11, 14, 30, 16, 14, 12, 12, 12, 12, 12, 12, 16, 12, 12]
+
+    def get_queryset(self, request, *args, **kwargs):
         fechaInicialForm = request.GET['fechaInicial']
         fechaFinalForm = request.GET['fechaFinal']
-        # funcion que separa año, mes y dia de la fecha ingresada por el usuario.
-        fechaInicial = separarFecha(fechaInicialForm, 'inicial')
-        fechaFinal = separarFecha(fechaFinalForm, 'final')
-        # consulta por rango de fecha inicial y final
-        queryPagos = HistorialPagos.objects.filter(
+        try:
+            fechaInicial = datetime.strptime(fechaInicialForm, "%Y-%m-%d")
+            fechaFinal = datetime.strptime(fechaFinalForm, "%Y-%m-%d")
+        except (ValueError, TypeError):
+            messages.error(request, f"La fecha ingresada no es válida. Fecha Inicial {fechaInicialForm}, Fecha Final {fechaFinalForm}")
+            return HistorialPagos.objects.none()
+
+        self.titulo = f"Reporte de Pagos desde {fechaInicial.strftime('%d-%m-%Y')} hasta {fechaFinal.strftime('%d-%m-%Y')}"
+
+        return HistorialPagos.objects.filter(
             fechaPago__range=[fechaInicial, fechaFinal]
-        )
+        ).select_related('asociado', 'mesPago', 'formaPago')
 
-        # Convertir la cadena de fecha a un objeto datetime
-        fecha_objeto1 = datetime.strptime(fechaInicialForm, "%Y-%m-%d")
-        # Formatear la fecha en el formato d-m-Y
-        fecha_formateada1 = fecha_objeto1.strftime("%d-%m-%Y")
-        # Convertir la cadena de fecha a un objeto datetime
-        fecha_objeto2 = datetime.strptime(fechaFinalForm, "%Y-%m-%d")
-        # Formatear la fecha en el formato d-m-Y
-        fecha_formateada2 = fecha_objeto2.strftime("%d-%m-%Y")
+    def preparar_fila(self, obj):
+        return [
+            obj.id,
+            int(obj.asociado.numDocumento),
+            f'{obj.asociado.nombre} {obj.asociado.apellido}',
+            obj.mesPago.concepto,
+            obj.valorPago,
+            obj.aportePago,
+            obj.bSocialPago,
+            obj.mascotaPago,
+            obj.repatriacionPago,
+            obj.seguroVidaPago,
+            obj.adicionalesPago,
+            obj.coohopAporte + obj.coohopBsocial,
+            obj.diferencia,
+            obj.formaPago.formaPago
+        ]
 
-        # Estilos
-        bold_font = Font(bold=True, size=16, color="FFFFFF")  # Fuente en negrita, tamaño 12 y color blanco
-        bold_font2 = Font(bold=True, size=12, color="000000")  # Fuente en negrita, tamaño 12 y color negro
-        alignment_center = Alignment(horizontal="center", vertical="center")  # Alineación al centro
-        fill = PatternFill(start_color="85B84C", end_color="85B84C", fill_type="solid")  # Relleno verde sólido
-
-        wb = Workbook() #Creamos la instancia del Workbook
-        ws = wb.active
-        ws.title = 'Pagos'
-        titulo1 = f"Reporte de Pagos desde {fecha_formateada1} - {fecha_formateada2}"
-        ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
-        ws.merge_cells('A1:N1')
-        ws['A1'].font = bold_font
-        ws['A1'].alignment = alignment_center
-        ws['A1'].fill = fill
-
-        ws['A2'] = 'Número Registro'
-        ws['B2'] = 'Número Documento'
-        ws['C2'] = 'Nombre Completo'
-        ws['D2'] = 'Mes Pago'
-        ws['E2'] = 'Valor Pago'
-        ws['F2'] = 'Aporte'
-        ws['G2'] = 'Bienestar Social'
-        ws['H2'] = 'Mascota'
-        ws['I2'] = 'Repatriación'
-        ws['J2'] = 'Seguro Vida'
-        ws['K2'] = 'Adicionales'
-        ws['L2'] = 'Coohoperativitos'
-        ws['M2'] = 'Diferencia'
-        ws['N2'] = 'Forma Pago'
-     
-        bold_font2 = Font(bold=True)
-        center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
-
-        for col in range(1,15):
-            cell = ws.cell(row=2, column=col)
-            cell.font = bold_font2
-            cell.alignment = center_alignment
-
-        ws.column_dimensions['A'].width = 11
-        ws.column_dimensions['B'].width = 14
-        ws.column_dimensions['C'].width = 30
-        ws.column_dimensions['D'].width = 16
-        ws.column_dimensions['E'].width = 14
-        ws.column_dimensions['F'].width = 12
-        ws.column_dimensions['G'].width = 12
-        ws.column_dimensions['H'].width = 12
-        ws.column_dimensions['I'].width = 12
-        ws.column_dimensions['J'].width = 12
-        ws.column_dimensions['K'].width = 12
-        ws.column_dimensions['L'].width = 16
-        ws.column_dimensions['M'].width = 12
-        ws.column_dimensions['N'].width = 12
-
-        #Inicia el primer registro en la celda numero 3
-        cont = 3
-        i = 1
-        for pago in queryPagos:
-            #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
-            ws.cell(row = cont, column = 1).value = i                    
-            ws.cell(row = cont, column = 2).value = int(pago.asociado.numDocumento)
-            ws.cell(row = cont, column = 3).value = f'{pago.asociado.nombre}' + ' ' + f'{pago.asociado.apellido}'
-            ws.cell(row = cont, column = 4).value = pago.mesPago.concepto
-            ws.cell(row = cont, column = 5).value = pago.valorPago
-            ws.cell(row = cont, column = 6).value = pago.aportePago
-            ws.cell(row = cont, column = 7).value = pago.bSocialPago
-            ws.cell(row = cont, column = 8).value = pago.mascotaPago
-            ws.cell(row = cont, column = 9).value = pago.repatriacionPago
-            ws.cell(row = cont, column = 10).value = pago.seguroVidaPago
-            ws.cell(row = cont, column = 11).value = pago.adicionalesPago
-            ws.cell(row = cont, column = 12).value = pago.coohopAporte + pago.coohopBsocial
-            ws.cell(row = cont, column = 13).value = pago.diferencia
-            ws.cell(row = cont, column = 14).value = pago.formaPago.formaPago
-            i+=1
-            cont+=1
-
-        nombre_archivo = f"Reporte Pago_{fecha_formateada1}-{fecha_formateada2}.xlsx"
-        response = HttpResponse(content_type = "application/ms-excel")
-        content = "attachment; filename = {0}".format(nombre_archivo)
-        response['Content-Disposition'] = content
-        wb.save(response)
-        return response
-    
 class FormatoExtracto(ListView):
     def get(self, request, *args, **kwargs):
         template_name = 'reporte/reporteExtracto.html'
@@ -773,10 +826,17 @@ class VerConciliacionBancaria(ListView):
         formaPago = FormaPago.objects.all().order_by('formaPago')
         fechaInicialForm = request.POST['fechaInicial']
         fechaFinalForm = request.POST['fechaFinal']
+        
+        try:
+            fechaInicial = separarFecha(fechaInicialForm, 'inicial')
+            fechaFinal = separarFecha(fechaFinalForm, 'final')
+        except (ValueError, TypeError):
+            messages.error(request, f"La fecha ingresada no es válida. Fecha Inicial {fechaInicialForm}, Fecha Final {fechaFinalForm}")
+            formaPago = FormaPago.objects.all().order_by('formaPago')
+            return render(request, 'reporte/listarConciliacionBancaria.html', {'post':'post', 'fechaIncialF':fechaInicialForm, 'fechaFinalF':fechaFinalForm, 'formaPago':formaPago})
+        
         banco = int(request.POST['banco'])
         # funcion que separa año, mes y dia de la fecha ingresada por el usuario.
-        fechaInicial = separarFecha(fechaInicialForm, 'inicial')
-        fechaFinal = separarFecha(fechaFinalForm, 'final')
         # consulta por rango de fecha inicial y final
         queryHistorial = HistorialPagos.objects.filter(
             fechaPago__range=[fechaInicial, fechaFinal],
@@ -799,9 +859,15 @@ class ExcelConciliacionBancaria(TemplateView):
         fechaInicialForm = request.GET['fechaInicial']
         fechaFinalForm = request.GET['fechaFinal']
         banco = int(request.GET['banco'])
-        # funcion que separa año, mes y dia de la fecha ingresada por el usuario.
-        fechaInicial = separarFecha(fechaInicialForm, 'inicial')
-        fechaFinal = separarFecha(fechaFinalForm, 'final')
+        
+        try:
+            fechaInicial = separarFecha(fechaInicialForm, 'inicial')
+            fechaFinal = separarFecha(fechaFinalForm, 'final')
+        except (ValueError, TypeError):
+            messages.error(request, f"La fecha ingresada no es válida. Fecha Inicial {fechaInicialForm}, Fecha Final {fechaFinalForm}")
+            formaPago = FormaPago.objects.all().order_by('formaPago')
+            return render(request, 'reporte/listarConciliacionBancaria.html', {'post':'post', 'fechaIncialF':fechaInicialForm, 'fechaFinalF':fechaFinalForm, 'formaPago':formaPago})
+        
         # consulta por rango de fecha inicial y final
         queryHistorial = HistorialPagos.objects.filter(
             fechaPago__range=[fechaInicial, fechaFinal],
@@ -877,574 +943,368 @@ class ExcelConciliacionBancaria(TemplateView):
         response['Content-Disposition'] = content
         wb.save(response)
         return response
-    
-# Excel Listado Asociados, Excel Tarifas Asociado
-class DescargarExcel(ListView):
-    
-    def get(self, request, *args, **kwargs):
-        tipo_formato = kwargs.get('tipoFormato')
 
-        # Estilos
-        bold_font = Font(bold=True, size=16, color="FFFFFF")  # Fuente en negrita, tamaño 12 y color blanco
-        bold_font2 = Font(bold=True, size=12, color="000000")  # Fuente en negrita, tamaño 12 y color negro
-        alignment_center = Alignment(horizontal="center", vertical="center")  # Alineación al centro
-        fill = PatternFill(start_color="85B84C", end_color="85B84C", fill_type="solid")  # Relleno verde sólido
+class DescargarAsociados(BaseReporteExcel):
+    nombre_hoja = "Listado Asociados"
+    columnas = [
+        'ID Asociado', 'Nombres', 'Apellidos', 'Número Documento', 'Genero', 'Estado Civil', 'Tipo Vivienda', 'Estrato', 'Dirección', 'Barrio', 'Departamento Residencia', 'Municipio Residencia', 'Fecha Nacimiento', 'Indicativo Celular', 'Número Celular', 'Email', 'Estado Asociado', 'Tipo Asociado', 'Fecha Ingreso', 'Funeraria', 'Fecha Retiro'
+        ]
 
-        wb = Workbook() #Creamos la instancia del Workbook
-        ws = wb.active
+    ancho_columnas = [11, 20, 20, 20, 20, 20, 20, 10, 25, 25, 14, 20, 15, 12, 15, 20, 18, 20, 20, 22, 20]
 
-        if tipo_formato == 1:
-            ws.title = 'Listado Asociados'
-            titulo1 = f"Listado Asociados"
-            ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
-            ws.merge_cells('A1:V1')
-            ws['A1'].font = bold_font
-            ws['A1'].alignment = alignment_center
-            ws['A1'].fill = fill
-
-            ws['A2'] = 'Número registro'
-            ws['B2'] = 'Codigo'
-            ws['C2'] = 'Nombres'
-            ws['D2'] = 'Apellidos'
-            ws['E2'] = 'Número Documento'
-            ws['F2'] = 'Genero'
-            ws['G2'] = 'Estado Civil'
-            ws['H2'] = 'Tipo Vivienda'
-            ws['I2'] = 'Estrato'
-            ws['J2'] = 'Dirección'
-            ws['K2'] = 'Barrio'
-            ws['L2'] = 'Departamento Residencia'
-            ws['M2'] = 'Municipio Residencia'
-            ws['N2'] = 'Fecha Nacimiento'
-            ws['O2'] = 'Indicativo Celular'
-            ws['P2'] = 'Número Celular'
-            ws['Q2'] = 'Email'
-            ws['R2'] = 'Estado Asociado'
-            ws['S2'] = 'Tipo Asociado'
-            ws['T2'] = 'Fecha Ingreso'
-            ws['U2'] = 'Funeraria'
-            ws['V2'] = 'Fecha Retiro'
-                    
-            bold_font2 = Font(bold=True)
-            center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
-
-            for col in range(1,24):
-                cell = ws.cell(row=2, column=col)
-                cell.font = bold_font2
-                cell.alignment = center_alignment
-
-            ws.column_dimensions['A'].width = 11
-            ws.column_dimensions['B'].width = 11
-            ws.column_dimensions['C'].width = 20
-            ws.column_dimensions['D'].width = 20
-            ws.column_dimensions['E'].width = 20
-            ws.column_dimensions['F'].width = 20
-            ws.column_dimensions['G'].width = 20
-            ws.column_dimensions['H'].width = 20
-            ws.column_dimensions['I'].width = 10
-            ws.column_dimensions['J'].width = 25
-            ws.column_dimensions['K'].width = 25
-            ws.column_dimensions['L'].width = 14
-            ws.column_dimensions['M'].width = 20
-            ws.column_dimensions['N'].width = 15
-            ws.column_dimensions['O'].width = 12
-            ws.column_dimensions['P'].width = 15
-            ws.column_dimensions['Q'].width = 20
-            ws.column_dimensions['R'].width = 18
-            ws.column_dimensions['S'].width = 20
-            ws.column_dimensions['T'].width = 20
-            ws.column_dimensions['U'].width = 22
-            ws.column_dimensions['V'].width = 20
-
-            #Inicia el primer registro en la celda numero 3
-            cont = 3
-            i = 1
-            
-            queryAsociado = Asociado.objects.all().annotate(funeraria=F('parametroasociado__funeraria__concepto'))
-
-            for asociado in queryAsociado:
-
-                #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
-                ws.cell(row = cont, column = 1).value = i
-                ws.cell(row = cont, column = 2).value = asociado.pk             
-                ws.cell(row = cont, column = 3).value = asociado.nombre
-                ws.cell(row = cont, column = 4).value = asociado.apellido
-                ws.cell(row = cont, column = 5).value = int(asociado.numDocumento)
-                ws.cell(row = cont, column = 6).value = asociado.genero
-                ws.cell(row = cont, column = 7).value = asociado.estadoCivil
-                ws.cell(row = cont, column = 8).value = asociado.tipoVivienda
-                ws.cell(row = cont, column = 9).value = asociado.estrato
-                ws.cell(row = cont, column = 10).value = asociado.direccion
-                ws.cell(row = cont, column = 11).value = asociado.barrio
-                ws.cell(row = cont, column = 12).value = asociado.deptoResidencia.nombre
-                ws.cell(row = cont, column = 13).value = asociado.mpioResidencia.nombre
-                ws.cell(row = cont, column = 14).value = asociado.fechaNacimiento.strftime("%d/%m/%Y")
-                ws.cell(row = cont, column = 15).value = getattr(asociado.indicativoCelular, 'indicativo', '')
-                ws.cell(row = cont, column = 16).value = int(asociado.numCelular)
-                ws.cell(row = cont, column = 17).value = asociado.email
-                ws.cell(row = cont, column = 18).value = asociado.estadoAsociado
-                ws.cell(row = cont, column = 19).value = asociado.tAsociado.concepto
-                ws.cell(row = cont, column = 20).value = asociado.fechaIngreso.strftime("%d/%m/%Y")
-                ws.cell(row = cont, column = 21).value = asociado.funeraria
-                if asociado.fechaRetiro:
-                    ws.cell(row = cont, column = 22).value = asociado.fechaRetiro.strftime("%d/%m/%Y")
-                else:
-                    ws.cell(row = cont, column = 22).value = ''
-                i+=1
-                cont+=1
-
-            nombre_archivo = f"Reporte_Listado_Asociados.xlsx"
-
-        elif tipo_formato == 2:
-            ws.title = 'Listado '
-            titulo1 = f"Listado Tarifas Asociados"
-            ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
-            ws.merge_cells('A1:O1')
-            ws['A1'].font = bold_font
-            ws['A1'].alignment = alignment_center
-            ws['A1'].fill = fill
-
-            ws['A2'] = 'Número registro'
-            ws['B2'] = 'Codigo'
-            ws['C2'] = 'Número Documento'
-            ws['D2'] = 'Nombre Completo'
-            ws['E2'] = 'Tipo Asociado'
-            ws['F2'] = 'Valor'
-            ws['G2'] = 'Aporte'
-            ws['H2'] = 'Bienestar Social'
-            ws['I2'] = 'Mascota'
-            ws['J2'] = 'Repatriación'
-            ws['K2'] = 'Seguro Vida'
-            ws['L2'] = 'Adicionales'
-            ws['M2'] = 'Coohoperativitos Aporte'
-            ws['N2'] = 'Coohoperativitos B Social'
-            ws['O2'] = 'Convenio'
+    def get_queryset(self, request, *args, **kwargs):
         
-            bold_font2 = Font(bold=True)
-            center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+        self.titulo = "Listado de Asociados"
 
-            for col in range(1,16):
-                cell = ws.cell(row=2, column=col)
-                cell.font = bold_font2
-                cell.alignment = center_alignment
+        return Asociado.objects.all().select_related('deptoResidencia','mpioResidencia','tAsociado','indicativoCelular').annotate(funeraria=F('parametroasociado__funeraria__concepto')).order_by('pk')
 
-            ws.column_dimensions['A'].width = 11
-            ws.column_dimensions['B'].width = 11
-            ws.column_dimensions['C'].width = 14
-            ws.column_dimensions['D'].width = 36
-            ws.column_dimensions['E'].width = 20
-            ws.column_dimensions['F'].width = 14
-            ws.column_dimensions['G'].width = 14
-            ws.column_dimensions['H'].width = 14
-            ws.column_dimensions['I'].width = 14
-            ws.column_dimensions['J'].width = 14
-            ws.column_dimensions['K'].width = 14
-            ws.column_dimensions['L'].width = 14
-            ws.column_dimensions['M'].width = 14
-            ws.column_dimensions['N'].width = 14
-            ws.column_dimensions['O'].width = 14
+    def preparar_fila(self, obj):
+        return [
+            obj.pk,
+            obj.nombre,
+            obj.apellido,
+            int(obj.numDocumento),
+            obj.genero,
+            obj.estadoCivil,
+            obj.tipoVivienda,
+            obj.estrato,
+            obj.direccion,
+            obj.barrio,
+            obj.deptoResidencia.nombre,
+            obj.mpioResidencia.nombre,
+            obj.fechaNacimiento.strftime("%d/%m/%Y") if obj.fechaNacimiento else None,
+            getattr(obj.indicativoCelular, 'indicativo', ''),
+            int(obj.numCelular),
+            obj.email,
+            obj.estadoAsociado, 
+            obj.tAsociado.concepto,
+            obj.fechaIngreso.strftime("%d/%m/%Y") if obj.fechaIngreso else None,
+            obj.funeraria,
+            obj.fechaRetiro.strftime("%d/%m/%Y") if obj.fechaRetiro else None,
+        ]
 
-            #Inicia el primer registro en la celda numero 3
-            cont = 3
-            i = 1
+class DescargarTarifasAsociados(BaseReporteExcel):
+    nombre_hoja = "Listado Tarifas Asociados"
+    columnas = [
+        'ID Asociado', 'Número Documento', 'Nombre Completo', 'Tipo Asociado', 'Valor', 'Aporte', 'Bienestar Social', 'Mascota', 'Repatriación', 'Seguro Vida', 'Adicionales', 'Coohoperativitos Aporte', 'Coohoperativitos B Social', 'Convenio'
+        ]
 
-            queryTarifa = TarifaAsociado.objects.values('asociado__id',
+    ancho_columnas = [11, 14, 36, 20, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14]
+
+    def get_queryset(self, request, *args, **kwargs):
+        
+        self.titulo = "Listado Tarifas de Asociados"
+
+        return TarifaAsociado.objects.values('asociado__id',
                             'asociado__nombre','asociado__apellido','asociado__numDocumento','asociado__tAsociado__concepto', 'cuotaAporte', 'cuotaBSocial', 'cuotaMascota', 'cuotaRepatriacion', 
                             'cuotaSeguroVida', 'cuotaAdicionales', 'cuotaCoohopAporte', 'cuotaCoohopBsocial', 'cuotaConvenio', 'total'
                         )
 
-            for query in queryTarifa:
-                #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
-                ws.cell(row = cont, column = 1).value = i
-                ws.cell(row = cont, column = 2).value = query['asociado__id']
-                ws.cell(row = cont, column = 3).value = int(query['asociado__numDocumento'])
-                ws.cell(row = cont, column = 4).value = f'{query['asociado__nombre']}' + ' ' + f'{query['asociado__apellido']}'
-                ws.cell(row = cont, column = 5).value = query['asociado__tAsociado__concepto']
-                ws.cell(row = cont, column = 6).value = query['total']
-                ws.cell(row = cont, column = 7).value = query['cuotaAporte']
-                ws.cell(row = cont, column = 8).value = query['cuotaBSocial']
-                ws.cell(row = cont, column = 9).value = query['cuotaMascota']
-                ws.cell(row = cont, column = 10).value = query['cuotaRepatriacion']
-                ws.cell(row = cont, column = 11).value = query['cuotaSeguroVida']
-                ws.cell(row = cont, column = 12).value = query['cuotaAdicionales']
-                ws.cell(row = cont, column = 13).value = query['cuotaCoohopAporte']
-                ws.cell(row = cont, column = 14).value = query['cuotaCoohopBsocial']
-                ws.cell(row = cont, column = 15).value = query['cuotaConvenio']
-                i+=1
-                cont+=1
-            nombre_archivo = f"Reporte_Tarifas_Asociado.xlsx"
+    def preparar_fila(self, obj):
+        return [
+            obj['asociado__id'],
+            int(obj['asociado__numDocumento']),
+            f"{obj['asociado__nombre']} {obj['asociado__apellido']}",
+            obj['asociado__tAsociado__concepto'],
+            obj['total'],
+            obj['cuotaAporte'],
+            obj['cuotaBSocial'],
+            obj['cuotaMascota'],
+            obj['cuotaRepatriacion'],
+            obj['cuotaSeguroVida'],
+            obj['cuotaAdicionales'],
+            obj['cuotaCoohopAporte'],
+            obj['cuotaCoohopBsocial'],
+            obj['cuotaConvenio'],
+        ]
 
-        elif tipo_formato == 3:
-            pass
-        
-        response = HttpResponse(content_type = "application/ms-excel")
-        content = "attachment; filename = {0}".format(nombre_archivo)
-        response['Content-Disposition'] = content
-        wb.save(response)
-        return response
-
-class DescargarExcelBeneficiarios(ListView):
+class DescargarBeneficiarios(BaseReporteExcel):
+    nombre_hoja = "Listado Beneficiarios"
+    columnas = [
+        'ID Titular', 'Número Documento Titular', 'Nombre Titular', 'Apellido Titular', 'ID Beneficiario','Número Documento Beneficiario', 'Tipo Documento', 'Nombre Beneficiario', 'Apellido Beneficiario','Fecha Nacimiento', 'Parentesco', 'Repatriación'
+        ]
     
-    def get(self, request, *args, **kwargs):
-        tipo_formato = kwargs.get('tipoFormato')
+    ancho_columnas = [11, 20, 24, 24, 13, 20, 20, 24, 24, 20, 20, 20]
 
-        # Estilos
-        bold_font = Font(bold=True, size=16, color="FFFFFF")  # Fuente en negrita, tamaño 12 y color blanco
-        bold_font2 = Font(bold=True, size=12, color="000000")  # Fuente en negrita, tamaño 12 y color negro
-        alignment_center = Alignment(horizontal="center", vertical="center")  # Alineación al centro
-        fill = PatternFill(start_color="85B84C", end_color="85B84C", fill_type="solid")  # Relleno verde sólido
-
-        wb = Workbook() #Creamos la instancia del Workbook
-        ws = wb.active
-
-        if tipo_formato == 1:
-            ws.title = 'Listado Beneficiarios'
-            titulo1 = f"Listado Beneficiarios"
-            ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
-            ws.merge_cells('A1:M1')
-            ws['A1'].font = bold_font
-            ws['A1'].alignment = alignment_center
-            ws['A1'].fill = fill
-
-            ws['A2'] = 'Número registro'
-            ws['B2'] = 'Codigo Titular'
-            ws['C2'] = 'Nombres Titular'
-            ws['D2'] = 'Apellidos Titular'
-            ws['E2'] = 'Número Documento Titular'
-            ws['F2'] = 'Codigo Beneficiario'
-            ws['G2'] = 'Nombres Beneficiario'
-            ws['H2'] = 'Apellidos Beneficiario'
-            ws['I2'] = 'Número Documento Beneficiario'
-            ws['J2'] = 'Tipo Documento'
-            ws['K2'] = 'Fecha Nacimiento'
-            ws['L2'] = 'Parentesco'
-            ws['M2'] = 'Repatración'
-                    
-            bold_font2 = Font(bold=True)
-            center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
-
-            for col in range(1,14):
-                cell = ws.cell(row=2, column=col)
-                cell.font = bold_font2
-                cell.alignment = center_alignment
-
-            ws.column_dimensions['A'].width = 11
-            ws.column_dimensions['B'].width = 11
-            ws.column_dimensions['C'].width = 20
-            ws.column_dimensions['D'].width = 20
-            ws.column_dimensions['E'].width = 20
-            ws.column_dimensions['F'].width = 12
-            ws.column_dimensions['G'].width = 20
-            ws.column_dimensions['H'].width = 20
-            ws.column_dimensions['I'].width = 20
-            ws.column_dimensions['J'].width = 20
-            ws.column_dimensions['K'].width = 20
-            ws.column_dimensions['L'].width = 20
-            ws.column_dimensions['M'].width = 20
-
-            #Inicia el primer registro en la celda numero 3
-            cont = 3
-            i = 1
-            
-            queryBeneficiario = Beneficiario.objects.filter(estadoRegistro = True)
-
-            for obj in queryBeneficiario:
-
-                #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
-                ws.cell(row = cont, column = 1).value = i
-                ws.cell(row = cont, column = 2).value = obj.asociado.pk             
-                ws.cell(row = cont, column = 3).value = obj.asociado.nombre
-                ws.cell(row = cont, column = 4).value = obj.asociado.apellido
-                ws.cell(row = cont, column = 5).value = int(obj.asociado.numDocumento)
-                ws.cell(row = cont, column = 6).value = obj.pk
-                ws.cell(row = cont, column = 7).value = obj.nombre
-                ws.cell(row = cont, column = 8).value = obj.apellido
-                ws.cell(row = cont, column = 9).value = int(obj.numDocumento)
-                ws.cell(row = cont, column = 10).value = obj.tipoDocumento
-                ws.cell(row = cont, column = 11).value = obj.fechaNacimiento.strftime("%d/%m/%Y")
-                ws.cell(row = cont, column = 12).value = obj.parentesco.nombre
-                if obj.repatriacion == True:
-                    ws.cell(row = cont, column = 13).value = f'{obj.paisRepatriacion.nombre}' + '-' + f'{obj.ciudadRepatriacion}'
-                else:
-                    ws.cell(row = cont, column = 13).value = ''
-
-                i+=1
-                cont+=1
-                nombre_archivo = f"Reporte_Listado_Beneficiarios.xlsx"
-        elif tipo_formato == 2:
-            ws.title = 'Listado Mascotas'
-            titulo1 = f"Listado Mascotas"
-            ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
-            ws.merge_cells('A1:H1')
-            ws['A1'].font = bold_font
-            ws['A1'].alignment = alignment_center
-            ws['A1'].fill = fill
-
-            ws['A2'] = 'Número registro'
-            ws['B2'] = 'Codigo'
-            ws['C2'] = 'Nombre Completo Titular'
-            ws['D2'] = 'Número Documento Titular'
-            ws['E2'] = 'Nombre Mascota'
-            ws['F2'] = 'Tipo'
-            ws['G2'] = 'Raza'
-            ws['H2'] = 'Fecha Nacimiento'    
+    def get_queryset(self, request, *args, **kwargs):
         
-            bold_font2 = Font(bold=True)
-            center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+        self.titulo = "Listado Beneficiarios"
 
-            for col in range(1,9):
-                cell = ws.cell(row=2, column=col)
-                cell.font = bold_font2
-                cell.alignment = center_alignment
+        return Beneficiario.objects.filter(estadoRegistro=True).values(
+                                        'asociado__id',
+                                        'asociado__nombre',
+                                        'asociado__apellido',
+                                        'asociado__numDocumento',
+                                        'id',
+                                        'nombre',
+                                        'apellido',
+                                        'numDocumento',
+                                        'tipoDocumento',
+                                        'fechaNacimiento',
+                                        'parentesco__nombre',
+                                        'repatriacion',
+                                        'paisRepatriacion__nombre',
+                                        'ciudadRepatriacion'
+                                    ).order_by('asociado')
 
-            ws.column_dimensions['A'].width = 11
-            ws.column_dimensions['B'].width = 11
-            ws.column_dimensions['C'].width = 20
-            ws.column_dimensions['D'].width = 20
-            ws.column_dimensions['E'].width = 20
-            ws.column_dimensions['F'].width = 20
-            ws.column_dimensions['G'].width = 20
-            ws.column_dimensions['H'].width = 20
+    def preparar_fila(self, obj):
+        repatriacion = ''
+        if obj['repatriacion']:
+            repatriacion = f"{obj['paisRepatriacion__nombre']} - {obj['ciudadRepatriacion']}"
 
-            #Inicia el primer registro en la celda numero 3
-            cont = 3
-            i = 1
+        return [
+            obj['asociado__id'],  # Código titular
+            int(obj['asociado__numDocumento']),  # Documento titular
+            obj['asociado__nombre'],  # Nombres titular
+            obj['asociado__apellido'],  # Apellidos titular
+            obj['id'],
+            int(obj['numDocumento']),  # Documento beneficiario
+            obj['tipoDocumento'],
+            obj['nombre'],
+            obj['apellido'], 
+            obj['fechaNacimiento'].strftime("%d/%m/%Y"),
+            obj['parentesco__nombre'],
+            repatriacion
+        ]
+    
+class DescargarMascotas(BaseReporteExcel):
+    nombre_hoja = "Listado Mascotas"
+    columnas = [
+        'ID Titular', 'Número Documento Titular', 'Nombre Titular', 'Apellido Titular',  'ID Mascota', 'Nombre Mascota', 'Tipo', 'Raza', 'Fecha Nacimiento'
+        ]
+    
+    ancho_columnas = [11, 20, 24, 24, 11, 24, 20, 20, 24]
 
-            queryMascota = Mascota.objects.filter(estadoRegistro = True)
+    def get_queryset(self, request, *args, **kwargs):
+        
+        self.titulo = "Listado Mascotas"
 
-            for query in queryMascota:
-                #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
-                ws.cell(row = cont, column = 1).value = i
-                ws.cell(row = cont, column = 2).value = query.asociado.pk
-                ws.cell(row = cont, column = 3).value = query.asociado.nombre + ' ' + query.asociado.apellido
-                ws.cell(row = cont, column = 4).value = int(query.asociado.numDocumento)
-                ws.cell(row = cont, column = 5).value = query.nombre
-                ws.cell(row = cont, column = 6).value = query.tipo
-                ws.cell(row = cont, column = 7).value = query.raza
-                ws.cell(row = cont, column = 8).value = query.fechaNacimiento.strftime("%d/%m/%Y")
-                i+=1
-                cont+=1
-            nombre_archivo = f"Reporte_Listado_Mascotas.xlsx"
-        elif tipo_formato == 3:
-            pass
-        response = HttpResponse(content_type = "application/ms-excel")
-        content = "attachment; filename = {0}".format(nombre_archivo)
-        response['Content-Disposition'] = content
-        wb.save(response)
-        return response
+        return Mascota.objects.filter(estadoRegistro = True).values(
+                                            'asociado__id',
+                                            'asociado__nombre',
+                                            'asociado__apellido',
+                                            'asociado__numDocumento',
+                                            'nombre',
+                                            'id',
+                                            'tipo',
+                                            'raza',
+                                            'fechaNacimiento',
+                                        ).order_by('asociado')
 
-class DescargaAuxilio(ListView):
+    def preparar_fila(self, obj):
+
+        return [
+            obj['asociado__id'],
+            int(obj['asociado__numDocumento']),
+            obj['asociado__nombre'],
+            obj['asociado__apellido'],
+            obj['id'],
+            obj['nombre'],
+            obj['tipo'],
+            obj['raza'], 
+            obj['fechaNacimiento'].strftime("%d/%m/%Y"),
+        ]
+
+class DescargarAdicionalesFuneraria(BaseReporteExcel):
+    nombre_hoja = "Listado Adicionales Funeraria"
+    columnas = [
+        'ID Titular', 'Número Documento Titular', 'Nombre Titular', 'Apellido Titular',  'Concepto', 'Fecha Inicio', 'Cuota Adicionales'
+        ]
+    
+    ancho_columnas = [11, 20, 24, 24, 34, 20, 20]
+
+    def get_queryset(self, request, *args, **kwargs):
+        
+        self.titulo = "Listado Adicionales Funeraria"
+
+        return TarifaAsociado.objects.filter(estadoRegistro = True, estadoAdicional = True).values(
+                                            'asociado__id',
+                                            'asociado__nombre',
+                                            'asociado__apellido',
+                                            'asociado__numDocumento',
+                                            'conceptoAdicional',
+                                            'fechaInicioAdicional',
+                                            'cuotaAdicionales'
+                                        ).order_by('asociado')
+
+    def preparar_fila(self, obj):
+
+        return [
+            obj['asociado__id'],
+            int(obj['asociado__numDocumento']),
+            obj['asociado__nombre'],
+            obj['asociado__apellido'],
+            obj['conceptoAdicional'],
+            obj['fechaInicioAdicional'].strftime("%d/%m/%Y"),
+            int(obj['cuotaAdicionales']), 
+        ]
+
+class DescargarAuxilios(BaseReporteExcel):
+    nombre_hoja = "Listado Auxilios"
+    columnas = [
+        'ID Venta', 'Número Documento', 'Nombre Completo', 'Tipo Auxilio', 'Entidad Bancaria', 'Número Cuenta', 'Valor Auxilio', 'Fecha Solicitud', 'Estado', 'Observaciones', 'Fecha Desembolso'
+        ]
+    
+    ancho_columnas = [14, 20, 37, 32, 25, 17, 13, 13, 20, 40, 20]
+
     def get(self, request, *args, **kwargs):
         template = 'reporte/modalReporte.html'
         return render(request, template, {'tipoReporte':'auxilio'})
-    
+
     def post(self, request, *args, **kwargs):
-        fechaInicialForm = request.POST['fechaInicial']
-        fechaFinalForm = request.POST['fechaFinal']
+        return self.exportar_excel(request, *args, **kwargs)
 
-        queryAuxilio = HistoricoAuxilio.objects.filter(
+    def get_queryset(self, request, *args, **kwargs):
+        fechaInicialForm = request.POST.get('fechaInicial')
+        fechaFinalForm = request.POST.get('fechaFinal')
+
+        if not fechaInicialForm or not fechaFinalForm:
+            raise ValueError("Fechas no enviadas en el formulario.")
+    
+        fechaInicial = datetime.strptime(fechaInicialForm, "%Y-%m-%d")
+        fechaFinal = datetime.strptime(fechaFinalForm, "%Y-%m-%d")
+
+        self.titulo = f"Reporte de Auxilios desde {fechaInicial.strftime('%d-%m-%Y')} hasta {fechaFinal.strftime('%d-%m-%Y')}"
+
+        return HistoricoAuxilio.objects.filter(
             fechaSolicitud__range=[fechaInicialForm, fechaFinalForm]
-        )
+        ).select_related('asociado','tipoAuxilio')
 
-        # Convertir la cadena de fecha a un objeto datetime
-        fecha_objeto1 = datetime.strptime(fechaInicialForm, "%Y-%m-%d")
-        # Formatear la fecha en el formato d-m-Y
-        fecha_formateada1 = fecha_objeto1.strftime("%d-%m-%Y")
-        # Convertir la cadena de fecha a un objeto datetime
-        fecha_objeto2 = datetime.strptime(fechaFinalForm, "%Y-%m-%d")
-        # Formatear la fecha en el formato d-m-Y
-        fecha_formateada2 = fecha_objeto2.strftime("%d-%m-%Y")
+    def preparar_fila(self, obj):
+        return [
+            obj.id,
+            int(obj.asociado.numDocumento),
+            f'{obj.asociado.nombre} {obj.asociado.apellido}',
+            obj.tipoAuxilio.nombre,
+            obj.entidadBancaria,
+            obj.numCuenta,
+            obj.valor,
+            obj.fechaSolicitud.strftime("%d/%m/%Y"),
+            obj.estado,
+            obj.observacion,
+            obj.fechaDesembolso.strftime("%d/%m/%Y") if obj.fechaDesembolso else '',
+        ]
 
-        # Estilos
-        bold_font = Font(bold=True, size=16, color="FFFFFF")  # Fuente en negrita, tamaño 12 y color blanco
-        bold_font2 = Font(bold=True, size=12, color="000000")  # Fuente en negrita, tamaño 12 y color negro
-        alignment_center = Alignment(horizontal="center", vertical="center")  # Alineación al centro
-        fill = PatternFill(start_color="85B84C", end_color="85B84C", fill_type="solid")  # Relleno verde sólido
+class DescargarCreditos(BaseReporteExcel):
+    nombre_hoja = "Listado Créditos"
+    columnas = [
+        'ID Crédito', 'Número Documento', 'Nombre Completo', 'Fecha Solicitud', 'Valor', 'Número Cuotas', 'Valor Cuota', 'Total Credito', 'Estado', 'Linea Credito', 'Amortización', 'Tasa Interes', 'Forma Desembolso', 'Medio de Pago', 'Tipo Asociado', 'Banco', 'Tipo de Cuenta', 'Número de Cuenta'
+        ]
+    
+    ancho_columnas = [11, 14, 32, 15, 12, 12, 12, 13, 13, 21, 16, 20, 28, 15, 21, 16, 18, 15]
 
-        wb = Workbook() #Creamos la instancia del Workbook
-        ws = wb.active
-        ws.title = 'Auxilios'
-        titulo1 = f"Reporte de Auxilios desde {fecha_formateada1} - {fecha_formateada2}"
-        ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
-        ws.merge_cells('A1:K1')
-        ws['A1'].font = bold_font
-        ws['A1'].alignment = alignment_center
-        ws['A1'].fill = fill
-
-        ws['A2'] = 'Número Registro'
-        ws['B2'] = 'Número Documento'
-        ws['C2'] = 'Nombre Completo'
-        ws['D2'] = 'Tipo Auxilio'
-        ws['E2'] = 'Entidad Bancaria'
-        ws['F2'] = 'Número Cuenta'
-        ws['G2'] = 'Valor Auxilio'
-        ws['H2'] = 'Fecha Solicitud'
-        ws['I2'] = 'Estado'
-        ws['J2'] = 'Observaciones'
-        ws['K2'] = 'Fecha Desembolso'
-     
-        bold_font2 = Font(bold=True)
-        center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
-
-        for col in range(1,12):
-            cell = ws.cell(row=2, column=col)
-            cell.font = bold_font2
-            cell.alignment = center_alignment
-
-        ws.column_dimensions['A'].width = 11
-        ws.column_dimensions['B'].width = 14
-        ws.column_dimensions['C'].width = 32
-        ws.column_dimensions['D'].width = 26
-        ws.column_dimensions['E'].width = 28
-        ws.column_dimensions['F'].width = 15
-        ws.column_dimensions['G'].width = 12
-        ws.column_dimensions['H'].width = 13
-        ws.column_dimensions['I'].width = 13
-        ws.column_dimensions['J'].width = 20
-        ws.column_dimensions['K'].width = 13
-
-        #Inicia el primer registro en la celda numero 3
-        cont = 3
-        i = 1
-        for auxilio in queryAuxilio:
-            #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
-            ws.cell(row = cont, column = 1).value = i                    
-            ws.cell(row = cont, column = 2).value = int(auxilio.asociado.numDocumento)
-            ws.cell(row = cont, column = 3).value = f'{auxilio.asociado.nombre}' + ' ' + f'{auxilio.asociado.apellido}'
-            ws.cell(row = cont, column = 4).value = auxilio.tipoAuxilio.nombre
-            ws.cell(row = cont, column = 5).value = auxilio.entidadBancaria
-            ws.cell(row = cont, column = 6).value = auxilio.numCuenta
-            ws.cell(row = cont, column = 7).value = auxilio.valor
-            ws.cell(row = cont, column = 8).value = auxilio.fechaSolicitud.strftime("%d/%m/%Y")
-            ws.cell(row = cont, column = 9).value = auxilio.estado
-            ws.cell(row = cont, column = 10).value = auxilio.observacion
-            if auxilio.fechaDesembolso:
-                ws.cell(row = cont, column = 11).value = auxilio.fechaDesembolso.strftime("%d/%m/%Y")
-            else:
-                ws.cell(row = cont, column = 11).value = ''
-            i+=1
-            cont+=1
-
-        nombre_archivo = f"Reporte_Auxilio_{fecha_formateada1}-{fecha_formateada2}.xlsx"
-        response = HttpResponse(content_type = "application/ms-excel")
-        content = "attachment; filename = {0}".format(nombre_archivo)
-        response['Content-Disposition'] = content
-        wb.save(response)
-        return response
-
-class DescargaCredito(ListView):
     def get(self, request, *args, **kwargs):
         template = 'reporte/modalReporte.html'
         return render(request, template, {'tipoReporte':'credito'})
-    
+
     def post(self, request, *args, **kwargs):
-        fechaInicialForm = request.POST['fechaInicial']
-        fechaFinalForm = request.POST['fechaFinal']
+        return self.exportar_excel(request, *args, **kwargs)
 
-        queryCredito = HistoricoCredito.objects.filter(
+    def get_queryset(self, request, *args, **kwargs):
+        fechaInicialForm = request.POST.get('fechaInicial')
+        fechaFinalForm = request.POST.get('fechaFinal')
+
+        if not fechaInicialForm or not fechaFinalForm:
+            raise ValueError("Fechas no enviadas en el formulario.")
+    
+        fechaInicial = datetime.strptime(fechaInicialForm, "%Y-%m-%d")
+        fechaFinal = datetime.strptime(fechaFinalForm, "%Y-%m-%d")
+
+        self.titulo = f"Reporte de Créditos desde {fechaInicial.strftime('%d-%m-%Y')} hasta {fechaFinal.strftime('%d-%m-%Y')}"
+
+        return HistoricoCredito.objects.filter(
             fechaSolicitud__range=[fechaInicialForm, fechaFinalForm]
-        )
+        ).select_related('asociado__tAsociado','tasaInteres')
 
-        # Convertir la cadena de fecha a un objeto datetime
-        fecha_objeto1 = datetime.strptime(fechaInicialForm, "%Y-%m-%d")
-        # Formatear la fecha en el formato d-m-Y
-        fecha_formateada1 = fecha_objeto1.strftime("%d-%m-%Y")
-        # Convertir la cadena de fecha a un objeto datetime
-        fecha_objeto2 = datetime.strptime(fechaFinalForm, "%Y-%m-%d")
-        # Formatear la fecha en el formato d-m-Y
-        fecha_formateada2 = fecha_objeto2.strftime("%d-%m-%Y")
+    def preparar_fila(self, obj):
+        return [
+            obj.id,
+            int(obj.asociado.numDocumento),
+            f'{obj.asociado.nombre} {obj.asociado.apellido}',
+            obj.fechaSolicitud.strftime("%d/%m/%Y"),
+            obj.valor,
+            obj.cuotas,
+            obj.valorCuota,
+            obj.totalCredito,
+            obj.estado,
+            obj.lineaCredito,
+            obj.amortizacion,
+            obj.tasaInteres.concepto if obj.tasaInteres else 'Sin Tasa',
+            obj.formaDesembolso,
+            obj.medioPago,
+            obj.asociado.tAsociado.concepto,
+            obj.banco,
+            obj.tipoCuenta,
+            obj.numCuenta,
+        ]
 
-        # Estilos
-        bold_font = Font(bold=True, size=16, color="FFFFFF")  # Fuente en negrita, tamaño 12 y color blanco
-        bold_font2 = Font(bold=True, size=12, color="000000")  # Fuente en negrita, tamaño 12 y color negro
-        alignment_center = Alignment(horizontal="center", vertical="center")  # Alineación al centro
-        fill = PatternFill(start_color="85B84C", end_color="85B84C", fill_type="solid")  # Relleno verde sólido
+class DescargarVentasHE(BaseReporteExcel):
 
-        wb = Workbook() #Creamos la instancia del Workbook
-        ws = wb.active
-        ws.title = 'Creditos'
-        titulo1 = f"Reporte de Créditos desde {fecha_formateada1} - {fecha_formateada2}"
-        ws['A1'] = titulo1    #Casilla en la que queremos poner la informacion
-        ws.merge_cells('A1:R1')
-        ws['A1'].font = bold_font
-        ws['A1'].alignment = alignment_center
-        ws['A1'].fill = fill
+    nombre_hoja = "Ventas Home Elements"
+    columnas = [
+        'ID Venta', 'Fecha Venta', 'Número Documento', 'Nombre Completo', 'Forma de Pago', 'Cuotas', 'Valor Cuotas', 'Cuotas Pagadas', 'Pendiente Pago', 'Valor Neto', 'Tasa Interes'
+        ]
+    ancho_columnas = [11, 14, 14 , 32, 20, 14, 12, 12, 12, 12, 25]
 
-        ws['A2'] = 'Número Registro'
-        ws['B2'] = 'Número Documento'
-        ws['C2'] = 'Nombre Completo'
-        ws['D2'] = 'Fecha Solicitud'
-        ws['E2'] = 'Valor'
-        ws['F2'] = 'Número Cuotas'
-        ws['G2'] = 'Valor Cuota'
-        ws['H2'] = 'Total Credito'
-        ws['I2'] = 'Estado'
-        ws['J2'] = 'Linea Credito'
-        ws['K2'] = 'Amortización'
-        ws['L2'] = 'Tasa Interes'
-        ws['M2'] = 'Forma Desembolso'
-        ws['N2'] = 'Medio de Pago'
-        ws['O2'] = 'Tipo Asociado'
-        ws['P2'] = 'Banco'
-        ws['Q2'] = 'Tipo de Cuenta'
-        ws['R2'] = 'Número de Cuenta'
+    def get(self, request, *args, **kwargs):
+        template = 'reporte/modalReporte.html'
+        return render(request, template, {'tipoReporte':'ventasHE'})
+
+    def post(self, request, *args, **kwargs):
+        return self.exportar_excel(request, *args, **kwargs)
+
+    def get_queryset(self, request, *args, **kwargs):
+        fechaInicialForm = request.POST.get('fechaInicial')
+        fechaFinalForm = request.POST.get('fechaFinal')
+
+        if not fechaInicialForm or not fechaFinalForm:
+            raise ValueError("Fechas no enviadas en el formulario.")
+    
+        fechaInicial = datetime.strptime(fechaInicialForm, "%Y-%m-%d")
+        fechaFinal = datetime.strptime(fechaFinalForm, "%Y-%m-%d")
+
+        self.titulo = f"Reporte de Pagos desde {fechaInicial.strftime('%d-%m-%Y')} hasta {fechaFinal.strftime('%d-%m-%Y')}"
+
+        return HistoricoVenta.objects.filter(
+            fechaVenta__range=[fechaInicial, fechaFinal]
+        ).select_related('asociado','tasaInteres').order_by('pk')
+
+    def preparar_fila(self, obj):
+        return [
+            obj.id,
+            obj.fechaVenta.strftime("%d/%m/%Y"),
+            int(obj.asociado.numDocumento),
+            f'{obj.asociado.nombre} {obj.asociado.apellido}',
+            obj.formaPago,
+            obj.cuotas,
+            obj.valorCuotas,
+            obj.cuotasPagas,
+            obj.pendientePago,
+            obj.valorNeto,
+            obj.tasaInteres.concepto if obj.tasaInteres else 'Sin Tasa',
+        ]
+
+class DescargarProductosHE(BaseReporteExcel):
+    nombre_hoja = "Productos Home Elements"
+    columnas = [
+        'ID Producto', 'Rerencia', 'Código EAN', 'Nombre', 'Precio', 'Categoria', 'Proveedor', 'Descripcion'
+        ]
+    ancho_columnas = [11, 14, 14, 32, 14, 22, 17, 60]
+
+    def get_queryset(self, request, *args, **kwargs):
         
-        bold_font2 = Font(bold=True)
-        center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+        self.titulo = "Listado de Productos Home Elements"
 
-        for col in range(1,19):
-            cell = ws.cell(row=2, column=col)
-            cell.font = bold_font2
-            cell.alignment = center_alignment
+        return Producto.objects.all().select_related('categoria','proveedor').order_by('pk')
 
-        ws.column_dimensions['A'].width = 11
-        ws.column_dimensions['B'].width = 14
-        ws.column_dimensions['C'].width = 32
-        ws.column_dimensions['D'].width = 15
-        ws.column_dimensions['E'].width = 12
-        ws.column_dimensions['F'].width = 12
-        ws.column_dimensions['G'].width = 12
-        ws.column_dimensions['H'].width = 13
-        ws.column_dimensions['I'].width = 13
-        ws.column_dimensions['J'].width = 21
-        ws.column_dimensions['K'].width = 16
-        ws.column_dimensions['L'].width = 13
-        ws.column_dimensions['M'].width = 28
-        ws.column_dimensions['N'].width = 15
-        ws.column_dimensions['O'].width = 17
-        ws.column_dimensions['P'].width = 16
-        ws.column_dimensions['Q'].width = 18
-        ws.column_dimensions['R'].width = 15
-
-        #Inicia el primer registro en la celda numero 3
-        cont = 3
-        i = 1
-        for credito in queryCredito:
-            #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
-            ws.cell(row = cont, column = 1).value = i                    
-            ws.cell(row = cont, column = 2).value = int(credito.asociado.numDocumento)
-            ws.cell(row = cont, column = 3).value = f'{credito.asociado.nombre}' + ' ' + f'{credito.asociado.apellido}'
-            ws.cell(row = cont, column = 4).value = credito.fechaSolicitud.strftime("%d/%m/%Y")
-            ws.cell(row = cont, column = 5).value = credito.valor
-            ws.cell(row = cont, column = 6).value = credito.cuotas
-            ws.cell(row = cont, column = 7).value = credito.valorCuota
-            ws.cell(row = cont, column = 8).value = credito.totalCredito
-            ws.cell(row = cont, column = 9).value = credito.estado
-            ws.cell(row = cont, column = 10).value = credito.lineaCredito
-            ws.cell(row = cont, column = 11).value = credito.amortizacion
-            ws.cell(row = cont, column = 12).value = credito.tasaInteres.porcentaje * 100 if credito.tasaInteres else 0
-            ws.cell(row = cont, column = 13).value = credito.formaDesembolso
-            ws.cell(row = cont, column = 14).value = credito.medioPago
-            ws.cell(row = cont, column = 15).value = credito.asociado.tAsociado.concepto
-            ws.cell(row = cont, column = 16).value = credito.banco
-            ws.cell(row = cont, column = 17).value = credito.tipoCuenta
-            ws.cell(row = cont, column = 18).value = credito.numCuenta
-            i+=1
-            cont+=1
-
-        nombre_archivo = f"Reporte_Credito_{fecha_formateada1}-{fecha_formateada2}.xlsx"
-        response = HttpResponse(content_type = "application/ms-excel")
-        content = "attachment; filename = {0}".format(nombre_archivo)
-        response['Content-Disposition'] = content
-        wb.save(response)
-        return response
+    def preparar_fila(self, obj):
+        return [
+            obj.id,
+            obj.referencia,
+            obj.ean,
+            obj.nombre,
+            obj.precio,
+            obj.categoria.nombre,
+            obj.proveedor.razonSocial,
+            obj.descripcion,
+        ]

@@ -1,11 +1,9 @@
 from django.shortcuts import render
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import ListView, CreateView, UpdateView, TemplateView
 from django.db import transaction
 from django.urls import reverse_lazy, reverse
 from django.contrib import messages
 from django.http import HttpResponseRedirect
-
-import historico
 
 from .models import Producto, HistoricoVenta, DetalleVenta, PorcentajeDescuento
 from .form import ProductoForm, HistoricoVentaForm, DetalleVentaForm
@@ -259,3 +257,6 @@ class EliminarDetalleVenta(UpdateView):
 
         # Si no se cumplen las condiciones, se devuelve False, no se puede eliminar la venta
         return False
+
+class UtilidadesProductos(TemplateView):
+    template_name = 'base/ventas/utilidades.html'

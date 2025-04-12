@@ -7,27 +7,32 @@ from historico.models import HistorialPagos, HistoricoCredito
 from ventas.models import HistoricoVenta
 
 def obtenerNovedades(fecha_inicial, fecha_final):
+
     asociadoRetiro = Asociado.objects.filter(
-        fechaRetiro__range=[fecha_inicial, fecha_final]
-    )
+            fechaRetiro__range=[fecha_inicial, fecha_final]
+        )
+
     asociadoIngreso = Asociado.objects.filter(
-        fechaIngreso__range=[fecha_inicial, fecha_final]
-    )
+            fechaIngreso__range=[fecha_inicial, fecha_final]
+        )
+
     queryMascota = Mascota.objects.filter(
         fechaModificacion__range=[fecha_inicial, fecha_final]
-    ).annotate(
-        fechaModificacion_truncada=TruncSecond('fechaModificacion'),
-        fechaCreacion_truncada=TruncSecond('fechaCreacion'),
-    )
+        ).annotate(
+            fechaModificacion_truncada=TruncSecond('fechaModificacion'),
+            fechaCreacion_truncada=TruncSecond('fechaCreacion'),
+        ).select_related('asociado')
+
     queryBeneficiario = Beneficiario.objects.filter(
         fechaModificacion__range=[fecha_inicial, fecha_final]
-    ).annotate(
-        fechaModificacion_truncada=TruncSecond('fechaModificacion'),
-        fechaCreacion_truncada=TruncSecond('fechaCreacion'),
-    )
+        ).annotate(
+            fechaModificacion_truncada=TruncSecond('fechaModificacion'),
+            fechaCreacion_truncada=TruncSecond('fechaCreacion'),
+        ).select_related('asociado','paisRepatriacion','parentesco')
+
     queryRepatriacionTitular = RepatriacionTitular.objects.filter(
         fechaRepatriacion__range=[fecha_inicial, fecha_final]
-    )
+        ).select_related('asociado','paisRepatriacion')
 
     return {
         "asociadoRetiro": asociadoRetiro,
@@ -87,7 +92,7 @@ def obtenerDescuentoNomina(empresa_pk):
                             cuota_credito=Coalesce(Subquery(credito_pendiente, output_field=IntegerField()), Value(0)),
                             cuota_credito_home_elements=Coalesce(Subquery(credito_home_elements, output_field=IntegerField()), Value(0)),
                             total_final=F('tarifaAsociado__total') + Coalesce(F('cuota_vinculacion'), Value(0)) + F('cuota_credito') + F('cuota_credito_home_elements')
-                        )
+                        ).select_related('asociado__tAsociado')
 
     # Obtener la suma total de 'total_final'
     granTotal = query.aggregate(total=Sum('total_final'))['total'] or 0
