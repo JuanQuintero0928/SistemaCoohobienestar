@@ -91,16 +91,26 @@ function editarCasillasPago(dato){
             document.getElementById('btn_editar9').hidden = false;
             document.getElementById('btn_no_editar9').hidden = true;
         break
-        // case "editar10":
-        // document.getElementById('diferencia').disabled = false;
-        // document.getElementById('btn_editar10').hidden = true;
-        // document.getElementById('btn_no_editar10').hidden = false;
-        // break
-        // case "no_editar10":
-        //     document.getElementById('diferencia').disabled = true;
-        //     document.getElementById('btn_editar10').hidden = false;
-        //     document.getElementById('btn_no_editar10').hidden = true;
-        // break
+        case "editar10":
+            document.getElementById('aportePago').disabled = false;
+            document.getElementById('btn_editar10').hidden = true;
+            document.getElementById('btn_no_editar10').hidden = false;
+        break
+        case "no_editar10":
+            document.getElementById('aportePago').disabled = true;
+            document.getElementById('btn_editar10').hidden = false;
+            document.getElementById('btn_no_editar10').hidden = true;
+        break
+        case "editar11":
+            document.getElementById('bSocialPago').disabled = false;
+            document.getElementById('btn_editar11').hidden = true;
+            document.getElementById('btn_no_editar11').hidden = false;
+        break
+        case "no_editar11":
+            document.getElementById('bSocialPago').disabled = true;
+            document.getElementById('btn_editar11').hidden = false;
+            document.getElementById('btn_no_editar11').hidden = true;
+        break
         case "habilitar":
             const inputs = [
                 'valorPago', 
@@ -111,7 +121,9 @@ function editarCasillasPago(dato){
                 'adicionalesPago', 
                 'coohopAporte', 
                 'coohopBsocial', 
-                'convenioPago'
+                'convenioPago',
+                'aportePago',
+                'bSocialPago'
             ];
             // Iterar sobre los IDs y habilitar solo los que existen
             inputs.forEach(id => {

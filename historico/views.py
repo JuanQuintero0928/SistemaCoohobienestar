@@ -407,9 +407,10 @@ class ModalPago(ListView):
         return HttpResponseRedirect(url)
 
 class EditarPago(ListView):
+    
     def get(self, request, *args, **kwargs):
         template_name = 'proceso/pago/editarPagoAsociado.html'
-        queryPago = HistorialPagos.objects.get(pk = kwargs['pk'])
+        queryPago = HistorialPagos.objects.select_related('mesPago', 'formaPago').get(pk=kwargs['pk'])
         mesesPagados = HistorialPagos.objects.filter(asociado = kwargs['pkAsociado']).values('mesPago')
         queryMes = MesTarifa.objects.exclude(pk__in=Subquery(mesesPagados))
         queryFormaPago = FormaPago.objects.all()
@@ -420,12 +421,13 @@ class EditarPago(ListView):
         mesPago = request.POST['mesPago']
 
         objHistorico = HistorialPagos.objects.get(pk = kwargs['pk'])
-        infoMes = MesTarifa.objects.get(pk=mesPago)
         
         objHistorico.mesPago = MesTarifa.objects.get(pk = mesPago)
         objHistorico.formaPago = FormaPago.objects.get(pk = request.POST['formaPago'])
         objHistorico.fechaPago = request.POST['fechaPago']
         objHistorico.valorPago = request.POST['valorPago']
+        objHistorico.aportePago = request.POST['aportePago']
+        objHistorico.bSocialPago = request.POST['bSocialPago']
         objHistorico.diferencia = request.POST['diferencia']
         if objHistorico.mascotaPago != 0:
             objHistorico.mascotaPago = request.POST['mascotaPago']

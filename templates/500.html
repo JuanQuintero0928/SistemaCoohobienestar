@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Error del servidor - 500</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            text-align: center;
+            padding: 60px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        img.logo {
+            width: 50px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #d9534f;
+        }
+
+        p {
+            font-size: 1.1em;
+            margin: 20px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .contact {
+            margin-top: 40px;
+            font-size: 0.95em;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% comment %} <img src="/static/img/icons/logo.png" alt="Logo" class="logo"> {% endcomment %}
+        <h1>¡Ups! Error del servidor</h1>
+        <p>Ha ocurrido un error inesperado. Estamos trabajando para solucionarlo lo antes posible.</p>
+        <a href="/" class="btn">Regresar al inicio</a>
+        <div class="contact">
+            <p>Si el problema persiste, por favor <strong>comuníquese con soporte técnico</strong>.</p>
+            <p>Email: <a href="mailto:soporte@tudominio.com">programacion@cohobienestar.onmicrosoft.com</a></p>
+        </div>
+    </div>
+</body>
+</html>

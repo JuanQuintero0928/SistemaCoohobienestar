@@ -1142,7 +1142,7 @@ class DescargarAdicionalesFuneraria(BaseReporteExcel):
 class DescargarAuxilios(BaseReporteExcel):
     nombre_hoja = "Listado Auxilios"
     columnas = [
-        'ID Venta', 'Número Documento', 'Nombre Completo', 'Tipo Auxilio', 'Entidad Bancaria', 'Número Cuenta', 'Valor Auxilio', 'Fecha Solicitud', 'Estado', 'Observaciones', 'Fecha Desembolso'
+        'ID Auxilio', 'Número Documento', 'Nombre Completo', 'Tipo Auxilio', 'Entidad Bancaria', 'Número Cuenta', 'Valor Auxilio', 'Fecha Solicitud', 'Estado', 'Observaciones', 'Fecha Desembolso'
         ]
     
     ancho_columnas = [14, 20, 37, 32, 25, 17, 13, 13, 20, 40, 20]

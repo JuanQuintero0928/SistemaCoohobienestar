@@ -18,7 +18,7 @@
                 </div>
                 {% comment %} input completo {% endcomment %}
                 <div class="input-group mb-3">
-                  <span class="input-group-text" id="basic-addon3">Mes</span>
+                  <span class="input-group-text" id="basic-addon3">Concepto</span>
                   <select name="mesPago" id="mesPago" class="form-select" aria-label="Default select example" required>
                     <option value="{{queryPago.mesPago.pk}}" selected>{{queryPago.mesPago}}</option>
                     {% for mes in queryMes %}
@@ -41,7 +41,7 @@
                 <div class="input-group mb-3">
                   <span class="input-group-text" id="basic-addon3">Valor Total</span>
                   <span class="input-group-text">$</span>
-                  <input type="number" class="form-control" value="{{queryPago.valorPago}}" id="valorPago" name="valorPago" value="{{ query.cuota }}" type="number" disabled>
+                  <input type="number" class="form-control" value="{{queryPago.valorPago}}" id="valorPago" name="valorPago" type="number" disabled>
                   <span class="input-group-text">
                     <a class="btn btn-outline-dark btn-sm custom-btn-2" id="btn_editar" onclick="editarCasillasPago('editar1')" style="border:0px">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon-3" viewBox="0 0 16 16">
@@ -56,11 +56,48 @@
                     </a>
                   </span>
                 </div>
-                {% if queryPago.mascotaPago != 0 or queryPago.repatriacionPago != 0 or queryPago.seguroVidaPago != 0 or queryPago.adicionalesPago != 0 or queryPago.coohopAporte != 0 or queryPago.coohopBsocial != 0 %}
-                  <hr>
+                {% if queryPago.mesPago.pk < 9900 %}
+                <hr>
                     <h2 class="modal-title fs-5" id="exampleModalLabel">Detalles</h2>
                   <hr>
+                <div class="input-group mb-3">
+                  <span class="input-group-text" id="basic-addon3">Aportes</span>
+                  <span class="input-group-text">$</span>
+                  <input type="number" class="form-control" value="{{queryPago.aportePago}}" id="aportePago" name="aportePago" type="number" disabled>
+                  <span class="input-group-text">
+                    <a class="btn btn-outline-dark btn-sm custom-btn-2" id="btn_editar10" onclick="editarCasillasPago('editar10')" style="border:0px">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon-3" viewBox="0 0 16 16">
+                        <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                      </svg>
+                    </a>
+                    <a class="btn btn-outline-danger btn-sm" id="btn_no_editar10" onclick="editarCasillasPago('no_editar10')" style="border:0px" hidden>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                      </svg>
+                    </a>
+                  </span>
+                </div>
+                <div class="input-group mb-3">
+                  <span class="input-group-text" id="basic-addon3">Bienestar Social</span>
+                  <span class="input-group-text">$</span>
+                  <input type="number" class="form-control" value="{{queryPago.bSocialPago}}" id="bSocialPago" name="bSocialPago" type="number" disabled>
+                  <span class="input-group-text">
+                    <a class="btn btn-outline-dark btn-sm custom-btn-2" id="btn_editar11" onclick="editarCasillasPago('editar11')" style="border:0px">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon-3" viewBox="0 0 16 16">
+                        <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                      </svg>
+                    </a>
+                    <a class="btn btn-outline-danger btn-sm" id="btn_no_editar11" onclick="editarCasillasPago('no_editar11')" style="border:0px" hidden>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                      </svg>
+                    </a>
+                  </span>
+                </div>
                 {% endif %}
+                
                 {% if queryPago.mascotaPago != 0 %}
                   {% comment %} input completo {% endcomment %}
                   <div class="input-group mb-3">
@@ -213,7 +250,7 @@
                 <h2 class="modal-title fs-5" id="exampleModalLabel">Saldo</h2>
                 <hr>
                 <div class="input-group mb-3">
-                  <span class="input-group-text" id="basic-addon3" {% if queryPago.diferencia < 0 %}  style="color:#DF5B68" {% else %} style="color:#198754" {% endif %} ><b>{% if diferencia > 0 %}Saldo a Favor{% else %}Saldo a Pagar{% endif %}</b></span>
+                  <span class="input-group-text" id="basic-addon3" {% if queryPago.diferencia < 0 %}  style="color:#DF5B68" {% else %} style="color:#198754" {% endif %} ><b>{% if queryPago.diferencia > 0 %}Saldo a Favor{% else %}Saldo a Pagar{% endif %}</b></span>
                   <span class="input-group-text">$</span>
                   <input type="number" class="form-control" id="diferencia" value="{{queryPago.diferencia}}" name="diferencia" type="number" disabled>
                   <span class="input-group-text">
@@ -256,6 +293,8 @@
       // Obtener los valores de los inputs
       const cuotaPeriodica = obtenerValorInput("cuotaPeriodica");
       const valorPago = obtenerValorInput("valorPago");
+      const aportePago = obtenerValorInput("aportePago");
+      const bSocialPago = obtenerValorInput("bSocialPago");
       const mascotaPago = obtenerValorInput("mascotaPago");
       const repatriacionPago = obtenerValorInput("repatriacionPago");
       const seguroVidaPago = obtenerValorInput("seguroVidaPago");
@@ -264,11 +303,13 @@
       const coohopBsocial = obtenerValorInput("coohopBsocial");
       const convenioPago = obtenerValorInput("convenioPago");
       const diferencia = obtenerValorInput("diferencia");
-
+      
+      const total = valorPago - aportePago - bSocialPago - mascotaPago - repatriacionPago - seguroVidaPago - adicionalesPago - coohopAporte - coohopBsocial - convenioPago - (diferencia);
+      console.log(bSocialPago);
       // Verificar si la suma es igual al total
-      if ( cuotaPeriodica + mascotaPago + repatriacionPago + seguroVidaPago + adicionalesPago + coohopAporte + coohopBsocial + convenioPago+ diferencia !== valorPago) {
+      if (total !== 0) {  
           event.preventDefault(); // Detener el envío del formulario
-          alert("El valor total no coincide con la suma de los valores de los pagos.");
+          alert("El valor Pago debe coincidir con la suma de los diferentes campos del formulario. \nPor favor, verifique los valores ingresados.");
       }
     });
     </script>

@@ -257,34 +257,48 @@ class CrearAsociado(CreateView):
             messages.error(request, f"Error al crear el asociado: {str(e)}")
             return HttpResponseRedirect(reverse_lazy('asociado:crearAsociado'))
 
-class VerAsociado(ListView):
+class VerAsociado(DetailView):
+    model = Asociado
+    template_name = 'base/asociado/verAsociado.html'
+    context_object_name = 'objAsociado'
+    pk_url_kwarg = 'pkAsociado'
+
+    def get_queryset(self):
+        return Asociado.objects.select_related(
+            'tAsociado',
+            'mpioNacimiento',
+            'mpioResidencia',
+            'mpioDoc',
+            'deptoResidencia',
+            'dtoNacimiento',
+            'indicativoCelular'
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        asociado = self.object
+
+        context.update({
+            'pkAsociado': asociado.pk,
+            'query_dpto': Departamento.objects.values('id', 'nombre'),
+            'objParentesco': Parentesco.objects.all().order_by('nombre'),
+            'objEmpresa': TipoAsociado.objects.all(),
+            'objServFuneraria': ServicioFuneraria.objects.all(),
+            'objParametroAsociado': ParametroAsociado.objects.values(
+                'id', 'funeraria', 'autorizaciondcto', 'primerMes'
+            ).get(asociado=asociado.pk),
+            'objMes': MesTarifa.objects.all(),
+            'objLaboral': Laboral.objects.select_related('mpioTrabajo', 'dptoTrabajo').get(asociado=asociado.pk),
+            'objFinanciero': Financiera.objects.get(asociado=asociado.pk),
+            'pais_seleccionado': asociado.indicativoCelular.id if asociado.indicativoCelular else None,
+            'vista': 1
+        })
+        return context
+
+    @medir_rendimiento("VerAsociado")
     def get(self, request, *args, **kwargs):
-        template_name = 'base/asociado/verAsociado.html'
-        query_dpto = Departamento.objects.values('id','nombre')
-        objAsociado = Asociado.objects.select_related('tAsociado','mpioNacimiento','mpioResidencia','mpioDoc','deptoResidencia','dtoNacimiento').get(pk=kwargs['pkAsociado'])
-        objParentesco = Parentesco.objects.all().order_by('nombre')
-        objEmpresa = TipoAsociado.objects.all()
-        objServFuneraria = ServicioFuneraria.objects.all()
-        objParametroAsociado = ParametroAsociado.objects.values('id','funeraria','autorizaciondcto','autorizaciondcto','primerMes').get(asociado = kwargs['pkAsociado'])
-        objMes = MesTarifa.objects.all()
-        objLaboral = Laboral.objects.select_related('mpioTrabajo','dptoTrabajo').get(asociado = kwargs['pkAsociado'])
-        objFinanciero = Financiera.objects.get(asociado = kwargs['pkAsociado'])
-        context = {
-            'pkAsociado':kwargs['pkAsociado'],
-            'query_dpto':query_dpto,
-            'objAsociado':objAsociado,
-            'objFinanciero': objFinanciero,
-            'objLaboral':objLaboral,
-            'objParentesco':objParentesco,
-            'objEmpresa':objEmpresa,
-            'objServFuneraria':objServFuneraria,
-            'objParametroAsociado':objParametroAsociado,
-            'objMes':objMes,
-            'vista':1,
-            'pais_seleccionado': objAsociado.indicativoCelular.id,
-        }
-        return render(request, template_name, context)
-        
+        return super().get(self, request, *args, **kwargs)
+
 class EditarAsociado(UpdateView):
 
     def post(self, request, *args, **kwargs):
@@ -480,32 +494,24 @@ class EditarParametroAsociado(CreateView):
         messages.info(request, 'Información Modificada Correctamente')
         return HttpResponseRedirect(reverse_lazy('asociado:verAsociado', args=[kwargs['pkAsociado']]))
 
-class Beneficiarios(ListView):
+class Beneficiarios(DetailView):
+    model = Asociado
     template_name = 'base/asociado/listarBeneficiarios.html'
-    
-    def get(self, request, *args, **kwargs):
-        queryBeneficiarios = Beneficiario.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True).select_related('parentesco','paisRepatriacion')
-        numBenef = queryBeneficiarios.count()
-        queryAsociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
-        return render(request, self.template_name, {'updateAsociado':'yes','pkAsociado':kwargs['pkAsociado'],'query':queryBeneficiarios, 'queryAsociado':queryAsociado, 'cuenta':numBenef ,'vista':2})
-# class Beneficiarios(DetailView):
-#     model = Asociado
-#     template_name = 'base/asociado/listarBeneficiarios.html'
-#     context_object_name = 'asociado'
-#     pk_url_kwarg = 'pkAsociado'
+    context_object_name = 'queryAsociado'
+    pk_url_kwarg = 'pkAsociado'
 
-#     @medir_rendimiento("reporte_excel")
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         beneficiarios = Beneficiario.objects.filter(asociado = self.object.pk, estadoRegistro = True).select_related('parentesco','paisRepatriacion')
-#         context.update({
-#             'query': beneficiarios,
-#             'cuenta': beneficiarios.count(),
-#             'updateAsociado': 'yes',
-#             'pkAsociado': self.object.pk,
-#             'vista': 2
-#         })
-#         return context
+    @medir_rendimiento("reporte_excel")
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        beneficiarios = Beneficiario.objects.filter(asociado = self.object.pk, estadoRegistro = True).select_related('parentesco','paisRepatriacion')
+        context.update({
+            'query': beneficiarios,
+            'cuenta': beneficiarios.count(),
+            'updateAsociado': 'yes',
+            'pkAsociado': self.object.pk,
+            'vista': 2
+        })
+        return context
 
 class CrearBeneficiario(CreateView):
     form_class = BeneficiarioForm
@@ -675,13 +681,30 @@ class EliminarBeneficiario(UpdateView):
         return HttpResponseRedirect(reverse_lazy('asociado:beneficiario', args=[kwargs['pkAsociado']]))
 
 
-class Mascotas(ListView):
-    template_name = 'base/asociado/listarMascota.html'
+# class Mascotas(ListView):
+#     template_name = 'base/asociado/listarMascota.html'
 
-    def get(self, request, *args, **kwargs):
-        queryMascotas = Mascota.objects.filter(asociado = kwargs['pkAsociado']).filter(estadoRegistro = True)
-        queryAsociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
-        return render(request, self.template_name, {'updateAsociado':'yes','pkAsociado':kwargs['pkAsociado'],'query':queryMascotas, 'queryAsociado':queryAsociado, 'vista':3})
+#     def get(self, request, *args, **kwargs):
+#         queryMascotas = Mascota.objects.filter(asociado = kwargs['pkAsociado']).filter(estadoRegistro = True)
+#         queryAsociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
+#         return render(request, self.template_name, {'updateAsociado':'yes','pkAsociado':kwargs['pkAsociado'],'query':queryMascotas, 'queryAsociado':queryAsociado, 'vista':3})
+
+class Mascotas(DetailView):
+    model = Asociado
+    template_name = 'base/asociado/listarMascota.html'
+    context_object_name = 'queryAsociado'
+    pk_url_kwarg = 'pkAsociado'
+
+    @medir_rendimiento("reporte_excel")
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryMascotas = Mascota.objects.filter(asociado = self.object.pk, estadoRegistro = True)
+        context.update({
+            'query': queryMascotas,
+            'pkAsociado': self.object.pk,
+            'vista': 3
+        })
+        return context
 
 class CrearMascota(CreateView):
     form_class = MascotaForm
@@ -767,12 +790,23 @@ class EliminarMascota(UpdateView):
         messages.info(request, 'Registro Eliminado Correctamente')
         return HttpResponseRedirect(reverse_lazy('asociado:mascota', args=[kwargs['pkAsociado']]))
 
-class VerHistoricoAuxilio(ListView):
-    def get(self, request, *args, **kwargs):
-        template_name = 'base/historico/listarHistoricoAuxilio.html'
-        queryHistorico = HistoricoAuxilio.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True)
-        queryAsociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
-        return render(request, template_name, {'updateAsociado':'yes','pkAsociado':kwargs['pkAsociado'],'query':queryHistorico, 'queryAsociado':queryAsociado, 'vista':4})
+class VerHistoricoAuxilio(DetailView):
+    model = Asociado
+    template_name = 'base/historico/listarHistoricoAuxilio.html'
+    context_object_name = 'queryAsociado'
+    pk_url_kwarg = 'pkAsociado'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryHistorico = HistoricoAuxilio.objects.filter(asociado = self.object.pk, estadoRegistro = True).select_related('tipoAuxilio')
+        context.update({
+            'updateAsociado': 'yes',
+            'pkAsociado': self.object.pk,
+            'query': queryHistorico,
+            'queryAsociado': self.object,
+            'vista': 4
+        })
+        return context
 
 class CrearAuxilio(CreateView):
     form_class = HistoricoAuxilioForm
@@ -877,24 +911,29 @@ class EliminarAuxilio(UpdateView):
         queryAuxilio.save()
         messages.info(request, 'Registro Eliminado Correctamente')
         return HttpResponseRedirect(reverse_lazy('asociado:historicoAuxilio', args=[kwargs['pkAsociado']]))
+    
+class VerHistoricoCredito(DetailView):
+    model = Asociado
+    template_name = 'base/historico/listarHistoricoCredito.html'
+    context_object_name = 'queryAsociado'
+    pk_url_kwarg = 'pkAsociado'
 
-class VerHistoricoCredito(ListView):
- 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryHistorico = HistoricoCredito.objects.prefetch_related(
+                                Prefetch('codeudor_set', queryset=Codeudor.objects.all())
+                            ).filter(asociado = self.object.pk).select_related('tasaInteres')
+        context.update({
+            'pkAsociado': self.object.pk,
+            'query': queryHistorico,
+            'queryAsociado': self.object,
+            'vista': 5
+        })
+        return context
+    
+    @medir_rendimiento("VerHistoricoCredito")
     def get(self, request, *args, **kwargs):
-        template_name = 'base/historico/listarHistoricoCredito.html'
-        queryCredito = HistoricoCredito.objects.prefetch_related(
-                Prefetch('codeudor_set', queryset=Codeudor.objects.all())
-            ).filter(asociado = kwargs['pkAsociado'])
-        queryAsociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
-
-        context = {
-            'updateAsociado':'yes',
-            'pkAsociado':kwargs['pkAsociado'],
-            'query':queryCredito,
-            'queryAsociado':queryAsociado,
-            'vista':5
-        }
-        return render(request, template_name, context)
+        return super().get(self, request, *args, **kwargs)
     
 class CrearHistoricoCredito(ListView):
     def get(self, request, *args, **kwargs):
@@ -1123,13 +1162,23 @@ class EliminarAdicionalAsociado(UpdateView):
         obj.save()
         messages.info(request, 'Registro Eliminado Correctamente')
         return HttpResponseRedirect(reverse_lazy('asociado:tarifaAsociado', args=[kwargs['pkAsociado']]))
-    
-class VerSeguroVida(ListView):
-    def get(self, request, *args, **kwargs):
-        template_name = 'base/asociado/listarSeguroVida.html'
-        querySeguroVida = HistoricoSeguroVida.objects.filter(asociado = kwargs['pkAsociado'])
-        queryAsociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
-        return render(request, template_name, {'updateAsociado':'yes','pkAsociado':kwargs['pkAsociado'],'query':querySeguroVida, 'queryAsociado':queryAsociado, 'vista':6})
+
+class VerSeguroVida(DetailView):
+    model = Asociado
+    template_name = 'base/asociado/listarSeguroVida.html'
+    context_object_name = 'queryAsociado'
+    pk_url_kwarg = 'pkAsociado'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        querySeguroVida = HistoricoSeguroVida.objects.filter(asociado = self.object.pk)
+        context.update({
+            'pkAsociado': self.object.pk,
+            'query': querySeguroVida,
+            'queryAsociado': self.object,
+            'vista': 6
+        }) 
+        return context
 
 class CrearSeguroVida(CreateView):
     form_class = HistoricoSeguroVidaForm
@@ -1207,12 +1256,23 @@ class EditarSeguroVida(UpdateView):
             messages.info(request, 'Registro Editado Correctamente')
             return HttpResponseRedirect(reverse_lazy('asociado:seguroVida', args=[kwargs['pkAsociado']]))
 
-class VerCoohoperativitos(ListView):
-    def get(self, request, *args, **kwargs):
-        template_name = 'base/beneficiario/listarCoohoperativitos.html'
-        queryCoohoperativitos = Coohoperativitos.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro=True)
-        queryAsociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
-        return render(request, template_name, {'updateAsociado':'yes','pkAsociado':kwargs['pkAsociado'],'query':queryCoohoperativitos, 'queryAsociado':queryAsociado ,'vista':7})
+class VerCoohoperativitos(DetailView):
+    model = Asociado
+    template_name = 'base/beneficiario/listarCoohoperativitos.html'
+    context_object_name = 'queryAsociado'
+    pk_url_kwarg = 'pkAsociado'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryCoohoperativitos = Coohoperativitos.objects.filter(asociado = self.object.pk, estadoRegistro=True)
+        context.update({
+            'updateAsociado': 'yes',
+            'pkAsociado': self.object.pk,
+            'query': queryCoohoperativitos,
+            'queryAsociado': self.object,
+            'vista': 7
+        })
+        return context
 
 class CrearCoohoperativito(UpdateView):
     form_class = CoohoperativitoForm
@@ -1303,42 +1363,87 @@ class EliminarCoohoperativito(UpdateView):
         messages.info(request, 'Registro Eliminado Correctamente')
         return HttpResponseRedirect(reverse_lazy('asociado:coohoperativitos', args=[kwargs['pkAsociado']]))
 
-class VerHistorialPagos(ListView):
-    def get(self, request, *args, **kwargs):
-        template_name = 'base/historico/listarHistorialPago.html'
-        queryPagos = HistorialPagos.objects.filter(asociado = kwargs['pkAsociado'])
-        queryAsociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
-        return render(request, template_name, {'updateAsociado':'yes','pkAsociado':kwargs['pkAsociado'],'query':queryPagos, 'queryAsociado':queryAsociado, 'vista':9})
-    
+class VerHistorialPagos(DetailView):
+    model = Asociado
+    template_name = 'base/historico/listarHistorialPago.html'
+    context_object_name = 'queryAsociado'
+    pk_url_kwarg = 'pkAsociado'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryPagos = HistorialPagos.objects.filter(asociado = self.object.pk).select_related('formaPago','mesPago')
+        context.update({
+            'updateAsociado': 'yes',
+            'pkAsociado': self.object.pk,
+            'query': queryPagos,
+            'queryAsociado': self.object,
+            'vista': 9
+        })
+        return context
+
 class DetalleHistorialPago(ListView):
     def get(self, request, *args, **kwargs):
         template_name = 'base/historico/detallePago.html'
         query = HistorialPagos.objects.get(pk = kwargs['pk'])
         return render(request, template_name, {'query':query})
 
-class DescargarFormatos(ListView):
-    def get(self, request, *args, **kwargs):
-        # Query completa para el formato 1-2 - Registro y Actualizacion de Asociado
-        try:  
-            template_name = 'base/asociado/formatos.html'
-            queryAsoc = Asociado.objects.get(pk = kwargs['pkAsociado'])
-            objFinanciera = Financiera.objects.get(asociado = kwargs['pkAsociado'])
-            objParametroAsociado = ParametroAsociado.objects.get(asociado = kwargs['pkAsociado'])
-            objLaboral = Laboral.objects.get(asociado = kwargs['pkAsociado'])
-            # se verifica si es actualizacion o registro
-            fechaActual = date.today()
-            if queryAsoc.fechaIngreso == fechaActual:
-                actualizacion = False
-            else:
-                actualizacion = True
-            objBeneficiario = Beneficiario.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True)
-            cuentaBeneficiario = len(objBeneficiario)
-            objMascota = Mascota.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True)
-            cuentaMascota = len(objMascota)
-            return render(request, template_name, {'updateAsociado':'yes','pkAsociado':kwargs['pkAsociado'], 'residenciaExiste':'yes','query':queryAsoc, 'queryLaboral':objLaboral, 'actualizacion':actualizacion, 'objFinanciera':objFinanciera,'fechaActual':fechaActual ,'objParametroAsociado':objParametroAsociado, 'objBeneficiario':objBeneficiario, 'objMascota':objMascota ,'vista':10, 'cuentaBeneficiario':cuentaBeneficiario, 'cuentaMascota':cuentaMascota})
-        except Exception as e:
-            messages.warning(request, 'Información incompleta para descargar formatos.')
-            return render(request, template_name, {'mensaje':'yes','pkAsociado':kwargs['pkAsociado'], 'vista':10})
+class DescargarFormatos(DetailView):
+    model = Asociado
+    template_name = 'base/asociado/formatos.html'
+    context_object_name = 'query'
+    pk_url_kwarg = 'pkAsociado'
+
+    def get_queryset(self):
+        return Asociado.objects.select_related(
+                    'tAsociado',
+                    'mpioDoc',
+                    'deptoResidencia',
+                    'dtoNacimiento',
+                    'mpioNacimiento',
+                    'mpioResidencia'
+                )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        asociado = self.object
+        fecha_actual = date.today()
+
+        try:
+            obj_financiera = Financiera.objects.get(asociado=asociado)
+            obj_parametro = ParametroAsociado.objects.get(asociado=asociado)
+            obj_laboral = Laboral.objects.select_related('mpioTrabajo', 'dptoTrabajo').get(asociado=asociado)
+            
+            beneficiarios = Beneficiario.objects.filter(
+                asociado=asociado,
+                estadoRegistro=True
+            ).select_related('paisRepatriacion', 'parentesco')
+
+            mascotas = Mascota.objects.filter(asociado=asociado, estadoRegistro=True)
+
+            context.update({
+                'updateAsociado': 'yes',
+                'pkAsociado': asociado.pk,
+                'residenciaExiste': 'yes',
+                'queryLaboral': obj_laboral,
+                'actualizacion': asociado.fechaIngreso != fecha_actual,
+                'objFinanciera': obj_financiera,
+                'fechaActual': fecha_actual,
+                'objParametroAsociado': obj_parametro,
+                'objBeneficiario': beneficiarios,
+                'cuentaBeneficiario': beneficiarios.count(),
+                'objMascota': mascotas,
+                'cuentaMascota': mascotas.count(),
+                'vista': 10
+            })
+        except (Financiera.DoesNotExist, ParametroAsociado.DoesNotExist, Laboral.DoesNotExist):
+            messages.warning(self.request, 'Información incompleta para descargar formatos.')
+            context.update({
+                'mensaje': 'yes',
+                'pkAsociado': asociado.pk,
+                'vista': 10
+            })
+
+        return context
 
 # Descarga Formato Auxilios
 class ModalFormato(ListView):
@@ -1380,6 +1485,7 @@ class ModalFormato(ListView):
 
 # Descarga Formato Auxilios
 class GenerarFormato(ListView):
+    @medir_rendimiento('Generar Formato Extracto')
     def get(self, request, *args, **kwargs):
         template_name = 'base/asociado/generar.html'
         fechaActual = date.today()
@@ -1420,8 +1526,6 @@ class GenerarFormato(ListView):
                                     .exclude(pk__in=Subquery(mesesPagados))
                                     .exclude(pk__in=[9998, 9999,9997,9996,9995,9994,9993,9992])  # Excluir también en MesTarifa
                                     .filter(pk__gte=queryParamAsoc.primerMes.pk, pk__lte=mes.pk))
-                    
-                    queryParamAsoc = ParametroAsociado.objects.get(asociado = kwargs['pkAsociado'])
                   
                     # Inicializar contadores
                     cuotaVencida = 0
@@ -1461,9 +1565,11 @@ class GenerarFormato(ListView):
 
                     # query que suma la diferencia de pagos
                     querySaldoTotal = HistorialPagos.objects.filter(asociado = kwargs['pkAsociado']).aggregate(total=Sum('diferencia'))
+                    print("querySaldoTotal", querySaldoTotal)
                     for valor in querySaldoTotal.values():
                         # variable que guarda la diferencia en los saldos(0=esta al dia, > a 0, saldo favor, < a 0, saldo pendiente)
                         saldoDiferencia = valor
+                        print("saldoDiferencia", saldoDiferencia)
                     
                     # condicional si esta atrasado
                     if cuotaVencida > 0:

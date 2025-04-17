@@ -1,9 +1,10 @@
 from django.shortcuts import render
-from django.views.generic import ListView, CreateView, UpdateView, TemplateView
+from django.views.generic import ListView, CreateView, UpdateView, TemplateView, DetailView
 from django.db import transaction
 from django.urls import reverse_lazy, reverse
 from django.contrib import messages
 from django.http import HttpResponseRedirect
+from reportes.utils.medicion import medir_rendimiento
 
 from .models import Producto, HistoricoVenta, DetalleVenta, PorcentajeDescuento
 from .form import ProductoForm, HistoricoVentaForm, DetalleVentaForm
@@ -82,29 +83,39 @@ class EditarProducto(UpdateView):
             {'form': form, 'errors': form.errors, 'operation':'editar'},
             status=400
         )
-    
-class ListarVentasAsociado(ListView):
-    model = HistoricoVenta
-    template_name = 'base/ventas/listarVentasAsociado.html'
-    context_object_name = 'ventas'
 
-    def get_queryset(self):
-        return HistoricoVenta.objects.filter(asociado = self.kwargs['pkAsociado'],estadoRegistro=True).order_by('fechaVenta')
-    
+class ListarVentasAsociado(DetailView):
+    model = Asociado
+    template_name = 'base/ventas/listarVentasAsociado.html'
+    context_object_name = 'queryAsociado'
+    pk_url_kwarg = 'pkAsociado'
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        asociado = self.object
+
+        ventas = HistoricoVenta.objects.filter(
+            asociado=asociado,
+            estadoRegistro=True
+        ).order_by('fechaVenta')
+
         context.update({
-            'pkAsociado': self.kwargs['pkAsociado'],
-            'queryAsociado': Asociado.objects.get(id = self.kwargs['pkAsociado']),
+            'ventas': ventas,
+            'pkAsociado': asociado.pk,
+            'queryAsociado': asociado,  # por compatibilidad si usas esto en el template
             'vista': 11
         })
         return context
+    
+    @medir_rendimiento("ListasVentasAsociado")
+    def get(self, request, *args, **kwargs):
+        return super().get(self, request, *args, **kwargs)
 
 class CrearVentaAsociado(CreateView):
     model = HistoricoVenta
     form_class = HistoricoVentaForm
     template_name = 'base/ventas/crearVentaAsociado.html'
-
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
