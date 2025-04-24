@@ -2,6 +2,17 @@
   text-transform: uppercase;
 }
 
+.custom-modal {
+  max-width: 90% !important;
+}
+
+@media (max-width: 1200px) {
+  .custom-modal {
+    max-width: 100% !important;
+    margin: 0 1rem; /* espacio horizontal para que no quede pegado */
+  }
+}
+
 .input-email{
   text-transform: lowercase;
 }

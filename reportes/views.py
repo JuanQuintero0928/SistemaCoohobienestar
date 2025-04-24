@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, TemplateView, View
 from django.http import HttpResponse
-from django.db.models import Sum, F, Subquery
+from django.db.models import Sum, F, Subquery, Prefetch
 from datetime import timedelta
 from datetime import datetime
 from django.contrib import messages
@@ -10,7 +10,7 @@ from .utils.medicion import medir_rendimiento
 from asociado.models import Asociado, ParametroAsociado, TarifaAsociado
 from beneficiario.models import Mascota, Beneficiario
 from historico.models import HistorialPagos, HistoricoAuxilio, HistoricoCredito
-from ventas.models import HistoricoVenta, Producto
+from ventas.models import DetalleVenta, HistoricoVenta, Producto
 from parametro.models import FormaPago, MesTarifa, TipoAsociado
 from .queries import obtenerNovedades, obtenerDescuentoNomina
 
@@ -1242,9 +1242,9 @@ class DescargarVentasHE(BaseReporteExcel):
 
     nombre_hoja = "Ventas Home Elements"
     columnas = [
-        'ID Venta', 'Fecha Venta', 'Número Documento', 'Nombre Completo', 'Forma de Pago', 'Cuotas', 'Valor Cuotas', 'Cuotas Pagadas', 'Pendiente Pago', 'Valor Neto', 'Tasa Interes'
+        'ID Venta', 'Fecha Venta', 'Número Documento', 'Nombre Completo', 'Forma de Pago', 'Cuotas', 'Valor Cuotas', 'Cuotas Pagadas', 'Pendiente Pago', 'Valor Neto', 'Tasa Interes', 'Productos', 'Cantidad', 'Precio', 'Total Bruto', 'Total Neto'
         ]
-    ancho_columnas = [11, 14, 14 , 32, 20, 14, 12, 12, 12, 12, 25]
+    ancho_columnas = [11, 14, 14 , 32, 20, 14, 12, 12, 12, 12, 25, 20, 12, 13, 13, 13]
 
     def get(self, request, *args, **kwargs):
         template = 'reporte/modalReporte.html'
@@ -1266,8 +1266,12 @@ class DescargarVentasHE(BaseReporteExcel):
         self.titulo = f"Reporte de Pagos desde {fechaInicial.strftime('%d-%m-%Y')} hasta {fechaFinal.strftime('%d-%m-%Y')}"
 
         return HistoricoVenta.objects.filter(
-            fechaVenta__range=[fechaInicial, fechaFinal]
-        ).select_related('asociado','tasaInteres').order_by('pk')
+                    fechaVenta__range=[fechaInicial, fechaFinal],
+                    estadoRegistro=True
+                ).select_related('asociado','tasaInteres'
+                ).prefetch_related(
+                    Prefetch('detalleventa_set', queryset=DetalleVenta.objects.select_related('producto'))
+                ).order_by('pk')
 
     def preparar_fila(self, obj):
         return [
@@ -1283,6 +1287,69 @@ class DescargarVentasHE(BaseReporteExcel):
             obj.valorNeto,
             obj.tasaInteres.concepto if obj.tasaInteres else 'Sin Tasa',
         ]
+    
+    def generar_excel(self, queryset, titulo):
+        wb = Workbook()
+        ws = wb.active
+        ws.title = self.nombre_hoja
+
+        # Estilos
+        bold_font = Font(bold=True, size=16, color="FFFFFF")
+        bold_font_header = Font(bold=True, size=11, color="000000")
+        alignment_center = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        fill_header = PatternFill(start_color="85B84C", end_color="85B84C", fill_type="solid")
+
+        # Título
+        ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=len(self.columnas))
+        celda_titulo = ws.cell(row=1, column=1, value=titulo)
+        celda_titulo.font = bold_font
+        celda_titulo.alignment = alignment_center
+        celda_titulo.fill = fill_header
+
+        # Encabezados
+        for idx, encabezado in enumerate(self.columnas, 1):
+            celda = ws.cell(row=2, column=idx)
+            celda.value = encabezado
+            celda.font = bold_font_header
+            celda.alignment = alignment_center
+
+        # Ancho de columnas
+        for idx, width in enumerate(self.ancho_columnas, 1):
+            col_letter = get_column_letter(idx)
+            ws.column_dimensions[col_letter].width = width
+
+        # Filas de contenido
+        fila_actual = 3
+        for venta in queryset:
+            datos_venta = self.preparar_fila(venta)
+            productos = venta.detalleventa_set.all()
+
+            for idx, producto in enumerate(productos):
+                datos_producto = [
+                    producto.producto.nombre,
+                    producto.cantidad,
+                    producto.precio,
+                    producto.totalBruto,
+                    producto.totalNeto
+                ]
+                # Repetir solo el ID de la venta, el resto vacío si no es la primera fila
+                datos_venta_parciales = (
+                    [datos_venta[0]] + [''] * (len(datos_venta) - 1) if idx > 0 else datos_venta
+                )
+                fila_completa = datos_venta_parciales + datos_producto
+
+                for col, valor in enumerate(fila_completa, 1):
+                    ws.cell(row=fila_actual, column=col).value = valor
+
+                fila_actual += 1
+
+            # Si no hay productos, mostrar solo datos de venta
+            if not productos:
+                for col, valor in enumerate(datos_venta, 1):
+                    ws.cell(row=fila_actual, column=col).value = valor
+                fila_actual += 1
+
+        return wb   
 
 class DescargarProductosHE(BaseReporteExcel):
     nombre_hoja = "Productos Home Elements"

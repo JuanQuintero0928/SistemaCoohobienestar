@@ -177,8 +177,6 @@ class CrearVentaAsociado(CreateView):
         products = []
         for key, value in request.POST.items():
             if key.startswith('producto_'):
-                print(key)
-                print(value)
                 # Se obtiene el indice del producto
                 index = key.split('_')[1]
 
@@ -186,14 +184,16 @@ class CrearVentaAsociado(CreateView):
                 producto_id = value
                 precio = int(request.POST.get(f"precio_{index}", "0").replace('.', ''))
                 cantidad = int(request.POST.get(f"cantidad_{index}", "0"))
-                total_bruto = int(request.POST.get(f"totalNeto_{index}", "0").replace('.', '')) #en el template se puso valorNeto al valorBruto
+                total_bruto = int(request.POST.get(f"totalBruto_{index}", "0").replace('.', ''))
+                total_neto = int(request.POST.get(f"totalConInteres_{index}", "0").replace('.', ''))
                 products.append({
                     "historicoVenta": objHistoricoVenta,
                     "producto": Producto.objects.get(pk = int(producto_id)),
                     "precio": precio,
                     "cantidad": cantidad,
                     "totalBruto": total_bruto,
-                    "totalNeto": precio * cantidad if objHistoricoVenta.formaPago == "CREDITO" or objHistoricoVenta.formaPago == "DESCUENTO NOMINA" else (precio * cantidad * (1 - objHistoricoVenta.descuento.porcentaje)),
+                    "totalNeto": total_neto,
+                    # "totalNeto": precio * cantidad if objHistoricoVenta.formaPago == "CREDITO" or objHistoricoVenta.formaPago == "DESCUENTO NOMINA" else (precio * cantidad * (1 - objHistoricoVenta.descuento.porcentaje)), se utilizaba cuando daban descuento al comprar de contado
                 })
 
         # Crear cada registro en un bucle

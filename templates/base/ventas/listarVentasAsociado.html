@@ -121,9 +121,17 @@
 
 <script type="text/javascript">
     var $ = jQuery.noConflict()
+    
     function abrir_modal_creacion(url){
+        // Desactivar evento previo si existe para evitar duplicados
+        $('#creacion').off('shown.bs.modal');
+        
         $('#creacion').load(url, function(){
-            $(this).modal('show');
+            $('#creacion').modal('show');
+        
+            $('#creacion').off('hidden.bs.modal').on('hidden.bs.modal', function () {
+                $('#creacion').html('');
+            });
         });
     }
     function abrir_modal_edicion(url){

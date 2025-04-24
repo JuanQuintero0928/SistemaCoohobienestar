@@ -1,7 +1,7 @@
 {% load humanize %}
 
-<div class="modal-dialog modal-xl" role="document" id="modal1">
-    <div class="modal-dialog">
+<div class="modal-dialog modal-xl custom-modal" role="document" id="modal1">
+    <div class="modal-dialog custom-modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5" id="exampleModalLabel">Detalle Venta:</h1>
@@ -76,40 +76,46 @@
                         <hr>
                         <div id="encabezados-container">
                             <div class="row">
-                                <div class="col-12 col-md-5 mb-1">
+                                <div class="col-12 col-md-1 mb-1 text-center fw-bold">
+                                    <label class="form-label">N°</label>
+                                </div>
+                                <div class="col-12 col-md-4 mb-1">
                                     <label class="form-label">Producto</label>
                                 </div>
                                 <div class="col-12 col-md-2 mb-1">
                                     <label class="form-label">Precio</label>
                                 </div>
-                                <div class="col-12 col-md-2 mb-1">
+                                <div class="col-12 col-md-1 mb-1">
                                     <label class="form-label">Cantidad</label>
                                 </div>
                                 <div class="col-12 col-md-2 mb-1">
                                     <label class="form-label">Total Bruto</label>
                                 </div>
-                                <div class="col-12 col-md-1 mb-1">
-                                    
+                                <div class="col-12 col-md-2 mb-1">
+                                    <label class="form-label">Total Neto</label>
                                 </div>
                             </div>
                         </div>
                         <div id="productos-container">
                             {% for product in detalleVenta %}
                                 <div class="row">
-                                    <div class="col-12 col-md-5 mb-3">
+                                    <div class="col-12 col-xl-1 mb-3">
+                                        <span class="form-control text-center bg-light border-0 fw-bold" readonly>{{forloop.counter}}</span>
+                                    </div>
+                                    <div class="col-12 col-md-4 mb-3">
                                         <input type="text" value="{{product.producto}}" class="form-control" readonly>
                                     </div>
                                     <div class="col-12 col-md-2 mb-3">
                                         <input type="text" value="{{ product.precio|intcomma }}" class="form-control" readonly>
                                     </div>
-                                    <div class="col-12 col-md-2 mb-3">
+                                    <div class="col-12 col-md-1 mb-3">
                                         <input type="text" value="{{ product.cantidad }}" class="form-control" readonly>
                                     </div>
                                     <div class="col-12 col-md-2 mb-3">
                                         <input type="text" value="{{ product.totalBruto|intcomma }}" class="form-control" readonly>
                                     </div>
-                                    <div class="col-12 col-md-1 mb-3">
-                                        
+                                    <div class="col-12 col-md-2 mb-3">
+                                        <input type="text" value="{{ product.totalNeto|intcomma }}" class="form-control" readonly>
                                     </div>
                                 </div>
                                 

@@ -1371,7 +1371,7 @@ class VerHistorialPagos(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        queryPagos = HistorialPagos.objects.filter(asociado = self.object.pk).select_related('formaPago','mesPago')
+        queryPagos = HistorialPagos.objects.filter(asociado = self.object.pk).select_related('formaPago','mesPago').order_by('fechaPago','id')
         context.update({
             'updateAsociado': 'yes',
             'pkAsociado': self.object.pk,
