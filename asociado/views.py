@@ -295,7 +295,6 @@ class VerAsociado(DetailView):
         })
         return context
 
-    @medir_rendimiento("VerAsociado")
     def get(self, request, *args, **kwargs):
         return super().get(self, request, *args, **kwargs)
 
@@ -500,7 +499,6 @@ class Beneficiarios(DetailView):
     context_object_name = 'queryAsociado'
     pk_url_kwarg = 'pkAsociado'
 
-    @medir_rendimiento("reporte_excel")
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         beneficiarios = Beneficiario.objects.filter(asociado = self.object.pk, estadoRegistro = True).select_related('parentesco','paisRepatriacion')
@@ -680,22 +678,12 @@ class EliminarBeneficiario(UpdateView):
         messages.info(request, 'Registro Eliminado Correctamente')
         return HttpResponseRedirect(reverse_lazy('asociado:beneficiario', args=[kwargs['pkAsociado']]))
 
-
-# class Mascotas(ListView):
-#     template_name = 'base/asociado/listarMascota.html'
-
-#     def get(self, request, *args, **kwargs):
-#         queryMascotas = Mascota.objects.filter(asociado = kwargs['pkAsociado']).filter(estadoRegistro = True)
-#         queryAsociado = Asociado.objects.get(pk = kwargs['pkAsociado'])
-#         return render(request, self.template_name, {'updateAsociado':'yes','pkAsociado':kwargs['pkAsociado'],'query':queryMascotas, 'queryAsociado':queryAsociado, 'vista':3})
-
 class Mascotas(DetailView):
     model = Asociado
     template_name = 'base/asociado/listarMascota.html'
     context_object_name = 'queryAsociado'
     pk_url_kwarg = 'pkAsociado'
 
-    @medir_rendimiento("reporte_excel")
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         queryMascotas = Mascota.objects.filter(asociado = self.object.pk, estadoRegistro = True)
@@ -931,7 +919,6 @@ class VerHistoricoCredito(DetailView):
         })
         return context
     
-    @medir_rendimiento("VerHistoricoCredito")
     def get(self, request, *args, **kwargs):
         return super().get(self, request, *args, **kwargs)
     
@@ -1485,7 +1472,6 @@ class ModalFormato(ListView):
 
 # Descarga Formato Auxilios
 class GenerarFormato(ListView):
-    @medir_rendimiento('Generar Formato Extracto')
     def get(self, request, *args, **kwargs):
         template_name = 'base/asociado/generar.html'
         fechaActual = date.today()

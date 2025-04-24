@@ -36,7 +36,6 @@ class BaseReporteExcel(View):
     def preparar_fila(self, obj):
         raise NotImplementedError("Debes implementar 'preparar_fila' en la subclase.")
     
-    # @medir_rendimiento("reporte_excel")
     def generar_excel(self, queryset, titulo):
         wb = Workbook()
         ws = wb.active
@@ -1249,7 +1248,7 @@ class DescargarVentasHE(BaseReporteExcel):
     def get(self, request, *args, **kwargs):
         template = 'reporte/modalReporte.html'
         return render(request, template, {'tipoReporte':'ventasHE'})
-
+    
     def post(self, request, *args, **kwargs):
         return self.exportar_excel(request, *args, **kwargs)
 

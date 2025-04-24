@@ -1,44 +1,53 @@
 function generarTablaAmortizacion(saldoInicial, tasaMensual, numCuotas, fechaSolicitud, tipo) {
-    const calcularCuotaFija = (monto, tasa, cuotas) => {
-        return (monto * tasa * Math.pow(1 + tasa, cuotas)) / (Math.pow(1 + tasa, cuotas) - 1);
-    };
-  
-    const cuotaFija = calcularCuotaFija(saldoInicial, tasaMensual, numCuotas).toFixed(0);
-
-    // Se asigna el valor de la cuota fija al input
-    document.getElementById("id_valorCuota").value = cuotaFija;
-    document.getElementById("id_totalCredito").value = cuotaFija * numCuotas;
- 
+    const tablaBody = document.querySelector("#tablaAmortizacion tbody");
+    tablaBody.innerHTML = ""; // Limpiar tabla
 
     const fechas = generarFechas(numCuotas, fechaSolicitud);
-  
     let saldoRestante = saldoInicial;
-    const tablaBody = document.querySelector("#tablaAmortizacion tbody");
-    tablaBody.innerHTML = ""; // Limpiar la tabla antes de generar
-  
+
+    let cuotaFija;
+    if (tasaMensual === 0) {
+        cuotaFija = Math.ceil(saldoInicial / numCuotas);
+    } else {
+        cuotaFija = ((saldoInicial * tasaMensual * Math.pow(1 + tasaMensual, numCuotas)) / 
+                    (Math.pow(1 + tasaMensual, numCuotas) - 1)).toFixed(0);
+    }
+
+    // Asignar valores a los campos ocultos
+    document.getElementById("id_valorCuota").value = cuotaFija;
+    document.getElementById("id_totalCredito").value = cuotaFija * numCuotas;
+
     for (let i = 0; i <= numCuotas; i++) {
         const fila = document.createElement("tr");
+
         if (i === 0) {
             fila.innerHTML = `
-            <td>${i}</td>
-            <td>${fechas[i]}</td>
-            <td>${formatearMoneda(saldoRestante)}</td>
-            <td>${formatearMoneda(0)}</td>
-            <td>${formatearMoneda(0)}</td>
-            <td>${formatearMoneda(cuotaFija)}</td>
-            <td>${formatearMoneda(saldoRestante)}</td>
+                <td>${i}</td>
+                <td>${fechas[i]}</td>
+                <td>${formatearMoneda(saldoRestante)}</td>
+                <td>${formatearMoneda(0)}</td>
+                <td>${formatearMoneda(0)}</td>
+                <td>${formatearMoneda(cuotaFija)}</td>
+                <td>${formatearMoneda(saldoRestante)}</td>
             `;
         } else {
-            const intereses = (saldoRestante * tasaMensual).toFixed(0);
-            const abonoCapital = (cuotaFija - intereses).toFixed(0);
-            
-            // Si es la última fila, forzamos saldoRestante a 0
+            let abonoCapital, intereses;
+
+            if (tasaMensual === 0) {
+                intereses = 0;
+                abonoCapital = cuotaFija;
+            } else {
+                intereses = (saldoRestante * tasaMensual).toFixed(0);
+                abonoCapital = (cuotaFija - intereses).toFixed(0);
+            }
+
             if (i === numCuotas) {
                 saldoRestante = 0;
             } else {
                 saldoRestante = (saldoRestante - abonoCapital).toFixed(0);
             }
-                fila.innerHTML = `
+
+            fila.innerHTML = `
                 <td>${i}</td>
                 <td>${fechas[i]}</td>
                 <td>${formatearMoneda(parseFloat(saldoRestante) + parseFloat(abonoCapital))}</td>
@@ -46,12 +55,13 @@ function generarTablaAmortizacion(saldoInicial, tasaMensual, numCuotas, fechaSol
                 <td>${formatearMoneda(intereses)}</td>
                 <td>${formatearMoneda(cuotaFija)}</td>
                 <td>${formatearMoneda(saldoRestante)}</td>
-                `;
-            }
+            `;
+        }
+
         tablaBody.appendChild(fila);
     }
-
 }
+
   
 function generarFechas(cuotas, fechaSolicitud) {
     const fechas = [];

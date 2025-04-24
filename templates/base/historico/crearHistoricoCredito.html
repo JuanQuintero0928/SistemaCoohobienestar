@@ -143,12 +143,12 @@
         return;
       }
 
-      if (valor > 0 && tasa > 0 && cuotas > 0) {
+      if (valor > 0 && cuotas > 0) {
         generarTablaAmortizacion(valor, tasa, cuotas, fechaSolicitud, 1);
         let pkAsociado = document.getElementById("pkAsociado").value;
         calcularCapacidadEndeudamiento(pkAsociado);
         document.getElementById("submit").style.display = "block";
-      } else {
+      }else {
         alert("Por favor, ingresa valores válidos.");
       }
       

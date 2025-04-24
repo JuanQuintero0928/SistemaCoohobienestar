@@ -107,7 +107,6 @@ class ListarVentasAsociado(DetailView):
         })
         return context
     
-    @medir_rendimiento("ListasVentasAsociado")
     def get(self, request, *args, **kwargs):
         return super().get(self, request, *args, **kwargs)
 
