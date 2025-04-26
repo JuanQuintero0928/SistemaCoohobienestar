@@ -1721,11 +1721,13 @@ async function descargarTablaAmortizacion(url, numDoc, fechaSolicitud, valor, cu
     
     // Tabla Amortizacion
 
-    const calcularCuotaFija = (monto, tasa, cuotas) => {
-        return (monto * tasa * Math.pow(1 + tasa, cuotas)) / (Math.pow(1 + tasa, cuotas) - 1);
-    };
-    
-    const cuotaFija = parseFloat(calcularCuotaFija(valorNumerica, tasaNumerica, cuotasNumerica).toFixed(0));
+    let cuotaFija;
+    if (tasaNumerica === 0) {
+        cuotaFija = Math.ceil(valorNumerica / cuotasNumerica);
+    } else {
+        cuotaFija = ((valorNumerica * tasaNumerica * Math.pow(1 + tasaNumerica, cuotasNumerica)) / 
+                    (Math.pow(1 + tasaNumerica, cuotasNumerica) - 1)).toFixed(0);
+    }
     const fechas = generarFechas(cuotasNumerica, fechaSolicitud);
     
     let saldoRestante = parseFloat(valorNumerica);
