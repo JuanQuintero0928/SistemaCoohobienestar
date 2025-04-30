@@ -1472,10 +1472,11 @@ class ModalFormato(ListView):
 
 # Descarga Formato Auxilios
 class GenerarFormato(ListView):
+    @medir_rendimiento('formato_extracto')
     def get(self, request, *args, **kwargs):
         template_name = 'base/asociado/generar.html'
         fechaActual = date.today()
-        objAsoc = Asociado.objects.get(pk = kwargs['pkAsociado'])
+        objAsoc = Asociado.objects.select_related('mpioResidencia').get(pk = kwargs['pkAsociado'])
 
         # Formato 3
         if kwargs['formato'] == 3:
@@ -1486,7 +1487,7 @@ class GenerarFormato(ListView):
         
         # Formato 4
         elif kwargs['formato'] == 4:
-            parametro = ParametroAsociado.objects.get(asociado = kwargs['pkAsociado'])
+            parametro = ParametroAsociado.objects.select_related('primerMes').get(asociado = kwargs['pkAsociado'])
             mes = MesTarifa.objects.get(pk = request.GET['mes'])
             # Entra al except cuando un asociado no ha realizado ningun pago y no existe informacion en la query
             try:
@@ -1512,7 +1513,7 @@ class GenerarFormato(ListView):
                                     .exclude(pk__in=Subquery(mesesPagados))
                                     .exclude(pk__in=[9998, 9999,9997,9996,9995,9994,9993,9992])  # Excluir también en MesTarifa
                                     .filter(pk__gte=queryParamAsoc.primerMes.pk, pk__lte=mes.pk))
-                  
+
                     # Inicializar contadores
                     cuotaVencida = 0
                     cuotaAdelantada = 0
@@ -1532,7 +1533,7 @@ class GenerarFormato(ListView):
                             cuotaAdelantada += 1
 
                     pagoTotal = cuotaPeriodicaTotal
-                     
+                    
                     # variables iniciacion
                     saldo = 0
                     valorVencido = 0
@@ -1541,21 +1542,22 @@ class GenerarFormato(ListView):
                     valorVencidoSeg = 0
                     valorVencidoAdic = 0
                     valorVencidoCoohop = 0
+                    valorVencidoConvenio = 0
                     mensaje = ""
 
                     # query mostrar beneficiarios y mascotas
-                    objBeneficiario = Beneficiario.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True)
+                    objBeneficiario = Beneficiario.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True).select_related('parentesco','paisRepatriacion')
                     cuentaBeneficiario = len(objBeneficiario)
                     objMascota = Mascota.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True)
                     cuentaMascota = len(objMascota)
 
+                    # query convenios
+                    objConvenio = ConveniosAsociado.objects.select_related('convenio').filter(asociado = kwargs['pkAsociado'], estadoRegistro = True).first()
+
                     # query que suma la diferencia de pagos
                     querySaldoTotal = HistorialPagos.objects.filter(asociado = kwargs['pkAsociado']).aggregate(total=Sum('diferencia'))
-                    print("querySaldoTotal", querySaldoTotal)
-                    for valor in querySaldoTotal.values():
-                        # variable que guarda la diferencia en los saldos(0=esta al dia, > a 0, saldo favor, < a 0, saldo pendiente)
-                        saldoDiferencia = valor
-                        print("saldoDiferencia", saldoDiferencia)
+                    # variable que guarda la diferencia en los saldos(0=esta al dia, > a 0, saldo favor, < a 0, saldo pendiente)
+                    saldoDiferencia = querySaldoTotal['total'] or 0
                     
                     # condicional si esta atrasado
                     if cuotaVencida > 0:
@@ -1569,28 +1571,30 @@ class GenerarFormato(ListView):
                             valorVencidoAdic = cuotaVencida * objTarifaAsociado.cuotaAdicionales
                         if objTarifaAsociado.cuotaCoohopAporte > 0:
                             valorVencidoCoohop = cuotaVencida * (objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial)
+                        if objTarifaAsociado.cuotaConvenio > 0:
+                            valorVencidoConvenio = cuotaVencida * objTarifaAsociado.cuotaConvenio
                     
                         if saldoDiferencia > 0:
                             # saldo a favor
                             valorVencido = cuotaPeriodicaTotal - saldoDiferencia
-                            pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
+                            pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop + valorVencidoConvenio
                             mensaje = "Tiene un saldo a favor de $" + str(saldoDiferencia)
                         elif saldoDiferencia < 0:
                             # saldo a pagar
                             valorVencido = cuotaPeriodicaTotal - saldoDiferencia
-                            pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
+                            pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop + valorVencidoConvenio
                             mensaje = "Tiene un saldo pendiente por pagar de $" + str((saldoDiferencia*-1))
                         else:
                             # saldo en 0
                             valorVencido = cuotaPeriodicaTotal
-                            pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
+                            pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop + valorVencidoConvenio
 
-                        return render(request, template_name,{'pkAsociado':kwargs['pkAsociado'], 'fechaCorte':fechaCorte,'objAsoc':objAsoc, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':kwargs['formato'],'vista':0, 'saldo':saldo, 'mensaje':mensaje})
-               
+                        return render(request, template_name,{'pkAsociado':kwargs['pkAsociado'], 'fechaCorte':fechaCorte,'objAsoc':objAsoc, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'valorVencidoConvenio':valorVencidoConvenio, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':kwargs['formato'],'vista':0, 'saldo':saldo, 'mensaje':mensaje, 'objConvenio':objConvenio})
+
                     # condicional si esta al dia y no tiene meses pendientes en los pagos
                     elif cuotaAdelantada == 0 and cuotaVencida == 0:
                         
-                        valorMensual = objTarifaAsociado.cuotaAporte + objTarifaAsociado.cuotaBSocial + objTarifaAsociado.cuotaMascota + objTarifaAsociado.cuotaRepatriacion + objTarifaAsociado.cuotaSeguroVida + objTarifaAsociado.cuotaAdicionales + objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial                
+                        valorMensual = objTarifaAsociado.cuotaAporte + objTarifaAsociado.cuotaBSocial + objTarifaAsociado.cuotaMascota + objTarifaAsociado.cuotaRepatriacion + objTarifaAsociado.cuotaSeguroVida + objTarifaAsociado.cuotaAdicionales + objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial + objTarifaAsociado.cuotaConvenio             
                         
                         # se valida si en el ultimo pago no hay diferencia
                         if saldoDiferencia == 0:
@@ -1620,7 +1624,7 @@ class GenerarFormato(ListView):
                             pagoTotal = valorMensual - saldo
                             dif = valorMensual - saldo
                             mensaje = 'Tiene un saldo pendiente por pagar de ' + str(dif) + '.'
-                        return render(request, template_name,{'pkAsociado':kwargs['pkAsociado'], 'fechaCorte':fechaCorte,'objAsoc':objAsoc, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':kwargs['formato'], 'saldo':saldo, 'mensaje':mensaje})
+                        return render(request, template_name,{'pkAsociado':kwargs['pkAsociado'], 'fechaCorte':fechaCorte,'objAsoc':objAsoc, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'valorVencidoConvenio':valorVencidoConvenio, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':kwargs['formato'], 'saldo':saldo, 'mensaje':mensaje, 'objConvenio':objConvenio})
                 
                     # condicional si esta adelantado
                     else:
@@ -1656,26 +1660,29 @@ class GenerarFormato(ListView):
                             
                         mensaje = "Tiene Pago hasta el mes de " + obj_historial_pago.mesPago.concepto + "."
                         
-                        return render(request, template_name,{'pkAsociado':kwargs['pkAsociado'], 'fechaCorte':fechaCorte,'objAsoc':objAsoc, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':kwargs['formato'], 'saldo':saldo, 'mensaje':mensaje})
+                        return render(request, template_name,{'pkAsociado':kwargs['pkAsociado'], 'fechaCorte':fechaCorte,'objAsoc':objAsoc, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'valorVencidoConvenio':valorVencidoConvenio, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':kwargs['formato'], 'saldo':saldo, 'mensaje':mensaje, 'objConvenio':objConvenio})
             
             # si no hay pagos en la bd
             except Exception as e:
                 # query mostrar beneficiarios y mascotas
-                objBeneficiario = Beneficiario.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True)
+                objBeneficiario = Beneficiario.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True).select_related('parentesco','paisRepatriacion')
                 saldo = 0 
                 cuentaBeneficiario = len(objBeneficiario)
                 objMascota = Mascota.objects.filter(asociado = kwargs['pkAsociado'], estadoRegistro = True)
+                # query convenios
+                objConvenio = ConveniosAsociado.objects.select_related('convenio').filter(asociado = kwargs['pkAsociado'], estadoRegistro = True).first()
                 cuentaMascota = len(objMascota)
                 valorVencidoMasc = objTarifaAsociado.cuotaMascota
                 valorVencidoRep = objTarifaAsociado.cuotaRepatriacion
                 valorVencidoSeg = objTarifaAsociado.cuotaSeguroVida
                 valorVencidoAdic = objTarifaAsociado.cuotaAdicionales
                 valorVencidoCoohop = objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial
+                valorVencidoConvenio = objTarifaAsociado.cuotaConvenio
                 # obtenemos el parametro del primer mes q debe pagar
                 if cuotaVencida == 0:
                     # mes seleccionado igual al parametro.primerMes
                     valorVencido = cuotaPeriodicaTotal
-                    pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
+                    pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop + valorVencidoConvenio
                 elif cuotaVencida > 0:
                     # mes adelantado al parametro.primerMes
                     valorVencido = cuotaPeriodicaTotal
@@ -1684,11 +1691,12 @@ class GenerarFormato(ListView):
                     valorVencidoSeg = objTarifaAsociado.cuotaSeguroVida * cuotaVencida
                     valorVencidoAdic = objTarifaAsociado.cuotaAdicionales * cuotaVencida
                     valorVencidoCoohop = (objTarifaAsociado.cuotaCoohopAporte + objTarifaAsociado.cuotaCoohopBsocial) * cuotaVencida
-                    pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop
+                    valorVencidoConvenio = objTarifaAsociado.cuotaConvenio * cuotaVencida
+                    pagoTotal = valorVencido + valorVencidoMasc + valorVencidoRep + valorVencidoSeg + valorVencidoAdic + valorVencidoCoohop + valorVencidoConvenio
                 else:
                     pass
-                return render(request, template_name,{'pkAsociado':kwargs['pkAsociado'], 'fechaCorte':fechaCorte,'objAsoc':objAsoc, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':kwargs['formato'],'saldo':saldo})
-    
+                return render(request, template_name,{'pkAsociado':kwargs['pkAsociado'], 'fechaCorte':fechaCorte,'objAsoc':objAsoc, 'objTarifaAsociado':objTarifaAsociado, 'cuotaPeriodica':cuotaPeriodica, 'cuotaCoohop':cuotaCoohop, 'cuotaVencida':cuotaVencida, 'valorVencido':valorVencido, 'valorVencidoMasc':valorVencidoMasc, 'valorVencidoRep':valorVencidoRep, 'valorVencidoSeg':valorVencidoSeg, 'valorVencidoAdic':valorVencidoAdic, 'valorVencidoCoohop':valorVencidoCoohop, 'valorVencidoConvenio':valorVencidoConvenio, 'pagoTotal':pagoTotal,'mes':mes, 'objBeneficiario':objBeneficiario, 'cuentaBeneficiario':cuentaBeneficiario, 'objMascota':objMascota, 'cuentaMascota':cuentaMascota, 'formato':kwargs['formato'],'saldo':saldo, 'objConvenio':objConvenio})
+
 class UtilidadesAsociado(ListView):
     model = Asociado
     template_name = 'base/asociado/utilidades.html'

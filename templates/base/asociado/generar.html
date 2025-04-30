@@ -124,6 +124,11 @@
         <input type="text" id="id_concepto6" value="COOHOPERATIVITOS">
         <input type="text" id="id_cuotaMes6" value="{{cuotaCoohop}}">
         <input type="text" id="id_totalConcepto6" {% if valorVencido == 0 %} value="0" {% else %} value="{{valorVencidoCoohop}}" {% endif %}>
+        {% comment %} Cuotas Convenios {% endcomment %}
+        <input type="text" id="id_concepto7" value="CONVENIO - {{objConvenio.convenio.concepto}}">
+        <input type="text" id="id_cuotaMes7" value="{{objTarifaAsociado.cuotaConvenio}}">
+        <input type="text" id="id_totalConcepto7" {% if valorVencido == 0 %} value="0" {% else %} value="{{valorVencidoConvenio}}" {% endif %}>
+
         <input type="text" id="id_pagoTotal" value="{{pagoTotal}}">
         <input type="text" id="id_vista" value="{{vista}}">
         <input type="text" id="id_mensaje" value="{{mensaje}}">

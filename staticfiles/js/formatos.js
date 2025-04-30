@@ -224,6 +224,11 @@ async function llamarPDF(numFormato, url) {
             let concepto6 = document.getElementById('id_concepto6').value;
             let cuotaMes6 = document.getElementById('id_cuotaMes6').value;
             let totalConcepto6 = document.getElementById('id_totalConcepto6').value;
+
+            let concepto7 = document.getElementById('id_concepto7').value;
+            let cuotaMes7 = document.getElementById('id_cuotaMes7').value;
+            let totalConcepto7 = document.getElementById('id_totalConcepto7').value;
+
             let pagoTotal = document.getElementById('id_pagoTotal').value;
             let mensaje = document.getElementById('id_mensaje').value;
             // Obtenemos la informacion del model Beneficiarios, del template formatos.html por medio de su id
@@ -244,7 +249,7 @@ async function llamarPDF(numFormato, url) {
                     arrayMascotasF4.push([nombreMasc]);
                 }
             }
-            let pdf = generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF4, direccionF4, numCelularF4, concepto1, cuotaVencida, cuotaMes1, totalConcepto1, concepto2, cuotaMes2, totalConcepto2, concepto3, cuotaMes3, totalConcepto3, concepto4, cuotaMes4, totalConcepto4, concepto5, cuotaMes5, totalConcepto5, concepto6, cuotaMes6, totalConcepto6, pagoTotal, cuentaBeneficiariosF4, arrayBeneficiariosF4, arrayMascotasF4, saldo, mensaje)
+            let pdf = generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF4, direccionF4, numCelularF4, concepto1, cuotaVencida, cuotaMes1, totalConcepto1, concepto2, cuotaMes2, totalConcepto2, concepto3, cuotaMes3, totalConcepto3, concepto4, cuotaMes4, totalConcepto4, concepto5, cuotaMes5, totalConcepto5, concepto6, cuotaMes6, totalConcepto6, concepto7, cuotaMes7, totalConcepto7, pagoTotal, cuentaBeneficiariosF4, arrayBeneficiariosF4, arrayMascotasF4, saldo, mensaje)
             return pdf;
     }
 }
@@ -964,12 +969,12 @@ async function generarPDFf3(url, fechaHoyF3, nombreF3, apellidoF3, tipoDocumento
 
 // Formato 4
 // Formato Extracto
-async function generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF4, direccionF4, numCelularF4, concepto1, cuotaVencida, cuotaMes1, totalConcepto1, concepto2, cuotaMes2, totalConcepto2, concepto3, cuotaMes3, totalConcepto3, concepto4, cuotaMes4, totalConcepto4, concepto5, cuotaMes5, totalConcepto5, concepto6, cuotaMes6, totalConcepto6, pagoTotal, cuentaBeneficiariosF4, arrayBeneficiariosF4, arrayMascotasF4, saldo, mensaje) {
+async function generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF4, direccionF4, numCelularF4, concepto1, cuotaVencida, cuotaMes1, totalConcepto1, concepto2, cuotaMes2, totalConcepto2, concepto3, cuotaMes3, totalConcepto3, concepto4, cuotaMes4, totalConcepto4, concepto5, cuotaMes5, totalConcepto5, concepto6, cuotaMes6, totalConcepto6, concepto7, cuotaMes7, totalConcepto7, pagoTotal, cuentaBeneficiariosF4, arrayBeneficiariosF4, arrayMascotasF4, saldo, mensaje) {
     const image = await loadImage(url);
     const pdf = new jsPDF('p', 'pt', 'legal');
     pdf.addImage(image, 'PNG', 0, 0, 613, 1010);
 
-  
+
     // renglon 0
     pdf.setFontSize(9);
     pdf.text(nombreF4, 29,151);
@@ -1059,6 +1064,18 @@ async function generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF
         pdf.text(formatearNumero(cuotaMes6), 378,fila);
         // pdf.text('interes mora', 452,fila);
         pdf.text(formatearNumero(totalConcepto6), 516,fila);
+        fila = fila + 20
+    }
+    if(cuotaMes7 > 0){
+        pdf.text(concepto7, 30,fila);
+        pdf.text(arrFechaCorte[2]+'/', 177,fila);
+        pdf.text(arrFechaCorte[1]+'/', 190,fila);
+        pdf.text(arrFechaCorte[0], 204,fila);
+        // pdf.text('saldo', 248,fila);
+        pdf.text(cuotaVencida, 324,fila);
+        pdf.text(formatearNumero(cuotaMes7), 378,fila);
+        // pdf.text('interes mora', 452,fila);
+        pdf.text(formatearNumero(totalConcepto7), 516,fila);
         fila = fila + 20
     }
     
@@ -1229,20 +1246,34 @@ async function generarPDFf5(url, arrayExtracto, mes) {
             pdf.text(formatearNumero(arrayExtracto[i][27]), 520,fila);
             fila = fila + 20
         }
+
+        // inicia posicion 28
+        if(arrayExtracto[i][29] > 0){
+            pdf.text(arrayExtracto[i][28], 30,fila);
+            pdf.text(arrFechaCorte[2]+'/', 177,fila);
+            pdf.text(arrFechaCorte[1]+'/', 190,fila);
+            pdf.text(arrFechaCorte[0], 204,fila);
+            // pdf.text('saldo', 248,fila);
+            pdf.text(arrayExtracto[i][10], 324,fila);
+            pdf.text(formatearNumero(arrayExtracto[i][29]), 382,fila);
+            // pdf.text('interes mora', 452,fila);
+            pdf.text(formatearNumero(arrayExtracto[i][30]), 520,fila);
+            fila = fila + 20
+        }
     
 
         // valor total a pagar
         pdf.setTextColor(255,255,255)
         pdf.setFont(undefined, "bold");
         pdf.setFontSize(12)
-        // inicia posicion 28
-        pdf.text(formatearNumero(arrayExtracto[i][28]), 523,439);
+        // inicia posicion 31
+        pdf.text(formatearNumero(arrayExtracto[i][31]), 523,439);
         // observaciones
         pdf.setTextColor(0,0,0);
         pdf.setFont(undefined, "normal");
 
         pdf.setFontSize(10)
-        pdf.text(arrayExtracto[i][29], 30,460);
+        pdf.text(arrayExtracto[i][32], 30,460);
 
         pdf.setFontSize(8)
         let filaB = 567;
