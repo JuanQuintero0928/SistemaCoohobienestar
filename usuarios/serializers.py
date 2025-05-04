@@ -22,7 +22,7 @@ class RegistroAsociadoSerializer(serializers.Serializer):
             raise serializers.ValidationError({"email": "El email ya tiene una cuenta asociada."})
 
         try :
-             # Validar si la cedula y fecha de expedicion son correctas con la informacion de la db
+            # Validar si la cedula y fecha de expedicion son correctas con la informacion de la db
             asociado = Asociado.objects.get(numDocumento = data['cedula'], fechaExpedicion = data['fecha_expedicion'])
         except Asociado.DoesNotExist:
             raise serializers.ValidationError([
@@ -40,7 +40,7 @@ class RegistroAsociadoSerializer(serializers.Serializer):
         return data
     
     def create(self, validated_data):
-      
+
         """Generar código de verificación y enviarlo por correo"""
         asociado = validated_data.pop('asociado')
         password = validated_data.pop('password')

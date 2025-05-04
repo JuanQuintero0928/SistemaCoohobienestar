@@ -78,7 +78,7 @@ def procesar_csv(archivo_csv, user_creacion_id):
 
             if suma_total != valor_pago:
                 raise ValueError(f"La suma de los campos no coincide con valorPago ({valor_pago}) "
-                                 f"para el asociado ID {asociado_id}, mes ID {mesPago_id}. Suma calculada: {suma_total}")
+                                f"para el asociado ID {asociado_id}, mes ID {mesPago_id}. Suma calculada: {suma_total}")
 
             registros.append(
                 HistorialPagos(

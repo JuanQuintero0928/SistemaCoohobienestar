@@ -1826,7 +1826,7 @@ function generarFechas(cuotas, fechaSolicitud) {
     }
     return fechas;
 }
-  
+
 function formatearMoneda(valor) {
     return "$" + parseFloat(valor)
         .toLocaleString("es-CO", {

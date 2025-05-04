@@ -136,10 +136,10 @@ class VerModificacionesFecha(ListView):
 
         template_name = 'reporte/modificacionesPorFecha.html'
         context = {'queries':queries,
-                   'post':'yes',
-                   'fechaIncialF':fechaInicialForm,
-                   'fechaFinalF':fechaFinalForm,
-                   }
+                'post':'yes',
+                'fechaIncialF':fechaInicialForm,
+                'fechaFinalF':fechaFinalForm,
+                }
         return render(request, template_name, context)
 
 class ReporteExcelFecha(TemplateView):
@@ -157,7 +157,7 @@ class ReporteExcelFecha(TemplateView):
         # Funcion para formatear la fecha en el formato d-m-Y
         fecha_formateada1 = convertirFecha(fechaInicialForm)
         fecha_formateada2 = convertirFecha(fechaFinalForm)
-       
+
         # Obtenemos las queries de las novedades
         queries = obtenerNovedades(fechaInicial, fechaFinal)
 
@@ -186,7 +186,7 @@ class ReporteExcelFecha(TemplateView):
         ws['G2'] = 'Fecha Nacimiento'
         ws['H2'] = 'Novedad'
         ws['I2'] = 'Fecha Novedad'
-     
+
         bold_font2 = Font(bold=True)
         center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
 
@@ -479,12 +479,17 @@ class FormatoExtracto(ListView):
     def post(self, request, *args, **kwargs):
         template_name = 'reporte/generarExtracto.html'
         
-        objAsoc = Asociado.objects.exclude(estadoAsociado = 'ACTIVO')
+        objAsoc = Asociado.objects.exclude(estadoAsociado = 'RETIRO')
         mesExtracto = request.POST['mesExtracto']
+        saldos = 'saldos' in request.POST
         asociados = []
         for asociado in objAsoc:
             parametro = ParametroAsociado.objects.select_related('primerMes').get(asociado = asociado.pk)
             mes = MesTarifa.objects.get(pk = mesExtracto)
+            
+            if saldos is True:
+                parametro.primerMes = mes
+            
             # Entra al except cuando un asociado no ha realizado ningun pago y no existe informacion en la query
             try:
                 # se valida si el primer mes de pago es igual o mayor a la seleccion del form
@@ -500,17 +505,14 @@ class FormatoExtracto(ListView):
                     # Obtener los meses pagados por el asociado, excluyendo los registros 9998 y 9999
                     mesesPagados = (HistorialPagos.objects
                                         .filter(asociado=asociado.pk)
-                                        .exclude(pk__in=[9998, 9999])
+                                        .exclude(pk__in=[9999, 9998, 9997, 9996, 9995, 9994, 9993, 9992])
                                         .values_list('mesPago', flat=True))
                     
                     # Obtener el rango de meses relevante
-                    queryParamAsoc = ParametroAsociado.objects.get(asociado=asociado.pk)
                     queryMes = (MesTarifa.objects
                                     .exclude(pk__in=Subquery(mesesPagados))
-                                    .exclude(pk__in=[9998, 9999])  # Excluir también en MesTarifa
-                                    .filter(pk__gte=queryParamAsoc.primerMes.pk, pk__lte=mes.pk))
-                    
-                    queryParamAsoc = ParametroAsociado.objects.get(asociado = asociado.pk)
+                                    .exclude(pk__in=[9999, 9998, 9997, 9996, 9995, 9994, 9993, 9992])  # Excluir también en MesTarifa
+                                    .filter(pk__gte=parametro.primerMes.pk, pk__lte=mes.pk))
 
                     # Inicializar contadores
                     cuotaVencida = 0
@@ -552,10 +554,13 @@ class FormatoExtracto(ListView):
                     # query convenios
                     objConvenio = ConveniosAsociado.objects.select_related('convenio').filter(asociado = asociado.pk, estadoRegistro = True).first()
 
-                    # query que suma la diferencia de pagos
-                    querySaldoTotal = HistorialPagos.objects.filter(asociado = asociado.pk).aggregate(total=Sum('diferencia'))
-                    # variable que guarda la diferencia en los saldos(0=esta al dia, > a 0, saldo favor, < a 0, saldo pendiente)
-                    saldoDiferencia = querySaldoTotal['total'] or 0
+                    if saldos is True:
+                        saldoDiferencia = 0
+                    else:
+                        # query que suma la diferencia de pagos
+                        querySaldoTotal = HistorialPagos.objects.filter(asociado = asociado.pk).aggregate(total=Sum('diferencia'))
+                        # variable que guarda la diferencia en los saldos(0=esta al dia, > a 0, saldo favor, < a 0, saldo pendiente)
+                        saldoDiferencia = querySaldoTotal['total'] or 0
                     
                     # condicional si esta atrasado
                     if cuotaVencida > 0:
@@ -764,7 +769,6 @@ class ExcelDescuentosNomina(TemplateView):
         ws['Q2'] = 'Descuento Crédito'
         ws['R2'] = 'Descuento Crédito Home Elements'
 
-     
         bold_font2 = Font(bold=True)
         center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
 
@@ -851,10 +855,10 @@ class VerConciliacionBancaria(ListView):
             fechaPago__range=[fechaInicial, fechaFinal],
             formaPago_id=banco
             ).values('asociado__id',
-                 'asociado__nombre',
-                 'asociado__apellido',
-                 'asociado__numDocumento',
-                 'formaPago_id__formaPago',
+                'asociado__nombre',
+                'asociado__apellido',
+                'asociado__numDocumento',
+                'formaPago_id__formaPago',
                 'fechaPago',
             ).annotate(total_pagado=Sum('valorPago')).order_by('fechaPago')
         
@@ -882,11 +886,11 @@ class ExcelConciliacionBancaria(TemplateView):
             fechaPago__range=[fechaInicial, fechaFinal],
             formaPago_id=banco
             ).values('asociado__id',
-                 'asociado__nombre',
-                 'asociado__apellido',
-                 'asociado__numDocumento',
-                 'formaPago_id__formaPago',
-                'fechaPago',
+                    'asociado__nombre',
+                    'asociado__apellido',
+                    'asociado__numDocumento',
+                    'formaPago_id__formaPago',
+                    'fechaPago',
             ).annotate(total_pagado=Sum('valorPago')).order_by('fechaPago')
 
         # Estilos
@@ -911,7 +915,7 @@ class ExcelConciliacionBancaria(TemplateView):
         ws['D2'] = 'Movimiento'
         ws['E2'] = 'Valor'
         ws['F2'] = 'Fecha Movimiento'
-     
+
         bold_font2 = Font(bold=True)
         center_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
 

@@ -55,7 +55,7 @@
             </div>
         </div>
     </form>
-       
+
     {% if post %}
         <div class="card-body">
             <table class="table table-striped table-hover table-bordered align-middle">
@@ -88,7 +88,6 @@
                     </tr>
                 </tbody>
             </table>
-               
         </div>
     {% endif %}
 
@@ -96,24 +95,19 @@
 {% endblock contenidoPagina %}
 
 {% block extrajs %}
-<script>
-    document.getElementById("btnExcel").addEventListener("click", function () {
-        let selected = [];
-        document.querySelectorAll(".form-check-input:checked").forEach(function (checkedBox) {
-            selected.push(checkedBox.value);
+    <script>
+        document.getElementById("btnExcel").addEventListener("click", function () {
+            let selected = [];
+            document.querySelectorAll(".form-check-input:checked").forEach(function (checkedBox) {
+                selected.push(checkedBox.value);
+            });
+        
+            if (selected.length > 0) {
+                let url = `{% url 'reportes:excelDescuentosNomina' %}?` + selected.map(id => `select${id}=${id}`).join("&");
+                window.location.href = url; // Redirige para descargar el archivo
+            } else {
+                alert("Seleccione al menos una empresa para descargar.");
+            }
         });
-    
-        if (selected.length > 0) {
-            let url = `{% url 'reportes:excelDescuentosNomina' %}?` + selected.map(id => `select${id}=${id}`).join("&");
-            window.location.href = url; // Redirige para descargar el archivo
-        } else {
-            alert("Seleccione al menos una empresa para descargar.");
-        }
-    });
     </script>
 {% endblock extrajs %}
-
-
-
-    
-

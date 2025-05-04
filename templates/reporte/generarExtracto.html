@@ -8,41 +8,80 @@
     <link rel="icon" href="{% static 'img/icons/logo.png' %}" type="image/png" />
     <title>Coohobienestar</title>
     <style>
-        body, html {
-            height: 100%;
+        html, body {
             margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            height: 100%;
             background-color: #f0f0f0;
-            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', sans-serif;
         }
 
-        .loader {
-            border: 16px solid #f3f3f3;
+        .loader-container {
+            text-align: center;
+            position: relative;
+            width: 150px;
+            height: 150px;
+        }
+
+        .spinner {
+            width: 100%;
+            height: 100%;
+            border: 10px solid #f0f0f0;
+            border-top: 10px solid #068ecf;
             border-radius: 50%;
-            border-top: 16px solid #3498db;
-            width: 120px;
-            height: 120px;
-            animation: spin 2s linear infinite;
+            animation: spin 2s ease-in-out infinite;
+            box-sizing: border-box;
+        }
+
+        .logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80px;
+            height: 80px;
+            transform: translate(-50%, -50%);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        #loading-text {
+            margin-top: 20px;
+            font-size: 20px;
+            color: #068ecf;
+            text-align: center;
+            
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
+            0%   { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
 
-        .loading-text {
-            margin-top: 20px;
-            font-size: 24px;
-            color: #555;
+        @keyframes pulse {
+            0%   { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+            50%  { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
         }
     </style>
 </head>
 <body>
-    <div class="content">
-        <div class="loader"></div>
-        <div class="loading-text">Cargando...</div>
+    <div>
+        <div class="loader-container">
+        <div class="spinner"></div>
+        <img src="{% static 'img/icons/logo_v2.png' %}" alt="Logo Coohobienestar" class="logo">
+        </div>
+        <div id="loading-text">Cargando</div>
+
+        <script>
+            const text = document.getElementById('loading-text');
+            let dots = 0;
+
+            setInterval(() => {
+                dots = (dots + 1) % 4;
+                text.textContent = 'Cargando' + '.'.repeat(dots);
+            }, 500); // Cambia cada medio segundo
+        </script>
     </div>
 </body>
 </html>

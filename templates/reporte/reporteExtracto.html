@@ -16,29 +16,31 @@
         <div class="card-body">
             <div class="card mb-4" style="border:0px">
                 <form action="{% url 'reportes:formatoExtracto' %}" method="POST">
-                    {%csrf_token%}
-                    <div class="col-4">
-                        <label for="id_mesExtracto" class="form-label">Seleccione mes a descargar</label>
-                        <select name="mesExtracto" class="form-select" id="id_mesExtracto">
-                            {% for mesSeleccion in mes %}
-                                <option value="{{mesSeleccion.pk}}">{{mesSeleccion.concepto}}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <hr>
-                    <div class="col-4">
-                        <button class="btn btn-outline-primary" type="submit">Generar</button>
+                    <div class="row">
+                        {%csrf_token%}
+                        <div class="col-12 col-md-3 mb-3">
+                            <label for="id_mesExtracto" class="form-label">Seleccione mes a descargar</label>
+                            <select name="mesExtracto" class="form-select" id="id_mesExtracto">
+                                {% for mesSeleccion in mes %}
+                                    <option value="{{mesSeleccion.pk}}">{{mesSeleccion.concepto}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-3 mb-3">
+                            <div class="form-check form-switch">
+                                <div class="form-check form-switch mt-4">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="switchCheckChecked" name="saldos">
+                                    <label class="form-check-label" for="switchCheckChecked">¿Traer saldos en pagos?</label>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="col-12 mb-3">
+                            <button class="btn btn-outline-primary" type="submit">Generar</button>
+                        </div>
                     </div>
                 </form>
             </div>
         </div>
 
-
-
 {% endblock contenidoPagina %}
-
-
-
-
-    
-

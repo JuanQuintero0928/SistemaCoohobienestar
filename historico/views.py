@@ -659,5 +659,3 @@ class ComprobantePago(DetailView):
         context['pago_total'] = pago_total
 
         return context
-
-
