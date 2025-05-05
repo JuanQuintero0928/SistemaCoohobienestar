@@ -429,11 +429,11 @@ class VerPagosFecha(TemplateView):
 class ReporteExcelPago(BaseReporteExcel):
     nombre_hoja = "Pagos"
     columnas = [
-        'Número Registro', 'Número Documento', 'Nombre Completo', 'Mes Pago',
+        'Número Registro', 'Fecha Pago','Número Documento', 'Nombre Completo', 'Mes Pago',
         'Valor Pago', 'Aporte', 'Bienestar Social', 'Mascota', 'Repatriación',
         'Seguro Vida', 'Adicionales', 'Coohoperativitos', 'Diferencia', 'Forma Pago'
     ]
-    ancho_columnas = [11, 14, 30, 16, 14, 12, 12, 12, 12, 12, 12, 16, 12, 12]
+    ancho_columnas = [11, 14, 14, 30, 16, 14, 12, 12, 12, 12, 12, 12, 16, 12, 12]
 
     def get_queryset(self, request, *args, **kwargs):
         fechaInicialForm = request.GET['fechaInicial']
@@ -454,6 +454,7 @@ class ReporteExcelPago(BaseReporteExcel):
     def preparar_fila(self, obj):
         return [
             obj.id,
+            obj.fechaPago.strftime("%d/%m/%Y"),
             int(obj.asociado.numDocumento),
             f'{obj.asociado.nombre} {obj.asociado.apellido}',
             obj.mesPago.concepto,
