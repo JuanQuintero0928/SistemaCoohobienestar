@@ -66,6 +66,7 @@ def procesar_csv(archivo_csv, user_creacion_id):
             coohop_aporte = int(row['coohopAporte']) if row['coohopAporte'] else 0
             coohop_bsocial = int(row['coohopBsocial']) if row['coohopBsocial'] else 0
             convenio = int(row['convenioPago']) if row['convenioPago'] else 0
+
             # credito_home = int(row['creditoHomeElements']) if row.get('creditoHomeElements') else 0
             diferencia = int(row['diferencia']) if row['diferencia'] else 0
 

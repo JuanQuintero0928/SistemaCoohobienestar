@@ -2,11 +2,11 @@
 
 <div class="modal-dialog modal-xl" role="document" id="modal1">
     <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">Registrar Pago:</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Registrar Pago:</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
         <div class="modal-body">
             <div class="table-responsive">
                 <table class="table table-hover">
@@ -125,6 +125,10 @@
                                         {% elif obj.pk == 9996 %}
                                             <td class="d-flex justify-content-center">
                                                 <input type="number" data-costo="" name="valorCertificado" id="valorCertificado" class="form-control form-control-sm w-auto justify-content-center" style="text-align:center" min="0" disabled>
+                                            </th>
+                                        {% elif obj.pk == 9991 %}
+                                            <td class="d-flex justify-content-center">
+                                                <input type="number" data-costo="" name="valorViaje" id="valorViaje" class="form-control form-control-sm w-auto justify-content-center" style="text-align:center" min="0" disabled>
                                             </th>
                                         {% else %}
                                             <td>${{ obj.total|intcomma }}</th>
@@ -266,7 +270,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16">
                             <path d="M11 2H9v3h2z"/>
                             <path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>
-                          </svg>
+                        </svg>
                     </button>
                 </div>
             </form>
@@ -279,11 +283,13 @@
                     let today = new Date().toISOString().split('T')[0];  // Obtiene la fecha en formato YYYY-MM-DD
                     document.getElementById("fechaPago").value = today;
                     
-                    // Input de valor cine y certificado
+                    // Input de valor cine, certificado, viaje
                     const inputCine = document.getElementById("valorCine"); // Input donde se escribe el valor
                     const switchCine = document.querySelector('input.switch-mes[value="9997"]'); // Switch con value 9997
                     const inputCertificado = document.getElementById("valorCertificado"); // Input donde se escribe el valor
                     const switchCertificado = document.querySelector('input.switch-mes[value="9996"]'); // Switch con value 9996
+                    const inputViaje = document.getElementById("valorViaje"); // Input donde se escribe el valor
+                    const switchViaje = document.querySelector('input.switch-mes[value="9991"]'); // Switch con value 9991
 
                     if (inputCine && switchCine) {
                         // Habilitar/deshabilitar input según el estado del switch
@@ -330,6 +336,29 @@
                     } else {
                         console.error("No se encontró el input del cine o el switch con value 9997.");
                     }
+
+                    if (inputViaje && switchViaje) {
+                        // Habilitar/deshabilitar input según el estado del switch
+                        switchViaje.addEventListener("change", function () {
+                            inputViaje.disabled = !this.checked; // Si el switch está activo, habilita el input; si no, lo deshabilita
+                            if (!this.checked) {
+                                inputViaje.value = ""; // Borra el valor cuando se deshabilita
+                                inputViaje.dispatchEvent(new Event("input")); // Dispara el evento input para actualizar el total
+                            }
+                        });
+
+                        // Evento input para actualizar data-costo y total
+                        inputViaje.addEventListener("input", function () {
+                            let valor = parseFloat(this.value) || 0;
+                            switchViaje.setAttribute("data-costo", valor);
+                            actualizarTotal();
+                        });
+                
+                        // Deshabilitar input al cargar si el switch no está activo
+                        inputViaje.disabled = !switchViaje.checked;
+                    } else {
+                        console.error("No se encontró el input del cine o el switch con value 9991.");
+                    }
                 });
 
                 // Función para actualizar el total según los switches seleccionados
@@ -361,7 +390,7 @@
                 
             </script>
             
-        </div>
-      </div>
+            </div>
+        </div>  
     </div>
-  </div>
+</div>
