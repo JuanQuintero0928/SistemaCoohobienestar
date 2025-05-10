@@ -278,20 +278,20 @@ class ModalPago(ListView):
                     if pk == "9997":
                         valorPago = (
                             request.POST["valorCine"]
-                            # if contador < cantidadSwitches
-                            # else int(request.POST["valorCine"]) + valorDiferencia
+                            if contador < cantidadSwitches
+                            else int(request.POST["valorCine"]) + valorDiferencia
                         )
                     elif pk == "9996":
                         valorPago = (
                             request.POST["valorCertificado"]
-                            # if contador < cantidadSwitches
-                            # else int(request.POST["valorCertificado"]) + valorDiferencia
+                            if contador < cantidadSwitches
+                            else int(request.POST["valorCertificado"]) + valorDiferencia
                         )
                     elif pk == "9991":
                         valorPago = (
                             request.POST["valorViaje"]
-                            # if contador < cantidadSwitches
-                            # else int(request.POST["valorViaje"]) + valorDiferencia
+                            if contador < cantidadSwitches
+                            else int(request.POST["valorViaje"]) + valorDiferencia
                         )
 
                     pago = {
