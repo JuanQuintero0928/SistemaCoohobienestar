@@ -1,6 +1,10 @@
 {% extends 'estructura/tabla.html' %}
 {% load static %}
 {% load humanize %}
+{% comment %} 
+{% block extraHead %}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+{% endblock extraHead %} {% endcomment %}
 
 {% block breadcrumb %}
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
@@ -94,7 +98,6 @@
                         </svg>
                     </button>
                 {% endfor %}
-              
             </td>
             <td>
                 <center>
@@ -114,11 +117,12 @@
     <div class="modal fade" id="edicion" role="dialog">
         <!-- En este div se visualiza la informacion para la creacion de un nuevo registro de entrada -->
     </div>
-  
 
 {% endblock tablafilas %}
 
 {% block extrajs %}
+    {% comment %} <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/i18n/es.js"></script> {% endcomment %}
 
 <script type="text/javascript">
     var $ = jQuery.noConflict()
@@ -137,8 +141,4 @@
 
 <script src="{% static 'js/tablaAmortizacion.js' %}"></script>
 
-{% endblock extrajs %}  
-
-
-
-    
+{% endblock extrajs %}

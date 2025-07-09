@@ -99,3 +99,16 @@ function convertirMes(mes) {
 
     return meses[mes-1];
 }
+
+function convertirDias(dia) {
+    let dias = [
+        "un", "dos", "tres", "cuatro", "cinco", "seis", "siete",
+        "ocho", "nueve", "diez", "once", "doce", "trece", "catorce", "quince",
+        "dieciséis", "diecisiete", "dieciocho", "diecinueve", "veinte",
+        "veintiuno", "veintidós", "veintitrés", "veinticuatro", "veinticinco",
+        "veintiséis", "veintisiete", "veintiocho", "veintinueve",
+        "treinta", "treinta y uno"
+    ];
+
+    return dias[dia-1];
+}

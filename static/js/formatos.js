@@ -312,6 +312,8 @@ async function llamarPDFCredito(valor, cuotas, url, idCredito) {
 
 async function llamarPDFPagare(url, numDoc, idCredito) {
     const existCodeudor = document.getElementById(`existCodeudor${idCredito}`).value;
+    let fechaHoy_F5 = document.getElementById('id_fechaActual').value;
+
 
     const datos = {
         existCodeudor: existCodeudor,
@@ -320,6 +322,9 @@ async function llamarPDFPagare(url, numDoc, idCredito) {
         numDocumento: document.getElementById('id_numDocumento').value,
         tipoDocumento: document.getElementById('id_tipoDocumento').value,
         mpioDoc: document.getElementById('id_lugarExp').value,
+        email: document.getElementById('id_email').value,
+        celular: document.getElementById('id_numCelular').value,
+        direccion: document.getElementById('id_direccion').value,
     };
 
     if(existCodeudor === "True"){
@@ -328,15 +333,21 @@ async function llamarPDFPagare(url, numDoc, idCredito) {
         datos.tipoDocumentoCodeudor = document.getElementById(`tipoDocumentoCod${idCredito}`).value;
         datos.numDocumentoCodeudor = document.getElementById(`numDocumentoCod${idCredito}`).value;
         datos.mpioCodeudor = document.getElementById(`mpioDocCod${idCredito}`).value;
+        datos.emailCodeudor = document.getElementById(`emailCod${idCredito}`).value;
+        datos.celularCodeudor = document.getElementById(`numCelularCod${idCredito}`).value;
+        datos.direccionCodeudor = document.getElementById(`direccionCod${idCredito}`).value;
     }else {
         datos.nombreCodeudor = '';
         datos.apellidoCodeudor = '';
         datos.tipoDocumentoCodeudor = '';
         datos.numDocumentoCodeudor = '';
         datos.mpioCodeudor = '';
+        datos.emailCodeudor = '';
+        datos.celularCodeudor = '';
+        datos.direccionCodeudor = '';
     }
 
-    descargarPagare(url, numDoc, datos);
+    descargarPagare(url, numDoc, datos, fechaHoy_F5);
 }
     
 
@@ -734,7 +745,7 @@ async function generarPDFf2(url, actualizacionF2, tPersonaF2, fechaHoyF2, nombre
     if(envioInfoWhatsappF2 == "True"){
         pdf.text("X", 330,312);
     }
- 
+
     //  Cuadro de beneficiarios
     pdf.setFontSize(9);
     let fila = 389;
@@ -1600,10 +1611,14 @@ async function generarPDFfCredito(url, valor, cuotas, nombre_F5, apellido_F5, ti
     // se cierra el onload del image
 }
 
-async function descargarPagare(url, numDoc, datos) {
+async function descargarPagare(url, numDoc, datos, fechaHoy_F5) {
     const image = await loadImage(url);
     const pdf = new jsPDF('p', 'pt', 'legal');
     pdf.addImage(image, 'PNG', 0, 0, 613, 1010);
+
+
+    var arrFechaHoy = fechaHoy_F5.split("-")
+    
 
     let nomCompleto = datos.nombre + " " + datos.apellido
     let nomCompletoCod = datos.nombreCodeudor + " " + datos.apellidoCodeudor
@@ -1628,11 +1643,59 @@ async function descargarPagare(url, numDoc, datos) {
     const image2 = await loadImage('/static/img/Pagare_page_0002.jpg');
     pdf.addImage(image2, 'PNG', 0, 0, 613, 1010);
 
+    pdf.text("ARMENIA", 73, 768);
+    pdf.text(convertirDias(arrFechaHoy[2]), 250, 768);
+    pdf.text(arrFechaHoy[2], 455,768);
+    pdf.text(convertirMes(arrFechaHoy[1]), 73,784);
+    pdf.text(arrFechaHoy[0], 265,784);
+
+    //Datos Deudor
+    pdf.setFontSize(9);
+    pdf.text(nomCompleto, 109, 852);
+    pdf.text(datos.numDocumento, 93, 866);
+    pdf.text(datos.mpioDoc, 171, 866);
+    pdf.text(datos.celular, 110, 882);
+    pdf.text(datos.direccion, 116, 898);
+    pdf.text(datos.email, 98, 914);
+
+    //Datos Codeudor
+    pdf.text(nomCompletoCod, 368, 852);
+    pdf.text(datos.numDocumentoCodeudor, 354, 866);
+    pdf.text(datos.mpioCodeudor, 431, 866);
+    pdf.text(datos.celularCodeudor, 369, 882);
+    pdf.text(datos.direccionCodeudor, 381, 898);
+    pdf.text(datos.emailCodeudor, 363, 914);
+
+
+
     /////////////////////////////////////////////////////////////////////////////////////////
     // Se añade Pagina 3 al documento
     pdf.addPage();
     const image3 = await loadImage('/static/img/Pagare_page_0003.jpg');
     pdf.addImage(image3, 'PNG', 0, 0, 613, 1010);
+
+    pdf.text("ARMENIA", 73, 730);
+    pdf.text(convertirDias(arrFechaHoy[2]), 250, 730);
+    pdf.text(arrFechaHoy[2], 455,730);
+    pdf.text(convertirMes(arrFechaHoy[1]), 73,746);
+    pdf.text(arrFechaHoy[0], 265,746);
+
+    //Datos Deudor
+    pdf.setFontSize(9);
+    pdf.text(nomCompleto, 109, 841);
+    pdf.text(datos.numDocumento, 93, 856);
+    pdf.text(datos.mpioDoc, 171, 856);
+    pdf.text(datos.celular, 110, 872);
+    pdf.text(datos.direccion, 116, 888);
+    pdf.text(datos.email, 98, 904);
+
+    //Datos Codeudor
+    pdf.text(nomCompletoCod, 368, 841);
+    pdf.text(datos.numDocumentoCodeudor, 354, 856);
+    pdf.text(datos.mpioCodeudor, 431, 856);
+    pdf.text(datos.celularCodeudor, 369, 872);
+    pdf.text(datos.direccionCodeudor, 381, 888);
+    pdf.text(datos.emailCodeudor, 363, 904);
 
 
     pdf.save('Pagare_'+numDoc+'.pdf');

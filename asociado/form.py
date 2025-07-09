@@ -195,10 +195,11 @@ class RepatriacionTitularForm(forms.ModelForm):
 class ConvenioAsociadoForm(forms.ModelForm):
     class Meta:
         model = ConveniosAsociado
-        fields = ['convenio','fechaIngreso']
+        fields = ['convenio','fechaIngreso', 'primerMes']
         labels = {
             'convenio': 'Nombre del Convenio',
             'fechaIngreso': 'Fecha Ingreso',
+            'primerMes': 'Primer mes de cobro'
         }
         widgets = {
             'convenio': forms.Select(
@@ -213,5 +214,11 @@ class ConvenioAsociadoForm(forms.ModelForm):
                     'type': 'date'
                 },
                 format='%Y-%m-%d'
+            ),
+            'primerMes': forms.Select(
+                attrs={
+                    'class':'form-control',
+                    'style':'text-transform: uppercase;'
+                }
             ),
         }

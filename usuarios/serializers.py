@@ -5,6 +5,7 @@ from django.utils.timezone import now, timedelta
 from django.conf import settings
 from rest_framework import status
 from rest_framework.response import Response
+from usuarios.utils import generar_y_enviar_codigo_otp
 
 from usuarios.models import UsuarioAsociado
 from asociado.models import Asociado
@@ -60,13 +61,11 @@ class RegistroAsociadoSerializer(serializers.Serializer):
             verification_expires=now() + timedelta(minutes=10)  # Expira en 10 min
         )
 
-        # Enviar el código por correo
-        send_mail(
-            "Código de verificación - Coohobienestar",
-            f"Tu código de verificación es: {codigo_verificacion}\nEste código expira en 10 minutos.",
-            settings.DEFAULT_FROM_EMAIL,  # Usa la configuración del .env
-            [usuario.email],
-            fail_silently=False,
-        )
+        # Setear y encriptar password
+        usuario.set_password(password)
+        usuario.save()
+
+        # Enviar correo
+        generar_y_enviar_codigo_otp(usuario, codigo_verificacion)
 
         return usuario

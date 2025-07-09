@@ -231,6 +231,7 @@ class ConveniosAsociado(models.Model):
     id = models.AutoField(primary_key=True)
     convenio = models.ForeignKey(Convenio, on_delete=models.RESTRICT, blank=False, null=False)
     asociado = models.ForeignKey(Asociado, on_delete=models.RESTRICT, blank=False, null=False)
+    primerMes = models.ForeignKey(MesTarifa, on_delete=models.RESTRICT, blank=False, null=False)
     fechaIngreso = models.DateField('Fecha Ingreso', blank=False, null=False)
     fechaRetiro = models.DateField('Fecha Retiro', blank=True, null=True)
     estadoRegistro = models.BooleanField('Estado')

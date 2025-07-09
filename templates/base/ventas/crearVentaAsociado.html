@@ -75,7 +75,35 @@
                             {{ form.valorNeto }} 
                         </div>
                     </div>
-
+                    <hr>
+                    <div class="row" id="contenedorAmortizacion">
+                        <div class="col-6 text-start">
+                            <h5>Tabla Amortización:</h5>
+                        </div>
+                        <input id="id_valorCuota" type="hidden" name="valorCuota">
+                        <input id="id_totalCredito" type="hidden" name="totalCredito">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="tablaAmortizacion">
+                                <thead>
+                                    <tr>
+                                        <th>N° Cuota</th>
+                                        <th>Fecha</th>
+                                        <th>Saldo inicial</th>
+                                        <th>Abono capital</th>
+                                        <th>Intereses</th>
+                                        <th>Cuota</th>
+                                        <th>Saldo final</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <!-- Aquí se generará dinámicamente la tabla -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-12">
+                            <a type="button" id="calcular" class="btn btn-primary">Calcular Tabla de Amortización</a>
+                        </div>
+                    </div>                            
                     <!-- Formulario de productos -->
                     <hr>
                     <div class="row">
@@ -148,6 +176,7 @@
         const contenedorCuotas = document.getElementById('contenedorCuotas');
         const contenedorValorCuotas = document.getElementById('contenedorValorCuotas');
         const contenedorTasaInteres = document.getElementById('contenedorTasaInteres');
+        const contenedorAmortizacion = document.getElementById('contenedorAmortizacion');
         const tasaInteres = document.getElementById('id_tasaInteres');
         const encabezado = document.getElementById('encabezados-container');
         const contenedor_totales = document.getElementById('total-general-container');
@@ -169,6 +198,7 @@
                 contenedorCuotas.setAttribute('hidden', 'hidden');
                 contenedorValorCuotas.setAttribute('hidden', 'hidden');
                 contenedorMetodoPago.removeAttribute('hidden');
+                contenedorAmortizacion.setAttribute('hidden', 'hidden');
             } else {
                 cuotas.disabled = false;
                 cuotas.setAttribute('required', 'required');
@@ -177,12 +207,34 @@
                 contenedorTasaInteres.removeAttribute('hidden');
                 contenedorCuotas.removeAttribute('hidden');
                 contenedorValorCuotas.removeAttribute('hidden');
+                contenedorAmortizacion.removeAttribute('hidden');
 
             }
             actualizarValorBruto();
             actualizarValorCuotas();
             actualizarValorNeto();
         }
+
+        // Evento que calcula la tabla de amortizacion cuando se hace clic en el botón
+        document.getElementById("calcular").addEventListener("click", function () {
+            const valor = document.getElementById("id_totales_bruto").value.replace(/\./g, '').replace(',', '.');
+            const tasa = parseFloat(document.getElementById("id_tasaInteres").value) || 0;
+            const cuotas = parseInt(document.getElementById("id_cuotas").value) || 0;
+            const fechaSolicitud = document.getElementById("id_fechaVenta").value;
+
+            if (!fechaSolicitud) {
+                alert("Por favor, ingresa una fecha válida.");
+                return;
+            }
+
+            console.log(valor, tasa, cuotas, fechaSolicitud);
+
+            if (parseInt(valor) > 0 && cuotas > 0) {
+                generarTablaAmortizacion(parseInt(valor), tasa, cuotas, fechaSolicitud, 1);
+            }else {
+                alert("Por favor, ingresa valores válidos.");
+            }
+        });
 
         formaPago.addEventListener('change', () => {
             toggleCuotas();
@@ -382,7 +434,6 @@
                 valorCuota.value = 0;
                 return;
             }
-            console.log(totalConInteresGlobal);
             const cuota = Math.round(totalConInteresGlobal / numCuotas);
             valorCuota.value = cuota.toLocaleString('es-ES');
         }

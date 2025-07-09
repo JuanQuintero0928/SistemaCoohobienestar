@@ -25,6 +25,14 @@
                         <span class="input-group-text">$</span>
                         <input type="number" class="form-control" value="{{query.convenio.valor}}" name="valor" id="id_valor" min="0" disabled>
                     </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon3">Primer mes cobro</span>
+                        <select name="primerMes" class="form-control" id="id_primerMes">
+                            {% for mes in meses %}
+                                <option value="{{ mes.pk }}" {% if mes.pk == query.primerMes.pk %} selected {% endif %}>{{mes.concepto}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 {% endif %}                    
                 {% csrf_token %}
                 <button type="submit" class="btn btn-primary">

@@ -1135,8 +1135,8 @@ class EliminarAdicionalAsociado(UpdateView):
         template_name = 'base/asociado/eliminarAdicional.html'
         query = TarifaAsociado.objects.only('cuotaAdicionales', 'id', 'fechaInicioAdicional').get(pk = kwargs['pk'])
         context = {'query': query,
-                   'pk': kwargs['pk'],
-                   'pkAsociado': kwargs['pkAsociado'],
+                'pk': kwargs['pk'],
+                'pkAsociado': kwargs['pkAsociado'],
                 }
         return render(request, template_name, context)
     
@@ -1806,6 +1806,7 @@ class CrearConvenio(ListView):
                 asociado=get_object_or_404(Asociado, pk=kwargs['pkAsociado']),
                 convenio=form.cleaned_data['convenio'],
                 fechaIngreso=form.cleaned_data['fechaIngreso'],
+                primerMes=MesTarifa.objects.get(concepto = form.cleaned_data['primerMes']),
                 estadoRegistro=True,
             )
             # Tarifa del asociado
@@ -1834,7 +1835,8 @@ class EditarConvenioAsociado(UpdateView):
         context = {
             'query': query,
             'pkAsociado': kwargs['pkAsociado'],
-            'pk': kwargs['pk']
+            'pk': kwargs['pk'],
+            'meses': MesTarifa.objects.all()
         }
 
         return render(request, self.template_name, context)
@@ -1842,6 +1844,7 @@ class EditarConvenioAsociado(UpdateView):
     def post(self, request, *args, **kwargs):
         obj = ConveniosAsociado.objects.get(pk = kwargs['pk'])
         obj.fechaIngreso = request.POST['fechaIngreso']
+        obj.primerMes = MesTarifa.objects.get(pk = request.POST['primerMes'])
         obj.save()
         messages.info(request, 'Registro Modificado Correctamente')
         return HttpResponseRedirect(reverse_lazy('asociado:tarifaAsociado', args=[kwargs['pkAsociado']]))
@@ -1851,8 +1854,8 @@ class EliminarConvenioAsociado(UpdateView):
         template_name = 'base/asociado/eliminarConvenio.html'
         query = ConveniosAsociado.objects.select_related('convenio').only('fechaIngreso', 'id', 'convenio__concepto', 'convenio__valor').get(pk=kwargs['pk'])
         context = {'query': query,
-                   'pk': kwargs['pk'],
-                   'pkAsociado': kwargs['pkAsociado'],
+                'pk': kwargs['pk'],
+                'pkAsociado': kwargs['pkAsociado'],
                 }
         return render(request, template_name, context)
 

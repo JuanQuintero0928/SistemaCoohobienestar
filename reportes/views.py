@@ -480,7 +480,7 @@ class FormatoExtracto(ListView):
     def post(self, request, *args, **kwargs):
         template_name = 'reporte/generarExtracto.html'
         
-        objAsoc = Asociado.objects.exclude(estadoAsociado = 'RETIRO')
+        objAsoc = Asociado.objects.exclude(estadoAsociado = 'ACTIVO')
         mesExtracto = request.POST['mesExtracto']
         saldos = 'saldos' in request.POST
         asociados = []

@@ -6,6 +6,7 @@ from django.contrib.auth.hashers import make_password
 from django.utils.timezone import now
 from django.conf import settings
 from django.core.mail import send_mail
+from usuarios.utils import generar_y_enviar_codigo_otp
 
 from usuarios.serializers import RegistroAsociadoSerializer
 from usuarios.models import UsuarioAsociado
@@ -41,7 +42,6 @@ class VerificarCodigoView(APIView):
                 return Response({"error": "El código de verificación ha expirado."}, status=status.HTTP_400_BAD_REQUEST)
 
             usuario.is_active = True
-            usuario.password = make_password(usuario.password)
             usuario.verification_code = None
             usuario.save()
 
@@ -49,4 +49,19 @@ class VerificarCodigoView(APIView):
 
         except UsuarioAsociado.DoesNotExist:
             return Response({"error": "Código inválido o usuario no encontrado."}, status=status.HTTP_400_BAD_REQUEST)
-        
+
+
+class ReenviarCodigoView(APIView):
+    def post(self, request):
+        email = request.data.get('email', '').lower()
+
+        try:
+            usuario = UsuarioAsociado.objects.get(username=email, is_associate=True, is_active=False)
+        except UsuarioAsociado.DoesNotExist:
+            return Response({'error': 'No se encontró una cuenta pendiente de activación con este correo.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # Llamas la función sin pasar el código explícitamente
+        generar_y_enviar_codigo_otp(usuario, codigo=None)
+
+        return Response({'message': 'Código reenviado correctamente.'}, status=status.HTTP_200_OK)

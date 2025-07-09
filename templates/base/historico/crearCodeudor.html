@@ -1,4 +1,5 @@
 {% load static %}
+
 <div class="modal-dialog modal-xl" role="document">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -72,7 +73,7 @@
                 {% comment %} {{ form.dtoNacimiento.label_tag }}
                 {{ form.dtoNacimiento }}  {% endcomment %}
                 <label for="id_dtoNacimiento" class="form-label">Departamento Nacimiento</label>
-                <select name="dtoNacimiento" class="form-select" id="id_dtoNacimiento" required>
+                <select name="dtoNacimiento" class="form-select departamento-select" id="id_dtoNacimiento" data-target="#id_mpioNacimiento" required>
                     {% for dpto in query_dpto %}
                         <option value="{{dpto.id}}" {% if dpto.id == object.dtoNacimiento.pk %} selected {% endif %}>{{dpto.nombre}}</option>
                     {% endfor %}
@@ -124,20 +125,20 @@
                 {% comment %} {{ form.deptoResidencia.label_tag }}
                 {{ form.deptoResidencia }} {% endcomment %}
                 <label for="id_deptoResidencia" class="form-label">Departamento Residencia</label>
-                <select name="deptoResidencia" class="form-select" id="id_deptoResidencia" required>
-                    {% for dpto in query_dpto %}
-                        <option value="{{dpto.id}}" {% if dpto.id == object.deptoResidencia.id %}selected{% endif %}>{{dpto.nombre}}</option>
-                    {% endfor %}
+                <select name="deptoResidencia" class="form-select departamento-select" id="id_deptoResidencia" data-target="#id_mpioResidencia">
+                  {% for dpto in query_dpto %}
+                      <option value="{{dpto.id}}" {% if dpto.id == object.deptoResidencia.pk %}selected{% endif %}>{{dpto.nombre}}</option>
+                  {% endfor %}
                 </select>
             </div>
             <div class="col-12 col-md-3 mb-3">
                 {% comment %} {{ form.mpioResidencia.label_tag }}
                 {{ form.mpioResidencia }}  {% endcomment %}
                 <label for="id_mpioResidencia" class="form-label">Municipio Residencia</label>
-                <select name="mpioResidencia" class="form-select" id="id_mpioResidencia" required>
-                    {% for mcpio in query_mpio %}
-                        <option value="{{mcpio.id}}" data-chained="{{mcpio.departamento}}" {% if mcpio.id == object.mpioResidencia.pk %} selected {% endif %}>{{mcpio.nombre}}</option>
-                    {% endfor %}
+                <select name="mpioResidencia" class="form form-control" id="id_mpioResidencia">
+                    <option value="{{ object.mpioResidencia.id }}" selected>
+                        {{ objAsociado.mpioResidencia.nombre }}
+                    </option>
                 </select>
             </div>
             <div class="col-12 col-md-3 mb-3">
@@ -174,16 +175,87 @@
   </div>
 </div>
 
-<script src="{% static 'lib/jquery-chained/jquery.chained.min.js' %}"></script>
 
+{% comment %} <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/i18n/es.js"></script> {% endcomment %}
 <script type="text/javascript">
-  var $ = jQuery.noConflict()
-  function abrir_modal_creacion(url){
-      $('#creacion').load(url, function(){
-          $(this).modal('show');
-      });
-  }
-  $("#id_mpioNacimiento").chained("#id_dtoNacimiento");
-  $("#id_mpioResidencia").chained("#id_deptoResidencia");
+  $(document).ready(function() {
+      function cargarMunicipios(departamento_id, municipioSelect, municipioSeleccionado = null) {
+          if (departamento_id) {
+              $.ajax({
+                  url: '/departamento/getMunicipios/' + departamento_id + '/',
+                  method: 'GET',
+                  success: function(data) {
+                      municipioSelect.empty(); // Vaciar el select de municipios
+                      municipioSelect.append('<option value="">Seleccione un municipio</option>');
 
+                      $.each(data, function(index, municipio) {
+                          let selected = municipio.id == municipioSeleccionado ? 'selected' : '';
+                          municipioSelect.append('<option value="' + municipio.id + '" ' + selected + '>' + municipio.nombre + '</option>');
+                      });
+                  },
+                  error: function() {
+                      alert("Error al cargar los municipios.");
+                  }
+              });
+          } else {
+              municipioSelect.empty();
+              municipioSelect.append('<option value="">Seleccione un municipio</option>');
+          }
+      }
+
+      // Al cambiar el departamento, actualizar los municipios
+      $('.departamento-select').change(function() {
+          var departamento_id = $(this).val();
+          var municipioSelect = $($(this).data('target'));
+          cargarMunicipios(departamento_id, municipioSelect);
+      });
+
+      // Cargar municipios al iniciar la página si ya hay un departamento seleccionado
+      var departamentoInicial = $('#id_dtoNacimiento').val();
+      var municipioSelect = $('#id_mpioNacimiento');
+      var municipioInicial = municipioSelect.val(); // Obtener el municipio que estaba seleccionado
+
+      var departamentoInicial2 = $('#id_deptoResidencia').val();
+      var municipioSelect2 = $('#id_mpioResidencia');
+      var municipioInicial2 = municipioSelect2.val(); // Obtener el municipio que estaba seleccionado
+
+      var departamentoInicial3 = $('#id_dptoTrabajo').val();
+      var municipioSelect3 = $('#id_mpioTrabajo');
+      var municipioInicial3 = municipioSelect3.val(); // Obtener el municipio que estaba seleccionado
+      
+      if (departamentoInicial) {
+          cargarMunicipios(departamentoInicial, municipioSelect, municipioInicial);
+          cargarMunicipios(departamentoInicial2, municipioSelect2, municipioInicial2);
+          cargarMunicipios(departamentoInicial3, municipioSelect3, municipioInicial3);
+      }
+
+  });
+
+  // Función para cargar los municipios con departamento en el input de municipio del documento
+  $(document).ready(function() {
+      $("#id_mpioDoc").select2({
+          theme: "bootstrap-5",
+          placeholder: "Escriba para buscar un municipio",
+          width: '100%',
+          selectionCssClass: "form-control",
+          ajax: {
+              url: "/departamento/buscar-municipios/",  // La API que creamos en Django
+              dataType: "json",
+              delay: 250,
+              data: function(params) {
+                  return { q: params.term };  // Envía el término de búsqueda
+              },
+              processResults: function(data) {
+                  return {
+                      results: data.map(mcpio => ({
+                          id: mcpio.id,
+                          text: `${mcpio.nombre} - ${mcpio.departamento__nombre}`
+                      }))
+                  };
+              }
+          },
+          minimumInputLength: 2  // Espera hasta que el usuario escriba 2 caracteres
+      });
+  });
 </script>

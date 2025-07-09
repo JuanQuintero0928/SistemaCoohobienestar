@@ -44,6 +44,10 @@
                                 <label for="tasaInteres">Tasa de Interés:</label>
                                 <input type="text" id="tasaInteres" value="{{ historicoVenta.tasaInteres.concepto }}" class="form-control" readonly>
                             </div>
+                            <div class="col-12 col-md-4 mb-3 d-none">
+                                <label for="tasaInteres">Tasa de Interés oculto:</label>
+                                <input type="text" id="id_tasaInteres" value="{{ historicoVenta.tasaInteres.porcentaje }}" class="form-control">
+                            </div>
                             <div class="col-12 col-md-4 mb-3">
                                 <label for="numeroCuotas">Número Cuotas:</label>
                                 <input type="number" id="numeroCuotas" value="{{ historicoVenta.cuotas }}" class="form-control" readonly>
@@ -65,64 +69,89 @@
                             <input type="text" class="form-control" id="id_valorNeto" value="{{ historicoVenta.valorNeto|intcomma }}" readonly>
                         </div>
                     </div>
-                        
-                        <!-- Formulario de productos -->
-                        <hr>
+                    <hr>
+                    <div class="row" id="contenedorAmortizacion">
+                        <div class="col-6 text-start">
+                            <h5>Tabla Amortización:</h5>
+                        </div>
+                        <input id="id_valorCuota" type="hidden" name="valorCuota">
+                        <input id="id_totalCredito" type="hidden" name="totalCredito">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="tablaAmortizacion">
+                                <thead>
+                                    <tr>
+                                        <th>N° Cuota</th>
+                                        <th>Fecha</th>
+                                        <th>Saldo inicial</th>
+                                        <th>Abono capital</th>
+                                        <th>Intereses</th>
+                                        <th>Cuota</th>
+                                        <th>Saldo final</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <!-- Aquí se generará dinámicamente la tabla -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-12">
+                            <a type="button" id="calcular" class="btn btn-primary">Ver Tabla de Amortización</a>
+                        </div>
+                    </div> 
+                    <!-- Formulario de productos -->
+                    <hr>
+                    <div class="row">
+                        <div class="col-6 text-start">
+                            <h5>Lista de Productos:</h5>
+                        </div>
+                    </div>
+                    <hr>
+                    <div id="encabezados-container">
                         <div class="row">
-                            <div class="col-6 text-start">
-                                <h5>Lista de Productos:</h5>
+                            <div class="col-12 col-md-1 mb-1 text-center fw-bold">
+                                <label class="form-label">N°</label>
+                            </div>
+                            <div class="col-12 col-md-4 mb-1">
+                                <label class="form-label">Producto</label>
+                            </div>
+                            <div class="col-12 col-md-2 mb-1">
+                                <label class="form-label">Precio</label>
+                            </div>
+                            <div class="col-12 col-md-1 mb-1">
+                                <label class="form-label">Cantidad</label>
+                            </div>
+                            <div class="col-12 col-md-2 mb-1">
+                                <label class="form-label">Total Bruto</label>
+                            </div>
+                            <div class="col-12 col-md-2 mb-1">
+                                <label class="form-label">Total Neto</label>
                             </div>
                         </div>
-                        <hr>
-                        <div id="encabezados-container">
+                    </div>
+                    <div id="productos-container">
+                        {% for product in detalleVenta %}
                             <div class="row">
-                                <div class="col-12 col-md-1 mb-1 text-center fw-bold">
-                                    <label class="form-label">N°</label>
+                                <div class="col-12 col-xl-1 mb-3">
+                                    <span class="form-control text-center bg-light border-0 fw-bold" readonly>{{forloop.counter}}</span>
                                 </div>
-                                <div class="col-12 col-md-4 mb-1">
-                                    <label class="form-label">Producto</label>
+                                <div class="col-12 col-md-4 mb-3">
+                                    <input type="text" value="{{product.producto}}" class="form-control" readonly>
                                 </div>
-                                <div class="col-12 col-md-2 mb-1">
-                                    <label class="form-label">Precio</label>
+                                <div class="col-12 col-md-2 mb-3">
+                                    <input type="text" value="{{ product.precio|intcomma }}" class="form-control" readonly>
                                 </div>
-                                <div class="col-12 col-md-1 mb-1">
-                                    <label class="form-label">Cantidad</label>
+                                <div class="col-12 col-md-1 mb-3">
+                                    <input type="text" value="{{ product.cantidad }}" class="form-control" readonly>
                                 </div>
-                                <div class="col-12 col-md-2 mb-1">
-                                    <label class="form-label">Total Bruto</label>
+                                <div class="col-12 col-md-2 mb-3">
+                                    <input type="text" value="{{ product.totalBruto|intcomma }}" class="form-control" readonly>
                                 </div>
-                                <div class="col-12 col-md-2 mb-1">
-                                    <label class="form-label">Total Neto</label>
+                                <div class="col-12 col-md-2 mb-3">
+                                    <input type="text" value="{{ product.totalNeto|intcomma }}" class="form-control" readonly>
                                 </div>
                             </div>
-                        </div>
-                        <div id="productos-container">
-                            {% for product in detalleVenta %}
-                                <div class="row">
-                                    <div class="col-12 col-xl-1 mb-3">
-                                        <span class="form-control text-center bg-light border-0 fw-bold" readonly>{{forloop.counter}}</span>
-                                    </div>
-                                    <div class="col-12 col-md-4 mb-3">
-                                        <input type="text" value="{{product.producto}}" class="form-control" readonly>
-                                    </div>
-                                    <div class="col-12 col-md-2 mb-3">
-                                        <input type="text" value="{{ product.precio|intcomma }}" class="form-control" readonly>
-                                    </div>
-                                    <div class="col-12 col-md-1 mb-3">
-                                        <input type="text" value="{{ product.cantidad }}" class="form-control" readonly>
-                                    </div>
-                                    <div class="col-12 col-md-2 mb-3">
-                                        <input type="text" value="{{ product.totalBruto|intcomma }}" class="form-control" readonly>
-                                    </div>
-                                    <div class="col-12 col-md-2 mb-3">
-                                        <input type="text" value="{{ product.totalNeto|intcomma }}" class="form-control" readonly>
-                                    </div>
-                                </div>
-                                
-                            {% endfor %}    
-                        </div>
-                        
-
+                            
+                        {% endfor %}    
                     </div>
                 </form>
             </div>
@@ -130,3 +159,27 @@
     </div>
 </div>
 
+
+<script>
+
+    document.getElementById("calcular").addEventListener("click", function () {
+            const valor = document.getElementById("id_valorBruto").value.replace(/\./g, '').replace(',', '.');
+            const rawtasa = document.getElementById("id_tasaInteres").value.replace(',', '.');
+            const tasa = parseFloat(rawtasa) || 0;
+            const cuotas = parseInt(document.getElementById("numeroCuotas").value) || 0;
+            const fechaSolicitud = document.getElementById("fechaVenta").value;
+
+            if (!fechaSolicitud) {
+                alert("Por favor, ingresa una fecha válida.");
+                return;
+            }
+
+
+            if (parseInt(valor) > 0 && cuotas > 0) {
+                generarTablaAmortizacion(parseInt(valor), tasa, cuotas, fechaSolicitud, 1);
+            }else {
+                alert("Por favor, ingresa valores válidos.");
+            }
+        });
+
+</script>

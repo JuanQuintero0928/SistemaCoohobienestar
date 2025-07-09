@@ -2,15 +2,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Coohobienestar</title>
-  <!-- Google Font: Source Sans Pro -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-  
-  <link rel="icon" href="{% static 'img/icons/logo.png' %}" type="image/png" />
-  <link rel="stylesheet" href="{% static 'lib/startbootstrap-sb-admin-gh-pages/css/adminlte.min.css' %}">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Coohobienestar</title>
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <link rel="icon" href="{% static 'img/icons/logo.png' %}" type="image/png" />
+    <link rel="stylesheet" href="{% static 'lib/startbootstrap-sb-admin-gh-pages/css/adminlte.min.css' %}">
 </head>
 <body class="hold-transition login-page">
 
@@ -71,11 +71,54 @@
                 for (const key in data) {
                     errorDiv.innerHTML += `<p><strong>${key}:</strong> ${data[key]}</p>`;
                 }
+
             }
         }
     }
-    
+
+
+    // Función para reenviar el código de verificación
+    async function reenviarCodigo() {
+        const email = document.getElementById("email").value;
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const spinner_otp = document.getElementById("spinner-reenviar-otp");
+        const btn_otp = document.getElementById("btn-otp");
+        spinner_otp.classList.remove("d-none");
+        btn_otp.disabled = true;      
+
+        const response = await fetch("/api/reenviar-codigo/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken
+            },
+            body: JSON.stringify({ email: email })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            Swal.fire({
+                icon: "success",
+                title: "Código reenviado",
+                text: "Se ha enviado un nuevo código de verificación a tu correo. Revisa tu bandeja de entrada o spam.",
+                timer: 2000,
+                showConfirmButton: false
+            });
+            spinner_otp.classList.add("d-none");
+            btn_otp.disabled = false;
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: data.error || "No se pudo reenviar el código. Intenta nuevamente.",
+            });
+            spinner_otp.classList.add("d-none");
+            btn_otp.disabled = false;
+        }
+    }
 </script>
+
 
 <div class="login-box">
 
@@ -122,6 +165,10 @@
                     Registrar
                 </button>
             </form>
+            <button type="button" class="btn btn-link btn-sm mt-2" id="btn-otp" onclick="reenviarCodigo()">
+                <span id="spinner-reenviar-otp" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                ¿No recibiste el código? Reenviar
+            </button>
         </div>   
     </div>
 </div>
