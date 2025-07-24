@@ -943,7 +943,7 @@ class ExcelConciliacionBancaria(TemplateView):
             #Row, son las filas , A,B,C,D osea row es igual al contador, y columnas 1,2,3
             ws.cell(row = cont, column = 1).value = i                    
             ws.cell(row = cont, column = 2).value = int(query['asociado__numDocumento'])
-            ws.cell(row = cont, column = 3).value = f'{query['asociado__nombre']}' + ' ' + f'{query['asociado__apellido']}'
+            ws.cell(row = cont, column = 3).value = f"{query['asociado__nombre']} {query['asociado__apellido']}"
             ws.cell(row = cont, column = 4).value = query['formaPago_id__formaPago']
             ws.cell(row = cont, column = 5).value = query['total_pagado']
             ws.cell(row = cont, column = 6).value = fecha_formateada

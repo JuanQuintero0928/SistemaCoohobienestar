@@ -603,6 +603,15 @@ class EliminarPago(DeleteView):
             credito.cuotasPagas = credito.cuotasPagas - 1
             credito.save()
 
+        # Si es credito, se elimina registro y se actualiza valor de credito
+        if obj.mesPago.pk == 9993:
+            credito = HistoricoCredito.objects.get(
+                id = obj.creditoId.id
+            )
+            credito.cuotasPagas = credito.cuotasPagas - 1
+            credito.pendientePago += obj.valorPago
+            credito.save()
+
         obj.delete()
         messages.info(request, "Pago Eliminado Correctamente")
 
