@@ -1,0 +1,43 @@
+{% load humanize %}
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Detalle pagos de credito</h1>
+                <hr>
+            <h2 class="modal-title fs-5" id="exampleModalLabel"></h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+        <div class="modal-body">
+
+            <table class="table table-sm table-borderless align-middle">
+                <thead class="table-light border-bottom">
+                    <tr>
+                        <th class="fw-semibold">Número Cuota</th>
+                        <th class="fw-semibold">Fecha Pago</th>
+                        <th class="fw-semibold">Valor Pago</th>
+                        <th class="fw-semibold">Forma Pago</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in data %}
+                    <tr class="border-bottom">
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ obj.fechaPago|date:"d/m/Y" }}</td>
+                        <td>${{ obj.valorPago|intcomma }}</td>
+                        <td>{{ obj.formaPago.formaPago }}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr class="fw-semibold">
+                        <td colspan="2" class="text-end">Total Pagado</td>
+                        <td colspan="2" class="text-muted">${{ total_pagado|intcomma }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+        
+        </div>
+        
+    </div>
+</div>
+</div>

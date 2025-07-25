@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404
+from django.views.decorators.http import require_http_methods
 from django.views.generic import ListView, CreateView, UpdateView, DetailView
 from django.http import HttpResponseRedirect, JsonResponse
 from django.core.paginator import Paginator
@@ -921,6 +922,15 @@ class VerHistoricoCredito(DetailView):
     
     def get(self, request, *args, **kwargs):
         return super().get(self, request, *args, **kwargs)
+    
+
+@require_http_methods(["GET"])
+def verPagosCredito(request, pk):
+    if request.method == "GET":
+        pagos = HistorialPagos.objects.filter(creditoId = pk)
+        total_pagado = pagos.aggregate(total=Sum("valorPago"))["total"] or 0
+        return render(request, "base/historico/verPagosHistoricoCredito.html", {"data":pagos, "total_pagado":total_pagado})
+
     
 class CrearHistoricoCredito(ListView):
     def get(self, request, *args, **kwargs):

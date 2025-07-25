@@ -516,7 +516,7 @@ class EditarPago(ListView):
         mesesPagados = HistorialPagos.objects.filter(
             asociado=kwargs["pkAsociado"]
         ).values("mesPago")
-        queryMes = MesTarifa.objects.exclude(pk__in=Subquery(mesesPagados))
+        queryMes = MesTarifa.objects.exclude(Q(pk__in=Subquery(mesesPagados)) | Q(pk__in=[9991,9992,9993,9994,9995,9996,9997,9998,9999]))
         queryFormaPago = FormaPago.objects.all()
         return render(
             request,

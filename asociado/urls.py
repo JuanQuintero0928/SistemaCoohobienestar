@@ -1,7 +1,7 @@
 from django.urls import path, include
 from django.contrib.auth.decorators import login_required
 from .views import *
-from ventas.views import ListarProductos, CrearProducto, EditarProducto, ListarVentasAsociado, CrearVentaAsociado, ListarDetalleVenta, EliminarDetalleVenta, UtilidadesProductos
+from ventas.views import ListarProductos, CrearProducto, EditarProducto, ListarVentasAsociado, CrearVentaAsociado, ListarDetalleVenta, EliminarDetalleVenta, UtilidadesProductos, verPagosVentas
 
 urlpatterns = [
     path('asociado/', login_required(Asociados.as_view()), name='asociado'),
@@ -22,9 +22,13 @@ urlpatterns = [
     path('crearhistoricoAuxilio/<int:pkAsociado>', login_required(CrearAuxilio.as_view()), name='crearhistoricoAuxilio'),
     path('detalleAuxilio/<int:pkAsociado>/<int:pk>', login_required(DetalleAuxilio.as_view()), name='detalleAuxilio'),
     path('eliminarAuxilio/<int:pkAsociado>/<int:pk>', login_required(EliminarAuxilio.as_view()), name='eliminarAuxilio'),
+
     path('historicoCredito/<int:pkAsociado>', login_required(VerHistoricoCredito.as_view()), name='historicoCredito'),
+    path('verPagoshistoricoCredito/<int:pk>', login_required(verPagosCredito), name='verPagosHistoricoCredito'),
     path('crearHistoricoCredito/<int:pkAsociado>/', login_required(CrearHistoricoCredito.as_view()), name='crearHistoricoCredito'),
     path('editarHistoricoCredito/<int:pkAsociado>/<int:pk>', login_required(EditarHistoricoCredito.as_view()), name='editarHistoricoCredito'),
+
+
     path('tarifaAsociado/<int:pkAsociado>', login_required(VerTarifaAsociado.as_view()), name='tarifaAsociado'),
     path('crearAdicional/<int:pkAsociado>', login_required(CrearAdicionalAsociado.as_view()), name='crearAdicional'),    
     path('editarAdicional/<int:pkAsociado>/<int:pk>', login_required(EditarAdicionalAsociado.as_view()), name='editarAdicional'),
@@ -56,6 +60,8 @@ urlpatterns = [
     path('crearProducto/', login_required(CrearProducto.as_view()), name='crearProducto'),
     path('editarProducto/<int:pk>', login_required(EditarProducto.as_view()), name='editarProducto'),
     path('listarVentasAsociado/<int:pkAsociado>', login_required(ListarVentasAsociado.as_view()), name='listarVentasAsociado'),
+    path('verPagoshistoricoVenta/<int:pk>', login_required(verPagosVentas), name='verPagosHistoricoVenta'),
+
     path('crearVentaAsociado/<int:pkAsociado>', login_required(CrearVentaAsociado.as_view()), name='crearVentaAsociado'),
     path('detalleVenta/<int:pkAsociado>/<int:pk>', login_required(ListarDetalleVenta.as_view()), name='detalleVenta'),
     path('eliminarDetalleVenta/<int:pkAsociado>/<int:pk>', login_required(EliminarDetalleVenta.as_view()), name='eliminarDetalleVenta'),

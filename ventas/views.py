@@ -1,10 +1,12 @@
 from django.shortcuts import render
+from django.views.decorators.http import require_http_methods
 from django.views.generic import ListView, CreateView, UpdateView, TemplateView, DetailView
 from django.db import transaction
 from django.urls import reverse_lazy, reverse
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from reportes.utils.medicion import medir_rendimiento
+from django.db.models import Sum
 
 from .models import Producto, HistoricoVenta, DetalleVenta, PorcentajeDescuento
 from .form import ProductoForm, HistoricoVentaForm, DetalleVentaForm
@@ -109,6 +111,14 @@ class ListarVentasAsociado(DetailView):
     
     def get(self, request, *args, **kwargs):
         return super().get(self, request, *args, **kwargs)
+    
+
+@require_http_methods(["GET"])
+def verPagosVentas(request, pk):
+    if request.method == "GET":
+        pagos = HistorialPagos.objects.filter(ventaHE_id = pk)
+        total_pagado = pagos.aggregate(total=Sum("valorPago"))["total"] or 0
+        return render(request, "base/ventas/verPagosHistoricoVenta.html", {"data":pagos, "total_pagado":total_pagado})
 
 class CrearVentaAsociado(CreateView):
     model = HistoricoVenta
