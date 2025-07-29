@@ -1,6 +1,8 @@
 import json
 from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
 from django.views.generic import ListView, DeleteView, TemplateView, DetailView
 from usuarios.models import UsuarioAsociado
@@ -506,6 +508,211 @@ class ModalPago(ListView):
 
         return HttpResponseRedirect(url)
 
+
+@require_http_methods(["POST", "GET"])
+def modal_pago_ventas(request, pkVenta, pkAsociado, tipo):
+    if request.method == "POST":
+        fechaPago = request.POST["fechaPago"]
+        formaPago = request.POST["formaPago"]
+        valorPago = int(request.POST["valorPago"])
+        diferencia = request.POST["diferencia"]
+        valorDiferencia = int(diferencia.replace(".",""))
+        
+        # creamos un array para guardar los pagos que se marcaron como activos
+        datos_pagos = []
+
+        # obtenemos los switchs que se marcaron como activos en el modal
+        switches_activos = request.POST.getlist("switches") or []
+
+        usuario = request.user
+
+        # Se recorre los switch activos, con el pk del mes activo
+        for contador, pk in enumerate(switches_activos, start=1):
+            if tipo == "HOME-ELEMENT":
+                query_credito_venta = HistoricoVenta.objects.get(pk = pkVenta)
+
+                pago = {
+                        "asociado": Asociado.objects.get(pk=pkAsociado),
+                        "mesPago": MesTarifa.objects.get(pk=pk),
+                        "fechaPago": fechaPago,
+                        "formaPago": FormaPago.objects.get(pk=formaPago),
+                        "aportePago": 0,
+                        "bSocialPago": 0,
+                        "mascotaPago": 0,
+                        "repatriacionPago": 0,
+                        "seguroVidaPago": 0,
+                        "adicionalesPago": 0,
+                        "coohopAporte": 0,
+                        "coohopBsocial": 0,
+                        "convenioPago": 0,
+                        "creditoHomeElements": query_credito_venta.valorCuotas,
+                        "diferencia": valorDiferencia,
+                        "valorPago": valorPago,
+                        "ventaHE": query_credito_venta,
+                        "estadoRegistro": True,
+                        "userCreacion": usuario,
+                }
+                datos_pagos.append(pago)
+                query_credito_venta.pendientePago = query_credito_venta.pendientePago - valorPago
+                query_credito_venta.cuotasPagas = query_credito_venta.cuotasPagas + 1
+                query_credito_venta.save()
+
+                url = reverse("asociado:listarVentasAsociado", args=[pkAsociado])
+
+            elif tipo == "CREDITO":
+                query_credito = HistoricoCredito.objects.get(pk = pkVenta)
+
+                pago = {
+                        "asociado": Asociado.objects.get(pk=pkAsociado),
+                        "mesPago": MesTarifa.objects.get(pk=pk),
+                        "fechaPago": fechaPago,
+                        "formaPago": FormaPago.objects.get(pk=formaPago),
+                        "aportePago": 0,
+                        "bSocialPago": 0,
+                        "mascotaPago": 0,
+                        "repatriacionPago": 0,
+                        "seguroVidaPago": 0,
+                        "adicionalesPago": 0,
+                        "coohopAporte": 0,
+                        "coohopBsocial": 0,
+                        "convenioPago": 0,
+                        "credito": query_credito.valorCuota,
+                        "creditoHomeElements": 0,
+                        "diferencia": valorDiferencia,
+                        "valorPago": valorPago,
+                        "creditoId": query_credito,
+                        "estadoRegistro": True,
+                        "userCreacion": usuario,
+                }
+                datos_pagos.append(pago)
+                query_credito.pendientePago = query_credito.pendientePago - valorPago
+                query_credito.cuotasPagas = query_credito.cuotasPagas + 1
+                query_credito.save()
+
+                url = reverse("asociado:historicoCredito", args=[pkAsociado])
+
+
+        # Crear cada registro en un bucle
+        for data in datos_pagos:
+            HistorialPagos.objects.create(**data)
+
+        messages.info(request, "Pago Registrado Correctamente")
+        return HttpResponseRedirect(url)
+
+
+    else:
+        formaPago = FormaPago.objects.all()
+
+        if tipo == "HOME-ELEMENT":
+            query = HistoricoVenta.objects.get(pk = pkVenta)
+            # Se valida si es la ultima cuota para enviar el pendiente por pagar
+            if (query.cuotas - query.cuotasPagas) == 1:
+                valorCuota = query.pendientePago
+            else:
+                valorCuota = query.valorCuotas
+            observacion = "HOME ELEMENTS"
+        elif tipo == "CREDITO":
+            query = HistoricoCredito.objects.get(pk = pkVenta)
+            if (query.cuotas - query.cuotasPagas) == 1:
+                valorCuota = query.pendientePago
+            else:
+                valorCuota = query.valorCuota
+            observacion = query.lineaCredito
+
+        context = {
+            "objeto": query,
+            "pkAsociado": pkAsociado,
+            "formaPago": formaPago,
+            "valorCuota": valorCuota,
+            "tipo": tipo,
+            "observacion": observacion
+        }
+
+        return render(request, "proceso/pago/modalPagoVentas.html", context)
+
+
+@csrf_exempt
+def actualizar_pago(request, pk, tipo):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        valor_pago = int(data.get("valorPago"))
+        fecha_pago = data.get("fechaPago")
+        forma_pago = data.get("formaPago")
+        obj_forma_pago = FormaPago.objects.get(pk = forma_pago)
+
+        try:
+            pago = HistorialPagos.objects.get(pk = pk)
+            # Valor pago anterior
+            pago_anterior = pago.valorPago
+            # Valor pago nuevo
+            pago.valorPago = valor_pago
+            # Opcion Home elements
+            if tipo == 1:
+                pago.fechaPago = fecha_pago
+                pago.formaPago = obj_forma_pago
+                pago.diferencia = valor_pago - pago.creditoHomeElements
+                pago.userModificacion = request.user
+                pago.save()
+                venta_he = HistoricoVenta.objects.get(pk = pago.ventaHE.id)
+                venta_he.pendientePago = venta_he.pendientePago + pago_anterior - pago.valorPago
+                venta_he.save()
+                total_pagado = venta_he.valorNeto - venta_he.pendientePago
+                return JsonResponse({
+                    "status":"ok",
+                    "diferencia":pago.diferencia,
+                    "total_pagado": total_pagado
+                    })
+            # Opcion Credito
+            elif tipo == 2:
+                pago.fechaPago = fecha_pago
+                pago.formaPago = obj_forma_pago
+                pago.diferencia = valor_pago - pago.credito
+                pago.userModificacion = request.user
+                pago.save()
+                credito = HistoricoCredito.objects.get(pk = pago.creditoId.id)
+                credito.pendientePago = credito.pendientePago + pago_anterior - pago.valorPago
+                credito.save()
+                total_pagado = credito.totalCredito - credito.pendientePago
+                return JsonResponse({
+                    "status":"ok",
+                    "diferencia":pago.diferencia,
+                    "total_pagado": total_pagado
+                    })
+            
+        except HistorialPagos.DoesNotExist:
+            return JsonResponse({"error":"Pago no encontrado"}, status=404)
+        
+    return JsonResponse({"error":"Metodo no permitido"}, status=405)
+
+
+@csrf_exempt
+def eliminar_pago(request, pk, tipo):
+    if request.method == "POST":
+        pago = get_object_or_404(HistorialPagos, pk=pk)
+        if tipo == 1:
+            venta_he = get_object_or_404(HistoricoVenta, pk = pago.ventaHE.pk)
+            venta_he.cuotasPagas -= 1
+            venta_he.pendientePago += pago.valorPago
+            venta_he.save()
+            pago.delete()
+            total_pagado = venta_he.valorNeto - venta_he.pendientePago
+            return JsonResponse({
+                'status': 'ok',
+                'total_pagado': total_pagado
+                })
+        elif tipo == 2:
+            credito = get_object_or_404(HistoricoCredito, pk = pago.creditoId.pk)
+            credito.cuotasPagas -= 1
+            credito.pendientePago += pago.valorPago
+            credito.save()
+            pago.delete()
+            total_pagado = credito.totalCredito - credito.pendientePago
+            return JsonResponse({
+                'status': 'ok',
+                'total_pagado': total_pagado
+                })
+    else:
+        return JsonResponse({'error':"Metodo no permitido"})
 
 class EditarPago(ListView):
     def get(self, request, *args, **kwargs):

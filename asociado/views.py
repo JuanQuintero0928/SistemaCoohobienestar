@@ -928,8 +928,9 @@ class VerHistoricoCredito(DetailView):
 def verPagosCredito(request, pk):
     if request.method == "GET":
         pagos = HistorialPagos.objects.filter(creditoId = pk)
+        forma_pago = FormaPago.objects.all()
         total_pagado = pagos.aggregate(total=Sum("valorPago"))["total"] or 0
-        return render(request, "base/historico/verPagosHistoricoCredito.html", {"data":pagos, "total_pagado":total_pagado})
+        return render(request, "base/historico/verPagosHistoricoCredito.html", {"data":pagos, "total_pagado":total_pagado, "forma_pago":forma_pago})
 
     
 class CrearHistoricoCredito(ListView):

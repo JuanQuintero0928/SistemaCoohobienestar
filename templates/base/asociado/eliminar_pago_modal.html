@@ -1,0 +1,41 @@
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title">Confirmar eliminación</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+        ¿Estás seguro de que deseas eliminar este pago por valor de <strong>${{ pago.valorPago }}</strong>?
+        </div>
+        <div class="modal-footer">
+        <form method="post" id="form-eliminar">
+            {% csrf_token %}
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+        </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Manejo por AJAX del form de eliminación
+    document.getElementById("form-eliminar").addEventListener("submit", function(e){
+        e.preventDefault();
+        const form = e.target;
+
+        fetch(form.action || window.location.href, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": form.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Error al eliminar");
+            $('#eliminacion').modal('hide');
+        })
+        .catch(error => {
+            alert("Error al eliminar el pago");
+            console.error(error);
+        });
+    });
+</script>
