@@ -555,7 +555,7 @@ def modal_pago_ventas(request, pkVenta, pkAsociado, tipo):
 
                 pago = {
                         "asociado": Asociado.objects.get(pk=pkAsociado),
-                        "mesPago": MesTarifa.objects.get(pk=pk),
+                        "mesPago": MesTarifa.objects.get(pk=9998),
                         "fechaPago": fechaPago,
                         "formaPago": FormaPago.objects.get(pk=formaPago),
                         "aportePago": 0,
@@ -586,7 +586,7 @@ def modal_pago_ventas(request, pkVenta, pkAsociado, tipo):
 
                 pago = {
                         "asociado": Asociado.objects.get(pk=pkAsociado),
-                        "mesPago": MesTarifa.objects.get(pk=pk),
+                        "mesPago": MesTarifa.objects.get(pk=9993),
                         "fechaPago": fechaPago,
                         "formaPago": FormaPago.objects.get(pk=formaPago),
                         "aportePago": 0,
@@ -643,7 +643,12 @@ def modal_pago_ventas(request, pkVenta, pkAsociado, tipo):
             if (query.cuotas - query.cuotasPagas) == 1:
                 valorCuota = query.pendientePago
             else:
-                valorCuota = query.valorCuota
+                if (query.cuotas - query.cuotasPagas) <= 0 and query.pendientePago > 0:
+                    valorCuota = query.pendientePago
+                elif query.pendientePago == 0:
+                    valorCuota = 0
+                else:
+                    valorCuota = query.valorCuota
             observacion = query.lineaCredito
 
         context = {

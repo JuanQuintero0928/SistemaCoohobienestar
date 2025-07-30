@@ -1048,7 +1048,24 @@ class VerTarifaAsociado(ListView):
             estadoRegistro=True,
             pendientePago__gt=0
         )
-        total = queryset.aggregate(total=Sum('valorCuotas'))['total'] or 0
+        total = 0
+        for obj_venta in queryset:
+            if (obj_venta.cuotas - obj_venta.cuotasPagas) == 1:
+                obj_venta.valorCuotas = obj_venta.pendientePago
+                total += obj_venta.valorCuotas
+            else:
+                if (obj_venta.cuotas - obj_venta.cuotasPagas) <= 0 and obj_venta.pendientePago > 0:
+                    obj_venta.valorCuotas = obj_venta.pendientePago
+                    total += obj_venta.valorCuotas
+                elif obj_venta.pendientePago == 0:
+                    obj_venta.valorCuotas = 0
+                    total += obj_venta.valorCuotas
+                elif obj_venta.pendientePago < obj_venta.valorCuotas and (obj_venta.cuotas - obj_venta.cuotasPagas) >= 1:
+                    obj_venta.valorCuotas = obj_venta.pendientePago
+                    total += obj_venta.valorCuotas
+                else:
+                    obj_venta.valorCuotas = obj_venta.valorCuotas
+                    total += obj_venta.valorCuotas
         return queryset, total
 
     def get_credito_general_data(self, asociado):
@@ -1058,7 +1075,24 @@ class VerTarifaAsociado(ListView):
             pendientePago__gt=0,
             estado='OTORGADO'
         )
-        total = queryset.aggregate(total=Sum('valorCuota'))['total'] or 0
+        total = 0
+        for obj_credito in queryset:
+            if (obj_credito.cuotas - obj_credito.cuotasPagas) == 1:
+                obj_credito.valorCuota = obj_credito.pendientePago
+                total += obj_credito.valorCuota
+            else:
+                if (obj_credito.cuotas - obj_credito.cuotasPagas) <= 0 and obj_credito.pendientePago > 0:
+                    obj_credito.valorCuota = obj_credito.pendientePago
+                    total += obj_credito.valorCuota
+                elif obj_credito.pendientePago == 0:
+                    obj_credito.valorCuota = 0
+                    total += obj_credito.valorCuota
+                elif obj_credito.pendientePago < obj_credito.valorCuota and (obj_credito.cuotas - obj_credito.cuotasPagas) >= 1:
+                    obj_credito.valorCuota = obj_credito.pendientePago
+                    total += obj_credito.valorCuota
+                else:
+                    obj_credito.valorCuota = obj_credito.valorCuota
+                    total += obj_credito.valorCuota
         return queryset, total
 
     def get_vinculacion_data(self, asociado):

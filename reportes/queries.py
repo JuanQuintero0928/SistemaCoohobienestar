@@ -108,27 +108,56 @@ def obtenerDescuentoNomina(empresa_pk):
             total_cuotas_credito=Sum("valorCuota"),
             pendiente_pago_credito=Sum("pendientePago"),
             cuotas_totales_credito=Sum("cuotas"),
-            cuotas_pagas_credito=Sum("cuotasPagas")  # AGREGADO: cuotas ya pagadas
+            cuotas_pagas_credito=Sum("cuotasPagas")
         )
         .values("total_cuotas_credito", "pendiente_pago_credito", "cuotas_totales_credito", "cuotas_pagas_credito")
     )
 
-    # Información de home elements pendientes
-    home_elements_info = (
+    # CORREGIDO: Calcular cuota individual para cada home element pendiente
+    # usando CASE para determinar si usar cuota normal o pendiente
+    home_elements_cuota_total = (
         HistoricoVenta.objects.filter(
             asociado=OuterRef("asociado"),
             formaPago="DESCUENTO NOMINA",
             estadoRegistro=True,
             pendientePago__gt=0,
         )
-        .values("asociado")
         .annotate(
-            total_cuota_home_element=Sum("valorCuotas"),
-            pendiente_pago_home=Sum("pendientePago"),
-            cuotas_totales_home=Sum("cuotas"),
-            cuotas_pagas_home=Sum("cuotasPagas")  # AGREGADO: cuotas ya pagadas
+            cuota_calculada=Case(
+                # Si no hay pendiente de pago, la cuota es 0
+                When(Q(pendientePago=0), then=Value(0)),
+                
+                # Si ya se pagaron todas las cuotas o más
+                When(
+                    Q(cuotasPagas__gte=F("cuotas")) 
+                    & Q(pendientePago__gt=0),
+                    then=F("pendientePago")
+                ),
+                
+                # Si estamos en la última cuota
+                When(
+                    Q(cuotasPagas=F("cuotas") - 1) 
+                    & Q(pendientePago__gt=0),
+                    then=F("pendientePago")
+                ),
+                
+                # NUEVO: Si el pendiente es menor que la cuota original (pago parcial)
+                # y aún quedan cuotas por pagar
+                When(
+                    Q(pendientePago__lt=F("valorCuotas"))
+                    & Q(cuotasPagas__lt=F("cuotas"))
+                    & Q(pendientePago__gt=0),
+                    then=F("pendientePago")
+                ),
+                
+                # En cualquier otro caso, usar la cuota original
+                default=F("valorCuotas"),
+                output_field=IntegerField(),
+            )
         )
-        .values("total_cuota_home_element", "pendiente_pago_home", "cuotas_totales_home", "cuotas_pagas_home")
+        .values("asociado")
+        .annotate(total_cuota_home_calculada=Sum("cuota_calculada"))
+        .values("total_cuota_home_calculada")
     )
 
     query = (
@@ -157,20 +186,18 @@ def obtenerDescuentoNomina(empresa_pk):
                 Subquery(credito_info.values("cuotas_totales_credito"), output_field=IntegerField()), 
                 Value(0)
             ),
-            credito_cuotas_pagas=Coalesce(  # AGREGADO
+            credito_cuotas_pagas=Coalesce(
                 Subquery(credito_info.values("cuotas_pagas_credito"), output_field=IntegerField()), 
                 Value(0)
             ),
-            home_pendiente_pago=Coalesce(
-                Subquery(home_elements_info.values("pendiente_pago_home"), output_field=IntegerField()), 
+            credito_valor_cuota_original=Coalesce(
+                Subquery(credito_info.values("total_cuotas_credito"), output_field=IntegerField()), 
                 Value(0)
             ),
-            home_cuotas_totales=Coalesce(
-                Subquery(home_elements_info.values("cuotas_totales_home"), output_field=IntegerField()), 
-                Value(0)
-            ),
-            home_cuotas_pagas=Coalesce(  # AGREGADO
-                Subquery(home_elements_info.values("cuotas_pagas_home"), output_field=IntegerField()), 
+            
+            # CORREGIDO: Usar la cuota total calculada individualmente para cada home element
+            home_cuota_total_calculada=Coalesce(
+                Subquery(home_elements_cuota_total, output_field=IntegerField()), 
                 Value(0)
             ),
             
@@ -187,51 +214,43 @@ def obtenerDescuentoNomina(empresa_pk):
                 output_field=IntegerField(),
             ),
             
-            # Cuota de crédito con lógica corregida
+            # CORREGIDO: Cuota de crédito con manejo completo de pagos parciales
             cuota_credito=Case(
+                # Si no hay pendiente de pago, la cuota es 0
                 When(Q(credito_pendiente_pago=0), then=Value(0)),
-                # CORREGIDO: Si las cuotas pagadas son mayor o igual a las cuotas totales
-                # Y hay pendiente de pago, usar el pendiente (maneja pagos parciales)
+                
+                # Si ya se pagaron todas las cuotas o más (cuotas_pagas >= cuotas_totales)
+                # entonces usar solo el pendiente de pago
                 When(
-                    Q(credito_cuotas_pagas__gte=F("credito_cuotas_totales"))
+                    Q(credito_cuotas_pagas__gte=F("credito_cuotas_totales")) 
                     & Q(credito_pendiente_pago__gt=0),
-                    then=F("credito_pendiente_pago"),
+                    then=F("credito_pendiente_pago")
                 ),
-                # CORREGIDO: También verificar con los pagos realizados (lógica anterior)
+                
+                # Si estamos en la última cuota (cuotas_pagas = cuotas_totales - 1)
+                # usar el pendiente de pago para manejar pagos parciales
                 When(
-                    Q(pagos_credito_realizados=F("credito_cuotas_totales") - 1)
+                    Q(credito_cuotas_pagas=F("credito_cuotas_totales") - 1) 
                     & Q(credito_pendiente_pago__gt=0),
-                    then=F("credito_pendiente_pago"),
+                    then=F("credito_pendiente_pago")
                 ),
-                default=Coalesce(
-                    Subquery(credito_info.values("total_cuotas_credito"), output_field=IntegerField()), 
-                    Value(0)
+                
+                # NUEVO: Si el pendiente es menor que la cuota original (pago parcial en cuota intermedia)
+                # y aún quedan cuotas por pagar
+                When(
+                    Q(credito_pendiente_pago__lt=F("credito_valor_cuota_original"))
+                    & Q(credito_cuotas_pagas__lt=F("credito_cuotas_totales"))
+                    & Q(credito_pendiente_pago__gt=0),
+                    then=F("credito_pendiente_pago")
                 ),
+                
+                # En cualquier otro caso, usar la cuota original
+                default=F("credito_valor_cuota_original"),
                 output_field=IntegerField(),
             ),
             
-            # Cuota de home elements con lógica corregida
-            cuota_credito_home_elements=Case(
-                When(Q(home_pendiente_pago=0), then=Value(0)),
-                # CORREGIDO: Si las cuotas pagadas son mayor o igual a las cuotas totales
-                # Y hay pendiente de pago, usar el pendiente (maneja pagos parciales)
-                When(
-                    Q(home_cuotas_pagas__gte=F("home_cuotas_totales"))
-                    & Q(home_pendiente_pago__gt=0),
-                    then=F("home_pendiente_pago"),
-                ),
-                # CORREGIDO: También verificar con los pagos realizados (lógica anterior)
-                When(
-                    Q(pagos_home_realizados=F("home_cuotas_totales") - 1)
-                    & Q(home_pendiente_pago__gt=0),
-                    then=F("home_pendiente_pago"),
-                ),
-                default=Coalesce(
-                    Subquery(home_elements_info.values("total_cuota_home_element"), output_field=IntegerField()), 
-                    Value(0)
-                ),
-                output_field=IntegerField(),
-            ),
+            # CORREGIDO: Cuota de home elements ya calculada individualmente
+            cuota_credito_home_elements=F("home_cuota_total_calculada"),
             
             total_final=F("tarifaAsociado__total")
             + Coalesce(F("cuota_vinculacion"), Value(0))
@@ -245,87 +264,87 @@ def obtenerDescuentoNomina(empresa_pk):
 
     return {"query": query, "granTotal": granTotal}
 
-def obtenerDescuentoNominav2(empresa_pk):
-    pagos_vinculacion = (
-        HistorialPagos.objects.filter(
-            asociado=OuterRef("asociado"), mesPago=9995, estadoRegistro=True
-        )
-        .values("asociado")
-        .annotate(
-            total_pagos=Count(
-                "id"
-            )  # Cuenta cuántos pagos de vinculación ha hecho el asociado
-        )
-        .values("total_pagos")
-    )  # Devuelve solo el número de pagos realizados
+# def obtenerDescuentoNominav2(empresa_pk):
+#     pagos_vinculacion = (
+#         HistorialPagos.objects.filter(
+#             asociado=OuterRef("asociado"), mesPago=9995, estadoRegistro=True
+#         )
+#         .values("asociado")
+#         .annotate(
+#             total_pagos=Count(
+#                 "id"
+#             )  # Cuenta cuántos pagos de vinculación ha hecho el asociado
+#         )
+#         .values("total_pagos")
+#     )  # Devuelve solo el número de pagos realizados
 
-    credito_pendiente = (
-        HistoricoCredito.objects.filter(
-            asociado=OuterRef("asociado"),
-            estadoRegistro=True,
-            pendientePago__gt=0,
-            estado="OTORGADO",
-        )
-        .values("asociado")
-        .annotate(total_cuotas=Sum("valorCuota"))
-        .values("total_cuotas")
-    )
+#     credito_pendiente = (
+#         HistoricoCredito.objects.filter(
+#             asociado=OuterRef("asociado"),
+#             estadoRegistro=True,
+#             pendientePago__gt=0,
+#             estado="OTORGADO",
+#         )
+#         .values("asociado")
+#         .annotate(total_cuotas=Sum("valorCuota"))
+#         .values("total_cuotas")
+#     )
 
-    credito_home_elements = (
-        HistoricoVenta.objects.filter(
-            asociado=OuterRef("asociado"),
-            formaPago="DESCUENTO NOMINA",
-            estadoRegistro=True,
-            pendientePago__gt=0,
-        )
-        .values("asociado")
-        .annotate(total_cuota_home_element=Sum("valorCuotas"))
-        .values("total_cuota_home_element")
-    )
+#     credito_home_elements = (
+#         HistoricoVenta.objects.filter(
+#             asociado=OuterRef("asociado"),
+#             formaPago="DESCUENTO NOMINA",
+#             estadoRegistro=True,
+#             pendientePago__gt=0,
+#         )
+#         .values("asociado")
+#         .annotate(total_cuota_home_element=Sum("valorCuotas"))
+#         .values("total_cuota_home_element")
+#     )
 
-    query = (
-        ParametroAsociado.objects.filter(
-            asociado__tAsociado=empresa_pk,
-            asociado__estadoAsociado__in=["ACTIVO", "INACTIVO"],
-        )
-        .annotate(
-            pagos_realizados=Coalesce(
-                Subquery(pagos_vinculacion, output_field=IntegerField()), Value(0)
-            ),
-            cuota_vinculacion=Case(
-                When(
-                    # Si ya pagó todo, no se debe sumar nada
-                    Q(vinculacionPendientePago=0),
-                    then=Value(0),
-                ),
-                # Si está en la última cuota, usar vinculaciónPendientePago
-                When(
-                    Q(pagos_realizados=F("vinculacionCuotas") - 1)
-                    & Q(vinculacionFormaPago__pk=2)
-                    & Q(
-                        vinculacionPendientePago__gt=0
-                    ),  # se obtiene la cantidad de pagos de vinculacion, sino hay pagos el coalse devuelve 0
-                    then=F("vinculacionPendientePago"),
-                ),
-                # Si no es la última cuota, usar vinculaciónValor
-                default=F("vinculacionValor"),
-                output_field=IntegerField(),
-            ),
-            cuota_credito=Coalesce(
-                Subquery(credito_pendiente, output_field=IntegerField()), Value(0)
-            ),
-            cuota_credito_home_elements=Coalesce(
-                Subquery(credito_home_elements, output_field=IntegerField()), Value(0)
-            ),
-            total_final=F("tarifaAsociado__total")
-            + Coalesce(F("cuota_vinculacion"), Value(0))
-            + F("cuota_credito")
-            + F("cuota_credito_home_elements"),
-        )
-        .select_related("asociado__tAsociado")
-    )
+#     query = (
+#         ParametroAsociado.objects.filter(
+#             asociado__tAsociado=empresa_pk,
+#             asociado__estadoAsociado__in=["ACTIVO", "INACTIVO"],
+#         )
+#         .annotate(
+#             pagos_realizados=Coalesce(
+#                 Subquery(pagos_vinculacion, output_field=IntegerField()), Value(0)
+#             ),
+#             cuota_vinculacion=Case(
+#                 When(
+#                     # Si ya pagó todo, no se debe sumar nada
+#                     Q(vinculacionPendientePago=0),
+#                     then=Value(0),
+#                 ),
+#                 # Si está en la última cuota, usar vinculaciónPendientePago
+#                 When(
+#                     Q(pagos_realizados=F("vinculacionCuotas") - 1)
+#                     & Q(vinculacionFormaPago__pk=2)
+#                     & Q(
+#                         vinculacionPendientePago__gt=0
+#                     ),  # se obtiene la cantidad de pagos de vinculacion, sino hay pagos el coalse devuelve 0
+#                     then=F("vinculacionPendientePago"),
+#                 ),
+#                 # Si no es la última cuota, usar vinculaciónValor
+#                 default=F("vinculacionValor"),
+#                 output_field=IntegerField(),
+#             ),
+#             cuota_credito=Coalesce(
+#                 Subquery(credito_pendiente, output_field=IntegerField()), Value(0)
+#             ),
+#             cuota_credito_home_elements=Coalesce(
+#                 Subquery(credito_home_elements, output_field=IntegerField()), Value(0)
+#             ),
+#             total_final=F("tarifaAsociado__total")
+#             + Coalesce(F("cuota_vinculacion"), Value(0))
+#             + F("cuota_credito")
+#             + F("cuota_credito_home_elements"),
+#         )
+#         .select_related("asociado__tAsociado")
+#     )
 
-    # Obtener la suma total de 'total_final'
-    granTotal = query.aggregate(total=Sum("total_final"))["total"] or 0
+#     # Obtener la suma total de 'total_final'
+#     granTotal = query.aggregate(total=Sum("total_final"))["total"] or 0
 
-    return {"query": query, "granTotal": granTotal}
+#     return {"query": query, "granTotal": granTotal}
