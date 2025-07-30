@@ -178,7 +178,7 @@
                                 </td>
                                 <td>${{ cuotaVinculacionMenorEdad.valor|intcomma }}</th>
                             </tr>
-                            {% if queryCreditoProd %}
+                            {% comment %} {% if queryCreditoProd %}
                                 {% for homeElements in queryCreditoProd %}
                                 
                                     <tr>
@@ -202,8 +202,8 @@
                                         <td>${{ homeElements.valorCuotas|intcomma }}</th>
                                     </tr>
                                 {% endfor %}
-                            {% endif %}
-                            {% if queryCredito %}
+                            {% endif %} {% endcomment %}
+                            {% comment %} {% if queryCredito %}
                                 {% for credito in queryCredito %}
                                 
                                     <tr>
@@ -227,7 +227,7 @@
                                         <td>${{ credito.valorCuota|intcomma }}</th>
                                     </tr>
                                 {% endfor %}
-                            {% endif %}
+                            {% endif %} {% endcomment %}
                             <tr>
                                 <th>-</th>
                                 <td>ABONO</th>

@@ -171,10 +171,23 @@ class ModalPago(ListView):
                 estadoRegistro=True,
                 pendientePago__gt=0,
             )
+
             for homeElements in queryCreditoProd:
-                if homeElements.valorNeto % homeElements.pendientePago != 0:
-                    if homeElements.cuotas - homeElements.cuotasPagas == 1:
+                # if homeElements.valorNeto % homeElements.pendientePago != 0:
+                #     if homeElements.cuotas - homeElements.cuotasPagas == 1:
+                #         homeElements.valorCuotas = homeElements.pendientePago
+                # elif homeElements.cuotas == homeElements.cuotasPagas:
+                #     homeElements.valorCuotas = homeElements.pendientePago
+                if (homeElements.cuotas - homeElements.cuotasPagas) == 1:
+                    homeElements.valorCuotas = homeElements.pendientePago
+                else:
+                    if (homeElements.cuotas - homeElements.cuotasPagas) <= 0 and homeElements.pendientePago > 0:
                         homeElements.valorCuotas = homeElements.pendientePago
+                    elif homeElements.pendientePago == 0:
+                        homeElements.valorCuotas = 0
+                    else:
+                        # Se deja el valor cuota como esta en la db
+                        pass
 
         # Se valida si el asociado cuenta con credito
         queryValidacionCredito = HistoricoCredito.objects.filter(
@@ -186,10 +199,19 @@ class ModalPago(ListView):
                 asociado=kwargs["pkAsociado"], estadoRegistro=True, pendientePago__gt=0
             )
             for credito in queryCredito:
-                if credito.totalCredito % credito.pendientePago != 0:
-                    if credito.cuotas - credito.cuotasPagas == 1:
+                # if credito.totalCredito % credito.pendientePago != 0:
+                #     if credito.cuotas - credito.cuotasPagas == 1:
+                #         credito.valorCuota = credito.pendientePago
+                if (credito.cuotas - credito.cuotasPagas) == 1:
+                    credito.valorCuota = credito.pendientePago
+                else:
+                    if (credito.cuotas - credito.cuotasPagas) <= 0 and credito.pendientePago > 0:
                         credito.valorCuota = credito.pendientePago
-
+                    elif credito.pendientePago == 0:
+                        credito.valorCuota = 0
+                    else:
+                        # Se deja el valor cuota como esta en la db
+                        pass
         # Se valida si el asociado debe cuotas de la vinculación
         cuotaVinculacion = None
         cuotaVinculacionMenorEdad = Tarifas.objects.values("valor").get(pk=8)
@@ -609,7 +631,12 @@ def modal_pago_ventas(request, pkVenta, pkAsociado, tipo):
             if (query.cuotas - query.cuotasPagas) == 1:
                 valorCuota = query.pendientePago
             else:
-                valorCuota = query.valorCuotas
+                if (query.cuotas - query.cuotasPagas) <= 0 and query.pendientePago > 0:
+                    valorCuota = query.pendientePago
+                elif query.pendientePago == 0:
+                    valorCuota = 0
+                else:
+                    valorCuota = query.valorCuotas
             observacion = "HOME ELEMENTS"
         elif tipo == "CREDITO":
             query = HistoricoCredito.objects.get(pk = pkVenta)

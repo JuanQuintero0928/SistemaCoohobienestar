@@ -107,9 +107,10 @@ def obtenerDescuentoNomina(empresa_pk):
         .annotate(
             total_cuotas_credito=Sum("valorCuota"),
             pendiente_pago_credito=Sum("pendientePago"),
-            cuotas_totales_credito=Sum("cuotas")
+            cuotas_totales_credito=Sum("cuotas"),
+            cuotas_pagas_credito=Sum("cuotasPagas")  # AGREGADO: cuotas ya pagadas
         )
-        .values("total_cuotas_credito", "pendiente_pago_credito", "cuotas_totales_credito")
+        .values("total_cuotas_credito", "pendiente_pago_credito", "cuotas_totales_credito", "cuotas_pagas_credito")
     )
 
     # Información de home elements pendientes
@@ -124,9 +125,10 @@ def obtenerDescuentoNomina(empresa_pk):
         .annotate(
             total_cuota_home_element=Sum("valorCuotas"),
             pendiente_pago_home=Sum("pendientePago"),
-            cuotas_totales_home=Sum("cuotas")
+            cuotas_totales_home=Sum("cuotas"),
+            cuotas_pagas_home=Sum("cuotasPagas")  # AGREGADO: cuotas ya pagadas
         )
-        .values("total_cuota_home_element", "pendiente_pago_home", "cuotas_totales_home")
+        .values("total_cuota_home_element", "pendiente_pago_home", "cuotas_totales_home", "cuotas_pagas_home")
     )
 
     query = (
@@ -155,12 +157,20 @@ def obtenerDescuentoNomina(empresa_pk):
                 Subquery(credito_info.values("cuotas_totales_credito"), output_field=IntegerField()), 
                 Value(0)
             ),
+            credito_cuotas_pagas=Coalesce(  # AGREGADO
+                Subquery(credito_info.values("cuotas_pagas_credito"), output_field=IntegerField()), 
+                Value(0)
+            ),
             home_pendiente_pago=Coalesce(
                 Subquery(home_elements_info.values("pendiente_pago_home"), output_field=IntegerField()), 
                 Value(0)
             ),
             home_cuotas_totales=Coalesce(
                 Subquery(home_elements_info.values("cuotas_totales_home"), output_field=IntegerField()), 
+                Value(0)
+            ),
+            home_cuotas_pagas=Coalesce(  # AGREGADO
+                Subquery(home_elements_info.values("cuotas_pagas_home"), output_field=IntegerField()), 
                 Value(0)
             ),
             
@@ -177,9 +187,17 @@ def obtenerDescuentoNomina(empresa_pk):
                 output_field=IntegerField(),
             ),
             
-            # Cuota de crédito con lógica de última cuota
+            # Cuota de crédito con lógica corregida
             cuota_credito=Case(
                 When(Q(credito_pendiente_pago=0), then=Value(0)),
+                # CORREGIDO: Si las cuotas pagadas son mayor o igual a las cuotas totales
+                # Y hay pendiente de pago, usar el pendiente (maneja pagos parciales)
+                When(
+                    Q(credito_cuotas_pagas__gte=F("credito_cuotas_totales"))
+                    & Q(credito_pendiente_pago__gt=0),
+                    then=F("credito_pendiente_pago"),
+                ),
+                # CORREGIDO: También verificar con los pagos realizados (lógica anterior)
                 When(
                     Q(pagos_credito_realizados=F("credito_cuotas_totales") - 1)
                     & Q(credito_pendiente_pago__gt=0),
@@ -192,9 +210,17 @@ def obtenerDescuentoNomina(empresa_pk):
                 output_field=IntegerField(),
             ),
             
-            # Cuota de home elements con lógica de última cuota
+            # Cuota de home elements con lógica corregida
             cuota_credito_home_elements=Case(
                 When(Q(home_pendiente_pago=0), then=Value(0)),
+                # CORREGIDO: Si las cuotas pagadas son mayor o igual a las cuotas totales
+                # Y hay pendiente de pago, usar el pendiente (maneja pagos parciales)
+                When(
+                    Q(home_cuotas_pagas__gte=F("home_cuotas_totales"))
+                    & Q(home_pendiente_pago__gt=0),
+                    then=F("home_pendiente_pago"),
+                ),
+                # CORREGIDO: También verificar con los pagos realizados (lógica anterior)
                 When(
                     Q(pagos_home_realizados=F("home_cuotas_totales") - 1)
                     & Q(home_pendiente_pago__gt=0),
