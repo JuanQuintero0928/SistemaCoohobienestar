@@ -27,6 +27,9 @@ urlpatterns = [
     path('verPagoshistoricoCredito/<int:pk>', login_required(verPagosCredito), name='verPagosHistoricoCredito'),
     path('crearHistoricoCredito/<int:pkAsociado>/', login_required(CrearHistoricoCredito.as_view()), name='crearHistoricoCredito'),
     path('editarHistoricoCredito/<int:pkAsociado>/<int:pk>', login_required(EditarHistoricoCredito.as_view()), name='editarHistoricoCredito'),
+    path('verConvenioGasolina/<int:pkConvenio>/', login_required(EditarConvenioGasolina), name='verConvenioGasolina'),
+    path('eliminar_detalle_gasolina/<int:pkConvenio>/', login_required(EliminarDetalleGasolina), name='eliminar_detalle_gasolina'),
+
 
 
     path('tarifaAsociado/<int:pkAsociado>', login_required(VerTarifaAsociado.as_view()), name='tarifaAsociado'),

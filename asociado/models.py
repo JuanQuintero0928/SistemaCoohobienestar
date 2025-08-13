@@ -241,3 +241,18 @@ class ConveniosAsociado(models.Model):
     class Meta:
         verbose_name = 'Convenios Asociado'
         ordering = ['pk']
+
+class ConvenioHistoricoGasolina(models.Model):
+    id = models.AutoField(primary_key=True)
+    asociado = models.ForeignKey(Asociado, on_delete=models.RESTRICT, blank=False, null=False)
+    convenio = models.ForeignKey(ConveniosAsociado, on_delete=models.RESTRICT, blank=False, null=False)
+    mes_tarifa = models.ForeignKey(MesTarifa, on_delete=models.RESTRICT, blank=False, null=False)
+    valor_pagar = models.IntegerField('Valor', blank=True, null=True)
+    pendiente_pago = models.IntegerField('Valor', blank=True, null=True)
+    estado_registro = models.BooleanField('Estado')
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_modificacion = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Convenio Chip Gasolina'
+        ordering = ['pk']

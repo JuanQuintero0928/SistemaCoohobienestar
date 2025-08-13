@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView, CreateView, UpdateView, DetailView
 from django.http import HttpResponseRedirect, JsonResponse
 from django.core.paginator import Paginator
@@ -10,8 +11,9 @@ from django.db import transaction
 from django.db.models import Sum, Prefetch, Subquery, Max, Q
 from datetime import date, timedelta
 from funciones.function import StaffRequiredMixin
+import json
 
-from .models import Asociado, ConveniosAsociado, Laboral, Financiera, ParametroAsociado, TarifaAsociado, RepatriacionTitular
+from .models import Asociado, ConveniosAsociado, Laboral, Financiera, ParametroAsociado, TarifaAsociado, RepatriacionTitular, ConvenioHistoricoGasolina
 from beneficiario.models import Beneficiario, Mascota, Coohoperativitos, Parentesco
 from credito.models import Codeudor
 from departamento.models import Departamento, Municipio, PaisRepatriacion, Pais
@@ -826,7 +828,7 @@ class DetalleAuxilio(ListView):
         template_name = 'base/historico/detalleAuxilio.html'
         obj = HistoricoAuxilio.objects.get(pk = kwargs['pk'])
         objParentesco = None
-        if obj.tipoAuxilio.pk == 3:
+        if obj.tipoAuxilio.pk == 4 or obj.tipoAuxilio.pk == 5 or obj.tipoAuxilio.pk == 6 or obj.tipoAuxilio.pk == 9:
             objParentesco = Parentesco.objects.all().order_by('nombre')
         return render(request, template_name, {'obj':obj, 'objParentesco':objParentesco, 'pkAsociado':kwargs['pkAsociado'], 'pk': kwargs['pk']})
 
@@ -836,7 +838,7 @@ class DetalleAuxilio(ListView):
         obj.fechaSolicitud = request.POST['fechaSolicitud']
         obj.entidadBancaria = request.POST['entidadBancaria'].upper()
         obj.numCuenta = request.POST['numCuenta']
-        if obj.tipoAuxilio.pk == 3:
+        if obj.tipoAuxilio.pk == 4 or obj.tipoAuxilio.pk == 5 or obj.tipoAuxilio.pk == 6 or obj.tipoAuxilio.pk == 9:
             obj.nombre = request.POST['nombre'].upper()
             obj.numDoc = request.POST['numDoc']
             obj.parentesco = Parentesco.objects.get(pk = request.POST['parentesco'])
@@ -1103,10 +1105,23 @@ class VerTarifaAsociado(ListView):
             cuotas_pendientes = None
         return param, param.vinculacionValor if param else 0, cuotas_pendientes
     
+    def get_valor_convenio_gasolina(self, asociado):
+        convenio_gasolina = 0
+        query_convenio = ConvenioHistoricoGasolina.objects.filter(asociado=asociado, estado_registro=True)
+        if query_convenio:
+            for obj in query_convenio:
+                if obj.pendiente_pago > 0:
+                    convenio_gasolina += obj.pendiente_pago
+        return convenio_gasolina
+
     def get(self, request, *args, **kwargs):
         asociado = get_object_or_404(Asociado, pk=kwargs['pkAsociado'])
         tarifa_asociado = TarifaAsociado.objects.select_related('asociado').get(asociado=asociado)
+
         convenios = ConveniosAsociado.objects.filter(asociado=asociado, estadoRegistro=True)
+
+        valor_convenio_gasolina = self.get_valor_convenio_gasolina(asociado)
+
         adicional = tarifa_asociado.cuotaAdicionales > 0
 
         repatriacion_titular, repatriacion_valor = self.get_repatriacion_data(asociado)
@@ -1118,7 +1133,7 @@ class VerTarifaAsociado(ListView):
         credito_general_qs, total_credito_general = self.get_credito_general_data(asociado)
         vinculacion_param, cuota_vinculacion, vinculacion_cuotas_pte = self.get_vinculacion_data(asociado)
 
-        total_tarifa = tarifa_asociado.total + total_credito_productos + total_credito_general + cuota_vinculacion
+        total_tarifa = tarifa_asociado.total + total_credito_productos + total_credito_general + cuota_vinculacion + valor_convenio_gasolina
 
         context = {
             'updateAsociado': 'yes',
@@ -1134,9 +1149,64 @@ class VerTarifaAsociado(ListView):
             'queryCredito': credito_general_qs,
             'queryVinculacion': vinculacion_param,
             'vinculacionCuotasPte': vinculacion_cuotas_pte,
+            'cuotaGasolina': valor_convenio_gasolina,
             'totalTarifaAsociado': total_tarifa
         }
         return render(request, self.template_name, context)
+
+
+@require_http_methods(["POST", "GET"])
+def EditarConvenioGasolina(request, pkConvenio):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            registros = data.get("registros", [])
+            convenio = ConveniosAsociado.objects.get(pk=pkConvenio)
+
+            nuevos_ids = []
+
+            for item in registros:
+                mes_id = item.get("mes_id")
+                valor = item.get("valor")
+                if mes_id and valor:
+                    nuevo = ConvenioHistoricoGasolina.objects.create(
+                        convenio=convenio,
+                        asociado=convenio.asociado,
+                        mes_tarifa_id=mes_id,
+                        valor_pagar=valor,
+                        pendiente_pago=valor,
+                        estado_registro=True
+                    )
+                    nuevos_ids.append({
+                        "id": nuevo.id,
+                        "mes_id": mes_id,
+                        "valor": valor
+                    })
+
+            return JsonResponse({"success": True, "nuevos": nuevos_ids, "message": "Datos guardados correctamente."})
+
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)}, status=400)
+    else:
+        convenio = ConveniosAsociado.objects.get(pk = pkConvenio)
+        meses = MesTarifa.objects.filter(pk__gte = convenio.primerMes.pk, pk__lte = 9000).values("id", "concepto")
+        meses_seleccionados = ConvenioHistoricoGasolina.objects.filter(convenio = pkConvenio).values_list('mes_tarifa_id', flat=True)
+        meses = meses.exclude(id__in=meses_seleccionados)
+        historico = ConvenioHistoricoGasolina.objects.filter(convenio = pkConvenio)
+        return render(request, 'base/historico/convenio_gasolina.html', {"meses":list(meses), "pkConvenio":pkConvenio, "historico":historico})
+
+
+@require_http_methods(["POST"])
+def EliminarDetalleGasolina(request, pkConvenio):
+    if request.method == "POST":
+        detalle = get_object_or_404(ConvenioHistoricoGasolina, pk=pkConvenio)
+        detalle.delete()
+        return JsonResponse({
+            'status': 'ok'
+            })
+    else:
+        return JsonResponse({'error':"Metodo no permitido"})
+
 
 class CrearAdicionalAsociado(ListView):
     def get(self, request, *args, **kwargs):
@@ -1403,7 +1473,7 @@ class VerHistorialPagos(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        queryPagos = HistorialPagos.objects.filter(asociado = self.object.pk).select_related('formaPago','mesPago').order_by('fechaPago','id')
+        queryPagos = HistorialPagos.objects.filter(asociado = self.object.pk).select_related('formaPago','mesPago', 'convenio_gasolina_id').order_by('fechaPago','id')
         context.update({
             'updateAsociado': 'yes',
             'pkAsociado': self.object.pk,
@@ -1434,7 +1504,7 @@ class DescargarFormatos(DetailView):
                     'mpioNacimiento',
                     'mpioResidencia'
                 )
-
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         asociado = self.object
@@ -1484,7 +1554,7 @@ class ModalFormato(ListView):
 
         # Formato Auxilio
         if kwargs['formato'] == 3:
-            objAuxilio = HistoricoAuxilio.objects.filter(asociado = kwargs['pkAsociado'], estado='REVISION')
+            objAuxilio = HistoricoAuxilio.objects.filter(asociado = kwargs['pkAsociado'], estado__in=['REVISION', 'OTORGADO'])
             return render(request, template_name,{'pkAsociado':kwargs['pkAsociado'], 'formato':kwargs['formato'], 'objAuxilio':objAuxilio})
         # Formato Extracto
         elif kwargs['formato'] == 4:
@@ -1898,10 +1968,21 @@ class EliminarConvenioAsociado(UpdateView):
     def get(self, request, *args, **kwargs):
         template_name = 'base/asociado/eliminarConvenio.html'
         query = ConveniosAsociado.objects.select_related('convenio').only('fechaIngreso', 'id', 'convenio__concepto', 'convenio__valor').get(pk=kwargs['pk'])
+
         context = {'query': query,
                 'pk': kwargs['pk'],
                 'pkAsociado': kwargs['pkAsociado'],
                 }
+        
+        if query.convenio.pk == 4:
+            valor = 0
+            query = ConvenioHistoricoGasolina.objects.filter(asociado=kwargs['pkAsociado'], estado_registro=True)
+            for obj in query:
+                valor += obj.pendiente_pago
+            context.update({
+                'valor': valor
+            })
+
         return render(request, template_name, context)
 
     def post(self, request, *args, **kwargs):

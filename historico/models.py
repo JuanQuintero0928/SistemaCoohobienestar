@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from asociado.models import Asociado
+from asociado.models import Asociado, ConvenioHistoricoGasolina
 from parametro.models import MesTarifa, FormaPago, TipoAuxilio, TasasInteresCredito
 from beneficiario.models import Parentesco
 
@@ -45,7 +45,7 @@ class HistoricoAuxilio(models.Model):
     nombre = models.CharField('Nombre', max_length=70, blank=True, null=True)
     numDoc = models.CharField('Número Documento', max_length=11, blank=True, null=True)
     parentesco = models.ForeignKey(Parentesco, on_delete=models.RESTRICT, blank=True, null=True)
-    nivelEducativo = models.CharField('Nivel Educativo', max_length=30, blank=True, null=True)
+    nivelEducativo = models.CharField('Nivel Educativo', max_length=100, blank=True, null=True)
     anexoOne = models.CharField('Anexo 1', max_length=40, blank=True, null=True)
     anexoTwo = models.CharField('Anexo 2', max_length=40, blank=True, null=True)
     anexoThree = models.CharField('Anexo 3', max_length=40, blank=True, null=True)
@@ -125,6 +125,7 @@ class HistorialPagos(models.Model):
     formaPago = models.ForeignKey(FormaPago, on_delete=models.RESTRICT, blank=False, null=False)
     ventaHE = models.ForeignKey('ventas.HistoricoVenta', on_delete=models.CASCADE, related_name='pagosHE', blank=True, null=True)
     creditoId = models.ForeignKey('HistoricoCredito', on_delete=models.CASCADE, related_name='pagosCredito', blank=True, null=True)
+    convenio_gasolina_id = models.ForeignKey(ConvenioHistoricoGasolina, on_delete=models.CASCADE, related_name='pagosGasolina', blank=True, null=True)
     userCreacion = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='usuario_creacion', on_delete=models.CASCADE, blank=True, null=True)
     userModificacion = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='usuario_modificacion', on_delete=models.CASCADE, blank=True, null=True)
     estadoRegistro = models.BooleanField('Estado')

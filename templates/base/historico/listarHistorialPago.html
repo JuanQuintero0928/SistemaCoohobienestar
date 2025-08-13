@@ -63,7 +63,11 @@
             <td>{{ obj.fechaPago|date:"d/m/Y" }}</td>
             <td>${{ obj.valorPago|intcomma }}</td>
             <td>{{ obj.formaPago }}</td>
-            <td>{{ obj.mesPago }}</td>
+            {% if obj.mesPago.pk == 9990 %}
+                <td>{{ obj.mesPago }} - {{ obj.convenio_gasolina_id.mes_tarifa.concepto }}</td>
+            {% else %}
+                <td>{{ obj.mesPago }}</td>
+            {% endif %}
             <td>${{ obj.diferencia|intcomma }}</td>
             <td>
                 <center>
@@ -100,7 +104,7 @@
     <div class="modal fade" id="creacion" role="dialog">
         <!-- En este div se visualiza la informacion para la creacion de un nuevo registro de entrada -->
     </div>
-  
+
 
 {% endblock tablafilas %}
 

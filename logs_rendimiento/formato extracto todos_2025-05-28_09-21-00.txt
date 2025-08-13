@@ -1,3 +1,0 @@
-[formato extracto todos] Tiempo total: 10.24 segundos
-[formato extracto todos] Memoria usada: 21.26 MB
-[formato extracto todos] Consultas a la base de datos: 4615

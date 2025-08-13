@@ -132,7 +132,8 @@ async function llamarPDF(numFormato, url) {
                 let parentesco = (document.getElementById('id_parentesco_'+i).value);
                 let nac = (document.getElementById('id_NacBen_'+i).value);
                 let repatriacion = (document.getElementById('id_paisRepatriacion_'+i).value);
-                arrayBeneficiarios.push([nombre, apellido, numDocu, parentesco, nac, repatriacion]);
+                let ciudadRepatriacion = (document.getElementById('id_ciudadRepatriacion_'+i).value);
+                arrayBeneficiarios.push([nombre, apellido, numDocu, parentesco, nac, repatriacion, ciudadRepatriacion]);
             }
             // Obtenemos la informacion del model Mascota, del template formatos.html por medio de su id
             let cuentaMascota = document.getElementById('id_cuentaMascota').value;
@@ -691,65 +692,63 @@ async function generarPDFf2(url, actualizacionF2, tPersonaF2, fechaHoyF2, nombre
     pdf.setFontSize(12);
 
     // fecha encabezado
-    var arrFechaHoy = fechaHoyF2.split("-")
-    pdf.text(arrFechaHoy[2], 253,110);
-    pdf.text(arrFechaHoy[1], 292,110);
-    pdf.text(arrFechaHoy[0], 338,110);
+    var arrFechaHoy = fechaHoyF2.split("-");
+    const fechaF2 = arrFechaHoy[2] + '/' + arrFechaHoy[1] + '/' + arrFechaHoy[0];
+    pdf.text(fechaF2, 276,111);
 
     // renglon 0
     if(actualizacionF2 == "True"){
-        pdf.text("X", 411, 130);
+        pdf.text("X", 417, 130);
     }else if(tPersonaF2 == "PERSONA NATURAL"){
-        pdf.text("X", 24, 130);
+        pdf.text("X", 20, 130);
     }else{
-        pdf.text("X", 222, 130);
+        pdf.text("X", 218, 130);
     }
 
-
     // Fila 1
-    pdf.text(nombreF2, 26,184);
-    pdf.text(apellidoF2, 327,184);
+    pdf.text(nombreF2, 19,184);
+    pdf.text(apellidoF2, 322,184);
 
     // Fila 2
     if(tipoDocumentoF2 == 'REGISTRO CIVIL'){
-        pdf.text("X", 23,216);
+        pdf.text("X", 20,215);
     }else if (tipoDocumentoF2 == 'CEDULA'){
-        pdf.text("X", 43,216);
+        pdf.text("X", 40,215);
     }else if (tipoDocumentoF2 == 'TARJETA IDENTIDAD'){
-        pdf.text("X", 66,216);
+        pdf.text("X", 63,215);
     }else if (tipoDocumentoF2 == 'CEDULA EXTRANJERIA'){
-        pdf.text("X", 86,216);
+        pdf.text("X", 83,215);
     }else{
-        pdf.text("X", 108,216);
+        pdf.text("X", 105,215);
     }
 
     pdf.text(numDocumentoF2, 133,216);
     pdf.text(direccionF2, 324,216);
 
     // Fila 3
-    pdf.text(barrioF2, 26,247);
-    pdf.text(mpioResidenciaF2, 190,247);
-    pdf.text(numCelularF2, 323,247);
-    pdf.text(numContactoF2, 462,247);
+    pdf.text(barrioF2, 19,248);
+    pdf.text(mpioResidenciaF2, 190,248);
+    pdf.text(numCelularF2, 323,248);
+    pdf.text(numContactoF2, 471,248);
 
     // Fila 4
-    pdf.text(emailF2, 26,278);
+    pdf.text(emailF2, 19,281);
 
     // Fila 5
     if(envioInfoCorreoF2 == "True"){
-        pdf.text("X", 108,312);
+        pdf.text("X", 105,313);
     }
     if(envioInfoMensajeF2 == "True"){
-        pdf.text("X", 229,312);
+        pdf.text("X", 228,313);
     }
     if(envioInfoWhatsappF2 == "True"){
-        pdf.text("X", 330,312);
+        pdf.text("X", 329,313);
     }
 
     //  Cuadro de beneficiarios
     pdf.setFontSize(9);
-    let fila = 389;
-    let filaR = 581;
+    let fila = 401;
+    let filaR = 598;
     for(let i = 0; i < arrayBeneficiarios.length; i++){
         // se diligencia el cuadro de beneficiarios
         pdf.text("X", 51,fila);
@@ -768,28 +767,29 @@ async function generarPDFf2(url, actualizacionF2, tPersonaF2, fechaHoyF2, nombre
         }else if(arrayBeneficiarios[i][1] == 'PASAPORTE'){
             pdf.text('PA', 315 ,fila);
         }
-        pdf.text(arrayBeneficiarios[i][2], 350 ,fila);
-        pdf.text(arrayBeneficiarios[i][3], 438 ,fila);
+        pdf.text(arrayBeneficiarios[i][2], 367 ,fila);
+        pdf.text(arrayBeneficiarios[i][3], 451 ,fila);
         var fecha = arrayBeneficiarios[i][4].split("-");
-        pdf.text(fecha[2], 519 ,fila);
-        pdf.text(fecha[1], 542 ,fila);
-        pdf.text(fecha[0], 566 ,fila);
+        pdf.text(fecha[2], 530 ,fila);
+        pdf.text(fecha[1], 552 ,fila);
+        pdf.text(fecha[0], 574 ,fila);
         // se diligencia el cuadro de repatriacion
         if(arrayBeneficiarios[i][5] != 'None'){
             pdf.text("X", 51,filaR);
             pdf.setFontSize(8);
             pdf.text(arrayBeneficiarios[i][0], 125 ,filaR);
             pdf.text(arrayBeneficiarios[i][2], 299 ,filaR);
-            pdf.text(arrayBeneficiarios[i][5], 493 ,filaR);
+            pdf.text(arrayBeneficiarios[i][6], 393 ,filaR);
+            pdf.text(arrayBeneficiarios[i][5], 499 ,filaR);
         }
         if(arrayBeneficiarios[i][5] != 'None'){
-            filaR = filaR + 16;
+            filaR = filaR + 15;
         }
-        fila = fila + 16;
+        fila = fila + 15;
     }
 
     // Se diligencia Cuadro de Mascota
-    let filaM = 686;
+    let filaM = 705;
     for(let i = 0; i < arrayMascotas.length; i++){
         pdf.text("X", 51,filaM);
         pdf.text(arrayMascotas[i][0], 125 ,filaM);
@@ -798,30 +798,30 @@ async function generarPDFf2(url, actualizacionF2, tPersonaF2, fechaHoyF2, nombre
         }else{
             pdf.text("X", 305 ,filaM);
         }
-        pdf.text(arrayMascotas[i][2], 320 ,filaM);
+        pdf.text(arrayMascotas[i][2], 321 ,filaM);
         var fechaMasc = arrayMascotas[i][3].split("-");
-        pdf.text(fechaMasc[2], 441 ,filaM);
-        pdf.text(fechaMasc[1], 469 ,filaM);
-        pdf.text(fechaMasc[0], 492 ,filaM);
+        pdf.text(fechaMasc[2], 447 ,filaM);
+        pdf.text(fechaMasc[1], 474 ,filaM);
+        pdf.text(fechaMasc[0], 500 ,filaM);
         if(arrayMascotas[i][4] == 'True'){
-            pdf.text("X", 534 ,filaM);
+            pdf.text("X", 543 ,filaM);
         }else{
-            pdf.text("X", 575 ,filaM);
+            pdf.text("X", 580 ,filaM);
         }
-        filaM = filaM + 16;    
+        filaM = filaM + 14.5;    
     }
 
     // Firma y Huella
     pdf.setFontSize(12);
-    pdf.text(arrFechaHoy[2], 240,844);
-    pdf.text(arrFechaHoy[1], 390,844);
-    pdf.text(arrFechaHoy[0], 485,844);
-    pdf.text("Armenia", 25,855);
+    pdf.text(arrFechaHoy[2], 299,861);
+    pdf.text(arrFechaHoy[1], 444,861);
+    pdf.text(arrFechaHoy[0], 541,861);
+    pdf.text("Armenia", 72,871);
 
     // Firma
     var nomCompleto = nombreF2 + " " + apellidoF2
-    pdf.text(nomCompleto, 160 ,912);
-    pdf.text(numDocumentoF2, 160 ,935);
+    pdf.text(nomCompleto, 155 ,929);
+    pdf.text(numDocumentoF2, 155 ,952);
 
     pdf.save('Formato_Servicios_Exequiales_'+numDocumentoF2+'.pdf');
 
@@ -834,145 +834,159 @@ async function generarPDFf3(url, fechaHoyF3, nombreF3, apellidoF3, tipoDocumento
     const pdf = new jsPDF('p', 'pt', 'legal');
     pdf.addImage(image, 'PNG', 0, 0, 613, 1010);
 
-    pdf.setFontSize(9);
+    pdf.setFontSize(12);
 
     // fecha encabezado
     var arrFechaHoy = fechaHoyF3.split("-");
-    pdf.text(arrFechaHoy[2], 250,105);
-    pdf.text(arrFechaHoy[1], 274,105);
-    pdf.text(arrFechaHoy[0], 295,105);
+    const fecha = arrFechaHoy[2] + '/' + arrFechaHoy[1] + '/' + arrFechaHoy[0];
+    pdf.text(fecha, 274,110);
     
-    pdf.setFontSize(12);
     // renglon 0
-    pdf.text(nombreF3, 70,174);
-    pdf.text(apellidoF3, 300,174);
+    pdf.text(nombreF3, 17,162);
+    pdf.text(apellidoF3, 323,162);
 
     // // renglon 1
-    pdf.text("X", 67,222);
-    pdf.text("X", 83,222);
-    pdf.text("X", 100,222);
-    pdf.text("X", 124,222);
-    pdf.text(numDocumentoF3, 161,222);
-
-    var arrFechaExp = fechaExpedicionF3.split("-");
-    pdf.text(arrFechaExp[2], 296,222);
-    pdf.text(arrFechaExp[1], 321,222);
-    pdf.text(arrFechaExp[0], 343,222);
-    pdf.setFontSize(8);
-    pdf.text(mpioDocF3, 381,222);
-    pdf.setFontSize(12);
-
-    var arrFechaNac = fechaNacimientoF3.split("-");
-    pdf.text(arrFechaNac[2], 460, 222);
-    pdf.text(arrFechaNac[1], 488, 222);
-    pdf.text(arrFechaNac[0], 519, 222);
+    if (tipoDocumentoF3 == 'REGISTRO CIVIL'){
+        pdf.text("X", 19,190);
+    }else if (tipoDocumentoF3 == 'CEDULA'){
+        pdf.text("X", 41,190);
+    }else if (tipoDocumentoF3 == 'TARJETA IDENTIDAD'){
+        pdf.text("X", 63,190);
+    }else if (tipoDocumentoF3 == 'CEDULA EXTRANJERA'){
+        pdf.text("X", 83,190);
+    }else if (tipoDocumentoF3 == 'PASAPORTE'){
+        pdf.text("X", 105,190);
+    }else{
+        // Si no es ninguno de los anteriores, se marca cedula extranjera ya que no hay casilla de ppt
+        pdf.text("X", 83,190);
+    }
+    pdf.text(numDocumentoF3, 137,190);
+    pdf.text(direccionF3, 323,190);
 
     // // renglon 2
-    pdf.text(direccionF3, 70,255);
     pdf.setFontSize(8);
-    pdf.text(barrioF3, 295,255);
-    pdf.text(mpioResidenciaF3, 381,255);
+    pdf.text(barrioF3, 17,219);
+    pdf.text(mpioResidenciaF3, 187,219);
     pdf.setFontSize(12);
-    pdf.text(numCelularF3, 462,255);
+    pdf.text(numCelularF3, 465,219);
 
     // // renglon 3
-    pdf.text(emailF3, 182,269);
+    pdf.text(emailF3, 17,247);
 
     // // renglon 4
-    pdf.text(nombreEmpresaF3, 70,302);
-    pdf.setFontSize(8);
-    pdf.text(cargoF3, 295,302);
-    pdf.setFontSize(12);
-    pdf.text(ingresosActPrinF3, 383,302);
-    pdf.text(telefonoF3, 462,302);
+    pdf.text(bancoF3, 17,276);
+    pdf.text(numCuentaF3, 325,276);
 
     // // renglon 5
-    pdf.text(bancoF3, 70,334);
-    pdf.text(numCuentaF3, 300,334);
+    // campo autorizacion envio informacion
+    if(envioInfoCorreoF3 == 'True'){
+        pdf.text("X", 106, 305);
+    }
+
+    if(envioInfoMensajeF3 == 'True'){
+        pdf.text("X", 227, 305);
+    }
+
+    if(envioInfoWhatsappF3 == 'True'){
+        pdf.text("X", 329, 305);
+    }
 
     // Tipos Auxilios
     // optico
     if(tipoAuxilio == '1'){
-        pdf.text("X", 323,435);
+        pdf.text("X", 40,420);
     }// incapacidad medica
     else if(tipoAuxilio == '2'){
-        pdf.text("X", 323,415);
+        pdf.text("X", 329,403);
     }// auxilio educativo-u
-    else if(tipoAuxilio == '3'){
-        pdf.text("X", 82,415);
-    }// kit maternidad
     else if(tipoAuxilio == '4'){
-        pdf.text("X", 82,379);
+        pdf.text("X", 40,384);
+    }// kit maternidad
+    else if(tipoAuxilio == '3'){
+        pdf.text("X", 329,349);
     }//auxilio educativo-maestria
     else if(tipoAuxilio == '5'){
-        pdf.text("X", 82,396);
-    }//servicio exequial
+        pdf.text("X", 40,403);
+    }// Auxilio Educativo Tecnico
     else if(tipoAuxilio == '6'){
-        pdf.text("X", 82,435);
+        pdf.text("X", 40,349);
     }//calamidad domestica
     else if(tipoAuxilio == '7'){
-        pdf.text("X", 323,377);
+        pdf.text("X", 329,367);
     }//calamidad domestica-medica
     else if(tipoAuxilio == '8'){
-        pdf.text("X", 323,395);
+        pdf.text("X", 329,384);
+    }// Auxilio Educativo Tenologia
+    else if(tipoAuxilio == '8'){
+        pdf.text("X", 40,367);
     }
 
     // Campo - se solicita para
-    if(tipoAuxilio == '3' || tipoAuxilio == '5'){
-        pdf.text(nombre2, 70, 495);
-        pdf.text(numDoc2, 300, 495);
-        pdf.text(parentescoF3, 436, 495);
-        pdf.text(nivelEducativoF3, 175, 511);
+    if(tipoAuxilio == '4' || tipoAuxilio == '5' || tipoAuxilio == '6' || tipoAuxilio == '9'){
+        pdf.text(nombre2, 17, 480);
+        pdf.text(numDoc2, 325, 480);
+        pdf.text(parentescoF3, 480, 480);
+        pdf.text(nivelEducativoF3, 127, 494);
     }
 
     // Campo - Anexos
     pdf.setFontSize(10);
+
+    const anexos = []
+
     if(anexoOne != 'None'){
-        pdf.text(anexoOne, 100, 552);
+        anexos.push(anexoOne);
     }
     if(anexoTwo != 'None'){
-        pdf.text(anexoTwo, 100, 571);
+        anexos.push(anexoTwo);
     }
     if(anexoThree != 'None'){
-        pdf.text(anexoThree, 100, 590);
+        anexos.push(anexoThree);
     }
     if(anexoFour != 'None'){
-        pdf.text(anexoFour, 100, 609);
+        anexos.push(anexoFour);
     }
     if(anexoFive != 'None'){
-        pdf.text(anexoFive, 343, 552);   
+        anexos.push(anexoFive);  
     }
     if(anexoSix != 'None'){
-        pdf.text(anexoSix, 343, 571);
+        anexos.push(anexoSix);
     }
     if(anexoSeven != 'None'){
-        pdf.text(anexoSeven, 343, 590);
+        anexos.push(anexoSeven);
     }
     if(anexoEight != 'None'){
-        pdf.text(anexoEight, 343, 609);
+        anexos.push(anexoEight);
     }
 
-    // campo autorizacion envio informacion
-    if(envioInfoCorreoF3 == 'True'){
-        pdf.text("X", 347, 672);
-    }else{
-        pdf.text("X", 363, 672);
+    const texto = anexos.join(', ');
+
+    // Maximo 82 caracteres
+    const maxCaracteres = 82;
+
+    // Dividir el texto en lineas de maximo 82 caracteres
+    const lineas = [];
+    for (let i = 0; i < texto.length; i += maxCaracteres) {
+        lineas.push(texto.substring(i, i + maxCaracteres));
     }
 
-    if(envioInfoMensajeF3 == 'True'){
-        pdf.text("X", 347, 687);
-    }else{
-        pdf.text("X", 363, 687);
-    }
+    // Imprimir las lineas en el PDF
+    let y = 534;
+    lineas.forEach(linea => {
+        pdf.text(linea, 37, y);
+        y += 13;
+    });
 
-    if(envioInfoWhatsappF3 == 'True'){
-        pdf.text("X", 347, 703);
-    }else{
-        pdf.text("X", 363, 703);
-    } 
-    // facebook e instragram
-    pdf.text("X", 502, 672);
-    pdf.text("X", 502, 687);
+
+    // Firma y Huella
+    pdf.setFontSize(12);
+    pdf.text(arrFechaHoy[2], 297,618);
+    pdf.text(arrFechaHoy[1], 443,618);
+    pdf.text(arrFechaHoy[0], 539,618);
+    pdf.text("ARMENIA", 69,629);
+    const nombreCompleto = nombreF3 + " " + apellidoF3;
+    pdf.text(nombreCompleto, 153, 687);
+    pdf.text(numDocumentoF3, 153, 710);
 
     pdf.save('Formato_Auxilios_'+numDocumentoF3+'.pdf');
 

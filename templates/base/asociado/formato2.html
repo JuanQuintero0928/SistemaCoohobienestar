@@ -39,10 +39,10 @@
               {% for aux in objAuxilio %}
                 <tr>
                   <th>{{ forloop.counter }}</th>
-                  <th>{{ aux.fechaSolicitud }}</th>
-                  <th>{{ aux.tipoAuxilio }}</th>
-                  <th>${{ aux.valor|intcomma }}</th>
-                  <th>{{ aux.estado }}</th>
+                  <td>{{ aux.fechaSolicitud }}</td>
+                  <td>{{ aux.tipoAuxilio }}</td>
+                  <td>${{ aux.valor|intcomma }}</td>
+                  <td>{{ aux.estado }}</td>
                   <th>
                     <a href="{% url 'asociado:generarFormato' pkAsociado aux.pk 3 %}" type="button" class="btn btn-danger">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-pdf" viewBox="0 0 16 16">

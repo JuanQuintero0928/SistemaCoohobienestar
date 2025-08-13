@@ -14,7 +14,7 @@ from django.utils.timezone import timedelta
 
 from .models import HistoricoAuxilio, HistorialPagos, HistoricoCredito
 from parametro.models import MesTarifa, FormaPago, Tarifas, TipoAsociado
-from asociado.models import Asociado, ParametroAsociado, TarifaAsociado
+from asociado.models import Asociado, ParametroAsociado, TarifaAsociado, ConvenioHistoricoGasolina
 from .form import CargarArchivoForm
 from ventas.models import HistoricoVenta
 from funciones.function import procesar_csv
@@ -231,6 +231,8 @@ class ModalPago(ListView):
             else:
                 cuotaVinculacion = queryParamAsoc.vinculacionValor
 
+        query_gasolina = ConvenioHistoricoGasolina.objects.select_related("convenio", "mes_tarifa").filter(asociado=kwargs["pkAsociado"], estado_registro=True, pendiente_pago__gt=0).first()
+
         context = {
             "pkAsociado": kwargs["pkAsociado"],
             "vista": kwargs["vista"],
@@ -242,6 +244,7 @@ class ModalPago(ListView):
             "queryCredito": queryCredito,
             "cuotaVinculacion": cuotaVinculacion,
             "cuotaVinculacionMenorEdad": cuotaVinculacionMenorEdad,
+            "query_gasolina": query_gasolina,
         }
         return render(request, template_name, context)
 
@@ -479,7 +482,7 @@ class ModalPago(ListView):
                     queryCreditoProd.save()
 
                 # Pk 9993 credito
-                else:
+                elif pk == "9993":
                     queryCredito = HistoricoCredito.objects.get(pk=extra_param)
                     valorPago = (
                         queryCredito.valorCuota
@@ -516,6 +519,41 @@ class ModalPago(ListView):
                     queryCredito.pendientePago = queryCredito.pendientePago - valorPago
                     queryCredito.cuotasPagas = queryCredito.cuotasPagas + 1
                     queryCredito.save()
+                
+                elif pk == "9990":
+                    query = ConvenioHistoricoGasolina.objects.get(pk=extra_param)
+                    valorPago = (
+                        query.pendiente_pago
+                        if contador < cantidadSwitches
+                        else valorCuota + valorDiferencia
+                    )
+                    diferencia = (
+                        valorPago if query.valor_pagar != query.pendiente_pago else valorCuota - query.pendiente_pago + valorDiferencia
+                    )
+                    pago = {
+                        "asociado": Asociado.objects.get(pk=kwargs["pkAsociado"]),
+                        "mesPago": MesTarifa.objects.get(pk=pk),
+                        "fechaPago": fechaPago,
+                        "formaPago": FormaPago.objects.get(pk=formaPago),
+                        "aportePago": 0,
+                        "bSocialPago": 0,
+                        "mascotaPago": 0,
+                        "repatriacionPago": 0,
+                        "seguroVidaPago": 0,
+                        "adicionalesPago": 0,
+                        "coohopAporte": 0,
+                        "coohopBsocial": 0,
+                        "convenioPago": 0,
+                        "creditoHomeElements": 0,
+                        "diferencia": diferencia,
+                        "valorPago": valorPago,
+                        "convenio_gasolina_id": query,
+                        "estadoRegistro": True,
+                        "userCreacion": usuario,
+                    }
+                    datos_pagos.append(pago)
+                    query.pendiente_pago -= valorPago
+                    query.save()
 
         # Crear cada registro en un bucle
         for data in datos_pagos:
@@ -850,6 +888,13 @@ class EliminarPago(DeleteView):
             credito.cuotasPagas = credito.cuotasPagas - 1
             credito.pendientePago += obj.valorPago
             credito.save()
+
+        if obj.mesPago.pk == 9990:
+            convenio = ConvenioHistoricoGasolina.objects.get(
+                id = obj.convenio_gasolina_id.id
+            )
+            convenio.pendiente_pago += obj.valorPago
+            convenio.save()
 
         obj.delete()
         messages.info(request, "Pago Eliminado Correctamente")

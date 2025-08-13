@@ -99,7 +99,7 @@
                         </thead>
                         <tbody>
                             {% for obj in queryMes %}
-                                {% if obj.pk != 9999 and obj.pk != 9998 and obj.pk != 9995 and obj.pk != 9994 %}
+                                {% if obj.pk != 9999 and obj.pk != 9998 and obj.pk != 9995 and obj.pk != 9994 and obj.pk != 9990 %}
                                     <tr>
                                         <th>{{ forloop.counter }}</th>
                                         <td>{{ obj.concepto }}</th>
@@ -136,6 +136,30 @@
                                     </tr>
                                 {% endif %}
                             {% endfor %}
+                            {% if query_gasolina %}
+                                {% comment %} {% for obj in query_gasolina %} {% endcomment %}
+                                    <tr>
+                                    <th>-</th>
+                                    <td>{{ query_gasolina.convenio.convenio.concepto }} - {{ query_gasolina.mes_tarifa.concepto}}</th>
+                                    <td style="text-align: center;">
+                                        <div class="form-check form-switch" style="display: inline-block;">
+                                            <input 
+                                                class="form-check-input switch-mes"
+                                                type="checkbox"
+                                                role="switch"
+                                                name="switches"
+                                                id="flexSwitchCheckDefault9990"
+                                                value="{{ query_gasolina.pk }}-9990-{{query_gasolina.pendiente_pago}}"
+                                                data-costo="{{ query_gasolina.pendiente_pago }}"
+                                                onchange="actualizarTotal()"
+                                            >
+                                            <label class="form-check-label" for="flexSwitchCheckDefault9990"></label>
+                                        </div>
+                                    </td>
+                                    <td>${{ query_gasolina.pendiente_pago|intcomma }}</th>
+                                </tr>
+                                {% comment %} {% endfor %} {% endcomment %}
+                            {% endif %}
                             {% if cuotaVinculacion %}
                                 <tr>
                                     <th>-</th>
