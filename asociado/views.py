@@ -1996,7 +1996,7 @@ class EliminarConvenioAsociado(UpdateView):
         objTarifa.save()
         messages.info(request, 'Registro Eliminado Correctamente')
         return HttpResponseRedirect(reverse_lazy('asociado:tarifaAsociado', args=[kwargs['pkAsociado']]))
-    
+
 class CrearCodeudor(CreateView):
     model = Codeudor
     form_class = CodeudorForm

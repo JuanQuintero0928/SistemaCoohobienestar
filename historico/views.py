@@ -650,7 +650,38 @@ def modal_pago_ventas(request, pkVenta, pkAsociado, tipo):
                 query_credito.save()
 
                 url = reverse("asociado:historicoCredito", args=[pkAsociado])
+            elif tipo == "GASOLINA":
+                query_gasolina = ConvenioHistoricoGasolina.objects.get(pk=pkVenta)
+        
+                diferencia = (
+                    valorPago if query_gasolina.valor_pagar != query_gasolina.pendiente_pago else valorPago - query_gasolina.pendiente_pago
+                )
 
+                pago = {
+                        "asociado": Asociado.objects.get(pk=pkAsociado),
+                        "mesPago": MesTarifa.objects.get(pk=9990),
+                        "fechaPago": fechaPago,
+                        "formaPago": FormaPago.objects.get(pk=formaPago),
+                        "aportePago": 0,
+                        "bSocialPago": 0,
+                        "mascotaPago": 0,
+                        "repatriacionPago": 0,
+                        "seguroVidaPago": 0,
+                        "adicionalesPago": 0,
+                        "coohopAporte": 0,
+                        "coohopBsocial": 0,
+                        "convenioPago": 0,
+                        "diferencia": diferencia,
+                        "valorPago": valorPago,
+                        "convenio_gasolina_id": query_gasolina,
+                        "estadoRegistro": True,
+                        "userCreacion": usuario,
+                }
+                datos_pagos.append(pago)
+                query_gasolina.pendiente_pago -= valorPago
+                query_gasolina.save()
+
+                url = reverse("asociado:tarifaAsociado", args=[pkAsociado])
 
         # Crear cada registro en un bucle
         for data in datos_pagos:
@@ -688,6 +719,18 @@ def modal_pago_ventas(request, pkVenta, pkAsociado, tipo):
                 else:
                     valorCuota = query.valorCuota
             observacion = query.lineaCredito
+        elif tipo == "GASOLINA":
+            # pkVenta es el pk del convenio gasolina}
+            
+            query = ConvenioHistoricoGasolina.objects.select_related("convenio", "mes_tarifa").filter(convenio = pkVenta, estado_registro = True,  pendiente_pago__gt = 0).first()
+            
+            if query:
+                valorCuota = query.pendiente_pago
+                observacion = f"CHIP GASOLINA - {query.mes_tarifa.concepto}"
+            else:
+                valorCuota = 0
+                observacion = f"SIN REGISTROS POR PAGAR"
+
 
         context = {
             "objeto": query,

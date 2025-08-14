@@ -4,11 +4,23 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Registrar Pago Credito Home Elements</h1>
+                <h1 class="modal-title fs-5" id="exampleModalLabel">
+                    {% if tipo == 'HOME-ELEMENT' %}
+                        Registrar Pago Crédito Home Elements
+                    {% elif tipo == 'CREDITO' %}
+                        Registrar Pago Crédito
+                    {% elif tipo == 'GASOLINA' %}
+                        Registrar Pago Chip Gasolina
+                    {% endif %}
+                    </h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
         <div class="modal-body">
-            <form action="{% url 'proceso:modalPagoVenta' objeto.pk pkAsociado tipo %}" method="post">
+            {% if valorCuota != 0 %}
+                <form action="{% url 'proceso:modalPagoVenta' objeto.pk pkAsociado tipo %}" method="post">
+            {% else %}
+                <form>
+            {% endif %}
                 {% csrf_token %}
                 <div class="container text-center">
                     <div class="row align-items-center">
@@ -45,7 +57,11 @@
                         <tbody>
                             <tr>
                                 <th>1</th>
-                                <td>CREDITO - {{ observacion }}</th>
+                                {% if tipo == 'GASOLINA' %}
+                                    <td>{{ observacion }}</th>
+                                {% else %}
+                                    <td>CREDITO - {{ observacion }}</th>
+                                {% endif %}
                                 <td style="text-align: center;">
                                     <div class="form-check form-switch" style="display: inline-block;">
                                         <input 

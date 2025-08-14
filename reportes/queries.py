@@ -13,7 +13,7 @@ from django.db.models import (
 )
 
 from beneficiario.models import Asociado, Mascota, Beneficiario
-from asociado.models import RepatriacionTitular, ParametroAsociado
+from asociado.models import RepatriacionTitular, ParametroAsociado, ConvenioHistoricoGasolina
 from historico.models import HistorialPagos, HistoricoCredito
 from ventas.models import HistoricoVenta
 
@@ -113,6 +113,18 @@ def obtenerDescuentoNomina(empresa_pk):
         .values("total_cuotas_credito", "pendiente_pago_credito", "cuotas_totales_credito", "cuotas_pagas_credito")
     )
 
+    # Suma de convenios de gasolina pendientes
+    convenios_gasolina = (
+        ConvenioHistoricoGasolina.objects.filter(
+            asociado=OuterRef("asociado"),
+            estado_registro=True,
+            pendiente_pago__gt=0
+        )
+        .values("asociado")
+        .annotate(total_pendiente_gasolina=Sum("pendiente_pago"))
+        .values("total_pendiente_gasolina")
+    )
+
     # CORREGIDO: Calcular cuota individual para cada home element pendiente
     # usando CASE para determinar si usar cuota normal o pendiente
     home_elements_cuota_total = (
@@ -175,6 +187,11 @@ def obtenerDescuentoNomina(empresa_pk):
             ),
             pagos_home_realizados=Coalesce(
                 Subquery(pagos_home_elements, output_field=IntegerField()), Value(0)
+            ),
+
+            # Convenios de gasolina
+            cuota_convenio_gasolina=Coalesce(
+                Subquery(convenios_gasolina, output_field=IntegerField()), Value(0)
             ),
             
             # Información adicional para cálculos
@@ -255,7 +272,8 @@ def obtenerDescuentoNomina(empresa_pk):
             total_final=F("tarifaAsociado__total")
             + Coalesce(F("cuota_vinculacion"), Value(0))
             + F("cuota_credito")
-            + F("cuota_credito_home_elements"),
+            + F("cuota_credito_home_elements")
+            + F("cuota_convenio_gasolina"),
         )
         .select_related("asociado__tAsociado")
     )
