@@ -125,9 +125,18 @@
         <input type="text" id="id_cuotaMes6" value="{{cuotaCoohop}}">
         <input type="text" id="id_totalConcepto6" {% if valorVencido == 0 %} value="0" {% else %} value="{{valorVencidoCoohop}}" {% endif %}>
         {% comment %} Cuotas Convenios {% endcomment %}
-        <input type="text" id="id_concepto7" value="CONVENIO - {{objConvenio.convenio.concepto}}">
+        {% comment %} <input type="text" id="id_concepto7" value="CONVENIOS">
         <input type="text" id="id_cuotaMes7" value="{{objTarifaAsociado.cuotaConvenio}}">
-        <input type="text" id="id_totalConcepto7" {% if valorVencido == 0 %} value="0" {% else %} value="{{valorVencidoConvenio}}" {% endif %}>
+        <input type="text" id="id_totalConcepto7" {% if valorVencido == 0 %} value="0" {% else %} value="{{valorVencidoConvenio}}" {% endif %}> {% endcomment %}
+        {% for convenio in objConvenio %}
+            <div class="convenio">
+                <input type="hidden" class="concepto" value="{{ convenio.convenio.concepto }}">
+                <input type="hidden" class="cantidad_meses" value="{{ convenio.cantidad_meses }}">
+                <input type="hidden" class="cuota_mes" value="{{ convenio.convenio.valor }}">
+                <input type="hidden" class="valor_vencido_convenio" value="{{ convenio.valor_vencido_convenio }}">
+            </div>
+        {% endfor %}
+        <input type="text" id="id_cuentaConvenio" value="{{cuentaConvenio}}">
 
         <input type="text" id="id_pagoTotal" value="{{pagoTotal}}">
         <input type="text" id="id_vista" value="{{vista}}">
@@ -160,7 +169,7 @@
             if(formato == 3){
                 llamarPDF(3, '{% static 'img/Auxilios_Bienestar_Social_2025_page_0001.jpg' %}');
             }else if(formato == 4){
-                llamarPDF(4, '{% static 'img/Formato_ExtractoPago_page_0001.jpg' %}');
+                llamarPDF(4, '{% static 'img/Formato_ExtractoPago_2025_page_0001.jpg' %}');
             }
             setTimeout(function() { 
                 // Redirige o carga contenido aquí después del tiempo de espera

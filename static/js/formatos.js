@@ -226,9 +226,24 @@ async function llamarPDF(numFormato, url) {
             let cuotaMes6 = document.getElementById('id_cuotaMes6').value;
             let totalConcepto6 = document.getElementById('id_totalConcepto6').value;
 
-            let concepto7 = document.getElementById('id_concepto7').value;
-            let cuotaMes7 = document.getElementById('id_cuotaMes7').value;
-            let totalConcepto7 = document.getElementById('id_totalConcepto7').value;
+            // let concepto7 = document.getElementById('id_concepto7').value;
+            // let cuotaMes7 = document.getElementById('id_cuotaMes7').value;
+            // let totalConcepto7 = document.getElementById('id_totalConcepto7').value;
+            
+            let arrayConveniosF4 = []
+            const convenios = document.querySelectorAll(".convenio");
+            convenios.forEach((c, index) => {
+                const concepto = c.querySelector(".concepto").value;
+                const cantidadMeses = c.querySelector(".cantidad_meses").value;
+                const valorMes = c.querySelector(".cuota_mes").value;
+                const total = c.querySelector(".valor_vencido_convenio").value;
+                arrayConveniosF4.push({
+                    concepto: concepto,
+                    cantidadMeses: parseInt(cantidadMeses),
+                    valorMes: parseFloat(valorMes),
+                    total: parseFloat(total)
+                });
+            });
 
             let pagoTotal = document.getElementById('id_pagoTotal').value;
             let mensaje = document.getElementById('id_mensaje').value;
@@ -250,7 +265,7 @@ async function llamarPDF(numFormato, url) {
                     arrayMascotasF4.push([nombreMasc]);
                 }
             }
-            let pdf = generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF4, direccionF4, numCelularF4, concepto1, cuotaVencida, cuotaMes1, totalConcepto1, concepto2, cuotaMes2, totalConcepto2, concepto3, cuotaMes3, totalConcepto3, concepto4, cuotaMes4, totalConcepto4, concepto5, cuotaMes5, totalConcepto5, concepto6, cuotaMes6, totalConcepto6, concepto7, cuotaMes7, totalConcepto7, pagoTotal, cuentaBeneficiariosF4, arrayBeneficiariosF4, arrayMascotasF4, saldo, mensaje)
+            let pdf = generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF4, direccionF4, numCelularF4, concepto1, cuotaVencida, cuotaMes1, totalConcepto1, concepto2, cuotaMes2, totalConcepto2, concepto3, cuotaMes3, totalConcepto3, concepto4, cuotaMes4, totalConcepto4, concepto5, cuotaMes5, totalConcepto5, concepto6, cuotaMes6, totalConcepto6, arrayConveniosF4, pagoTotal, cuentaBeneficiariosF4, arrayBeneficiariosF4, arrayMascotasF4, saldo, mensaje)
             return pdf;
     }
 }
@@ -994,170 +1009,190 @@ async function generarPDFf3(url, fechaHoyF3, nombreF3, apellidoF3, tipoDocumento
 
 // Formato 4
 // Formato Extracto
-async function generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF4, direccionF4, numCelularF4, concepto1, cuotaVencida, cuotaMes1, totalConcepto1, concepto2, cuotaMes2, totalConcepto2, concepto3, cuotaMes3, totalConcepto3, concepto4, cuotaMes4, totalConcepto4, concepto5, cuotaMes5, totalConcepto5, concepto6, cuotaMes6, totalConcepto6, concepto7, cuotaMes7, totalConcepto7, pagoTotal, cuentaBeneficiariosF4, arrayBeneficiariosF4, arrayMascotasF4, saldo, mensaje) {
+async function generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF4, direccionF4, numCelularF4, concepto1, cuotaVencida, cuotaMes1, totalConcepto1, concepto2, cuotaMes2, totalConcepto2, concepto3, cuotaMes3, totalConcepto3, concepto4, cuotaMes4, totalConcepto4, concepto5, cuotaMes5, totalConcepto5, concepto6, cuotaMes6, totalConcepto6, arrayConveniosF4, pagoTotal, cuentaBeneficiariosF4, arrayBeneficiariosF4, arrayMascotasF4, saldo, mensaje) {
     const image = await loadImage(url);
     const pdf = new jsPDF('p', 'pt', 'legal');
     pdf.addImage(image, 'PNG', 0, 0, 613, 1010);
-
+    pdf.setFont("helvetica", "normal");
 
     // renglon 0
-    pdf.setFontSize(9);
-    pdf.text(nombreF4, 29,151);
-    pdf.text(formatearNumeroSinSimbolo(numDocF4), 257,151);
-    pdf.text(mpioResidenciaF4, 335,151);
+    pdf.setFontSize(11);
+    pdf.text(nombreF4, 18,138.5);
+    pdf.text(formatearNumeroSinSimbolo(numDocF4), 244, 138.5);
+    pdf.text(mpioResidenciaF4, 339,138.5);
 
     var arrFechaCorte = fechaCorte.split("-");
-    pdf.text(arrFechaCorte[2]+'/', 471,151);
-    pdf.text(arrFechaCorte[1]+'/', 486,151);
-    pdf.text(arrFechaCorte[0], 502,151);
+    const fecha = arrFechaCorte[2] + '/' + arrFechaCorte[1] + '/' + arrFechaCorte[0]
+    pdf.text(fecha, 486,138.5);
 
-    pdf.text(direccionF4, 105,172);
-    pdf.text(numCelularF4, 437,172);
+    pdf.text(direccionF4, 91,157.8);
+    pdf.text(numCelularF4, 486,157.8);
 
     // valores a pagar
     pdf.setFontSize(9);
     
-    pdf.text(concepto1, 30,285);
-    pdf.text(arrFechaCorte[2]+'/', 177,285);
-    pdf.text(arrFechaCorte[1]+'/', 190,285);
-    pdf.text(arrFechaCorte[0], 204,285);
+    pdf.text(concepto1, 17,285);
+    pdf.text(fecha, 166,285);
+
     if(saldo != 0){;
-        pdf.text(formatearNumero(saldo), 248,285);
+        pdf.text(formatearNumero(saldo), 236,285);
     }
 
-    pdf.text(cuotaVencida, 324,285);
-    pdf.text(formatearNumero(cuotaMes1), 378,285);
+    pdf.text(cuotaVencida, 329,285);
+    pdf.text(formatearNumero(cuotaMes1), 385,285);
     // pdf.text('0', 452,285); interes de mora
-    pdf.text(formatearNumero(totalConcepto1), 516,285);
+    pdf.text(formatearNumero(totalConcepto1), 531,285);
 
     let fila = 305
     if(cuotaMes2 > 0){
-        pdf.text(concepto2, 30,fila);
-        pdf.text(arrFechaCorte[2]+'/', 177,fila);
-        pdf.text(arrFechaCorte[1]+'/', 190,fila);
-        pdf.text(arrFechaCorte[0], 204,fila);
+        pdf.text(concepto2, 17,fila);
+        pdf.text(fecha, 166,fila);
         // pdf.text('saldo', 248,fila);
-        pdf.text(cuotaVencida, 324,fila);
-        pdf.text(formatearNumero(cuotaMes2), 378,fila);
+        pdf.text(cuotaVencida, 329,fila);
+        pdf.text(formatearNumero(cuotaMes2), 385,fila);
         // pdf.text('interes mora', 452,fila);
-        pdf.text(formatearNumero(totalConcepto2), 516,fila);
+        pdf.text(formatearNumero(totalConcepto2), 531,fila);
         fila = fila + 20
     }
     if(cuotaMes3 > 0){
-        pdf.text(concepto3, 30,fila);
-        pdf.text(arrFechaCorte[2]+'/', 177,fila);
-        pdf.text(arrFechaCorte[1]+'/', 190,fila);
-        pdf.text(arrFechaCorte[0], 204,fila);
+        pdf.text(concepto3, 17,fila);
+        pdf.text(fecha, 166,fila);
         // pdf.text('saldo', 248,fila);
-        pdf.text(cuotaVencida, 324,fila);
-        pdf.text(formatearNumero(cuotaMes3), 378,fila);
+        pdf.text(cuotaVencida, 329,fila);
+        pdf.text(formatearNumero(cuotaMes3), 385,fila);
         // pdf.text('interes mora', 452,fila);
-        pdf.text(formatearNumero(totalConcepto3), 516,fila);
+        pdf.text(formatearNumero(totalConcepto3), 531,fila);
         fila = fila + 20
     }
     if(cuotaMes4 > 0){
-        pdf.text(concepto4, 30,fila);
-        pdf.text(arrFechaCorte[2]+'/', 177,fila);
-        pdf.text(arrFechaCorte[1]+'/', 190,fila);
-        pdf.text(arrFechaCorte[0], 204,fila);
+        pdf.text(concepto4, 17,fila);
+        pdf.text(fecha, 166,fila);
         // pdf.text('saldo', 248,fila);
-        pdf.text(cuotaVencida, 324,fila);
-        pdf.text(formatearNumero(cuotaMes4), 378,fila);
+        pdf.text(cuotaVencida, 329,fila);
+        pdf.text(formatearNumero(cuotaMes4), 385,fila);
         // pdf.text('interes mora', 452,fila);
-        pdf.text(formatearNumero(totalConcepto4), 516,fila);
+        pdf.text(formatearNumero(totalConcepto4), 531,fila);
         fila = fila + 20
     }
     if(cuotaMes5 > 0){
-        pdf.text(concepto5, 30,fila);
-        pdf.text(arrFechaCorte[2]+'/', 177,fila);
-        pdf.text(arrFechaCorte[1]+'/', 190,fila);
-        pdf.text(arrFechaCorte[0], 204,fila);
+        pdf.text(concepto5, 17,fila);
+        pdf.text(fecha, 166,fila);
         // pdf.text('saldo', 248,fila);
-        pdf.text(cuotaVencida, 324,fila);
-        pdf.text(formatearNumero(cuotaMes5), 378,fila);
+        pdf.text(cuotaVencida, 329,fila);
+        pdf.text(formatearNumero(cuotaMes5), 385,fila);
         // pdf.text('interes mora', 452,fila);
-        pdf.text(formatearNumero(totalConcepto5), 516,fila);
+        pdf.text(formatearNumero(totalConcepto5), 531,fila);
         fila = fila + 20
     }
     if(cuotaMes6 > 0){
-        pdf.text(concepto6, 30,fila);
-        pdf.text(arrFechaCorte[2]+'/', 177,fila);
-        pdf.text(arrFechaCorte[1]+'/', 190,fila);
-        pdf.text(arrFechaCorte[0], 204,fila);
+        pdf.text(concepto6, 17,fila);
+        pdf.text(fecha, 166,fila);
         // pdf.text('saldo', 248,fila);
-        pdf.text(cuotaVencida, 324,fila);
-        pdf.text(formatearNumero(cuotaMes6), 378,fila);
+        pdf.text(cuotaVencida, 329,fila);
+        pdf.text(formatearNumero(cuotaMes6), 385,fila);
         // pdf.text('interes mora', 452,fila);
-        pdf.text(formatearNumero(totalConcepto6), 516,fila);
+        pdf.text(formatearNumero(totalConcepto6), 531,fila);
         fila = fila + 20
     }
-    if(cuotaMes7 > 0){
-        pdf.text(concepto7, 30,fila);
-        pdf.text(arrFechaCorte[2]+'/', 177,fila);
-        pdf.text(arrFechaCorte[1]+'/', 190,fila);
-        pdf.text(arrFechaCorte[0], 204,fila);
-        // pdf.text('saldo', 248,fila);
-        pdf.text(cuotaVencida, 324,fila);
-        pdf.text(formatearNumero(cuotaMes7), 378,fila);
-        // pdf.text('interes mora', 452,fila);
-        pdf.text(formatearNumero(totalConcepto7), 516,fila);
+    // Listas Convenios del asociado
+    for (let i=0; i < arrayConveniosF4.length; i++){
+        const convenio = arrayConveniosF4[i];
+        pdf.text("CONVENIO -" + " " + convenio.concepto, 17,fila);
+        pdf.text(fecha, 166,fila);
+        pdf.text(convenio.cantidadMeses.toString(), 329,fila);
+        pdf.text(formatearNumero(convenio.valorMes), 385,fila);
+        pdf.text(formatearNumero(convenio.total), 531,fila);
         fila = fila + 20
     }
+    // if(cuotaMes7 > 0){
+    //     pdf.text(concepto7, 17,fila);
+    //     pdf.text(fecha, 166,fila);
+    //     // pdf.text('saldo', 248,fila);
+    //     pdf.text(cuotaVencida, 329,fila);
+    //     pdf.text(formatearNumero(cuotaMes7), 385,fila);
+    //     // pdf.text('interes mora', 452,fila);
+    //     pdf.text(formatearNumero(totalConcepto7), 531,fila);
+    //     fila = fila + 20
+    // }
     
     // valor total a pagar
     pdf.setTextColor(255,255,255)
     pdf.setFont(undefined, "bold");
     pdf.setFontSize(12)
 
-    pdf.text(formatearNumero(pagoTotal), 510,439);
+    pdf.text(formatearNumero(pagoTotal), 523,526.7);
 
     // observaciones
     pdf.setTextColor(0,0,0);
     pdf.setFont(undefined, "normal");
-
-    pdf.setFontSize(10)
-    pdf.text(mensaje, 30,460);
+    // pdf.setFontSize(10)
+    // pdf.text(mensaje, 30,460);
 
     pdf.setFontSize(8)
-    let filaB = 567;
+    let filaB = 621.3;
+    let num_filas = 0
+    let columna_1 = 17;
+    let columna_2 = 181;
+    let columna_3 = 255;
+
     // se lista beneficiarios
     for(let i = 0;i < arrayBeneficiariosF4.length; i++){
-        pdf.text(arrayBeneficiariosF4[i][0], 30,filaB);
-        if(arrayBeneficiariosF4[i][2] != 'None'){
-            pdf.text(arrayBeneficiariosF4[i][2], 332,filaB);
-        }
-        pdf.text(arrayBeneficiariosF4[i][1], 515,filaB);
-        filaB = filaB + 13;
-    }
+        let nombre = arrayBeneficiariosF4[i][0];
 
-    var perro = new Image()
-    perro.src = '/static/img/icons/huella.png';
-    perro.onload = () => {
+        if (nombre.length > 28) {
+            nombre = nombre.substring(0, 25) + "..."; 
+        }
+        pdf.text(nombre, columna_1,filaB);
+
+        if(arrayBeneficiariosF4[i][2] != 'None'){
+            // pdf.text(arrayBeneficiariosF4[i][2], 332,filaB);  NOMBRE DEL PAIS
+            pdf.text("SI", columna_2,filaB);
+            pdf.text("NO", columna_3,filaB);
+        }else{
+            pdf.text("NO", columna_2,filaB);
+            pdf.text("NO", columna_3,filaB);
+        }
+        // pdf.text(arrayBeneficiariosF4[i][1], 515,filaB); PARENTESCO
+        filaB = filaB + 17;
+        num_filas += 1;
+        if (num_filas == 8){
+            columna_1 = 301;
+            columna_2 = 472;
+            columna_3 = 549;
+            filaB = 621.3;
+        }
+    }
 
     // se lista mascotas
     for(let i = 0;i < arrayMascotasF4.length; i++){
-        pdf.text(arrayMascotasF4[i][0], 30,filaB);
-        pdf.addImage(perro, 'PNG', 462,filaB-18, 23,23);
-        filaB += 13;
+        pdf.text(arrayMascotasF4[i][0], columna_1,filaB);
+        pdf.text("NO", columna_2,filaB);
+        pdf.text("SI", columna_3,filaB);
+        filaB += 17;
+        num_filas += 1;
+        if (num_filas == 8){
+            columna_1 = 301;
+            columna_2 = 472;
+            columna_3 = 549;
+            filaB = 621.3;
+        }
     }
 
     // pago pse
-    pdf.textWithLink('                ', 430, 875, {url:"https://bit.ly/3XBQdEE"});
+    // pdf.textWithLink('                ', 430, 875, {url:"https://bit.ly/3XBQdEE"});
     // sede google maps
-    pdf.textWithLink('                                    ', 38, 927, {url:"https://goo.gl/maps/Jzk8Jkupy8KKgzgk6"});
+    pdf.textWithLink('                  ', 283, 941, {url:"https://maps.app.goo.gl/VbPt5H2EJ6nTxU6Q6"});
     // WhatsApp
-    pdf.textWithLink('                           ', 169, 927, {url:"https://api.whatsapp.com/send/?phone=573135600507&text=Hola%2C+me+gustar%C3%ADa+obtener+m%C3%A1s+informaci%C3%B3n.&type=phone_number&app_absent=0"});
+    pdf.textWithLink('                  ', 131, 941, {url:"https://api.whatsapp.com/send/?phone=573135600507&text=Hola%2C+me+gustar%C3%ADa+obtener+m%C3%A1s+informaci%C3%B3n.&type=phone_number&app_absent=0"});
     // contacto
-    pdf.textWithLink('                                                  ', 274, 927, {url:"mailto:contacto@coohobienestar.org"});
+    pdf.textWithLink('                  ', 201, 941, {url:"mailto:contacto@coohobienestar.org"});
     // icono instagram
-    pdf.textWithLink('           ', 480, 927, {url:"https://www.instagram.com/coohobienestar/"});
+    pdf.textWithLink('                  ', 443, 941, {url:"https://www.instagram.com/coohobienestar/"});
     // icono facebook
-    pdf.textWithLink('           ', 527, 927, {url:"https://www.facebook.com/ccoohobienestar/"});
+    pdf.textWithLink('                  ', 364, 941, {url:"https://www.facebook.com/ccoohobienestar/"});
 
     pdf.save('Formato_Extracto_'+numDocF4+'.pdf');
-    
-    // se cierra el onload del image
-    };
+
 }
 
 // Formato 5

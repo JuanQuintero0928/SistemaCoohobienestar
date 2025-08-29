@@ -480,7 +480,8 @@ class FormatoExtracto(ListView):
     def post(self, request, *args, **kwargs):
         template_name = 'reporte/generarExtracto.html'
         
-        objAsoc = Asociado.objects.exclude(estadoAsociado = 'ACTIVO')
+        # objAsoc = Asociado.objects.exclude(estadoAsociado = ['RETIRO'])
+        objAsoc = Asociado.objects.filter(numDocumento = 1088028032)
         mesExtracto = request.POST['mesExtracto']
         saldos = 'saldos' in request.POST
         asociados = []
@@ -488,7 +489,7 @@ class FormatoExtracto(ListView):
             parametro = ParametroAsociado.objects.select_related('primerMes').get(asociado = asociado.pk)
             mes = MesTarifa.objects.get(pk = mesExtracto)
             
-            if saldos is True:
+            if saldos is False:
                 parametro.primerMes = mes
             
             # Entra al except cuando un asociado no ha realizado ningun pago y no existe informacion en la query
