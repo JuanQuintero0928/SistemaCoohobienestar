@@ -91,16 +91,18 @@
         let arrayExtracto = [];
         let arrayExtracto2 = [];
     </script>
+
     {% for asoc in lista %}
-        <form style="display:none" id="formExtracto{{forloop.counter}}">
+
+        <form style="display:block" id="formExtracto{{forloop.counter}}">
             
             <input type="text" id="id_formato" value="{{asoc.formato}}">
             <input type="date" id="id_fechaCorte" value="{{asoc.fechaCorte|date:"Y-m-d"}}">
-            <input type="text" id="id_nombre" value="{{asoc.objAsoc.nombre}} {{objAsoc.apellido}}">
-            <input type="text" id="id_numDoc" value="{{asoc.objAsoc.numDocumento}}">
-            <input type="text" id="id_mpioResidencia" value="{{asoc.objAsoc.mpioResidencia}}">
-            <input type="text" id="id_direccion" value="{{asoc.objAsoc.direccion}}">
-            <input type="text" id="id_numCelular" value="{{asoc.objAsoc.numCelular}}">
+            <input type="text" id="id_nombre" value="{{asoc.objTarifaAsociado.asociado.nombre}} {{asoc.objTarifaAsociado.asociado.apellido}}">
+            <input type="text" id="id_numDoc" value="{{asoc.objTarifaAsociado.asociado.numDocumento}}">
+            <input type="text" id="id_mpioResidencia" value="{{asoc.objTarifaAsociado.asociado.mpioResidencia}}">
+            <input type="text" id="id_direccion" value="{{asoc.objTarifaAsociado.asociado.direccion}}">
+            <input type="text" id="id_numCelular" value="{{asoc.objTarifaAsociado.asociado.numCelular}}">
             {% comment %} Valores a pagar {% endcomment %}
             {% comment %} Cuota Periodica {% endcomment %}
             <input type="text" id="id_concepto1" value="CUOTA {{asoc.mes.concepto}}">
@@ -129,9 +131,14 @@
             <input type="text" id="id_cuotaMes6" value="{{asoc.cuotaCoohop}}">
             <input type="text" id="id_totalConcepto6" {% if asoc.valorVencido == 0 %} value="0" {% else %} value="{{asoc.valorVencidoCoohop}}" {% endif %}>
             {% comment %} Cuota Convenios {% endcomment %}
-            <input type="text" id="id_concepto7" value="CONVENIOS">
-            <input type="text" id="id_cuotaMes7" value="{{asoc.cuotaConvenio}}">
-            <input type="text" id="id_totalConcepto7" {% if asoc.valorVencido == 0 %} value="0" {% else %} value="{{asoc.valorVencidoConvenio}}" {% endif %}>
+            {% for convenio in asoc.objConvenio %}
+                <div class="convenio convenio-{{forloop.parentloop.counter}}">
+                    <input type="text" class="concepto" value="{{ convenio.convenio.concepto }}">
+                    <input type="text" class="cantidad_meses" value="{{ convenio.cantidad_meses }}">
+                    <input type="text" class="cuota_mes" value="{{ convenio.convenio.valor }}">
+                    <input type="text" class="valor_vencido_convenio" value="{{ convenio.valor_vencido_convenio }}">
+                </div>
+            {% endfor %}
             
             <input type="text" id="id_pagoTotal" value="{{asoc.pagoTotal}}">
             <input type="text" id="id_mensaje" value="{{asoc.mensaje}}">
@@ -151,6 +158,24 @@
         </form>
 
         <script>
+
+            let arrayConvenios{{forloop.counter}} = [];
+            const convenios{{forloop.counter}} = document.querySelectorAll(".convenio-{{forloop.counter}}");
+
+            convenios{{forloop.counter}}.forEach((c, index) => {
+                const concepto = c.querySelector(".concepto").value;
+                const cantidadMeses = c.querySelector(".cantidad_meses").value;
+                const valorMes = c.querySelector(".cuota_mes").value;
+                const total = c.querySelector(".valor_vencido_convenio").value;
+
+                arrayConvenios{{forloop.counter}}.push({
+                    concepto: concepto,
+                    cantidadMeses: parseInt(cantidadMeses),
+                    valorMes: parseFloat(valorMes),
+                    total: parseFloat(total)
+                });
+            });
+
             // variables de iniciacion de cuentas de beneficiarios y mascotas
             let cuentaBeneficiarios{{forloop.counter}} = (document.getElementById('id_cuentaBeneficiario').value);
             let cuentaMascota{{forloop.counter}} = (document.getElementById('id_cuentaMascota').value);
@@ -180,18 +205,17 @@
             let id_seguro{{forloop.counter}} = document.getElementById('id_concepto4').value
             let id_adicional{{forloop.counter}} = document.getElementById('id_concepto5').value
             let id_coohop{{forloop.counter}} = document.getElementById('id_concepto6').value
-            let id_convenio{{forloop.counter}} = document.getElementById('id_concepto7').value
             let totalmascota{{forloop.counter}} = document.getElementById('id_totalConcepto2').value
             let totalrepatriacion{{forloop.counter}} = document.getElementById('id_totalConcepto3').value
             let totalseguro{{forloop.counter}} = document.getElementById('id_totalConcepto4').value
             let totaladicional{{forloop.counter}} = document.getElementById('id_totalConcepto5').value
             let totalcoohp{{forloop.counter}} = document.getElementById('id_totalConcepto6').value
-            let totalconvenio{{forloop.counter}} = document.getElementById('id_totalConcepto7').value
 
 
             // array que almacena todos los elementos de un beneficiario
-            arrayExtracto.push(['{{asoc.objAsoc.nombre}} {{asoc.objAsoc.apellido}}', '{{asoc.objAsoc.numDocumento}}', id_fechaCorte{{forloop.counter}}, '{{asoc.objAsoc.mpioResidencia}}', '{{asoc.objAsoc.numCelular}}', '{{asoc.objAsoc.direccion}}', arrayBeneficiarios{{forloop.counter}}, arrayMascotas{{forloop.counter}},
+            arrayExtracto.push(['{{asoc.objTarifaAsociado.asociado.nombre}} {{asoc.objTarifaAsociado.asociado.apellido}}', '{{asoc.objTarifaAsociado.asociado.numDocumento}}', id_fechaCorte{{forloop.counter}}, '{{asoc.objTarifaAsociado.asociado.mpioResidencia}}', '{{asoc.objTarifaAsociado.asociado.numCelular}}', '{{asoc.objTarifaAsociado.asociado.direccion}}', arrayBeneficiarios{{forloop.counter}}, arrayMascotas{{forloop.counter}},
             
+            // inicia posicion 9 , 10
             id_cuota{{forloop.counter}},'{{asoc.saldo}}', '{{asoc.cuotaVencida}}', '{{asoc.cuotaPeriodica}}', '{{asoc.valorVencido}}',
             
             id_mascota{{forloop.counter}}, '{{asoc.objTarifaAsociado.cuotaMascota}}', totalmascota{{forloop.counter}}, 
@@ -206,11 +230,8 @@
             
             
             id_coohop{{forloop.counter}},'{{asoc.cuotaCoohop}}',totalcoohp{{forloop.counter}},
-
             
-            id_convenio{{forloop.counter}},'{{asoc.objTarifaAsociado.cuotaConvenio}}',totalconvenio{{forloop.counter}},
-            
-            '{{asoc.pagoTotal}}', '{{asoc.mensaje}} ']);
+            '{{asoc.pagoTotal}}', '{{asoc.mensaje}}', arrayConvenios{{forloop.counter}} ]);
 
             eliminarFormulario();
 
@@ -236,7 +257,7 @@
     <script>
         // funcion que envia toda la informacion de todos los asociados, para generar el pdf
         async function generarYRedirigir() {
-            await generarPDFf5('{% static 'img/Formato_ExtractoPago_page_0001.jpg'%}', arrayExtracto, '{{mes.concepto}}');
+            await generarPDFf5('{% static 'img/Formato_ExtractoPago_2025_page_0001.jpg'%}', arrayExtracto, '{{mes.concepto}}');
             
             await generarTxt(arrayExtracto2);
 

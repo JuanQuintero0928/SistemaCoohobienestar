@@ -1017,7 +1017,13 @@ async function generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF
 
     // renglon 0
     pdf.setFontSize(11);
-    pdf.text(nombreF4, 18,138.5);
+
+    if (nombreF4.length > 32) {
+            nombreF4 = nombreF4.substring(0, 31) + "."; 
+        }
+    pdf.text(nombreF4, 16,138.5);
+
+    // pdf.text(nombreF4, 16,138.5);
     pdf.text(formatearNumeroSinSimbolo(numDocF4), 244, 138.5);
     pdf.text(mpioResidenciaF4, 339,138.5);
 
@@ -1139,7 +1145,7 @@ async function generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF
     for(let i = 0;i < arrayBeneficiariosF4.length; i++){
         let nombre = arrayBeneficiariosF4[i][0];
 
-        if (nombre.length > 28) {
+        if (nombre.length > 27) {
             nombre = nombre.substring(0, 25) + "..."; 
         }
         pdf.text(nombre, columna_1,filaB);
@@ -1206,146 +1212,165 @@ async function generarPDFf5(url, arrayExtracto, mes) {
     for(let i = 0; i < arrayExtracto.length ; i++){
         
         // renglon 0
-        pdf.setFontSize(9);
-        pdf.text(arrayExtracto[i][0], 29,151);
-        pdf.text(formatearNumeroSinSimbolo(arrayExtracto[i][1]), 257,151);
-        pdf.text(arrayExtracto[i][3], 335,151);
+        pdf.setFontSize(11);
+        pdf.text(arrayExtracto[i][0], 18,138.5);
+        pdf.text(formatearNumeroSinSimbolo(arrayExtracto[i][1]), 244,138.5);
+        pdf.text(arrayExtracto[i][3], 339,138.5);
 
         var arrFechaCorte = arrayExtracto[i][2].split("-");
-        pdf.text(arrFechaCorte[2]+'/', 471,151);
-        pdf.text(arrFechaCorte[1]+'/', 486,151);
-        pdf.text(arrFechaCorte[0], 502,151);
+        const fecha = arrFechaCorte[2] + '/' + arrFechaCorte[1] + '/' + arrFechaCorte[0]
+        pdf.text(fecha, 486,138.5);
 
-        pdf.text(arrayExtracto[i][5], 105,172);
-        pdf.text(arrayExtracto[i][4], 437,172);
+        pdf.text(arrayExtracto[i][5], 91,157.8);
+        pdf.text(arrayExtracto[i][4], 486,157.8);
 
         // valores a pagar
         pdf.setFontSize(9);
         
         // inicia posicion 8
         // concepto
-        pdf.text(arrayExtracto[i][8], 30,285);
-        // fecha
-        pdf.text(arrFechaCorte[2]+'/', 177,285);
-        pdf.text(arrFechaCorte[1]+'/', 190,285);
-        pdf.text(arrFechaCorte[0], 204,285);
+        pdf.text(arrayExtracto[i][8], 17,285);
+        pdf.text(fecha, 166,285);
+
         // validacion saldo
         if(arrayExtracto[i][9] != 0){
-            pdf.text(formatearNumero(arrayExtracto[i][9]), 252,285);
+            pdf.text(formatearNumero(arrayExtracto[i][9]), 236,285);
         }
         //cuota vencida 
-        pdf.text(arrayExtracto[i][10], 324,285);
+        pdf.text(arrayExtracto[i][10], 329,285);
         // cuota Mes
-        pdf.text(formatearNumero(arrayExtracto[i][11]), 382,285);
+        pdf.text(formatearNumero(arrayExtracto[i][11]), 385,285);
         // pdf.text('0', 452,285); interes de mora
-        pdf.text(formatearNumero(arrayExtracto[i][12]), 520,285);
+        pdf.text(formatearNumero(arrayExtracto[i][12]), 531,285);
 
         let fila = 305
         // inicia posicion 13
         if(arrayExtracto[i][14] > 0){
-            pdf.text(arrayExtracto[i][13], 30,fila);
-            pdf.text(arrFechaCorte[2]+'/', 177,fila);
-            pdf.text(arrFechaCorte[1]+'/', 190,fila);
-            pdf.text(arrFechaCorte[0], 204,fila);
+            pdf.text(arrayExtracto[i][13], 17,fila);
+            pdf.text(fecha, 166,fila);
             // pdf.text('saldo', 248,fila);
-            pdf.text(arrayExtracto[i][10], 324,fila);
-            pdf.text(formatearNumero(arrayExtracto[i][14]), 382,fila);
+            pdf.text(arrayExtracto[i][10], 329,fila);
+            pdf.text(formatearNumero(arrayExtracto[i][14]), 385,fila);
             // pdf.text('interes mora', 452,fila);
-            pdf.text(formatearNumero(arrayExtracto[i][15]), 520,fila);
+            pdf.text(formatearNumero(arrayExtracto[i][15]), 531,fila);
             fila = fila + 20
         }
         // inicia posicion 16
         if(arrayExtracto[i][17] > 0){
-            pdf.text(arrayExtracto[i][16], 30,fila);
-            pdf.text(arrFechaCorte[2]+'/', 177,fila);
-            pdf.text(arrFechaCorte[1]+'/', 190,fila);
-            pdf.text(arrFechaCorte[0], 204,fila);
+            pdf.text(arrayExtracto[i][16], 17,fila);
+            pdf.text(fecha, 166,fila);
+
             // pdf.text('saldo', 248,fila);
-            pdf.text(arrayExtracto[i][10], 324,fila);
-            pdf.text(formatearNumero(arrayExtracto[i][17]), 382,fila);
+            pdf.text(arrayExtracto[i][10], 329,fila);
+            pdf.text(formatearNumero(arrayExtracto[i][17]), 385,fila);
             // pdf.text('interes mora', 452,fila);
-            pdf.text(formatearNumero(arrayExtracto[i][18]), 520,fila);
+            pdf.text(formatearNumero(arrayExtracto[i][18]), 531,fila);
             fila = fila + 20
         }
         // inicia posicion 19
         if(arrayExtracto[i][20] > 0){
-            pdf.text(arrayExtracto[i][19], 30,fila);
-            pdf.text(arrFechaCorte[2]+'/', 177,fila);
-            pdf.text(arrFechaCorte[1]+'/', 190,fila);
-            pdf.text(arrFechaCorte[0], 204,fila);
+            pdf.text(arrayExtracto[i][19], 17,fila);
+            pdf.text(fecha, 166,fila);
+
             // pdf.text('saldo', 248,fila);
-            pdf.text(arrayExtracto[i][10], 324,fila);
-            pdf.text(formatearNumero(arrayExtracto[i][20]), 382,fila);
+            pdf.text(arrayExtracto[i][10], 329,fila);
+            pdf.text(formatearNumero(arrayExtracto[i][20]), 385,fila);
             // pdf.text('interes mora', 452,fila);
-            pdf.text(formatearNumero(arrayExtracto[i][21]), 520,fila);
+            pdf.text(formatearNumero(arrayExtracto[i][21]), 531,fila);
             fila = fila + 20
         }
         // inicia posicion 22
         if(arrayExtracto[i][23] > 0){
-            pdf.text(arrayExtracto[i][22], 30,fila);
-            pdf.text(arrFechaCorte[2]+'/', 177,fila);
-            pdf.text(arrFechaCorte[1]+'/', 190,fila);
-            pdf.text(arrFechaCorte[0], 204,fila);
+            pdf.text(arrayExtracto[i][22], 17,fila);
+            pdf.text(fecha, 166,fila);
+
             // pdf.text('saldo', 248,fila);
-            pdf.text(arrayExtracto[i][10], 324,fila);
-            pdf.text(formatearNumero(arrayExtracto[i][23]), 382,fila);
+            pdf.text(arrayExtracto[i][10], 329,fila);
+            pdf.text(formatearNumero(arrayExtracto[i][23]), 385,fila);
             // pdf.text('interes mora', 452,fila);
-            pdf.text(formatearNumero(arrayExtracto[i][24]), 520,fila);
+            pdf.text(formatearNumero(arrayExtracto[i][24]), 531,fila);
             fila = fila + 20
         }
         // inicia posicion 25
         if(arrayExtracto[i][26] > 0){
-            pdf.text(arrayExtracto[i][25], 30,fila);
-            pdf.text(arrFechaCorte[2]+'/', 177,fila);
-            pdf.text(arrFechaCorte[1]+'/', 190,fila);
-            pdf.text(arrFechaCorte[0], 204,fila);
+            pdf.text(arrayExtracto[i][25], 17,fila);
+            pdf.text(fecha, 166,fila);
+
             // pdf.text('saldo', 248,fila);
-            pdf.text(arrayExtracto[i][10], 324,fila);
-            pdf.text(formatearNumero(arrayExtracto[i][26]), 382,fila);
+            pdf.text(arrayExtracto[i][10], 329,fila);
+            pdf.text(formatearNumero(arrayExtracto[i][26]), 385,fila);
             // pdf.text('interes mora', 452,fila);
-            pdf.text(formatearNumero(arrayExtracto[i][27]), 520,fila);
+            pdf.text(formatearNumero(arrayExtracto[i][27]), 531,fila);
             fila = fila + 20
         }
 
         // inicia posicion 28
-        if(arrayExtracto[i][29] > 0){
-            pdf.text(arrayExtracto[i][28], 30,fila);
-            pdf.text(arrFechaCorte[2]+'/', 177,fila);
-            pdf.text(arrFechaCorte[1]+'/', 190,fila);
-            pdf.text(arrFechaCorte[0], 204,fila);
-            // pdf.text('saldo', 248,fila);
-            pdf.text(arrayExtracto[i][10], 324,fila);
-            pdf.text(formatearNumero(arrayExtracto[i][29]), 382,fila);
-            // pdf.text('interes mora', 452,fila);
-            pdf.text(formatearNumero(arrayExtracto[i][30]), 520,fila);
-            fila = fila + 20
+        // if(arrayExtracto[i][29] > 0){
+        //     pdf.text(arrayExtracto[i][28], 17,fila);
+        //     pdf.text(fecha, 166,fila);
+
+        //     // pdf.text('saldo', 248,fila);
+        //     pdf.text(arrayExtracto[i][10], 329,fila);
+        //     pdf.text(formatearNumero(arrayExtracto[i][29]), 385,fila);
+        //     // pdf.text('interes mora', 452,fila);
+        //     pdf.text(formatearNumero(arrayExtracto[i][30]), 531,fila);
+        //     fila = fila + 20
+        // }
+        for (let j = 0; j < arrayExtracto[i][30].length; j++) {
+            const convenio = arrayExtracto[i][30][j];
+            pdf.text("CONVENIO -" + " " + convenio.concepto, 17, fila);
+            pdf.text(fecha, 166, fila);
+            pdf.text(convenio.cantidadMeses.toString(), 329, fila);
+            pdf.text(formatearNumero(convenio.valorMes), 385, fila);
+            pdf.text(formatearNumero(convenio.total), 531, fila);
+            fila += 20;
         }
-    
 
         // valor total a pagar
         pdf.setTextColor(255,255,255)
         pdf.setFont(undefined, "bold");
         pdf.setFontSize(12)
         // inicia posicion 31
-        pdf.text(formatearNumero(arrayExtracto[i][31]), 523,439);
+        pdf.text(formatearNumero(arrayExtracto[i][28]), 523,526.7);
+
         // observaciones
         pdf.setTextColor(0,0,0);
         pdf.setFont(undefined, "normal");
 
-        pdf.setFontSize(10)
-        pdf.text(arrayExtracto[i][32], 30,460);
-
         pdf.setFontSize(8)
-        let filaB = 567;
+        let filaB = 621.3;
+        let num_filas = 0
+        let columna_1 = 17;
+        let columna_2 = 181;
+        let columna_3 = 255;
+        
         // se lista beneficiarios, inicia posicion 6
         for(let j = 0;j < arrayExtracto[i][6].length; j++){
-            pdf.text(arrayExtracto[i][6][j][0], 30,filaB);
-            if(arrayExtracto[i][6][j][2] != 'None'){
-                pdf.text(arrayExtracto[i][6][j][2], 332,filaB);
+            let nombre = arrayExtracto[i][6][j][0];
+
+            if (nombre.length > 27) {
+                nombre = nombre.substring(0, 25) + "..."; 
             }
-            pdf.text(arrayExtracto[i][6][j][1], 515,filaB);
-            filaB = filaB + 13;
-            
+
+            pdf.text(nombre, columna_1,filaB);
+
+            if(arrayExtracto[i][6][j][2] != 'None'){
+                pdf.text("SI", columna_2,filaB);
+                pdf.text("NO", columna_3,filaB);
+                // pdf.text(arrayExtracto[i][6][j][2], 332,filaB);
+            } else {
+                pdf.text("NO", columna_2,filaB);
+                pdf.text("NO", columna_3,filaB);
+            }
+
+            filaB = filaB + 17;
+            num_filas += 1;
+            if (num_filas == 8){
+                columna_1 = 301;
+                columna_2 = 472;
+                columna_3 = 549;
+                filaB = 621.3;
+            }            
         }
 
         // var perro = new Image()
@@ -1354,28 +1379,38 @@ async function generarPDFf5(url, arrayExtracto, mes) {
 
         // se lista mascotas, inicia posicion 7
         for(let j = 0; j < arrayExtracto[i][7].length; j++){
-            pdf.text(arrayExtracto[i][7][j][0], 30,filaB);
-            pdf.text(arrayExtracto[i][7][j][1], 450,filaB);
-            pdf.text('MASCOTA', 515,filaB);
-            filaB += 13;
+            pdf.text(arrayExtracto[i][7][j][0], columna_1,filaB);
+            pdf.text("NO", columna_2,filaB);
+            pdf.text("SI", columna_3,filaB);
+            filaB += 17;
+            num_filas += 1;
+            if (num_filas == 8){
+                columna_1 = 301;
+                columna_2 = 472;
+                columna_3 = 549;
+                filaB = 621.3;
+            }
+            // pdf.text(arrayExtracto[i][7][j][1], columna_2,filaB);
+            // pdf.text('MASCOTA', 515,filaB);
+            // filaB += 13;
         }
 
         // pago pse
-        pdf.textWithLink('                ', 430, 875, {url:"https://bit.ly/3XBQdEE"});
+        // pdf.textWithLink('                ', 430, 875, {url:"https://bit.ly/3XBQdEE"});
         // sede google maps
-        pdf.textWithLink('                                    ', 38, 927, {url:"https://goo.gl/maps/Jzk8Jkupy8KKgzgk6"});
+        pdf.textWithLink('                  ', 283, 941, {url:"https://maps.app.goo.gl/VbPt5H2EJ6nTxU6Q6"});
         // WhatsApp
-        pdf.textWithLink('                           ', 169, 927, {url:"https://api.whatsapp.com/send/?phone=573135600507&text=Hola%2C+me+gustar%C3%ADa+obtener+m%C3%A1s+informaci%C3%B3n.&type=phone_number&app_absent=0"});
+        pdf.textWithLink('                  ', 131, 941, {url:"https://api.whatsapp.com/send/?phone=573135600507&text=Hola%2C+me+gustar%C3%ADa+obtener+m%C3%A1s+informaci%C3%B3n.&type=phone_number&app_absent=0"});
         // contacto
-        pdf.textWithLink('                                                  ', 274, 927, {url:"mailto:contacto@coohobienestar.org"});
+        pdf.textWithLink('                  ', 201, 941, {url:"mailto:contacto@coohobienestar.org"});
         // icono instagram
-        pdf.textWithLink('           ', 480, 927, {url:"https://www.instagram.com/coohobienestar/"});
+        pdf.textWithLink('                  ', 443, 941, {url:"https://www.instagram.com/coohobienestar/"});
         // icono facebook
-        pdf.textWithLink('           ', 527, 927, {url:"https://www.facebook.com/ccoohobienestar/"});
+        pdf.textWithLink('                  ', 364, 941, {url:"https://www.facebook.com/ccoohobienestar/"});
         
         if(i+1 < arrayExtracto.length){
             pdf.addPage();
-            const image2 = await loadImage('/static/img/Formato_ExtractoPago_page_0001.jpg');
+            const image2 = await loadImage('/static/img/Formato_ExtractoPago_2025_page_0001.jpg');
             pdf.addImage(image2, 'PNG', 0, 0, 613, 1010);
         }
 

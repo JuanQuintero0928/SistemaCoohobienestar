@@ -1606,8 +1606,9 @@ class GenerarFormato(ListView):
             saldos = 'saldos' in request.GET
             mes = MesTarifa.objects.get(pk = request.GET['mes'])
             formato = kwargs['formato']
-            context = obtenerValorExtracto(id_asociado, saldos, mes, formato)
+            context = obtenerValorExtracto(id_asociado, saldos, mes)
             context["objAsoc"] = objAsoc
+            context["formato"] = formato
             return render(request, template_name, context)
 
 class UtilidadesAsociado(ListView):
