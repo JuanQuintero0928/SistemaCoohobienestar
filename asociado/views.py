@@ -166,12 +166,14 @@ class CrearAsociado(CreateView):
 
                 # se guarda informacion en el modelo LABORAL
                 objLaboral = Laboral.objects.create(
+                    id = obj.pk,
                     asociado = obj,
                     estadoRegistro = True,
                 )
 
                 # se guarda informacion en el modelo FINANCIERA
                 objFinanciera = Financiera.objects.create(
+                    id = obj.pk,
                     asociado = obj,
                     estadoRegistro = True,
                 )
@@ -187,6 +189,7 @@ class CrearAsociado(CreateView):
 
                 # se guarda informacion en el modelo TARIFA ASOCIADO
                 objTarifaAsoc = TarifaAsociado.objects.create(
+                    id = obj.pk,
                     asociado = obj,
                     cuotaAporte = objTarifaAporte.valor,
                     cuotaBSocial = objTarifaBSocial.valor,
@@ -216,6 +219,7 @@ class CrearAsociado(CreateView):
 
                 # se guarda informacion en el modelo PARAMETROASOCIADO
                 objParametro = ParametroAsociado.objects.create(
+                    id = obj.pk,
                     asociado = obj,
                     autorizaciondcto = False if obj.tAsociado.pk == 1 else True,
                     funeraria = servicioFuneraria,

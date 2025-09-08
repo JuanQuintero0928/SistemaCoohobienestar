@@ -69,8 +69,8 @@ class Asociado(models.Model):
     mpioNacimiento = models.ForeignKey(Municipio, on_delete=models.RESTRICT, blank=True, null=True, related_name='mpioNacimiento')
     tipoVivienda = models.CharField('Tipo Vivienda', choices=tipoViviendaOp.choices, default=tipoViviendaOp.propia, blank=True, null=True)
     estrato = models.IntegerField('Estrato', blank=True, null=True)
-    direccion = models.CharField('Dirección', max_length=50, blank=True, null=True)
-    barrio = models.CharField('barrio', max_length=50, blank=True, null=True)
+    direccion = models.CharField('Dirección', max_length=90, blank=True, null=True)
+    barrio = models.CharField('barrio', max_length=90, blank=True, null=True)
     deptoResidencia = models.ForeignKey(Departamento, on_delete=models.RESTRICT, blank=True, null=True, related_name='deptoResidencia')
     mpioResidencia = models.ForeignKey(Municipio, on_delete=models.RESTRICT, blank=True, null=True, related_name='mpioResidencia')
     numResidencia = models.CharField('Numero Residencia', max_length=13, blank=False, null=False)
@@ -91,7 +91,7 @@ class Asociado(models.Model):
     fechaRetiro = models.DateField('Fecha Retiro', blank=True, null=True)
     fechaCreacion = models.DateTimeField(auto_now_add=True)
     fechaModificacion = models.DateTimeField(auto_now=True)
-   
+
     class Meta:
         verbose_name = 'Asociado'
         ordering = ['pk']
