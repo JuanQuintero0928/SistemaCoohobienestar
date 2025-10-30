@@ -2,11 +2,12 @@ from django import forms
 
 from asociado import form
 from .models import Beneficiario, Mascota, Coohoperativitos
+from parametro.models import MesTarifa
 
 class BeneficiarioForm(forms.ModelForm):
     class Meta:
         model = Beneficiario
-        fields = ['nombre','apellido','tipoDocumento','numDocumento','fechaNacimiento','parentesco','paisRepatriacion','fechaRepatriacion','ciudadRepatriacion','fechaIngreso']
+        fields = ['nombre','apellido','tipoDocumento','numDocumento','fechaNacimiento','parentesco','paisRepatriacion','fechaRepatriacion', 'primerMesRepatriacion', 'ciudadRepatriacion','fechaIngreso']
         widgets = {
             'nombre': forms.TextInput(
                 attrs={
@@ -56,6 +57,11 @@ class BeneficiarioForm(forms.ModelForm):
                 },
                 format='%Y-%m-%d'
             ),
+            'primerMesRepatriacion': forms.Select(
+                attrs={ 
+                    'class':'form-control'
+                }
+            ),
             'fechaRepatriacion': forms.DateInput(
                 attrs={
                     'class': 'form-control',
@@ -63,7 +69,7 @@ class BeneficiarioForm(forms.ModelForm):
                 },
                 format='%Y-%m-%d'
             ),
-            'ciudadRepatriacion': forms.TextInput( 
+            'ciudadRepatriacion': forms.TextInput(
                 attrs={
                     'class': 'form-control',
                     'type': 'text',
@@ -72,10 +78,17 @@ class BeneficiarioForm(forms.ModelForm):
             )
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['primerMesRepatriacion'].queryset = (
+            MesTarifa.objects.filter(id__lt=9000)
+        )
+        
+
 class MascotaForm(forms.ModelForm):
     class Meta:
         model = Mascota
-        fields = ['nombre','tipo','raza','fechaNacimiento','vacunasCompletas','fechaIngreso']
+        fields = ['nombre','tipo','raza','fechaNacimiento','vacunasCompletas','fechaIngreso', 'primerMes']
         widgets = {
             'nombre': forms.TextInput(
                 attrs={
@@ -99,7 +112,7 @@ class MascotaForm(forms.ModelForm):
                 attrs={
                     'class':'form-control',
                     'type': 'date'
-                }
+                }, format='%Y-%m-%d',
             ),
             'vacunasCompletas': forms.CheckboxInput(
                 attrs={ 
@@ -109,9 +122,22 @@ class MascotaForm(forms.ModelForm):
                 attrs={ 
                     'class':'form-control',
                     'type': 'date'
+                }, format='%Y-%m-%d',
+            ),
+            'primerMes': forms.Select(
+                attrs={
+                    'class':'form-control',
+                    'style':'text-transform: uppercase;',
+                    'required': 'required'
                 }
             ),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['primerMes'].queryset = (
+            MesTarifa.objects.filter(id__lt=9000)
+        )
 
 class CoohoperativitoForm(forms.ModelForm):
     class Meta:

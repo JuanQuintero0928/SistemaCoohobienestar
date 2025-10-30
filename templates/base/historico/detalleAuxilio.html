@@ -37,7 +37,7 @@
                     <div class="row">
                         <div class="col-6">
                             <label for="id_entidadBancaria" class="form-label">Entidad Bancaria:</label> 
-                            <input name="entidadBancaria" class="form form-control" id="id_entidadBancaria" type="text" value="{{ obj.entidadBancaria }}" disabled>
+                            <input name="entidadBancaria" class="form form-control" id="id_entidadBancaria" type="text" {% if obj.entidadBancaria %} value="{{ obj.entidadBancaria }}" {% endif %} disabled>
                         </div>
                         <div class="col-6">
                             <label for="id_numCuenta" class="form-label">Número Cuenta:</label> 
@@ -70,15 +70,15 @@
                         <hr>
                         <center><h4>SE SOLICITA PARA</h4></center>
                         <div class="col-6">
-                            <label for="id_nombre" class="form-label">Nombre Completo *</label>
-                            <input name="nombre" class="form form-control input-form" id="id_nombre" type="text" {% if obj.nombre %}value="{{ obj.nombre }}" {% endif %} required>
+                            <label for="id_nombre" class="form-label">Nombre Completo</label>
+                            <input name="nombre" class="form form-control input-form" id="id_nombre" type="text" {% if obj.nombre %}value="{{ obj.nombre }}" {% endif %}>
                         </div>
                         <div class="col-3">
-                            <label for="id_numDoc" class="form-label">Número Documento *</label>
-                            <input name="numDoc" class="form form-control" id="id_numDoc" type="number" {% if obj.numDoc %}value="{{ obj.numDoc }}" {% endif %} required max="9999999999" min="0">
+                            <label for="id_numDoc" class="form-label">Número Documento</label>
+                            <input name="numDoc" class="form form-control" id="id_numDoc" type="number" {% if obj.numDoc %}value="{{ obj.numDoc }}" {% endif %} max="9999999999" min="0">
                         </div>
                         <div class="col-3">
-                            <label for="id_parentesco" class="form-label">Parentesco *</label>
+                            <label for="id_parentesco" class="form-label">Parentesco</label>
                             <select name="parentesco" class="form-select" id="id_parentesco">
                                 <option value="0" selected>&nbsp;</option>
                                 {% for parentesco in objParentesco %}
@@ -87,8 +87,8 @@
                             </select>
                         </div>
                         <div class="col-12">
-                            <label for="id_nivelEducativo" class="form-label">Nivel Educativo *</label>
-                            <input name="nivelEducativo" class="form form-control input-form" id="id_nivelEducativo" type="text" {% if obj.nivelEducativo %}value="{{ obj.nivelEducativo }}" {% endif %} required>
+                            <label for="id_nivelEducativo" class="form-label">Nivel Educativo</label>
+                            <input name="nivelEducativo" class="form form-control input-form" id="id_nivelEducativo" type="text" {% if obj.nivelEducativo %}value="{{ obj.nivelEducativo }}" {% endif %}>
                         </div>
                     {% endif %}
                     <hr>

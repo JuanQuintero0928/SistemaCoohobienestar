@@ -25,7 +25,7 @@
     </ul>
     <div class="container-fluid" style="margin-top:30px">      
 
-        <form method="post" class="row g-3" id="form">
+        <form method="post" class="row g-3" id="formCrearAsociado" data-url="{% url 'asociado:crearAsociado' %}">
             {% csrf_token %}
 
             <div class="container">
@@ -43,18 +43,18 @@
                 {% comment %} Fila 0 {% endcomment %}
                 <div class="container">
                     <div class="row">
-                        <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-3 col-md-6 mb-3">
                             <label for="id_tPersona" class="form-label">Tipo</label>
                             <select name="tPersona" class="form-select" id="id_tPersona">
                                 <option value="PERSONA NATURAL" select>PERSONAL NATURAL</option>
                                 <option value="PERSONA JURIDICA">PERSONAL JURIDICA</option>
                             </select>
                         </div>
-                        <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-3 col-md-6 mb-3">
                             <label for="id_fechaIngreso" class="form-label">Fecha Ingreso *</label>
                             <input type="date" class="form-control" name="fechaIngreso" id="id_fechaIngreso" required>
                         </div>
-                        <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-3 col-md-6 mb-3">
                             <label for="id_tAsociado" class="form-label">Tipo Asociado</label>
                             <select name="tAsociado" class="form-select" id="id_tAsociado">
                                 {% for tAsociado in query_tAsociado %}
@@ -62,7 +62,7 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-3 col-md-6 mb-3">
                             <label for="id_estadoAsociado" class="form-label">Estado Asociado</label>
                             <select name="estadoAsociado" class="form-select" id="id_estadoAsociado">
                                 <option value="ACTIVO" select>ACTIVO</option>
@@ -74,23 +74,24 @@
                 <hr>
                 
                 {% comment %} Fila 1 {% endcomment %}
+                <center><h4>DATOS PERSONALES</h4></center>
                 <div class="container">
                     <div class="row">
-                        <div class="col-12 col-lg-6 col-md-6 mb-3">
+                        <div class="col-12 col-md-6 mb-3">
                             <label for="id_nombre" class="form-label">Nombres *</label>
                             <input type="text" class="form-control input-form" name="nombre" id="id_nombre" maxlength="30" required>
                         </div>
-                        <div class="col-12 col-lg-6 col-md-6 mb-3">
+                        <div class="col-12 col-md-6 mb-3">
                             <label for="id_apellido" class="form-label">Apellidos *</label>
                             <input type="text" class="form-control input-form" name="apellido" maxlength="30" id="id_apellido" required>
                         </div>
                     </div>
                 </div>
-
+                
                 {% comment %} Fila 2 {% endcomment %}
                 <div class="container">
                     <div class="row">
-                        <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-3 col-md-6 mb-3">
                             <label for="id_tipoDocumento" class="form-label">Tipo Documento</label>
                             <select name="tipoDocumento" class="form-select" id="id_tipoDocumento">
                                 <option value="CEDULA" select>CEDULA</option>
@@ -101,30 +102,30 @@
                                 <option value="PPT">PPT</option>
                             </select>
                         </div>
-                        <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-3 col-md-6 mb-3">
                             <label for="id_numDocumento" class="form-label">Número Documento *</label>
                             <input type="number" class="form-control" name="numDocumento" id="id_numDocumento" min="0" required>
                         </div>
-                        <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-3 col-md-6 mb-3">
                             <label for="id_fechaExpedicion" class="form-label">Fecha Expedición *</label>
                             <input type="date" class="form-control" name="fechaExpedicion" id="id_fechaExpedicion" required>
                         </div>
-                        <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-3 col-md-6 mb-3">
                             <label for="id_mpioDoc" class="form-label">Lugar Expedición *</label>
                             <select name="mpioDoc" class="form-select form-control" id="id_mpioDoc" required></select>
                         </div>
                     
                         {% comment %} Fila 3 {% endcomment %}
                 
-                        <div class="col-12 col-xl-2 col-lg-4 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-2 mb-3">
                             <label for="id_nacionalidad" class="form-label">Nacionalidad *</label>
                             <input type="text" class="form-control input-form" name="nacionalidad" maxlength="30" id="id_nacionalidad" required>
                         </div>
-                        <div class="col-12 col-xl-2 col-lg-4 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-4 col-md-6 mb-3">
                             <label for="id_fechaNacimiento" class="form-label">Fecha Nacimiento *</label>
                             <input type="date" class="form-control" name="fechaNacimiento" id="id_fechaNacimiento" required>
                         </div>
-                        <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-3 col-md-6 mb-3">
                             <label for="dtoNacimiento" class="form-label">Departamento Nacimiento *</label>
                             <select name="dtoNacimiento" class="form-select departamento-select" id="dtoNacimiento" data-target="#id_mpioNacimiento" required>
                                 {% for dpto in query_dpto %}
@@ -132,7 +133,7 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-3 col-md-6 mb-3">
                             <label for="id_mpioNacimiento" class="form-label">Municipio Nacimiento *</label>
                             <select id="id_mpioNacimiento" name="mpioNacimiento" class="form form-control" required>
                                 <option value="">Seleccione un municipio</option>
@@ -140,14 +141,14 @@
                         </div>
             
                         {% comment %} Fila 4 {% endcomment %}
-                        <div class="col-12 col-xl-2 col-lg-4 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-2 col-md-6 mb-3">
                             <label for="id_genero" class="form-label">Género</label>
                             <select name="genero" class="form-select" id="id_genero">
                                 <option value="FEMENINO" select>FEMENINO</option>
                                 <option value="MASCULINO">MASCULINO</option>
                             </select>
                         </div>
-                        <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-3 col-md-6 mb-3">
                             <label for="id_estadoCivil" class="form-label">Estado Civil</label>
                             <select name="estadoCivil" class="form-select" id="id_estadoCivil">
                                 <option value="SOLTERO(A)" select>SOLTERO(A)</option>
@@ -158,7 +159,7 @@
                                 <option value="VIUDO(A)">VIUDO(A)</option>
                             </select>
                         </div>
-                        <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-2 col-md-6 mb-3">
                             <label for="id_tipoVivienda" class="form-label">Tipo Vivienda</label>
                             <select name="tipoVivienda" class="form-select" id="id_tipoVivienda">
                                 <option value="PROPIA" select>PROPIA</option>
@@ -166,7 +167,14 @@
                                 <option value="ARRENDADA">ARRENDADA</option>
                             </select>
                         </div>
-                        <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-3 col-md-6 mb-3">
+                            <label for="id_zonaUbicacion" class="form-label">Zona Ubicación *</label>
+                            <select name="zonaUbicacion" class="form-select" id="id_zonaUbicacion">
+                                <option value="RURAL" select>RURAL</option>
+                                <option value="URBANA">URBANA</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-xxl-2 col-md-6 mb-3">
                             <label for="id_estrato" class="form-label">Estrato *</label>
                             <input type="number" class="form-control" name="estrato" id="id_estrato" min="0" required>
                         </div>
@@ -178,15 +186,39 @@
                 {% comment %} Fila 5 {% endcomment %}
                 <div class="container">
                     <div class="row">
-                        <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                        
+                        <div class="col-12 col-xxl-4 col-md-6 mb-3">
+                            <label for="id_empleadoCoohobienestar" class="form-label">¿Empleado(a) de Coohobienestar? *</label>
+                            <select name="empleadoCoohobienestar" class="form-select" id="id_empleadoCoohobienestar" required>
+                                <option value="SI" select>SI</option>
+                                <option value="NO">NO</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-xxl-3 col-md-6 mb-3">
+                            <label for="id_nPersonasCargo" class="form-label">N° de Personas a Cargo *</label>
+                            <input type="number" class="form-control" name="nPersonasCargo" id="id_nPersonasCargo" min="0" required>
+                        </div>
+                        <div class="col-12 col-xxl-2 col-md-6 mb-3">
+                            <label for="id_nHijos" class="form-label">N° de Hijos *</label>
+                            <input type="number" class="form-control" name="nHijos" id="id_nHijos" min="0" required>
+                        </div>
+                        <div class="col-12 col-xxl-3 col-md-6 mb-3">
+                            <label for="id_cabezaFamilia" class="form-label">¿Hombre/Mujer Cabeza de Familia? *</label>
+                            <select name="cabezaFamilia" class="form-select" id="id_cabezaFamilia" required>
+                                <option value="SI" select>SI</option>
+                                <option value="NO">NO</option>
+                            </select>
+                        </div>
+                        {% comment %}  {% endcomment %}
+                        <div class="col-12 col-xxl-4 col-md-6 mb-3">
                             <label for="id_direccion" class="form-label">Dirección *</label>
                             <input type="select" class="form-control input-form" name="direccion" maxlength="50" id="id_direccion" required>
                         </div>
-                        <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-4 col-md-6 mb-3">
                             <label for="id_barrio" class="form-label">Barrio o Condominio *</label>
                             <input type="text" class="form-control input-form" name="barrio" maxlength="50" id="id_barrio" required>
                         </div>
-                        <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-4 col-md-6 mb-3">
                             <label for="id_deptoResidencia" class="form-label">Departamento *</label>
                             <select name="deptoResidencia" class="form-select departamento-select" id="id_deptoResidencia"  data-target="#id_mpioResidencia" required>
                                 {% for dpto in query_dpto %}
@@ -195,27 +227,27 @@
                             </select>
                         </div>
                         {% comment %}  {% endcomment %}
-                        <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                        <div class="col-12 col-md-6 mb-3">
                             <label for="id_mpioResidencia" class="form-label">Municipio Residencia *</label>
                             <select id="id_mpioResidencia" name="mpioResidencia" class="form form-control" required>
                                 <option value="">Seleccione un municipio</option>
                             </select>
                         </div>
-                        <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                        <div class="col-12 col-md-6 mb-3">
                             <label for="id_email" class="form-label">Correo Electronico *</label>
                             <input type="email" class="form-control input-email" name="email" id="id_email" autocomplete="off" lowercase required>
                         </div>
-                        <div class="col-12 col-xl-2 col-lg-4 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-4 col-md-6 mb-3">
                             <label for="id_numResidencia" class="form-label">Telefono Residencia</label>
                             <input type="number" class="form-control" name="numResidencia" id="id_numResidencia" min="0">
                         </div>
-                        <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-4 col-md-6 mb-3">
                             <label for="id_indicativo" class="form-label">Indicativo *</label>
                             <select class="form-control" name="indicativo" id="id_indicativo" required>
                                 <!-- Aquí se llenarán los países con banderas -->
                             </select>
                         </div>
-                        <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-4 col-md-6 mb-3">
                             <label for="id_numCelular" class="form-label">Telefono Celular *</label>
                             <input type="number" class="form-control" name="numCelular" id="id_numCelular" min="0" required>
                         </div>
@@ -223,7 +255,6 @@
                 </div>
                 
                 {% comment %} Fila 6 {% endcomment %}
-               
                 
                 <hr>
                 {% comment %} Fila 7 {% endcomment %}
@@ -248,9 +279,10 @@
                 <hr>
 
                 {% comment %} Fila 9 {% endcomment %}
+                <center><h4>NIVEL EDUCATIVO</h4></center>
                 <div class="container">
                     <div class="row">
-                        <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-4 col-md-6 mb-3">
                             <label for="id_nivelEducativo" class="form-label">Nivel Educativo</label>
                             <select name="nivelEducativo" class="form-select" id="id_nivelEducativo">
                                 <option value="PRIMARIA">PRIMARIA</option>
@@ -263,11 +295,11 @@
                                 <option value="DOCTORADO">DOCTORADO</option>
                             </select>
                         </div>
-                        <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-4 col-md-6 mb-3">
                             <label for="id_tituloPregrado" class="form-label">Titulo Obtenido de Pregrado</label>
                             <input type="text" class="form-control input-form" name="tituloPregrado" maxlength="100" id="id_tituloPregrado">
                         </div>
-                        <div class="col-12 col-xl-4 col-lg-12 col-md-12 mb-3">
+                        <div class="col-12 col-xxl-4 col-md-12 mb-3">
                             <label for="id_tituloPosgrado" class="form-label">Titulo Obtenido de Posgrado</label>
                             <input type="text" class="form-control input-form" name="tituloPosgrado" maxlength="100" id="id_tituloPosgrado">
                         </div>
@@ -276,14 +308,14 @@
                     
                 <hr>
 
-                <center><h3>REFERENCIA FAMILIAR</h3></center>
+                <center><h4>REFERENCIA FAMILIAR</h4></center>
                 <div class="container">
                     <div class="row">
-                        <div class="col-12 col-xl-4 col-lg-12 col-md-12 mb-3">
+                        <div class="col-12 col-xxl-4 col-md-12 mb-3">
                             <label for="id_nombreRF" class="form-label">Nombre Familiar de Contacto *</label>
                             <input type="text" class="form-control input-form" name="nombreRF" maxlength="50" id="id_nombreRF" required>
                         </div>
-                        <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-4 col-md-6 mb-3">
                             <label for="id_parentesco" class="form-label">Parentesco *</label>
                             <select name="parentesco" class="form-select" id="id_parentesco">
                                 {% for parent in query_parentesco %}
@@ -291,7 +323,7 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-4 col-md-6 mb-3">
                             <label for="id_numContacto" class="form-label">Teléfono de Familiar *</label>
                             <input type="number" class="form-control" name="numContacto" min="0" id="id_numContacto" required>
                         </div>
@@ -300,15 +332,15 @@
                     
                 <hr>
                 <div class="col-12">
-                    <h3 class="text-center">FORMA DE PAGO</h3>
+                    <h4 class="text-center">FORMA DE PAGO</h4>
                 </div>
                 <div class="container">
                     <div class="row">
-                        <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-3 col-md-6 mb-3">
                             <label for="id_valorVinculacion" class="form-label">Valor Vinculación</label>
                             <input type="number" value="{{query_tarifa}}" class="form-control" name="valorVinculacion" id="id_valorVinculacion" min="0" readonly>
                         </div>
-                        <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                        <div class="col-12 col-xxl-3 col-md-6 mb-3">
                             <label for="id_formaPago" class="form-label">Forma de Pago</label>
                             <select name="formaPago" class="form-select" id="id_formaPago">
                                 {% for formaPago in query_formaPago %}
@@ -317,11 +349,11 @@
                             </select>
                         </div>
 
-                        <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3 d-none inputOculto">
+                        <div class="col-12 col-xxl-3 col-md-6 mb-3 d-none inputOculto">
                             <label for="id_cuotasPago" class="form-label">Número de Cuotas</label>
                             <input type="number" class="form-control" name="cuotasPago" id="id_cuotasPago" min="1" value="3">
                         </div>
-                        <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3 d-none inputOculto">
+                        <div class="col-12 col-xxl-3 col-md-6 mb-3 d-none inputOculto">
                             <label for="id_valorCuota" class="form-label">Valor Cuota</label>
                             <input type="number" class="form-control" name="valorCuota" id="id_valorCuota" min="0" readonly>
                         </div>
@@ -352,14 +384,22 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/i18n/es.js"></script>
     <script src="{% static 'js/getMunicipios.js' %}"></script>
-    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- (Opcional) Bootstrap CSS y JS si tu formulario los usa -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
+    
         document.addEventListener('DOMContentLoaded', function () {
             const formaPago = document.getElementById('id_formaPago');
             const valorVinculacion = document.getElementById('id_valorVinculacion');
             const inputCuotas = document.getElementById('id_cuotasPago');
             const inputValorCuota = document.getElementById('id_valorCuota');
             const inputTipoAsociado = document.getElementById('id_tAsociado');
+            const form = document.getElementById('formCrearAsociado');
             
             if (inputTipoAsociado){
                 inputTipoAsociado.addEventListener('change', function () {
@@ -420,6 +460,80 @@
                     inputValorCuota.value = '';
                 }
             }
+
+            // Función global para mostrar un toast
+            function showToast(icon, message, timer = 3500) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: icon,
+                    title: message,
+                    showConfirmButton: false,
+                    timer: timer,
+                    timerProgressBar: true,
+                });
+            }
+
+            // Escucha el evento submit del formulario
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault(); // evita recargar la página
+
+                const url = form.getAttribute('data-url');
+                const formData = new FormData(form);
+
+                try {
+                    // (Opcional) Mostrar un toast de carga
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        title: 'Guardando...',
+                        icon: 'info',
+                        showConfirmButton: false,
+                        timerProgressBar: true,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        },
+                    });
+
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    const data = await response.json();
+
+                    Swal.close(); // cierra el toast de carga
+
+                    if (data.ok) {
+                        {% comment %} showToast('success', data.mensaje);
+
+                        // Redirige tras 2 segundos
+                        setTimeout(() => {
+                            window.location.href = data.redirect;
+                        }, 2000); {% endcomment %}
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Éxito!',
+                            text: data.message || 'Operación completada correctamente.',
+                            confirmButtonText: 'Continuar',
+                            confirmButtonColor: '#3085d6',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // Redirige a la página que desees
+                                window.location.href = data.redirect || '/';
+                            }
+                        });
+
+                    } else {
+                        showToast('error', data.mensaje);
+                    }
+
+                } catch (error) {
+                    Swal.close();
+                    showToast('error', 'Error inesperado: ' + error.message);
+                }
+            });
+
         });
 
     </script>

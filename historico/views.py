@@ -108,7 +108,8 @@ class ModalPago(ListView):
         ).aggregate(
             total_tarifa_asociado=Sum(
                 F("cuotaMascota")
-                + F("cuotaRepatriacion")
+                + F("cuotaRepatriacionBeneficiarios")
+                + F("cuotaRepatriacionTitular")
                 + F("cuotaSeguroVida")
                 + F("cuotaAdicionales")
                 + F("cuotaCoohopAporte")

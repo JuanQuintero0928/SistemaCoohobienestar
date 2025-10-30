@@ -32,243 +32,243 @@ function loadImage(url) {
 }
 
 // Funcion que obtiene todos los datos del formulario para rellenarlos en el pdf
-// async function llamarPDF(numFormato, url) {
-//     // Obtenemos la informacion del model Asociado, del template formatos.html por medio de su id  
-//     switch(numFormato){
-//         // Formato Actualizacion y registro de asociado
-//         case 1:
-//             let actualizacion = document.getElementById('id_actualizacion').value;
-//             let fechaHoy = document.getElementById('id_fechaActual').value;
-//             let tPersona = document.getElementById('id_tPersona').value;
-//             let nombre = document.getElementById('id_nombre').value;
-//             let apellido = document.getElementById('id_apellido').value;
-//             let tipoDocumento = document.getElementById('id_tipoDocumento').value;
-//             let numDocumento = document.getElementById('id_numDocumento').value;
-//             let fechaExpedicion = document.getElementById('id_fechaExpedicion').value;
-//             let mpioDoc = document.getElementById('id_mpioDoc').value;
-//             let nacionalidad = document.getElementById('id_nacionalidad').value;
-//             let genero = document.getElementById('id_genero').value;
-//             let estadoCivil = document.getElementById('id_estadoCivil').value;
-//             let email = document.getElementById('id_email').value;
-//             let numResidencia = document.getElementById('id_numResidencia').value;
-//             let numCelular = document.getElementById('id_numCelular').value;
-//             let envioInfoCorreo = document.getElementById('id_envioInfoCorreo').value;
-//             let envioInfoMensaje = document.getElementById('id_envioInfoMensaje').value;
-//             let envioInfoWhatsapp = document.getElementById('id_envioInfoWhatsapp').value;
-//             let nivelEducativo = document.getElementById('id_nivelEducativo').value;
-//             let tituloPregrado = document.getElementById('id_tituloPregrado').value;
-//             let tituloPosgrado = document.getElementById('id_tituloPosgrado').value;
-//             let fechaNacimiento = document.getElementById('id_fechaNacimiento').value;
-//             let dtoNacimiento = document.getElementById('id_dtoNacimiento').value;
-//             let mpioNacimiento = document.getElementById('id_mpioNacimiento').value;
-//             let tipoVivienda = document.getElementById('id_tipoVivienda').value;
-//             let estrato = document.getElementById('id_estrato').value;
-//             let direccion = document.getElementById('id_direccion').value;
-//             let barrio = document.getElementById('id_barrio').value;
-//             let deptoResidencia = document.getElementById('id_deptoResidencia').value;
-//             let mpioResidencia = document.getElementById('id_mpioResidencia').value;
-//             // Obtenemos la informacion del model Laboral, del template formatos.html por medio de su id
-//             let ocupacion = document.getElementById('id_ocupacion').value;
-//             let nombreEmpresa = document.getElementById('id_nombreEmpresa').value;
-//             let cargo = document.getElementById('id_cargo').value;
-//             let nomRepresenLegal = document.getElementById('id_nomRepresenLegal').value;
-//             let numDocRL = document.getElementById('id_numDocRL').value;
-//             let fechaInicio = document.getElementById('id_fechaInicio').value;
-//             let fechaTerminacion = document.getElementById('id_fechaTerminacion').value;
-//             let direccionLab = document.getElementById('id_direccionLab').value;
-//             let mpioTrabajo = document.getElementById('id_mpioTrabajo').value;
-//             let dptoTrabajo = document.getElementById('id_dptoTrabajo').value;
-//             let telefono = document.getElementById('id_telefono').value;
-//             let admRP = document.getElementById('id_admRP').value;
-//             let pep = document.getElementById('id_pep').value;
-//             let activEcono = document.getElementById('id_activEcono').value;
-//             let ciiu = document.getElementById('id_ciiu').value;
-//             let banco = document.getElementById('id_banco').value;
-//             let numCuenta = document.getElementById('id_numCuenta').value;
-//             let tipoCuenta = document.getElementById('id_tipoCuenta').value;
-//             let nombreRF = document.getElementById('id_nombreRF').value;
-//             let parentesco = document.getElementById('id_parentesco').value;
-//             let numContacto = document.getElementById('id_numContacto').value;
-//             let autorizaciondcto = document.getElementById('id_autorizaciondcto').value;
-//             let empresa = document.getElementById('id_empresa').value;
-//             // Obtenemos la informacion del model Financiera, del template formatos.html por medio de su id
-//             let ingresosActPrin = document.getElementById('id_ingresosActPrin').value;
-//             let otroIngreso1 = document.getElementById('id_otroIngreso1').value;
-//             let otroIngreso2 = document.getElementById('id_otroIngreso2').value;
-//             let egresos = document.getElementById('id_egresos').value;
-//             let activos = document.getElementById('id_activos').value;
-//             let pasivos = document.getElementById('id_pasivos').value;
-//             let patrimonio = document.getElementById('id_patrimonio').value;
-//             // Obtenemos informacion del usuario que realiza la operacion
-//             let usuario = document.getElementById('usuario').value;
-//             generarPDF(url, nombre, apellido, tipoDocumento, numDocumento, fechaExpedicion, mpioDoc, nacionalidad, fechaNacimiento, genero, estadoCivil, email, numResidencia, numCelular,envioInfoCorreo, envioInfoMensaje, envioInfoWhatsapp, nivelEducativo, tituloPregrado, tituloPosgrado, dtoNacimiento, mpioNacimiento, tipoVivienda, estrato, direccion, barrio, deptoResidencia, mpioResidencia, ocupacion, nombreEmpresa, cargo, nomRepresenLegal, numDocRL, fechaInicio, fechaTerminacion, direccionLab, mpioTrabajo, dptoTrabajo, telefono, admRP, pep, activEcono, ciiu, banco, numCuenta, tipoCuenta, actualizacion, tPersona, fechaHoy, nombreRF, parentesco, numContacto, autorizaciondcto, empresa, ingresosActPrin, otroIngreso1, otroIngreso2, egresos, activos, pasivos, patrimonio, usuario);
-//         break
-//         // Formato Actualizacion servicios exequiales
-//         case 2:
-//             let actualizacionF2 = document.getElementById('id_actualizacion').value;
-//             let tPersonaF2 = document.getElementById('id_tPersona').value;
-//             let fechaHoyF2 = document.getElementById('id_fechaActual').value;
-//             let nombreF2 = document.getElementById('id_nombre').value;
-//             let apellidoF2 = document.getElementById('id_apellido').value;
-//             let tipoDocumentoF2 = document.getElementById('id_tipoDocumento').value;
-//             let numDocumentoF2 = document.getElementById('id_numDocumento').value;
-//             let emailF2 = document.getElementById('id_email').value;
-//             let numCelularF2 = document.getElementById('id_numCelular').value;
-//             let envioInfoCorreoF2 = document.getElementById('id_envioInfoCorreo').value;
-//             let envioInfoMensajeF2 = document.getElementById('id_envioInfoMensaje').value;
-//             let envioInfoWhatsappF2 = document.getElementById('id_envioInfoWhatsapp').value;
-//             let fechaNacimientoF2 = document.getElementById('id_fechaNacimiento').value;
-//             let direccionF2 = document.getElementById('id_direccion').value;
-//             let barrioF2 = document.getElementById('id_barrio').value;
-//             let mpioResidenciaF2 = document.getElementById('id_mpioResidencia').value;
-//             let numContactoF2 = document.getElementById('id_numContacto').value;
-//             // Obtenemos la informacion del model Beneficiarios, del template formatos.html por medio de su id
-//             let cuentaBeneficiarios = document.getElementById('id_cuentaBeneficiario').value;
-//             let arrayBeneficiarios = [];
-//             for(let i = 1; i <= cuentaBeneficiarios ; i++){
-//                 let nombre = (document.getElementById('id_nombreBenef_'+i).value);
-//                 let apellido = (document.getElementById('id_apellidoBenef_'+i).value);
-//                 let numDocu = (document.getElementById('id_numDocume_'+i).value);
-//                 let parentesco = (document.getElementById('id_parentesco_'+i).value);
-//                 let nac = (document.getElementById('id_NacBen_'+i).value);
-//                 let repatriacion = (document.getElementById('id_paisRepatriacion_'+i).value);
-//                 let ciudadRepatriacion = (document.getElementById('id_ciudadRepatriacion_'+i).value);
-//                 arrayBeneficiarios.push([nombre, apellido, numDocu, parentesco, nac, repatriacion, ciudadRepatriacion]);
-//             }
-//             // Obtenemos la informacion del model Mascota, del template formatos.html por medio de su id
-//             let cuentaMascota = document.getElementById('id_cuentaMascota').value;
-//             let arrayMascotas = [];
-//             if(cuentaMascota > 0){
-//                 for(let i = 1; i <= cuentaMascota ; i++){
-//                     let nombreMasc = (document.getElementById('id_nombreMasc_'+i).value);
-//                     let tipoMasc = (document.getElementById('id_tipoMasc_'+i).value);
-//                     let raza = (document.getElementById('id_raza_'+i).value);
-//                     let nacMasc = (document.getElementById('id_nacMasc_'+i).value);
-//                     let vacunas = (document.getElementById('id_vacunas_'+i).value);
-//                     arrayMascotas.push([nombreMasc, tipoMasc, raza, nacMasc, vacunas]);
-//                 }
-//             }
-//             generarPDFf2(url, actualizacionF2, tPersonaF2, fechaHoyF2, nombreF2, apellidoF2, tipoDocumentoF2, numDocumentoF2, emailF2, numCelularF2, direccionF2, barrioF2, mpioResidenciaF2, numContactoF2, cuentaBeneficiarios, arrayBeneficiarios, arrayMascotas, envioInfoCorreoF2, envioInfoMensajeF2, envioInfoWhatsappF2)
-//         break
-//         // Formato Solicitud auxilio
-//         case 3:
-//             let fechaHoyF3 = document.getElementById('id_fechaActual').value;
-//             let nombreF3 = document.getElementById('id_nombre').value;
-//             let apellidoF3 = document.getElementById('id_apellido').value;
-//             let tipoDocumentoF3 = document.getElementById('id_tipoDocumento').value;
-//             let numDocumentoF3 = document.getElementById('id_numDocumento').value;
-//             let fechaExpedicionF3 = document.getElementById('id_fechaExpedicion').value;
-//             let mpioDocF3 = document.getElementById('id_mpioDoc').value;
-//             let emailF3 = document.getElementById('id_email').value;
-//             let numCelularF3 = document.getElementById('id_numCelular').value;
-//             let envioInfoCorreoF3 = document.getElementById('id_envioInfoCorreo').value;
-//             let envioInfoMensajeF3 = document.getElementById('id_envioInfoMensaje').value;
-//             let envioInfoWhatsappF3 = document.getElementById('id_envioInfoWhatsapp').value;
-//             let direccionF3 = document.getElementById('id_direccion').value;
-//             let barrioF3 = document.getElementById('id_barrio').value;
-//             let mpioResidenciaF3 = document.getElementById('id_mpioResidencia').value;
-//             let fechaNacimientoF3 = document.getElementById('id_fechaNacimiento').value;
-//             // Obtenemos la informacion del model Laboral, del template formatos.html por medio de su id
-//             let nombreEmpresaF3 = document.getElementById('id_nombreEmpresa').value;
-//             let cargoF3 = document.getElementById('id_cargo').value;
-//             let telefonoF3 = document.getElementById('id_telefono').value;
-//             // Obtenemos la informacion del model Financiera, del template formatos.html por medio de su id
-//             let ingresosActPrinF3 = document.getElementById('id_ingresosActPrin').value;
-//             let bancoF3 = document.getElementById('id_banco').value;
-//             let numCuentaF3 = document.getElementById('id_numCuenta').value;
-//             // Obtenemos la informacion del model HistoricoAuxilio, del template formatos.html por medio de su id
-//             let tipoAuxilio = document.getElementById('id_tipoAuxilio').value;
-//             let nombre2 = document.getElementById('id_nombre2').value;
-//             let numDoc2 = document.getElementById('id_numDoc2').value;
-//             let parentescoF3 = document.getElementById('id_parentesco').value;
-//             let nivelEducativoF3 = document.getElementById('id_nivelEducativo').value;
-//             let anexoOne = document.getElementById('id_anexoOne').value;
-//             let anexoTwo = document.getElementById('id_anexoTwo').value;
-//             let anexoThree = document.getElementById('id_anexoThree').value;
-//             let anexoFour = document.getElementById('id_anexoFour').value;
-//             let anexoFive = document.getElementById('id_anexoFive').value;
-//             let anexoSix = document.getElementById('id_anexoSix').value;
-//             let anexoSeven = document.getElementById('id_anexoSeven').value;
-//             let anexoEight = document.getElementById('id_anexoEight').value;
-//             generarPDFf3(url, fechaHoyF3, nombreF3, apellidoF3, tipoDocumentoF3, numDocumentoF3, fechaExpedicionF3, mpioDocF3, emailF3, numCelularF3, direccionF3, barrioF3, mpioResidenciaF3, fechaNacimientoF3, nombreEmpresaF3, cargoF3, telefonoF3, ingresosActPrinF3, bancoF3, numCuentaF3, nombre2, numDoc2, parentescoF3, nivelEducativoF3, anexoOne, anexoTwo, anexoThree, anexoFour, anexoFive, anexoSix, anexoSeven, anexoEight, envioInfoCorreoF3, envioInfoMensajeF3, envioInfoWhatsappF3, tipoAuxilio)
-//         break
-//         // Formato Extracto
-//         case 4:
-//             let fechaCorte = document.getElementById('id_fechaCorte').value;
-//             let nombreF4 = document.getElementById('id_nombre').value;
-//             let numDocF4 = document.getElementById('id_numDoc').value;
-//             let mpioResidenciaF4 = document.getElementById('id_mpioResidencia').value;
-//             let direccionF4 = document.getElementById('id_direccion').value;
-//             let numCelularF4 = document.getElementById('id_numCelular').value;
-//             let concepto1 = document.getElementById('id_concepto1').value;
-//             let saldo = document.getElementById('id_saldo').value;
-//             let cuotaVencida = document.getElementById('id_cuotaVencida').value;
-//             let cuotaMes1 = document.getElementById('id_cuotaMes').value;
-//             let totalConcepto1 = document.getElementById('id_totalConcepto1').value;
+async function llamarPDF(numFormato, url) {
+    // Obtenemos la informacion del model Asociado, del template formatos.html por medio de su id  
+    switch(numFormato){
+        // Formato Actualizacion y registro de asociado
+        case 1:
+            let actualizacion = document.getElementById('id_actualizacion').value;
+            let fechaHoy = document.getElementById('id_fechaActual').value;
+            let tPersona = document.getElementById('id_tPersona').value;
+            let nombre = document.getElementById('id_nombre').value;
+            let apellido = document.getElementById('id_apellido').value;
+            let tipoDocumento = document.getElementById('id_tipoDocumento').value;
+            let numDocumento = document.getElementById('id_numDocumento').value;
+            let fechaExpedicion = document.getElementById('id_fechaExpedicion').value;
+            let mpioDoc = document.getElementById('id_mpioDoc').value;
+            let nacionalidad = document.getElementById('id_nacionalidad').value;
+            let genero = document.getElementById('id_genero').value;
+            let estadoCivil = document.getElementById('id_estadoCivil').value;
+            let email = document.getElementById('id_email').value;
+            let numResidencia = document.getElementById('id_numResidencia').value;
+            let numCelular = document.getElementById('id_numCelular').value;
+            let envioInfoCorreo = document.getElementById('id_envioInfoCorreo').value;
+            let envioInfoMensaje = document.getElementById('id_envioInfoMensaje').value;
+            let envioInfoWhatsapp = document.getElementById('id_envioInfoWhatsapp').value;
+            let nivelEducativo = document.getElementById('id_nivelEducativo').value;
+            let tituloPregrado = document.getElementById('id_tituloPregrado').value;
+            let tituloPosgrado = document.getElementById('id_tituloPosgrado').value;
+            let fechaNacimiento = document.getElementById('id_fechaNacimiento').value;
+            let dtoNacimiento = document.getElementById('id_dtoNacimiento').value;
+            let mpioNacimiento = document.getElementById('id_mpioNacimiento').value;
+            let tipoVivienda = document.getElementById('id_tipoVivienda').value;
+            let estrato = document.getElementById('id_estrato').value;
+            let direccion = document.getElementById('id_direccion').value;
+            let barrio = document.getElementById('id_barrio').value;
+            let deptoResidencia = document.getElementById('id_deptoResidencia').value;
+            let mpioResidencia = document.getElementById('id_mpioResidencia').value;
+            // Obtenemos la informacion del model Laboral, del template formatos.html por medio de su id
+            let ocupacion = document.getElementById('id_ocupacion').value;
+            let nombreEmpresa = document.getElementById('id_nombreEmpresa').value;
+            let cargo = document.getElementById('id_cargo').value;
+            let nomRepresenLegal = document.getElementById('id_nomRepresenLegal').value;
+            let numDocRL = document.getElementById('id_numDocRL').value;
+            let fechaInicio = document.getElementById('id_fechaInicio').value;
+            let fechaTerminacion = document.getElementById('id_fechaTerminacion').value;
+            let direccionLab = document.getElementById('id_direccionLab').value;
+            let mpioTrabajo = document.getElementById('id_mpioTrabajo').value;
+            let dptoTrabajo = document.getElementById('id_dptoTrabajo').value;
+            let telefono = document.getElementById('id_telefono').value;
+            let admRP = document.getElementById('id_admRP').value;
+            let pep = document.getElementById('id_pep').value;
+            let activEcono = document.getElementById('id_activEcono').value;
+            let ciiu = document.getElementById('id_ciiu').value;
+            let banco = document.getElementById('id_banco').value;
+            let numCuenta = document.getElementById('id_numCuenta').value;
+            let tipoCuenta = document.getElementById('id_tipoCuenta').value;
+            let nombreRF = document.getElementById('id_nombreRF').value;
+            let parentesco = document.getElementById('id_parentesco').value;
+            let numContacto = document.getElementById('id_numContacto').value;
+            let autorizaciondcto = document.getElementById('id_autorizaciondcto').value;
+            let empresa = document.getElementById('id_empresa').value;
+            // Obtenemos la informacion del model Financiera, del template formatos.html por medio de su id
+            let ingresosActPrin = document.getElementById('id_ingresosActPrin').value;
+            let otroIngreso1 = document.getElementById('id_otroIngreso1').value;
+            let otroIngreso2 = document.getElementById('id_otroIngreso2').value;
+            let egresos = document.getElementById('id_egresos').value;
+            let activos = document.getElementById('id_activos').value;
+            let pasivos = document.getElementById('id_pasivos').value;
+            let patrimonio = document.getElementById('id_patrimonio').value;
+            // Obtenemos informacion del usuario que realiza la operacion
+            let usuario = document.getElementById('usuario').value;
+            generarPDF(url, nombre, apellido, tipoDocumento, numDocumento, fechaExpedicion, mpioDoc, nacionalidad, fechaNacimiento, genero, estadoCivil, email, numResidencia, numCelular,envioInfoCorreo, envioInfoMensaje, envioInfoWhatsapp, nivelEducativo, tituloPregrado, tituloPosgrado, dtoNacimiento, mpioNacimiento, tipoVivienda, estrato, direccion, barrio, deptoResidencia, mpioResidencia, ocupacion, nombreEmpresa, cargo, nomRepresenLegal, numDocRL, fechaInicio, fechaTerminacion, direccionLab, mpioTrabajo, dptoTrabajo, telefono, admRP, pep, activEcono, ciiu, banco, numCuenta, tipoCuenta, actualizacion, tPersona, fechaHoy, nombreRF, parentesco, numContacto, autorizaciondcto, empresa, ingresosActPrin, otroIngreso1, otroIngreso2, egresos, activos, pasivos, patrimonio, usuario);
+        break
+        // Formato Actualizacion servicios exequiales
+        case 2:
+            let actualizacionF2 = document.getElementById('id_actualizacion').value;
+            let tPersonaF2 = document.getElementById('id_tPersona').value;
+            let fechaHoyF2 = document.getElementById('id_fechaActual').value;
+            let nombreF2 = document.getElementById('id_nombre').value;
+            let apellidoF2 = document.getElementById('id_apellido').value;
+            let tipoDocumentoF2 = document.getElementById('id_tipoDocumento').value;
+            let numDocumentoF2 = document.getElementById('id_numDocumento').value;
+            let emailF2 = document.getElementById('id_email').value;
+            let numCelularF2 = document.getElementById('id_numCelular').value;
+            let envioInfoCorreoF2 = document.getElementById('id_envioInfoCorreo').value;
+            let envioInfoMensajeF2 = document.getElementById('id_envioInfoMensaje').value;
+            let envioInfoWhatsappF2 = document.getElementById('id_envioInfoWhatsapp').value;
+            let fechaNacimientoF2 = document.getElementById('id_fechaNacimiento').value;
+            let direccionF2 = document.getElementById('id_direccion').value;
+            let barrioF2 = document.getElementById('id_barrio').value;
+            let mpioResidenciaF2 = document.getElementById('id_mpioResidencia').value;
+            let numContactoF2 = document.getElementById('id_numContacto').value;
+            // Obtenemos la informacion del model Beneficiarios, del template formatos.html por medio de su id
+            let cuentaBeneficiarios = document.getElementById('id_cuentaBeneficiario').value;
+            let arrayBeneficiarios = [];
+            for(let i = 1; i <= cuentaBeneficiarios ; i++){
+                let nombre = (document.getElementById('id_nombreBenef_'+i).value);
+                let apellido = (document.getElementById('id_apellidoBenef_'+i).value);
+                let numDocu = (document.getElementById('id_numDocume_'+i).value);
+                let parentesco = (document.getElementById('id_parentesco_'+i).value);
+                let nac = (document.getElementById('id_NacBen_'+i).value);
+                let repatriacion = (document.getElementById('id_paisRepatriacion_'+i).value);
+                let ciudadRepatriacion = (document.getElementById('id_ciudadRepatriacion_'+i).value);
+                arrayBeneficiarios.push([nombre, apellido, numDocu, parentesco, nac, repatriacion, ciudadRepatriacion]);
+            }
+            // Obtenemos la informacion del model Mascota, del template formatos.html por medio de su id
+            let cuentaMascota = document.getElementById('id_cuentaMascota').value;
+            let arrayMascotas = [];
+            if(cuentaMascota > 0){
+                for(let i = 1; i <= cuentaMascota ; i++){
+                    let nombreMasc = (document.getElementById('id_nombreMasc_'+i).value);
+                    let tipoMasc = (document.getElementById('id_tipoMasc_'+i).value);
+                    let raza = (document.getElementById('id_raza_'+i).value);
+                    let nacMasc = (document.getElementById('id_nacMasc_'+i).value);
+                    let vacunas = (document.getElementById('id_vacunas_'+i).value);
+                    arrayMascotas.push([nombreMasc, tipoMasc, raza, nacMasc, vacunas]);
+                }
+            }
+            generarPDFf2(url, actualizacionF2, tPersonaF2, fechaHoyF2, nombreF2, apellidoF2, tipoDocumentoF2, numDocumentoF2, emailF2, numCelularF2, direccionF2, barrioF2, mpioResidenciaF2, numContactoF2, cuentaBeneficiarios, arrayBeneficiarios, arrayMascotas, envioInfoCorreoF2, envioInfoMensajeF2, envioInfoWhatsappF2)
+        break
+        // Formato Solicitud auxilio
+        case 3:
+            let fechaHoyF3 = document.getElementById('id_fechaActual').value;
+            let nombreF3 = document.getElementById('id_nombre').value;
+            let apellidoF3 = document.getElementById('id_apellido').value;
+            let tipoDocumentoF3 = document.getElementById('id_tipoDocumento').value;
+            let numDocumentoF3 = document.getElementById('id_numDocumento').value;
+            let fechaExpedicionF3 = document.getElementById('id_fechaExpedicion').value;
+            let mpioDocF3 = document.getElementById('id_mpioDoc').value;
+            let emailF3 = document.getElementById('id_email').value;
+            let numCelularF3 = document.getElementById('id_numCelular').value;
+            let envioInfoCorreoF3 = document.getElementById('id_envioInfoCorreo').value;
+            let envioInfoMensajeF3 = document.getElementById('id_envioInfoMensaje').value;
+            let envioInfoWhatsappF3 = document.getElementById('id_envioInfoWhatsapp').value;
+            let direccionF3 = document.getElementById('id_direccion').value;
+            let barrioF3 = document.getElementById('id_barrio').value;
+            let mpioResidenciaF3 = document.getElementById('id_mpioResidencia').value;
+            let fechaNacimientoF3 = document.getElementById('id_fechaNacimiento').value;
+            // Obtenemos la informacion del model Laboral, del template formatos.html por medio de su id
+            let nombreEmpresaF3 = document.getElementById('id_nombreEmpresa').value;
+            let cargoF3 = document.getElementById('id_cargo').value;
+            let telefonoF3 = document.getElementById('id_telefono').value;
+            // Obtenemos la informacion del model Financiera, del template formatos.html por medio de su id
+            let ingresosActPrinF3 = document.getElementById('id_ingresosActPrin').value;
+            let bancoF3 = document.getElementById('id_banco').value;
+            let numCuentaF3 = document.getElementById('id_numCuenta').value;
+            // Obtenemos la informacion del model HistoricoAuxilio, del template formatos.html por medio de su id
+            let tipoAuxilio = document.getElementById('id_tipoAuxilio').value;
+            let nombre2 = document.getElementById('id_nombre2').value;
+            let numDoc2 = document.getElementById('id_numDoc2').value;
+            let parentescoF3 = document.getElementById('id_parentesco').value;
+            let nivelEducativoF3 = document.getElementById('id_nivelEducativo').value;
+            let anexoOne = document.getElementById('id_anexoOne').value;
+            let anexoTwo = document.getElementById('id_anexoTwo').value;
+            let anexoThree = document.getElementById('id_anexoThree').value;
+            let anexoFour = document.getElementById('id_anexoFour').value;
+            let anexoFive = document.getElementById('id_anexoFive').value;
+            let anexoSix = document.getElementById('id_anexoSix').value;
+            let anexoSeven = document.getElementById('id_anexoSeven').value;
+            let anexoEight = document.getElementById('id_anexoEight').value;
+            generarPDFf3(url, fechaHoyF3, nombreF3, apellidoF3, tipoDocumentoF3, numDocumentoF3, fechaExpedicionF3, mpioDocF3, emailF3, numCelularF3, direccionF3, barrioF3, mpioResidenciaF3, fechaNacimientoF3, nombreEmpresaF3, cargoF3, telefonoF3, ingresosActPrinF3, bancoF3, numCuentaF3, nombre2, numDoc2, parentescoF3, nivelEducativoF3, anexoOne, anexoTwo, anexoThree, anexoFour, anexoFive, anexoSix, anexoSeven, anexoEight, envioInfoCorreoF3, envioInfoMensajeF3, envioInfoWhatsappF3, tipoAuxilio)
+        break
+        // Formato Extracto
+        case 4:
+            let fechaCorte = document.getElementById('id_fechaCorte').value;
+            let nombreF4 = document.getElementById('id_nombre').value;
+            let numDocF4 = document.getElementById('id_numDoc').value;
+            let mpioResidenciaF4 = document.getElementById('id_mpioResidencia').value;
+            let direccionF4 = document.getElementById('id_direccion').value;
+            let numCelularF4 = document.getElementById('id_numCelular').value;
+            let concepto1 = document.getElementById('id_concepto1').value;
+            let saldo = document.getElementById('id_saldo').value;
+            let cuotaVencida = document.getElementById('id_cuotaVencida').value;
+            let cuotaMes1 = document.getElementById('id_cuotaMes').value;
+            let totalConcepto1 = document.getElementById('id_totalConcepto1').value;
 
-//             let concepto2 = document.getElementById('id_concepto2').value;
-//             let cuotaMes2 = document.getElementById('id_cuotaMes2').value;
-//             let totalConcepto2 = document.getElementById('id_totalConcepto2').value;
+            let concepto2 = document.getElementById('id_concepto2').value;
+            let cuotaMes2 = document.getElementById('id_cuotaMes2').value;
+            let totalConcepto2 = document.getElementById('id_totalConcepto2').value;
 
-//             let concepto3 = document.getElementById('id_concepto3').value;
-//             let cuotaMes3 = document.getElementById('id_cuotaMes3').value;
-//             let totalConcepto3 = document.getElementById('id_totalConcepto3').value;
+            let concepto3 = document.getElementById('id_concepto3').value;
+            let cuotaMes3 = document.getElementById('id_cuotaMes3').value;
+            let totalConcepto3 = document.getElementById('id_totalConcepto3').value;
 
-//             let concepto4 = document.getElementById('id_concepto4').value;
-//             let cuotaMes4 = document.getElementById('id_cuotaMes4').value;
-//             let totalConcepto4 = document.getElementById('id_totalConcepto4').value;
+            let concepto4 = document.getElementById('id_concepto4').value;
+            let cuotaMes4 = document.getElementById('id_cuotaMes4').value;
+            let totalConcepto4 = document.getElementById('id_totalConcepto4').value;
 
-//             let concepto5 = document.getElementById('id_concepto5').value;
-//             let cuotaMes5 = document.getElementById('id_cuotaMes5').value;
-//             let totalConcepto5 = document.getElementById('id_totalConcepto5').value;
+            let concepto5 = document.getElementById('id_concepto5').value;
+            let cuotaMes5 = document.getElementById('id_cuotaMes5').value;
+            let totalConcepto5 = document.getElementById('id_totalConcepto5').value;
 
-//             let concepto6 = document.getElementById('id_concepto6').value;
-//             let cuotaMes6 = document.getElementById('id_cuotaMes6').value;
-//             let totalConcepto6 = document.getElementById('id_totalConcepto6').value;
+            let concepto6 = document.getElementById('id_concepto6').value;
+            let cuotaMes6 = document.getElementById('id_cuotaMes6').value;
+            let totalConcepto6 = document.getElementById('id_totalConcepto6').value;
 
-//             // let concepto7 = document.getElementById('id_concepto7').value;
-//             // let cuotaMes7 = document.getElementById('id_cuotaMes7').value;
-//             // let totalConcepto7 = document.getElementById('id_totalConcepto7').value;
+            // let concepto7 = document.getElementById('id_concepto7').value;
+            // let cuotaMes7 = document.getElementById('id_cuotaMes7').value;
+            // let totalConcepto7 = document.getElementById('id_totalConcepto7').value;
             
-//             let arrayConveniosF4 = []
-//             const convenios = document.querySelectorAll(".convenio");
-//             convenios.forEach((c, index) => {
-//                 const concepto = c.querySelector(".concepto").value;
-//                 const cantidadMeses = c.querySelector(".cantidad_meses").value;
-//                 const valorMes = c.querySelector(".cuota_mes").value;
-//                 const total = c.querySelector(".valor_vencido_convenio").value;
-//                 arrayConveniosF4.push({
-//                     concepto: concepto,
-//                     cantidadMeses: parseInt(cantidadMeses),
-//                     valorMes: parseFloat(valorMes),
-//                     total: parseFloat(total)
-//                 });
-//             });
+            let arrayConveniosF4 = []
+            const convenios = document.querySelectorAll(".convenio");
+            convenios.forEach((c, index) => {
+                const concepto = c.querySelector(".concepto").value;
+                const cantidadMeses = c.querySelector(".cantidad_meses").value;
+                const valorMes = c.querySelector(".cuota_mes").value;
+                const total = c.querySelector(".valor_vencido_convenio").value;
+                arrayConveniosF4.push({
+                    concepto: concepto,
+                    cantidadMeses: parseInt(cantidadMeses),
+                    valorMes: parseFloat(valorMes),
+                    total: parseFloat(total)
+                });
+            });
 
-//             let pagoTotal = document.getElementById('id_pagoTotal').value;
-//             let mensaje = document.getElementById('id_mensaje').value;
-//             // Obtenemos la informacion del model Beneficiarios, del template formatos.html por medio de su id
-//             let cuentaBeneficiariosF4 = document.getElementById('id_cuentaBeneficiario').value;
-//             let arrayBeneficiariosF4 = [];
-//             for(let i = 1; i <= cuentaBeneficiariosF4 ; i++){
-//                 let nombre = (document.getElementById('id_nombreBenef_'+i).value);
-//                 let parentesco = (document.getElementById('id_parentesco_'+i).value);
-//                 let repatriacion = (document.getElementById('id_paisRepatriacion_'+i).value);
-//                 arrayBeneficiariosF4.push([nombre, parentesco, repatriacion]);
-//             }
-//             // Obtenemos la informacion del model Mascota, del template formatos.html por medio de su id
-//             let cuentaMascotaF4 = document.getElementById('id_cuentaMascota').value;
-//             let arrayMascotasF4 = [];
-//             if(cuentaMascotaF4 > 0){
-//                 for(let i = 1; i <= cuentaMascotaF4 ; i++){
-//                     let nombreMasc = (document.getElementById('id_nombreMasc_'+i).value);
-//                     arrayMascotasF4.push([nombreMasc]);
-//                 }
-//             }
-//             let pdf = generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF4, direccionF4, numCelularF4, concepto1, cuotaVencida, cuotaMes1, totalConcepto1, concepto2, cuotaMes2, totalConcepto2, concepto3, cuotaMes3, totalConcepto3, concepto4, cuotaMes4, totalConcepto4, concepto5, cuotaMes5, totalConcepto5, concepto6, cuotaMes6, totalConcepto6, arrayConveniosF4, pagoTotal, cuentaBeneficiariosF4, arrayBeneficiariosF4, arrayMascotasF4, saldo, mensaje)
-//             return pdf;
-//     }
-// }
+            let pagoTotal = document.getElementById('id_pagoTotal').value;
+            let mensaje = document.getElementById('id_mensaje').value;
+            // Obtenemos la informacion del model Beneficiarios, del template formatos.html por medio de su id
+            let cuentaBeneficiariosF4 = document.getElementById('id_cuentaBeneficiario').value;
+            let arrayBeneficiariosF4 = [];
+            for(let i = 1; i <= cuentaBeneficiariosF4 ; i++){
+                let nombre = (document.getElementById('id_nombreBenef_'+i).value);
+                let parentesco = (document.getElementById('id_parentesco_'+i).value);
+                let repatriacion = (document.getElementById('id_paisRepatriacion_'+i).value);
+                arrayBeneficiariosF4.push([nombre, parentesco, repatriacion]);
+            }
+            // Obtenemos la informacion del model Mascota, del template formatos.html por medio de su id
+            let cuentaMascotaF4 = document.getElementById('id_cuentaMascota').value;
+            let arrayMascotasF4 = [];
+            if(cuentaMascotaF4 > 0){
+                for(let i = 1; i <= cuentaMascotaF4 ; i++){
+                    let nombreMasc = (document.getElementById('id_nombreMasc_'+i).value);
+                    arrayMascotasF4.push([nombreMasc]);
+                }
+            }
+            let pdf = generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF4, direccionF4, numCelularF4, concepto1, cuotaVencida, cuotaMes1, totalConcepto1, concepto2, cuotaMes2, totalConcepto2, concepto3, cuotaMes3, totalConcepto3, concepto4, cuotaMes4, totalConcepto4, concepto5, cuotaMes5, totalConcepto5, concepto6, cuotaMes6, totalConcepto6, arrayConveniosF4, pagoTotal, cuentaBeneficiariosF4, arrayBeneficiariosF4, arrayMascotasF4, saldo, mensaje)
+            return pdf;
+    }
+}
 
 async function llamarPDFCredito(valor, cuotas, url, idCredito) {
     let fechaHoy_F5 = document.getElementById('id_fechaActual').value;
@@ -404,774 +404,606 @@ async function llamarPDFTablaAmortizacion(url, numDoc, fechaSolicitud, valor, cu
     descargarTablaAmortizacion(url, numDoc, fechaSolicitud, valor, cuotas, tasa, datos);
 }
 
-async function guardarFechaYGenerarPDF(asociadoId, urlImagen, tipoFormato) {
-    const inputFecha = document.getElementById('id_fechaActualizacionDatos');
-    const fecha = inputFecha.value;
-    const btn = document.getElementById('btnDescargar');
-    const btnText = document.getElementById('btnText');
-    const btnSpinner = document.getElementById('btnSpinner');
-
-    if (!fecha) {
-        alert("Por favor selecciona una fecha antes de continuar.");
-        return;
-    }
-
-    try {
-        // Guardar la nueva fecha en el backend
-        const response = await fetch(`/informacion/actualizarFechaActualizacion/${asociadoId}/`, {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": getCSRFToken(),
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: new URLSearchParams({ fechaActualizacionDatos: fecha })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            alert(data.error || "Error al guardar la fecha");
-            return;
-        }
-
-        // Si se guarda correctamente, generar el PDF
-        console.log("llega aca y llama funcion llamarPDF")
-        await llamarPDF(1, urlImagen, asociadoId, tipoFormato);
-
-    } catch (error) {
-        console.error("Error:", error);
-        alert("Ocurrió un error al guardar la fecha");
-    }
-}
-
-
-// Obtener CSRF del cookie
-function getCSRFToken() {
-    return document.cookie.split('; ')
-        .find(row => row.startsWith('csrftoken='))
-        ?.split('=')[1];
-}
-
-
-function mostrarSpinner(boton) {
-    if (!boton) return;
-    const btnText = boton.querySelector('.btnText');
-    const btnSpinner = boton.querySelector('.btnSpinner');
-
-    if (btnText && btnSpinner) {
-        boton.disabled = true;
-        btnText.textContent = "";
-        btnSpinner.classList.remove('d-none');
-    }
-}
-
-function ocultarSpinner(boton) {
-    if (!boton) return;
-    const btnText = boton.querySelector('.btnText');
-    const btnSpinner = boton.querySelector('.btnSpinner');
-
-    if (btnText && btnSpinner) {
-        boton.disabled = false;
-        btnText.textContent = "";
-        btnSpinner.classList.add('d-none');
-        btnText.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-pdf" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
-            </svg>`;
-    }
-}
-
-
-// Funcion para obtener la informacion del formato registro asociado
-async function cargarDatosFormatoRegistro(asociadoId, tipoFormato) {
-    const response = await fetch(`/api/obtener_datos_formato_registro/${asociadoId}/${tipoFormato}/`);
-    const datos = await response.json();
-    return datos;
-}
-
-
-// Funcion para obtener la informacion del formato de solicitud servicio exequial
-async function cargarDatosFormatoServiciosExequiales(asociadoId, tipoFormato) {
-    const response = await fetch(`/api/obtener_datos_servicios_exequiales/${asociadoId}/${tipoFormato}/`);
-    const datos = await response.json();
-    return datos;
-}
-
-
-// Funcion para obtener la informacion del formato de solicitud de auxilio economico
-async function cargarDatosFormatoAuxilioEconomico(asociadoId, tipoFormato, auxilioId) {
-    const response = await fetch(`/api/obtener_datos_auxilio_economico/${asociadoId}/${tipoFormato}/${auxilioId}/`);
-    const datos = await response.json();
-    return datos;
-}
-
-
-// Funcion global de los formatos
-async function llamarPDF(formato, url, asociadoId, tipoFormato, opciones = {}, boton = null) {
-    // try {
-
-        if ([1, 2, 3].includes(formato)){
-            mostrarSpinner(boton);
-        }
-
-        // Formato Registro y actualizacion de datos asociados
-        if (formato == 1) {
-            const datos = await cargarDatosFormatoRegistro(asociadoId, tipoFormato);
-            await generarPDFRegistro(url, datos);
-        } 
-        // Formato Actualizacion servicios exequiales
-        else if (formato == 2) {
-            const datos = await cargarDatosFormatoServiciosExequiales(asociadoId, tipoFormato);
-            await generarPDFServiciosExequiales(url, datos);
-        }
-        // Formato Solicitud Auxilio Economico
-        else if  (formato == 3) {
-            const auxilioId = opciones.id_auxilio ?? null;
-            const datos = await cargarDatosFormatoAuxilioEconomico(asociadoId, tipoFormato, auxilioId);
-            await generarPDFAuxilioEconomico(url, datos);
-        }
-    // }
-    //  catch (error) {
-    //     console.log(error);
-    //     alert("Ocurrió un problema al generar el formato. Recargue la página e intente nuevamente. Si el error persiste comunicarse con el administrador.")
-    // } finally {
-    //     if ([1, 2, 3].includes(formato)){
-    //         ocultarSpinner(boton);
-    //     }
-    // }
-}
-
 // Formato 1
 // Formato de registro y actualizacion
-async function generarPDFRegistro(url, datos) {
+async function generarPDF(url, nombre, apellido, tipoDocumento, numDocumento, fechaExpedicion, mpioDoc, nacionalidad, fechaNacimiento, genero, estadoCivil, email, numResidencia, numCelular,envioInfoCorreo, envioInfoMensaje, envioInfoWhatsapp, nivelEducativo, tituloPregrado, tituloPosgrado, dtoNacimiento, mpioNacimiento, tipoVivienda, estrato, direccion, barrio, deptoResidencia, mpioResidencia, ocupacion, nombreEmpresa, cargo, nomRepresenLegal, numDocRL, fechaInicio, fechaTerminacion, direccionLab, mpioTrabajo, dptoTrabajo, telefono, admRP, pep, activEcono, ciiu, banco, numCuenta, tipoCuenta, actualizacion, tPersona, fechaHoy, nombreRF, parentesco, numContacto, autorizaciondcto, empresa, ingresosActPrin, otroIngreso1, otroIngreso2, egresos, activos, pasivos, patrimonio, usuario) {
 
     const image = await loadImage(url);
     const pdf = new jsPDF('p', 'pt', 'legal');
     pdf.addImage(image, 'PNG', 0, 0, 613, 1010);
 
-    // Globales
-    pdf.setFontSize(9);
-    pdf.setFont("verdana", "normal");
+    pdf.setFontSize(12);
 
-    const coordenadas = {
-        tipoPersona : {
-            "PERSONA NATURAL": { x: 22.4, y: 140.5 },
-            "PERSONA JURIDICA": { x: 223, y: 140.5 },
-            "ACTUALIZACION": { x: 411.7, y: 140.5 }
-        },
-        tipoDocumento : {
-            "REGISTRO CIVIL": { x: 19.7, y: 326.4 },
-            "TARJETA IDENTIDAD" : { x: 40.4, y: 326.4 },
-            "CEDULA" : { x: 62.4, y: 326.4 },
-            "CEDULA EXTRANJERA" : { x: 82.4, y: 326.4 },
-            "PASAPORTE" : { x: 105.1, y: 326.4 }
-        },
-        genero : {
-            "FEMENINO": {x: 505.7, y: 372.9},
-            "MASCULINO": {x: 560.4, y: 372.9},
-        },
-        estadoCivil : {
-            "SOLTERO(A)": {x: 29, y: 400.9},
-            "CASADO(A)": {x: 71.7, y: 400.9},
-            "UNION LIBRE": {x: 115.7, y: 400.9},
-            "SEPARADO(A)": {x: 159, y: 400.9},
-            "DIVORCIADO(A)": {x: 209.7, y: 400.9},
-            "VIUDO(A)": {x: 256, y: 400.9},
-        },
-        tipoVivienda : {
-            "PROPIA": {x: 291.7, y: 400.9},
-            "FAMILIAR": {x: 345, y: 400.9},
-            "ARRENDADA": {x: 401.7, y: 400.9},
-        },
-        estrato : {
-            1 : {x: 22.4, y: 429.5},
-            2 : {x: 42.4, y: 429.5},
-            3 : {x: 63.7, y: 429.5},
-            4 : {x: 85.7, y: 429.5},
-            5 : {x: 108.4, y: 429.5},
-            6 : {x: 130.4, y: 429.5},
-        },
-        nivelEducativo : {
-            "PRIMARIA": {x: 31.7, y: 549.5},
-            "SECUNDARIA": {x: 71, y: 549.5},
-            "TECNICO": {x: 117.7, y: 549.5},
-            "TECNOLOGICO": {x: 174.4, y: 549.5},
-            "PREGRADO": {x: 240.4, y: 549.5},
-            "ESPECIALIZACION": {x: 304.4, y: 549.5},
-            "MAESTRIA": {x: 361.7, y: 549.5},
-            "DOCTORADO":{x: 400, y: 549.5},
-        },
-        ocupacion : {
-            "ESTUDIANTE": {x: 40.4, y: 635.3}, 
-            "EMPLEADO": {x: 93.7, y: 635.3},
-            "PENSIONADO": {x: 147, y: 635.3},
-            "INDEPENDIENTE": {x: 223.7, y: 635.3},
-            "COMERCIANTE": {x: 305, y: 635.3},
-            "HOGAR": {x: 361.7, y: 635.3},
-            "CESANTE": {x: 402.4, y: 635.3},
-        },
-        tipoEmpresa : {
-            "PUBLICA": {x: 33, y: 664},
-            "PRIVADA": {x: 72.4, y: 664},
-            "MIXTA": {x: 118, y: 664},
-        },
-        tipoContrato: {
-            "INDEFINIDO": {x: 292.4, y:694.7},
-            "TERMINO FIJO": {x: 346, y:694.7},
-            "OBRA O LABOR": {x: 401, y:694.7},
-            "PRESTACION SERVICIOS": {x: 469, y:694.7},
-            "HONORARIOS": {x: 551, y:694.7},
-        }
+    // fecha encabezado
+    var arrFechaHoy = fechaHoy.split("-")
+    pdf.text(arrFechaHoy[2], 253,135);
+    pdf.text(arrFechaHoy[1], 292,135);
+    pdf.text(arrFechaHoy[0], 332,135);
+
+    // renglon 0
+    if(actualizacion == "True"){
+        pdf.text("X", 411, 157);
+    }else if(tPersona == "PERSONA NATURAL"){
+        pdf.text("X", 22, 157);
+    }else{
+        pdf.text("X", 222, 157);
     }
 
-    var nombreCompleto = datos.nombre + ' ' + datos.apellido;
-    var arrFechaHoy = datos.fechaFormateada.split("/")
-    
-    // Tipo persona y actualizacion y radicado
-    pdf.text(datos.fechaFormateada, 285, 119.8);
-    pdf.text(datos.numeroRadicado, 470, 119);
-    const coordTipoPersona = coordenadas.tipoPersona[datos.tPersona] || coordenadas.tipoPersona["OTRO"];
-    writeBoldText(pdf, "X", coordTipoPersona.x, coordTipoPersona.y, 10);
-
-    // Vinculo estatutario
-    pdf.text(nombreCompleto, 38.4, 181.1);
-    pdf.text(datos.numDocumento, 486, 181.1);
-    pdf.text(datos.mpioDoc, 21.7, 191.2);
-    pdf.text("9.5", 285, 228.8);
-
-    // Datos personales
     // renglon 1
-    pdf.text(datos.nombre, 21.7,298.4);
-    pdf.text(datos.apellido, 325.7, 298.4);
+    pdf.text(nombre, 20,219);
+    pdf.text(apellido, 322,219);
 
     // renglon 2
-    const coordTipoDocumento = coordenadas.tipoDocumento[datos.tipoDocumento];
-    writeBoldText(pdf, "X", coordTipoDocumento.x, coordTipoDocumento.y, 10);
-    pdf.text(datos.numDocumento, 177.7, 326.4);
-    var arrFechaExp = datos.fechaExpedicion.split("-")
-    pdf.text(arrFechaExp[2], 327, 326.4);
-    pdf.text(arrFechaExp[1], 358, 326.4);
-    pdf.text(arrFechaExp[0], 391, 326.4);
-    pdf.text(datos.mpioDoc, 435.7, 326.4);
+    if(tipoDocumento == 'CEDULA'){
+        pdf.text("X", 40, 252);
+    }else if (tipoDocumento == 'REGISTRO CIVIL'){
+        pdf.text("X", 20, 252);
+    }else if(tipoDocumento == 'TARJETA IDENTIDAD'){
+        pdf.text("X", 62, 252);
+    }else if(tipoDocumento == 'CEDULA EXTRANJERIA'){
+        pdf.text("X", 82, 252);
+    }else{
+        pdf.text("X", 105, 252);
+    }
+    pdf.text(numDocumento, 132,252);
+    // se separa la fecha en un array por -
+    var arrFechaExp = fechaExpedicion.split("-")
+    pdf.text(arrFechaExp[2], 326,252);
+    pdf.text(arrFechaExp[1], 358,252);
+    pdf.text(arrFechaExp[0], 395,252);
+    pdf.text(mpioDoc, 440,252);
 
     // renglon 3
-    pdf.text(datos.nacionalidad, 21.7, 372.9);
-    var arrFechaNac = datos.fechaNacimiento.split("-")
-    pdf.text(arrFechaNac[2], 159, 372.9);
-    pdf.text(arrFechaNac[1], 195, 372.9);
-    pdf.text(arrFechaNac[0], 239, 372.9);
-    pdf.text(datos.dtoNacimiento, 277, 372.9);
-    pdf.text(datos.mpioNacimiento, 384.5, 372.9);
-    const coordGenero = coordenadas.genero[datos.genero]
-    pdf.text("X", coordGenero.x, coordGenero.y);
+    pdf.text(nacionalidad, 20,300);
+    var arrFechaNac = fechaNacimiento.split("-")
+    pdf.text(arrFechaNac[2], 157,300);
+    pdf.text(arrFechaNac[1], 192,300);
+    pdf.text(arrFechaNac[0], 230,300);
+    pdf.text(dtoNacimiento, 280,300);
+    pdf.text(mpioNacimiento, 383,300);
+
+    if(genero == 'FEMENINO'){
+        pdf.text('X', 508,300)
+    }else{
+        pdf.text('X', 559,300);
+    }
 
     // renglon 4
-    const coordEstadoCivil = coordenadas.estadoCivil[datos.estadoCivil]
-    pdf.text("X", coordEstadoCivil.x, coordEstadoCivil.y);
-    const coordTipoVivienda = coordenadas.tipoVivienda[datos.tipoVivienda]
-    pdf.text("X", coordTipoVivienda.x, coordTipoVivienda.y);
-    if (datos.zonaUbicacion === "RURAL") {
-        pdf.text("X", 491, 401.5);
-    } else {
-        pdf.text("X", 568, 401.5);
+    if(estadoCivil == 'SOLTERO(A)'){
+        pdf.text("X", 30, 333);
+    }else if (estadoCivil == 'CASADO(A)'){
+        pdf.text("X", 74, 333);
+    }else if(estadoCivil == 'UNION LIBRE'){
+        pdf.text("X", 120, 333);
+    }else if(estadoCivil == 'SEPARADO(A)'){
+        pdf.text("X", 160, 333);
+    }else if(estadoCivil == 'DIVORCIADO(A)'){
+        pdf.text("X", 208, 333);
+    }else{
+        pdf.text("X", 256, 333);
+    }
+
+    if(tipoVivienda == 'PROPIA'){
+        pdf.text("X", 294, 333);
+    }else if(tipoVivienda == 'FAMILIAR'){
+        pdf.text("X", 347, 333);
+    }else{
+        pdf.text("X", 405, 333);
+    }
+ 
+    if(estrato == 1){
+        pdf.text("X", 441, 333);
+    }else if(estrato == 2){
+        pdf.text("X", 470, 333);
+    }else if(estrato == 3){
+        pdf.text("X", 499, 333);
+    }else if(estrato == 4){
+        pdf.text("X", 524, 333);
+    }else if(estrato == 5){
+        pdf.text("X", 547, 333);
+    }else{
+        pdf.text("X", 576, 333);
     }
 
     // renglon 5
-    const coordEstrato = coordenadas.estrato[datos.estrato]
-    pdf.text("X", coordEstrato.x, coordEstrato.y);
-    if (datos.tAsociado === "COOHOBIENESTAR"){
-        pdf.text("X", 187.7, 428.9);
-    }else {
-        pdf.text("X", 253.7, 428.9);
-    }
-    pdf.text(String(datos.nPersonasCargo), 325.7, 430.8);
-    pdf.text(String(datos.nHijos), 399, 430.8);
-    if (datos.cabezaFamilia === "SI"){
-        pdf.text("X", 475.7, 429.9);
-    } else {
-        pdf.text("X", 552, 429.9);
-    }
+    pdf.text(direccion, 20, 367);
+    pdf.text(barrio, 285, 367);
+    pdf.text(mpioResidencia, 473, 367);
 
     // renglon 6
-    pdf.text(datos.direccion, 21.7, 460.8);
-    pdf.text(datos.barrio, 278.4, 460.8);
-    pdf.text(datos.mpioResidencia, 463, 460.8);
+    pdf.text(deptoResidencia, 20, 399);
+    pdf.text(email, 135, 399);
+    pdf.text(numResidencia, 394, 399);
+    pdf.text(numCelular, 500, 399);
 
     // renglon 7
-    pdf.text(datos.deptoResidencia, 21.7, 489.5);
-    pdf.text(datos.email, 125.7, 489.5);
-    pdf.text(datos.numResidencia, 385, 489.5);
-    pdf.text(datos.numCelular, 492.4, 489.5);
+    if(envioInfoCorreo == "True"){
+        pdf.text("X", 104, 431)
+    }
+    if(envioInfoMensaje == "True"){
+        pdf.text("X", 227, 431)
+    }
+    if(envioInfoWhatsapp == "True"){
+        pdf.text("X", 330, 431)
+    }
 
     // renglon 8
-    if (datos.envioInfoCorreo){
-        pdf.text("X", 105.7, 518.1);
-    }
-    if (datos.envioInfoMensaje){
-        pdf.text("X", 226.4, 518.1);
-    }
-    if (datos.envioInfoWhatsapp){
-        pdf.text("X", 329, 518.1);
+    if(nivelEducativo == "PRIMARIA"){
+        pdf.text("X", 30, 463);
+    }else if(nivelEducativo == "SECUNDARIA"){
+        pdf.text("X", 74, 463);
+    }else if(nivelEducativo == "TECNICO"){
+        pdf.text("X", 121, 463);
+    }else if(nivelEducativo == "TECNOLOGICO"){
+        pdf.text("X", 178, 463);
+    }else if(nivelEducativo == "PREGRADO"){
+        pdf.text("X", 243, 463);
+    }else if(nivelEducativo == "ESPECIALIZACION"){
+        pdf.text("X", 308, 463);
+    }else if(nivelEducativo == "MAESTRIA"){
+        pdf.text("X", 363, 463);
+    }else{
+        pdf.text("X", 406, 463);
     }
 
     // renglon 9
-    const coordNivelEducativo = coordenadas.nivelEducativo[datos.nivelEducativo];
-    pdf.text("X", coordNivelEducativo.x, coordNivelEducativo.y);
+    if(tituloPregrado != "None"){
+        pdf.text(tituloPregrado, 20, 497);
+    }
+    if(tituloPosgrado != "None"){
+        pdf.text(tituloPosgrado, 333, 497);
+    }
 
     // renglon 10
-    writeText(pdf, datos.tituloPregrado, 21.7, 580.6);
-    writeText(pdf, datos.tituloPosgrado, 322, 580.6);
+    pdf.text(ocupacion, 20, 533);
+    pdf.text(nombreEmpresa, 158, 533);
+    pdf.text(cargo, 421, 533);
 
-    // Informacion laboral
-    // renglon 1
-    if (datos.ocupacion === "OTRO"){
-        writeText(pdf, datos.ocupacionEspecifica || "", 463, 635.2);
-    }else if (datos.ocupacion && coordenadas.ocupacion[datos.ocupacion] ){
-        const coordOcupacion = coordenadas.ocupacion[datos.ocupacion];
-        pdf.text("X", coordOcupacion.x, coordOcupacion.y);
+    // renglon 11
+    pdf.text(nomRepresenLegal, 20, 570);
+    if(numDocRL != "None"){
+        pdf.text(numDocRL, 231, 570);
+    }
+    if(fechaInicio != ''){
+        var arrFechaInicio = fechaInicio.split("-")
+        pdf.text(arrFechaInicio[2], 440,570);
+        pdf.text(arrFechaInicio[1], 467,570);
+        pdf.text(arrFechaInicio[0], 489,570);
+    
+    }
+    if(fechaTerminacion != ''){
+        var arrFechaTerminacion = fechaTerminacion.split("-")
+        pdf.text(arrFechaTerminacion[2], 521,570);
+        pdf.text(arrFechaTerminacion[1], 544,570);
+        pdf.text(arrFechaTerminacion[0], 566,570);
+    }
+    
+    // renglon 12
+    pdf.text(direccionLab, 20, 603);
+    if(mpioTrabajo != 'None'){
+        pdf.text(mpioTrabajo, 256, 603);
+    }
+    if(dptoTrabajo != 'None'){
+        pdf.text(dptoTrabajo, 395, 603);
+    }
+    if(telefono != "None"){
+        pdf.text(telefono, 503, 603);
     }
 
-    // renglon 2
-    if (datos.tipoEmpresa === "OTRO"){
-        writeText(pdf, datos.tipoEmpresaEspecifica || "", 180.4, 664.6);
-    } else if(datos.tipoEmpresa && coordenadas.tipoEmpresa[datos.tipoEmpresa]){
-        const coordTipoEmpresa = coordenadas.tipoEmpresa[datos.tipoEmpresa];
-        pdf.text("X", coordTipoEmpresa.x, coordTipoEmpresa.y);
+    // renglon 13
+    if(admRP == "SI"){
+        pdf.text("X", 42, 638);
+    }else{
+        pdf.text("X", 105, 638);
     }
-    writeText(pdf, datos.nombreEmpresa, 324.4, 665.9);
-
-    // renglon 3
-    writeText(pdf, datos.cargo, 21.7, 696.6);
-    if (datos.tipoContrato && coordenadas.tipoContrato[datos.tipoContrato]){
-        const coordTipoContrato = coordenadas.tipoContrato[datos.tipoContrato];
-        pdf.text("X", coordTipoContrato.x, coordTipoContrato.y);
+    if(pep == "SI"){
+        pdf.text("X", 192, 638);
+    }else{
+        pdf.text("X", 278, 638);
+    }
+    if(activEcono != 'None'){
+        pdf.text(activEcono, 326, 638);
+    }
+    if(ciiu != 'None'){
+        pdf.text(ciiu, 550, 638);
+    }
+    
+    // renglon 14
+    pdf.text(banco, 20, 672);
+    if(numCuenta != 'None'){
+        pdf.text(numCuenta, 329, 672);
+    }
+    if(tipoCuenta != 0){
+        pdf.text(tipoCuenta, 471, 672);
+    }
+    // Informacion Financiera
+    pdf.text(ingresosActPrin, 400, 725);
+    if(otroIngreso1 != 'None'){
+        pdf.text(otroIngreso1, 400, 740);
+    }
+    if(otroIngreso2 != 'None'){
+        pdf.text(otroIngreso2, 400, 755);
+    }
+    if(egresos != 'None'){
+        pdf.text(egresos, 400, 815);
+    }
+    if(activos != 'None'){
+        pdf.text(activos, 400, 840);
+    }
+    if(pasivos != 'None'){
+        pdf.text(pasivos, 400, 855);
+    }
+    if(patrimonio != 'None'){
+        pdf.text(patrimonio, 400, 870);
     }
 
-    // renglon 4
-    if (datos.fechaInicio){
-        var arrFechaInicio = datos.fechaInicio.split("-")
-        pdf.text(arrFechaInicio[2], 19.7, 730.6);
-        pdf.text(arrFechaInicio[1], 39, 730.6);
-        pdf.text(arrFechaInicio[0], 69, 730.6);
-    }
-    if (datos.fechaTerminacion){
-        var arrFechaTerminacion = datos.fechaTerminacion.split("-")
-        pdf.text(arrFechaTerminacion[2], 104.4, 730.6);
-        pdf.text(arrFechaTerminacion[1], 127, 730.6);
-        pdf.text(arrFechaTerminacion[0], 157, 730.6);
-    }
-    writeText(pdf, datos.nomRepresenLegal, 189, 730.6);
-    writeText(pdf, String(datos.numDocRL), 461, 730.6);
+    // renglon referencia familiar
+    pdf.text(nombreRF, 23, 938);
+    pdf.text(parentesco, 314, 938);
+    pdf.text(numContacto, 471, 938);
 
-    // renglon 5
-    writeText(pdf, datos.nomJefeInmediato, 21.7, 761.2);
-    writeText(pdf, datos.telefonoJefeInmediato, 279.7, 761.2);
-    writeText(pdf, datos.direccionLaboral, 385.2, 761.2);
 
-    // renglon 6
-    writeText(pdf, datos.municipioLaboral, 21.7, 790);
-    writeText(pdf, datos.dptoLaboral, 149.7, 790);
-    writeText(pdf, datos.telefonoLaboral, 291.7, 790);
-    writeText(pdf, datos.correoLaboral, 387, 790);
-
-    // renglon 7
-    if (datos.admRP === "SI"){
-        pdf.text("X", 53, 823.9);
-    } else {
-        pdf.text("X", 102.4, 823.9);
-    }
-    if (datos.pep === "SI"){
-        pdf.text("X", 191.7, 823.9);
-    } else {
-        pdf.text("X", 260.4, 823.9);
-    }
-    writeText(pdf, datos.activEcono, 323, 823.9);
-    writeText(pdf, datos.ciiu, 552, 823.9);
-
-    // renglon 8
-    if (datos.declaraRenta === "SI"){
-        pdf.text("X", 53, 852);
-    } else {
-        pdf.text("X", 102.4, 852);
-    }
-    if (datos.responsableIVA === "SI"){
-        pdf.text("X", 191.7, 852);
-    } else {
-        pdf.text("X", 260.4, 852);
-    }
-    writeText(pdf, datos.regimenTributario, 323, 854.6);
-
-    // renglon 9
-    writeText(pdf, datos.banco, 21.7, 883.9);
-    writeText(pdf, datos.tipoCuenta, 343, 883.9);
-    writeText(pdf, datos.numCuenta, 489, 883.9);
-
-    // Referencia Familiar
-    // renglon 1
-    pdf.text(datos.nombreRF, 21.7, 940.6);
-    pdf.text(datos.parentesco, 319, 940.6);
-    pdf.text(datos.numContacto, 472.4, 940.6);
-
-    ///////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////
     // Se añade Pagina 2 al documento
     pdf.addPage();
-    const image2 = await loadImage('/static/img/Registro_Asociados_2025_page_0002.jpg');
+    const image2 = await loadImage('/static/img/Registro_page_0002.jpg');
     pdf.addImage(image2, 'PNG', 0, 0, 613, 1010);
 
-    // Informacion ingresos y egresos
-    writeText(pdf, formatearMoneda(datos.ingrSalario), 193.7, 134.5);
-    writeText(pdf, formatearMoneda(datos.ingrHorasExtras), 193.7, 149.8);
-    writeText(pdf, formatearMoneda(datos.ingrPension), 193.7, 165.1);
-    writeText(pdf, formatearMoneda(datos.ingrCompensacion), 193.7, 179.8);
-    writeText(pdf, formatearMoneda(datos.ingrHonorarios), 193.7, 195.2);
-    writeText(pdf, formatearMoneda(datos.ingrVentas), 193.7, 210.5);
-    writeText(pdf, formatearMoneda(datos.ingrIntereses), 193.7, 225.7);
-    writeText(pdf, formatearMoneda(datos.ingrGiros), 193.7, 239.8);
-    writeText(pdf, formatearMoneda(datos.ingrArrendamientos), 193.7, 254.9);
-    writeText(pdf, formatearMoneda(datos.ingrOtros), 193.7, 269.7);
-    writeText(pdf, datos.ingrDescripcionOtros, 139, 284.4);
+    // Firma del Asociado
+    var nomCompleto = nombre + " "+ apellido
+    pdf.text(nomCompleto, 165, 784);
+    pdf.text(numDocumento, 165, 811);
 
-    writeText(pdf, formatearMoneda(datos.egrArrendamiento), 469, 134.5);
-    writeText(pdf, formatearMoneda(datos.egrServiciosPublicos), 469, 149.8);
-    writeText(pdf, formatearMoneda(datos.egrAportesSalud), 469, 165.1);
-    writeText(pdf, formatearMoneda(datos.egrTransporte), 469, 179.8);
-    writeText(pdf, formatearMoneda(datos.egrAlimentacion), 469, 195.2);
-    writeText(pdf, formatearMoneda(datos.egrObligaciones), 469, 210.5);
-    writeText(pdf, formatearMoneda(datos.egrTarjetas), 469, 225.7);
-    writeText(pdf, formatearMoneda(datos.egrCostos), 469, 239.8);
-    writeText(pdf, formatearMoneda(datos.egrEmbargos), 469, 254.9);
-    writeText(pdf, formatearMoneda(datos.egrOtros), 469, 269.7);
-    writeText(pdf, datos.egrDescripcionOtros, 399, 284.4);
+    // Autorizacion descuento Nomina
+    // se realiza validacion para insertar el texto en el documento
+    if(autorizaciondcto == "True"){
+        pdf.setFontSize(10);
+        pdf.text(nomCompleto, 36, 862);
+        pdf.text(mpioResidencia, 423, 862);
+        pdf.text(numDocumento, 85, 872);
+        pdf.text(mpioDoc, 222, 872);
+        pdf.text(empresa, 152, 916);
+    } 
 
-    pdf.setFont("verdana", "bold");
-    pdf.setTextColor(255, 255, 255);
-    writeText(pdf, formatearMoneda(datos.total_ingresos), 195, 314.3);
-    writeText(pdf, formatearMoneda(datos.total_egresos), 470.4, 314.3);
 
-    pdf.setFont("verdana", "normal");
-    pdf.setTextColor(0, 0, 0);
-    writeText(pdf, formatearMoneda(datos.total_ingresos), 307.7, 331.2);
-    writeText(pdf, formatearMoneda(datos.total_egresos), 307.7, 347);
-    writeText(pdf, formatearMoneda(datos.total_patrimonio), 307.7, 363.6);
-
-    // renglon 1
-    writeText(pdf, nombreCompleto, 21.7, 408.9);
-    writeText(pdf, datos.numDocumento, 239, 408.9);
-    pdf.text(arrFechaHoy[0], 342, 408.9);
-    pdf.text(arrFechaHoy[1], 399.4, 408.9);
-    pdf.text(arrFechaHoy[2], 450, 408.9);
-    if (datos.declaraRenta){
-        pdf.text("X", 511.9, 405.9);
-    }else {
-        pdf.text("X", 564.9, 405.9);
-    }
-
-    // Operacion en moneda extranjera
-    // renglon 1
-    if (datos.operacionesMonedaExtranjera === "SI"){
-        pdf.text("X", 78.4, 464.8);
-        writeText(pdf, datos.operacionesMonedaCuales, 221, 464.8);
-
-        // renglon 2
-        writeText(pdf, datos.operacionesMonedaTipo, 21.7, 497.4);
-        writeText(pdf, "$" + formatearMoneda(datos.operacionesMonedaMonto), 222.4, 497.4);
-        writeText(pdf, datos.operacionesMoneda, 410.4, 497.4);
-    } else {
-        pdf.text("X", 179, 464.8);
-    }
-
-    // renglon 3
-    if (datos.poseeCuentasMonedaExtranjera === "SI"){
-        pdf.text("X", 78.4, 527.4);
-        writeText(pdf, datos.poseeCuentasBanco, 221, 527.4);
-        writeText(pdf, datos.poseeCuentasCuenta, 411, 527.4);
-    
-        // renglon 4
-        writeText(pdf, datos.poseeCuentasMoneda, 21.7, 561.2);
-        writeText(pdf, datos.poseeCuentasCiudad, 221, 561.2);
-        writeText(pdf, datos.poseeCuentasPais, 411, 561.2);
-    } else {
-        pdf.text("X", 179, 527.4);
-    }
-
-    // Firma
-    pdf.text(nombreCompleto, 150, 651.2);
-    pdf.text(datos.numDocumento, 150, 677.2);
-
-    // Autorizacion de descuento por nomina
-    if (datos.autorizaciondcto){
-        pdf.text(nombreCompleto, 42.4, 750.6);
-        pdf.text(datos.numDocumento, 23.7, 760.5);
-        pdf.text(datos.mpioDoc, 183, 760.5);
-        pdf.text("9.8", 502, 806.5);
-    }
-
-    // /////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////
     // Se añade Pagina 3 al documento
     pdf.addPage();
-    const image3 = await loadImage('/static/img/Registro_Asociados_2025_page_0003.jpg');
+    const image3 = await loadImage('/static/img/Registro_page_0003.jpg');
     pdf.addImage(image3, 'PNG', 0, 0, 613, 1010);
+    
+    // Firma y Huella
+    pdf.setFontSize(12);
+    pdf.text(arrFechaHoy[2], 227,680);
+    pdf.text(arrFechaHoy[1], 372,680);
+    pdf.text(arrFechaHoy[0], 495,680);
+    pdf.text("ARMENIA", 25, 690);
 
-    pdf.text(nombreCompleto, 150.4, 877.2);
-    pdf.text(datos.numDocumento, 150.4, 903.2);
+    // Ultima Fila
+    pdf.text(nomCompleto, 165, 752);
+    pdf.text(numDocumento, 165, 773);
 
-    pdf.save('Formato_Registro_'+datos.numDocumento+'.pdf');
+    // Espacio reservado para coohobienestar
+    pdf.setFontSize(10);
+    pdf.text(arrFechaHoy[2], 60,837);
+    pdf.text(arrFechaHoy[1], 82,837);
+    pdf.text(arrFechaHoy[0], 105,837);
+    pdf.text(usuario, 227,837);
+    pdf.text("Auxiliar administrativo", 495,837);
+
+    pdf.save('Formato_Registro_'+numDocumento+'.pdf');
+
+
 }
 
 // Formato 2
 // Formato Servicios Exequiales
-async function generarPDFServiciosExequiales(url, datos) {
+async function generarPDFf2(url, actualizacionF2, tPersonaF2, fechaHoyF2, nombreF2, apellidoF2, tipoDocumentoF2, numDocumentoF2, emailF2, numCelularF2, direccionF2, barrioF2, mpioResidenciaF2, numContactoF2, cuentaBeneficiarios, arrayBeneficiarios, arrayMascotas, envioInfoCorreoF2, envioInfoMensajeF2, envioInfoWhatsappF2) {
 
     const image = await loadImage(url);
     const pdf = new jsPDF('p', 'pt', 'legal');
     pdf.addImage(image, 'PNG', 0, 0, 613, 1010);
 
-    // Globales
-    pdf.setFontSize(9);
-    pdf.setFont("verdana", "normal");
+    pdf.setFontSize(12);
 
-    const coordenadas = {
-        tipoPersona : {
-            "PERSONA NATURAL": { x: 20, y: 130 },
-            "PERSONA JURIDICA": { x: 218, y: 130 },
-            "ACTUALIZACION": { x: 417, y: 130 }
-        },
-        tipoDocumento : {
-            "REGISTRO CIVIL": { x: 20, y: 215 },
-            "CEDULA" : { x: 40, y: 215 },
-            "TARJETA IDENTIDAD" : { x: 63, y: 215 },
-            "CEDULA EXTRANJERA" : { x: 83, y: 215 },
-            "PASAPORTE" : { x: 105, y: 215 }
-        }
+    // fecha encabezado
+    var arrFechaHoy = fechaHoyF2.split("-");
+    const fechaF2 = arrFechaHoy[2] + '/' + arrFechaHoy[1] + '/' + arrFechaHoy[0];
+    pdf.text(fechaF2, 276,111);
+
+    // renglon 0
+    if(actualizacionF2 == "True"){
+        pdf.text("X", 417, 130);
+    }else if(tPersonaF2 == "PERSONA NATURAL"){
+        pdf.text("X", 20, 130);
+    }else{
+        pdf.text("X", 218, 130);
     }
 
-    var arrFechaHoy = datos.fechaFormateada.split("/")
-    var nombreCompleto = datos.nombre + ' ' + datos.apellido;
+    // Fila 1
+    pdf.text(nombreF2, 19,184);
+    pdf.text(apellidoF2, 322,184);
 
-    // Fecha, radicado y tipo persona
-    pdf.text(datos.fechaFormateada, 276, 111);
-    pdf.text(datos.numeroRadicado, 470, 109.5);
-    const coordTipoPersona = coordenadas.tipoPersona[datos.tPersona];
-    writeBoldText(pdf, "X", coordTipoPersona.x, coordTipoPersona.y, 10);
-    
-    // Datos personales
-    // renglon 1
-    pdf.text(datos.nombre, 19,184);
-    pdf.text(datos.apellido, 322,184);
+    // Fila 2
+    if(tipoDocumentoF2 == 'REGISTRO CIVIL'){
+        pdf.text("X", 20,215);
+    }else if (tipoDocumentoF2 == 'CEDULA'){
+        pdf.text("X", 40,215);
+    }else if (tipoDocumentoF2 == 'TARJETA IDENTIDAD'){
+        pdf.text("X", 63,215);
+    }else if (tipoDocumentoF2 == 'CEDULA EXTRANJERIA'){
+        pdf.text("X", 83,215);
+    }else{
+        pdf.text("X", 105,215);
+    }
 
-    // renglon 2
-    const coordTipoDocumento = coordenadas.tipoDocumento[datos.tipoDocumento];
-    writeBoldText(pdf, "X", coordTipoDocumento.x, coordTipoDocumento.y, 10);
-    pdf.text(datos.numDocumento, 133,216);
-    pdf.text(datos.direccion, 324,216);
+    pdf.text(numDocumentoF2, 133,216);
+    pdf.text(direccionF2, 324,216);
 
-    // renglon 3
-    pdf.text(datos.barrio, 19,248);
-    pdf.text(datos.mpioResidencia, 190,248);
-    pdf.text(datos.numCelular, 323,248);
-    pdf.text(datos.numContacto, 471,248);
+    // Fila 3
+    pdf.text(barrioF2, 19,248);
+    pdf.text(mpioResidenciaF2, 190,248);
+    pdf.text(numCelularF2, 323,248);
+    pdf.text(numContactoF2, 471,248);
 
-    // renglon 4
-    pdf.text(datos.email, 19,281);
+    // Fila 4
+    pdf.text(emailF2, 19,281);
 
-    //  renglon 5
-    if(datos.envioInfoCorreo){
+    // Fila 5
+    if(envioInfoCorreoF2 == "True"){
         pdf.text("X", 105,313);
     }
-    if(datos.envioInfoMensaje){
+    if(envioInfoMensajeF2 == "True"){
         pdf.text("X", 228,313);
     }
-    if(datos.envioInfoWhatsapp){
+    if(envioInfoWhatsappF2 == "True"){
         pdf.text("X", 329,313);
     }
 
-    // variables de inicio de tabla beneficiarios
-    pdf.setFontSize(8);
+    //  Cuadro de beneficiarios
+    pdf.setFontSize(9);
     let fila = 401;
     let filaR = 598;
-    
-    //  Informacion grupo vinculado a servicios funerarios
-    datos.beneficiarios.forEach(b => {
+    for(let i = 0; i < arrayBeneficiarios.length; i++){
+        // se diligencia el cuadro de beneficiarios
         pdf.text("X", 51,fila);
-        pdf.text(`${b.nombre} ${b.apellido}`, 125, fila);
-
-        const tipoDoc = {
-            "CEDULA": "CC",
-            "REGISTRO CIVIL": "RC",
-            "TARJETA IDENTIDAD": "TI",
-            "CEDULA EXTRANJERA": "CE",
-            "PASAPORTE": "PA"
-        }[b.tipoDocumento] || "";
-
-        pdf.text(tipoDoc, 315, fila);
-        pdf.text(b.numDocumento, 367, fila);
-        pdf.text(b.parentesco__nombre, 451, fila);
-        const fecha = b.fechaNacimiento.split("-");
-        pdf.text(fecha[2], 530, fila);
-        pdf.text(fecha[1], 552, fila);
-        pdf.text(fecha[0], 574, fila);
-
-        // cuadro de repatriacion
-        if(b.repatriacion){
-            pdf.text("X", 51, filaR);
-            pdf.text(`${b.nombre} ${b.apellido}`,125, filaR);
-            pdf.text(b.numDocumento, 299, filaR);
-            pdf.text(b.ciudadRepatriacion, 393, filaR);
-            pdf.text(b.paisRepatriacion__nombre, 499, filaR);
-            filaR += 15
+        pdf.setFontSize(8);
+        pdf.text(arrayBeneficiarios[i][0], 125 ,fila);
+        if(arrayBeneficiarios[i][1] == 'CEDULA'){
+            pdf.text('CC', 315 ,fila);
+        }else if(arrayBeneficiarios[i][1] == 'REGISTRO CIVIL'){
+            pdf.text('RC', 315 ,fila);
+        }else if(arrayBeneficiarios[i][1] == 'REGISTRO CIVIL'){
+            pdf.text('RC', 315 ,fila);
+        }else if(arrayBeneficiarios[i][1] == 'TARJETA IDENTIDAD'){
+            pdf.text('TI', 315 ,fila);
+        }else if(arrayBeneficiarios[i][1] == 'CEDULA EXTRANJERA'){
+            pdf.text('CE', 315 ,fila);
+        }else if(arrayBeneficiarios[i][1] == 'PASAPORTE'){
+            pdf.text('PA', 315 ,fila);
         }
-        fila += 15;
-    })
+        pdf.text(arrayBeneficiarios[i][2], 367 ,fila);
+        pdf.text(arrayBeneficiarios[i][3], 451 ,fila);
+        var fecha = arrayBeneficiarios[i][4].split("-");
+        pdf.text(fecha[2], 530 ,fila);
+        pdf.text(fecha[1], 552 ,fila);
+        pdf.text(fecha[0], 574 ,fila);
+        // se diligencia el cuadro de repatriacion
+        if(arrayBeneficiarios[i][5] != 'None'){
+            pdf.text("X", 51,filaR);
+            pdf.setFontSize(8);
+            pdf.text(arrayBeneficiarios[i][0], 125 ,filaR);
+            pdf.text(arrayBeneficiarios[i][2], 299 ,filaR);
+            pdf.text(arrayBeneficiarios[i][6], 393 ,filaR);
+            pdf.text(arrayBeneficiarios[i][5], 499 ,filaR);
+        }
+        if(arrayBeneficiarios[i][5] != 'None'){
+            filaR = filaR + 15;
+        }
+        fila = fila + 15;
+    }
 
-     // Se diligencia Cuadro de Mascota
+    // Se diligencia Cuadro de Mascota
     let filaM = 705;
-    datos.mascotas.forEach(m => {
-        pdf.text("X", 51, filaM);
-        pdf.text(m.nombre, 125, filaM);
-        if (m.tipo === "GATO"){
-            pdf.text("X", 283, filaM);
-        }else {
-            pdf.text("X", 305, filaM);
+    for(let i = 0; i < arrayMascotas.length; i++){
+        pdf.text("X", 51,filaM);
+        pdf.text(arrayMascotas[i][0], 125 ,filaM);
+        if(arrayMascotas[i][1] == 'GATO'){
+            pdf.text("X", 283 ,filaM);
+        }else{
+            pdf.text("X", 305 ,filaM);
         }
-        pdf.text(m.raza, 321, filaM);
-        const fecha = m.fechaNacimiento.split("-");
-        pdf.text(fecha[2], 447, filaM);
-        pdf.text(fecha[1], 474, filaM);
-        pdf.text(fecha[0], 500, filaM);
-        if (m.vacunasCompletas){
-            pdf.text("X", 544, filaM);
-        }else {
+        pdf.text(arrayMascotas[i][2], 321 ,filaM);
+        var fechaMasc = arrayMascotas[i][3].split("-");
+        pdf.text(fechaMasc[2], 447 ,filaM);
+        pdf.text(fechaMasc[1], 474 ,filaM);
+        pdf.text(fechaMasc[0], 500 ,filaM);
+        if(arrayMascotas[i][4] == 'True'){
+            pdf.text("X", 543 ,filaM);
+        }else{
             pdf.text("X", 580 ,filaM);
         }
-        filaM += 15;
-    })
+        filaM = filaM + 14.5;    
+    }
 
     // Firma y Huella
-    pdf.text(arrFechaHoy[0], 299,861);
+    pdf.setFontSize(12);
+    pdf.text(arrFechaHoy[2], 299,861);
     pdf.text(arrFechaHoy[1], 444,861);
-    pdf.text(arrFechaHoy[2], 541,861);
+    pdf.text(arrFechaHoy[0], 541,861);
     pdf.text("Armenia", 72,871);
 
-    // // Firma
-    pdf.text(nombreCompleto, 155 ,929);
-    pdf.text(datos.numDocumento, 155 ,952);
+    // Firma
+    var nomCompleto = nombreF2 + " " + apellidoF2
+    pdf.text(nomCompleto, 155 ,929);
+    pdf.text(numDocumentoF2, 155 ,952);
 
-    pdf.save('Formato_Servicios_Exequiales_'+datos.numDocumento+'.pdf');
+    pdf.save('Formato_Servicios_Exequiales_'+numDocumentoF2+'.pdf');
+
 }
 
 // Formato 3
 // Formato Auxilios
-async function generarPDFAuxilioEconomico(url, datos) {
-    
+async function generarPDFf3(url, fechaHoyF3, nombreF3, apellidoF3, tipoDocumentoF3, numDocumentoF3, fechaExpedicionF3, mpioDocF3, emailF3, numCelularF3, direccionF3, barrioF3, mpioResidenciaF3, fechaNacimientoF3, nombreEmpresaF3, cargoF3, telefonoF3, ingresosActPrinF3, bancoF3, numCuentaF3, nombre2, numDoc2, parentescoF3, nivelEducativoF3, anexoOne, anexoTwo, anexoThree, anexoFour, anexoFive, anexoSix, anexoSeven, anexoEight, envioInfoCorreoF3, envioInfoMensajeF3, envioInfoWhatsappF3, tipoAuxilio) {
     const image = await loadImage(url);
     const pdf = new jsPDF('p', 'pt', 'legal');
     pdf.addImage(image, 'PNG', 0, 0, 613, 1010);
 
-    // Globales
-    pdf.setFontSize(9);
-    pdf.setFont("verdana", "normal");
+    pdf.setFontSize(12);
 
-    const coordenadas = {
-        tipoDocumento : {
-            "REGISTRO CIVIL": { x: 19, y: 190 },
-            "CEDULA" : { x: 41, y: 190 },
-            "TARJETA IDENTIDAD" : { x: 63, y: 190 },
-            "CEDULA EXTRANJERA" : { x: 83, y: 190 },
-            "PASAPORTE" : { x: 105, y: 190 }
-        },
-        auxilioSolicitado : {
-            "AUXILIO OPTICO": { x: 40, y: 420},
-            "AUXILIO INCAPACIDAD MEDICA": { x: 329, y: 403},
-            "KIT DE MATERNIDAD": { x: 329, y: 349},
-            "AUXILIO EDUCATIVO-UNIVERDAD": { x: 40, y: 384},
-            "AUXILIO EDUCATIVO-MAESTRIA": { x: 40, y: 403},
-            "AUXILIO EDUCATIVO-TECNICO": { x: 40, y: 349},
-            "CALAMIDAD DOMESTICA-DESASTRE": { x: 329, y: 367},
-            "CALAMIDAD DOMESTICA-MEDICO": { x: 329, y: 384},
-            "AUXILIO EDUCATIVO-TECNOLOGIA": { x: 40, y: 367},
-        }
+    // fecha encabezado
+    var arrFechaHoy = fechaHoyF3.split("-");
+    const fecha = arrFechaHoy[2] + '/' + arrFechaHoy[1] + '/' + arrFechaHoy[0];
+    pdf.text(fecha, 274,110);
+    
+    // renglon 0
+    pdf.text(nombreF3, 17,162);
+    pdf.text(apellidoF3, 323,162);
+
+    // // renglon 1
+    if (tipoDocumentoF3 == 'REGISTRO CIVIL'){
+        pdf.text("X", 19,190);
+    }else if (tipoDocumentoF3 == 'CEDULA'){
+        pdf.text("X", 41,190);
+    }else if (tipoDocumentoF3 == 'TARJETA IDENTIDAD'){
+        pdf.text("X", 63,190);
+    }else if (tipoDocumentoF3 == 'CEDULA EXTRANJERA'){
+        pdf.text("X", 83,190);
+    }else if (tipoDocumentoF3 == 'PASAPORTE'){
+        pdf.text("X", 105,190);
+    }else{
+        // Si no es ninguno de los anteriores, se marca cedula extranjera ya que no hay casilla de ppt
+        pdf.text("X", 83,190);
+    }
+    pdf.text(numDocumentoF3, 137,190);
+    pdf.text(direccionF3, 323,190);
+
+    // // renglon 2
+    pdf.setFontSize(8);
+    pdf.text(barrioF3, 17,219);
+    pdf.text(mpioResidenciaF3, 187,219);
+    pdf.setFontSize(12);
+    pdf.text(numCelularF3, 465,219);
+
+    // // renglon 3
+    pdf.text(emailF3, 17,247);
+
+    // // renglon 4
+    pdf.text(bancoF3, 17,276);
+    pdf.text(numCuentaF3, 325,276);
+
+    // // renglon 5
+    // campo autorizacion envio informacion
+    if(envioInfoCorreoF3 == 'True'){
+        pdf.text("X", 106, 305);
     }
 
-    var nombreCompleto = datos.nombre + ' ' + datos.apellido;
-    var arrFechaHoy = datos.fechaFormateada.split("/")
-    
-    // Fecha encabezado
-    pdf.text(datos.fechaFormateada, 274,110);
-    pdf.text(datos.numeroRadicado, 470, 108.7);
-    
-    // renglon 1
-    pdf.text(datos.nombre, 17,162);
-    pdf.text(datos.apellido, 323,162);
-
-    // renglon 2
-    const coordTipoDocumento = coordenadas.tipoDocumento[datos.tipoDocumento];
-    writeBoldText(pdf, "X", coordTipoDocumento.x, coordTipoDocumento.y, 10);
-    pdf.text(datos.numDocumento, 137,190);
-    pdf.text(datos.direccion, 323,190);
-
-    // renglon 3
-    pdf.text(datos.barrio, 17,219);
-    pdf.text(datos.mpioResidencia, 187,219);
-    pdf.text(datos.numCelular, 323,219);
-    pdf.text(datos.numContacto, 465,219);
-
-    // renglon 4
-    pdf.text(datos.email, 17,247);
-
-    // renglon 5
-    writeText(pdf, datos.auxilio.entidadBancaria, 17, 276);
-    writeText(pdf, datos.auxilio.numCuenta, 325, 276);
-
-    // renglon 6
-    if(datos.envioInfoCorreo){
-        pdf.text("X", 107, 305);
-    }
-    if(datos.envioInfoMensaje){
+    if(envioInfoMensajeF3 == 'True'){
         pdf.text("X", 227, 305);
     }
-    if(datos.envioInfoWhatsapp){
-        pdf.text("X", 329.7, 305);
+
+    if(envioInfoWhatsappF3 == 'True'){
+        pdf.text("X", 329, 305);
     }
 
-    // Auxilio solicitado
-    const coordAuxilio = coordenadas.auxilioSolicitado[datos.auxilio.tipoAuxilio__nombre];
-    writeBoldText(pdf, "X", coordAuxilio.x, coordAuxilio.y, 10);
+    // Tipos Auxilios
+    // optico
+    if(tipoAuxilio == '1'){
+        pdf.text("X", 40,420);
+    }// incapacidad medica
+    else if(tipoAuxilio == '2'){
+        pdf.text("X", 329,403);
+    }// auxilio educativo-u
+    else if(tipoAuxilio == '4'){
+        pdf.text("X", 40,384);
+    }// kit maternidad
+    else if(tipoAuxilio == '3'){
+        pdf.text("X", 329,349);
+    }//auxilio educativo-maestria
+    else if(tipoAuxilio == '5'){
+        pdf.text("X", 40,403);
+    }// Auxilio Educativo Tecnico
+    else if(tipoAuxilio == '6'){
+        pdf.text("X", 40,349);
+    }//calamidad domestica
+    else if(tipoAuxilio == '7'){
+        pdf.text("X", 329,367);
+    }//calamidad domestica-medica
+    else if(tipoAuxilio == '8'){
+        pdf.text("X", 329,384);
+    }// Auxilio Educativo Tenologia
+    else if(tipoAuxilio == '8'){
+        pdf.text("X", 40,367);
+    }
 
     // Campo - se solicita para
-    if(datos.auxilio.nombre){
-        writeText(pdf, datos.auxilio.nombre, 17, 479);
-        writeText(pdf, datos.auxilio.numDoc, 325, 479);
-        writeText(pdf, datos.auxilio.parentesco__nombre, 480, 479);
-        writeText(pdf, datos.auxilio.nivelEducativo, 127, 494);
+    if(tipoAuxilio == '4' || tipoAuxilio == '5' || tipoAuxilio == '6' || tipoAuxilio == '9'){
+        pdf.text(nombre2, 17, 480);
+        pdf.text(numDoc2, 325, 480);
+        pdf.text(parentescoF3, 480, 480);
+        pdf.text(nivelEducativoF3, 127, 494);
     }
 
-    // Anexos
-    // Maximo 92 caracteres
-    const maxCaracteres = 92;
-    const texto = datos.auxilio.anexos_concat || "";
+    // Campo - Anexos
+    pdf.setFontSize(10);
 
-    // Divide el texto en líneas de máximo 82 caracteres
+    const anexos = []
+
+    if(anexoOne != 'None'){
+        anexos.push(anexoOne);
+    }
+    if(anexoTwo != 'None'){
+        anexos.push(anexoTwo);
+    }
+    if(anexoThree != 'None'){
+        anexos.push(anexoThree);
+    }
+    if(anexoFour != 'None'){
+        anexos.push(anexoFour);
+    }
+    if(anexoFive != 'None'){
+        anexos.push(anexoFive);  
+    }
+    if(anexoSix != 'None'){
+        anexos.push(anexoSix);
+    }
+    if(anexoSeven != 'None'){
+        anexos.push(anexoSeven);
+    }
+    if(anexoEight != 'None'){
+        anexos.push(anexoEight);
+    }
+
+    const texto = anexos.join(', ');
+
+    // Maximo 82 caracteres
+    const maxCaracteres = 82;
+
+    // Dividir el texto en lineas de maximo 82 caracteres
     const lineas = [];
     for (let i = 0; i < texto.length; i += maxCaracteres) {
         lineas.push(texto.substring(i, i + maxCaracteres));
     }
 
-    // Ahora escribes cada línea en el PDF
-    let y = 532;
-    lineas.forEach((linea) => {
-        writeText(pdf, linea, 36.5, y);
+    // Imprimir las lineas en el PDF
+    let y = 534;
+    lineas.forEach(linea => {
+        pdf.text(linea, 37, y);
         y += 13;
     });
 
-    // // Firma y Huella
-    pdf.text(arrFechaHoy[0], 305,618);
-    pdf.text(arrFechaHoy[1], 449,618);
-    pdf.text(arrFechaHoy[2], 539,618);
-    pdf.text("ARMENIA", 69,629);
-    pdf.text(nombreCompleto, 153, 687);
-    pdf.text(datos.numDocumento, 153, 710);
 
-    pdf.save('Formato_Auxilios_'+datos.numDocumento+'.pdf');
+    // Firma y Huella
+    pdf.setFontSize(12);
+    pdf.text(arrFechaHoy[2], 297,618);
+    pdf.text(arrFechaHoy[1], 443,618);
+    pdf.text(arrFechaHoy[0], 539,618);
+    pdf.text("ARMENIA", 69,629);
+    const nombreCompleto = nombreF3 + " " + apellidoF3;
+    pdf.text(nombreCompleto, 153, 687);
+    pdf.text(numDocumentoF3, 153, 710);
+
+    pdf.save('Formato_Auxilios_'+numDocumentoF3+'.pdf');
 
 }
 
@@ -2143,28 +1975,10 @@ function generarFechas(cuotas, fechaSolicitud) {
 }
 
 function formatearMoneda(valor) {
-    if (valor == null || valor === "") return "";
-    // return "$" + parseFloat(valor)
-    return parseFloat(valor).toLocaleString("es-CO", {
+    return "$" + parseFloat(valor)
+        .toLocaleString("es-CO", {
             style: "decimal", // Usar estilo decimal
             minimumFractionDigits: 0, // Eliminar decimales
             maximumFractionDigits: 0  // Eliminar decimales
     });
-}
-
-
-// Funcion para escribir texto en el PDF con manejo de valores nulos
-function writeText(pdf, value, x, y, options = {}) {
-    pdf.text(String(value ?? ""), x, y, options);
-}
-
-// Función auxiliar para escribir texto en negrita con tamaño específico
-function writeBoldText(pdf, text, x, y, size = 10) {
-    pdf.setFont('verdana', 'normal');
-    pdf.setFontSize(size);
-    pdf.text(text, x, y);
-
-    // Restaurar configuración anterior
-    pdf.setFont('verdana', 'normal');
-    pdf.setFontSize(9);
 }

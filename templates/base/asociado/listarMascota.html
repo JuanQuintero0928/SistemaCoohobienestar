@@ -64,7 +64,13 @@
             <td>{{ obj.tipo }}</td>
             <td>{{ obj.raza }}</td>
             <td>{{ obj.fechaNacimiento|date:"d/m/Y" }}</td>
-            <td>{{ obj.vacunasCompletas }}</td>
+            <td>
+                {% if obj.vacunasCompletas %}
+                    ✔️
+                {% else %}
+                    ❌
+                {% endif %}
+            </td>
             <td>{{ obj.fechaIngreso|date:"d/m/Y" }}</td>
             <td>
                 <center>

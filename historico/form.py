@@ -113,7 +113,7 @@ class HistoricoAuxilioForm(forms.ModelForm):
                     'required':'required'
                 }
             ),
-             'tipoAuxilio': forms.Select(
+            'tipoAuxilio': forms.Select(
                 attrs={ 
                     'class':'form-control',
                     'required':'required'
@@ -129,13 +129,11 @@ class HistoricoAuxilioForm(forms.ModelForm):
                 attrs={ 
                     'class':'form-control',
                     'style': 'text-transform: uppercase;',
-                    'required':'required'
                 }
             ),
             'numCuenta': forms.TextInput(
                 attrs={
                     'class':'form-control',
-                    'required':'required'
                 }
             )
         }

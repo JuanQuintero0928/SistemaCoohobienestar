@@ -64,8 +64,19 @@
             <td>{{ obj.fechaSolicitud|date:"d/m/Y" }}</td>
             <td>{{ obj.tipoAuxilio }}</td>
             <td>${{ obj.valor|intcomma }}</td>
-            <td>{{ obj.entidadBancaria }}</td>
-            <td>{{ obj.numCuenta }}</td>
+            <td>{% if obj.entidadBancaria %}
+                    {{ obj.entidadBancaria }}
+                {% else %}
+                    <span class="text-muted">No especificada</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if obj.numCuenta %}
+                    {{ obj.numCuenta }}
+                {% else %}
+                    <span class="text-muted">No especificada</span>
+                {% endif %}    
+            </td>
             <td>{{ obj.estado }}</td>
             <td>
                 <center>

@@ -1,7 +1,7 @@
 from django.db import models
-import asociado
 from departamento.models import PaisRepatriacion 
 from asociado.models import Asociado
+from parametro.models import MesTarifa
 
 # Create your models here.
 
@@ -35,6 +35,13 @@ class Beneficiario(models.Model):
     parentesco = models.ForeignKey(Parentesco, on_delete=models.RESTRICT, blank=False, null=False)
     repatriacion = models.BooleanField('Repatriacion')
     paisRepatriacion = models.ForeignKey(PaisRepatriacion, on_delete=models.RESTRICT, blank=True, null=True)
+    primerMesRepatriacion = models.ForeignKey(
+        MesTarifa, 
+        on_delete=models.RESTRICT, 
+        blank=True, 
+        null=True,
+        related_name='beneficiarios_repatriacion'
+    )
     fechaRepatriacion = models.DateField('Fecha Repatriacion', blank=True, null=True)
     ciudadRepatriacion = models.CharField('Ciudad Repatriación', max_length=50, blank=True, null=True)
     estadoRegistro = models.BooleanField('Estado')
@@ -65,6 +72,13 @@ class Mascota(models.Model):
     vacunasCompletas = models.BooleanField('Vacunas Completas')
     estadoRegistro = models.BooleanField('Estado')
     fechaIngreso = models.DateField('Fecha Ingreso', blank=False, null=False)
+    primerMes = models.ForeignKey(
+        MesTarifa,
+        on_delete=models.RESTRICT,
+        blank=True,
+        null=True,
+        related_name='mascotas'
+    )
     fechaRetiro = models.DateField('Fecha Retiro', blank=True, null=True)
     fechaCreacion = models.DateTimeField(auto_now_add=True)
     fechaModificacion = models.DateTimeField(auto_now=True)

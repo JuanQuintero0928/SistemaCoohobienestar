@@ -40,88 +40,155 @@
     </div>
 
     {% if mensaje %}
-        
+
     {% else %}
-        
         <div class="container-fluid">
-            <div class="row">
-                <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
-                    <div class="card shadow-lg border-0 rounded-4 text-center">
-                        <div class="card-body">
-                            <h5 class="card-title fw-bold text-dark">Formato Vinculación y Actualización de Datos</h5>
-                            <button type="button" class="btn btn-danger rounded-pill mt-3 px-4 py-2 shadow-sm"
-                                onclick="llamarPDF(1,'{% static 'img/Registro_page_0001.jpg'%}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-pdf" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
-                                </svg>
-                                Descargar
-                            </button>
+            <div class="row justify-content-center g-4">
+
+                <!-- Card 1 -->
+                <div class="col-12 col-md-6 col-xl-4 col-xxl-3">
+                    <div class="card card-modern text-center shadow-sm border-0 h-100">
+                        <div class="card-body p-4 d-flex flex-column align-items-center justify-content-between">
+                        <div>
+                            <div class="icon-wrapper bg-danger bg-opacity-10 text-danger mb-3">
+                                RA
+                            </div>
+                            <h5 class="card-title fw-semibold text-dark mb-3">
+                                Registro Vinculación y Actualización de Datos
+                            </h5>
+                        </div>
+                        <button 
+                            class="btn btn-danger rounded-3 px-4 py-2 shadow-sm fw-semibold d-flex align-items-center gap-2" 
+                            onclick="abrir_modal_creacion('{% url 'asociado:modalFormato' pkAsociado 1 %}')">
+                            <i class="bi bi-filetype-pdf fs-5"></i>
+                            Descargar
+                        </button>
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
-                    <div class="card shadow-lg border-0 rounded-4 text-center">
-                        <div class="card-body">
-                            <h5 class="card-title fw-bold text-dark">Formato Actualización Servicios Exequiales</h5>
-                            <button type="button" class="btn btn-danger rounded-pill mt-3 px-4 py-2 shadow-sm"
-                                onclick="llamarPDF(2,'{% static 'img/Formato_Servicios_Exequiales_2025_page_0001.jpg' %}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-filetype-pdf"
-                                    viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z" />
-                                </svg>
-                                Descargar
-                            </button>
+
+                <!-- Card 2 -->
+                <div class="col-12 col-md-6 col-xl-4 col-xxl-3">
+                    <div class="card card-modern text-center shadow-sm border-0 h-100">
+                        <div class="card-body p-4 d-flex flex-column align-items-center justify-content-between">
+                        <div>
+                            <div class="icon-wrapper bg-danger bg-opacity-10 text-danger mb-3">
+                                RSE
+                            </div>
+                            <h5 class="card-title fw-semibold text-dark mb-3">
+                                Registro Actualización Servicios Exequiales
+                            </h5>
+                        </div>
+                        <button type="button" class="btn btn-danger rounded-3 px-4 py-2 shadow-sm fw-semibold d-flex align-items-center gap-2" id="btnDescargar"
+                            onclick="llamarPDF(2,'{% static 'img/Formato_Servicios_Exequiales_2025_page_0001.jpg'%}', {{pkAsociado}}, 'RSE')">
+                            <span id="btnText">Descargar</span>
+                            <div id="btnSpinner" class="spinner-border spinner-border-sm text-light d-none" role="status"></div>
+                        </button>
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
-                    <div class="card shadow-lg border-0 rounded-4 text-center">
-                        <div class="card-body">
-                            <h5 class="card-title fw-bold text-dark">Formato Solicitud Bienestar Social</h5>
-                            <button class="btn btn-danger rounded-pill mt-3 px-4 py-2 shadow-sm" 
-                                onclick="abrir_modal_creacion('{% url 'asociado:modalFormato' pkAsociado 3 %}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-pdf" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
-                                </svg>
-                                Descargar
-                            </button>
+
+                <!-- Card 3 -->
+                <div class="col-12 col-md-6 col-xl-4 col-xxl-3">
+                    <div class="card card-modern text-center shadow-sm border-0 h-100">
+                        <div class="card-body p-4 d-flex flex-column align-items-center justify-content-between">
+                        <div>
+                            <div class="icon-wrapper bg-danger bg-opacity-10 text-danger mb-3">
+                                SAE
+                            </div>
+                            <h5 class="card-title fw-semibold text-dark mb-3">
+                                Formato Solicitud Bienestar Social
+                            </h5>
+                        </div>
+                        <button 
+                            class="btn btn-danger rounded-3 px-4 py-2 shadow-sm fw-semibold d-flex align-items-center gap-2" 
+                            onclick="abrir_modal_creacion('{% url 'asociado:modalFormato' pkAsociado 3 %}')">
+                            <i class="bi bi-filetype-pdf fs-5"></i>
+                            Descargar
+                        </button>
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
-                    <div class="card shadow-lg border-0 rounded-4 text-center">
-                        <div class="card-body">
-                            <h5 class="card-title fw-bold text-dark">Formato Extracto de Pago Mensual</h5>
-                            <button class="btn btn-danger rounded-pill mt-3 px-4 py-2 shadow-sm" 
-                                onclick="abrir_modal_creacion('{% url 'asociado:modalFormato' pkAsociado 4 %}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-pdf" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
-                                </svg>
-                                Descargar
-                            </button>
+
+                <!-- Card 4 -->
+                <div class="col-12 col-md-6 col-xl-4 col-xxl-3">
+                    <div class="card card-modern text-center shadow-sm border-0 h-100">
+                        <div class="card-body p-4 d-flex flex-column align-items-center justify-content-between">
+                        <div>
+                            <div class="icon-wrapper bg-danger bg-opacity-10 text-danger mb-3">
+                                FEP
+                            </div>
+                            <h5 class="card-title fw-semibold text-dark mb-3">
+                                Formato Extracto de Pago Mensual
+                            </h5>
+                        </div>
+                        <button 
+                            class="btn btn-danger rounded-3 px-4 py-2 shadow-sm fw-semibold d-flex align-items-center gap-2" 
+                            onclick="abrir_modal_creacion('{% url 'asociado:modalFormato' pkAsociado 4 %}')">
+                            <i class="bi bi-filetype-pdf fs-5"></i>
+                            Descargar
+                        </button>
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
-                    <div class="card shadow-lg border-0 rounded-4 text-center">
-                        <div class="card-body">
-                            <h5 class="card-title fw-bold text-dark">Formato Solicitud Crédito</h5>
-                            <button class="btn btn-danger rounded-pill mt-3 px-4 py-2 shadow-sm" 
-                                onclick="abrir_modal_creacion('{% url 'asociado:modalFormato' pkAsociado 5 %}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-pdf" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
-                                </svg>
-                                Descargar
-                            </button>
+
+                <!-- Card 5 -->
+                <div class="col-12 col-md-6 col-xl-4 col-xxl-3">
+                    <div class="card card-modern text-center shadow-sm border-0 h-100">
+                        <div class="card-body p-4 d-flex flex-column align-items-center justify-content-between">
+                        <div>
+                            <div class="icon-wrapper bg-danger bg-opacity-10 text-danger mb-3">
+                                FSC
+                            </div>
+                            <h5 class="card-title fw-semibold text-dark mb-3">
+                                Formato Solicitud Crédito
+                            </h5>
+                        </div>
+                        <button 
+                            class="btn btn-danger rounded-3 px-4 py-2 shadow-sm fw-semibold d-flex align-items-center gap-2" 
+                            onclick="abrir_modal_creacion('{% url 'asociado:modalFormato' pkAsociado 5 %}')">
+                            <i class="bi bi-filetype-pdf fs-5"></i>
+                            Descargar
+                        </button>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
-        
+<style>
+    .card-modern {
+    transition: all 0.3s ease;
+    background: #fff;
+    border-radius: 1rem;
+}
 
-        {% comment %} <form> {% endcomment %}
-        <form style="display:none">
+.card-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.icon-wrapper {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-danger {
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-danger:hover {
+    background-color: #b30000;
+    transform: scale(1.03);
+}
+
+</style>
+        
+        {% comment %} <form style="display:block">
             <h2>Tabla Asociado</h2>
             <input type="date" id="id_fechaIngreso" value="{{query.fechaIngreso|date:"Y-m-d"}}">
             <input type="date" id="id_fechaActual" value="{{fechaActual|date:"Y-m-d"}}">
@@ -214,7 +281,7 @@
             <input type="text" id="usuario" value="{{user.first_name}} {{user.last_name}}">
             <h2>Credito</h2>
             <input type="number" id="credito" value="{{credito}}">
-        </form>
+        </form> {% endcomment %}
             
         {% endif %}
 

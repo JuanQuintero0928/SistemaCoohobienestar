@@ -1,5 +1,7 @@
 {% extends 'index.html' %}
 {% load static %}
+{% load humanize %}
+{% load l10n %}
 
 {% block extraHead %}
     <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
@@ -46,12 +48,12 @@
                                                     <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
                                                 </svg>
                                             </a>
-                                            <a class="btn btn-primary" onclick="editarInputActualizacion('editar')" id="btn-editar">
+                                            <a class="btn btn-primary" onclick="editarInputActualizacion1('editar')" id="btn-editar">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill custom-icon-2" viewBox="0 0 16 16">
                                                     <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
                                                 </svg>
                                             </a>  
-                                            <a class="btn btn-danger" onclick="editarInputActualizacion('no_editar')" id="btn-noeditar" hidden>
+                                            <a class="btn btn-danger" onclick="editarInputActualizacion1('no_editar')" id="btn-noeditar" hidden>
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-slash-circle" viewBox="0 0 16 16">
                                                     <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
                                                     <path d="M11.354 4.646a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 .708.708l6-6a.5.5 0 0 0 0-.708"/>
@@ -72,9 +74,9 @@
                             {% comment %} Fila 0 {% endcomment %}
                             <div class="container">
                                 <div class="row">
-                                    <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
                                         <label for="id_tPersona" class="form-label">Tipo *</label>
-                                        <select name="tPersona" class="form-select" id="id_tPersona" disabled>
+                                        <select name="tPersona" class="form-select editable1" id="id_tPersona" disabled>
                                             {% if objAsociado.tPersona == 'PERSONA NATURAL' %}
                                                 <option value="PERSONA NATURAL" selected>PERSONAL NATURAL</option>
                                                 <option value="PERSONA JURIDICA">PERSONAL JURIDICA</option>
@@ -84,117 +86,121 @@
                                             {% endif %}
                                         </select>
                                     </div>
-                                    <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
                                         <label for="id_fechaIngreso" class="form-label">Fecha Ingreso *</label>
-                                        <input type="date" value="{{objAsociado.fechaIngreso|date:"Y-m-d"}}" class="form-control" name="fechaIngreso" id="id_fechaIngreso" required disabled>
+                                        <input type="date" value="{{objAsociado.fechaIngreso|date:"Y-m-d"}}" class="form-control editable1" name="fechaIngreso" id="id_fechaIngreso" required disabled>
                                     </div>
-                                    <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
+                                        <label for="id_fechaActualizacionDatos" class="form-label">Fecha Actualización Datos *</label>
+                                        <input type="date" value="{{objAsociado.fechaActualizacionDatos|date:"Y-m-d"}}" class="form-control editable1" name="fechaActualizacionDatos" id="id_fechaActualizacionDatos" required disabled>
+                                    </div>
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
                                         <label for="id_tAsociado" class="form-label">Tipo Asociado *</label>
-                                        <select name="tAsociado" class="form-select" id="id_tAsociado" disabled>
+                                        <select name="tAsociado" class="form-select editable1" id="id_tAsociado" disabled>
                                             {% for opcion in objEmpresa %}
                                                 <option value="{{opcion.pk}}" {% if objAsociado.tAsociado.pk == opcion.pk %} selected {% endif %}>{{opcion.concepto}}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
-                                    <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
                                         <label for="id_estadoAsociado" class="form-label">Estado Asociado *</label>
-                                        <select name="estadoAsociado" class="form-select" id="id_estadoAsociado" disabled>
+                                        <select name="estadoAsociado" class="form-select editable1" id="id_estadoAsociado" disabled>
                                             <option value="ACTIVO" {% if objAsociado.estadoAsociado == 'ACTIVO' %} selected {% endif %}>ACTIVO</option>
                                             <option value="INACTIVO" {% if objAsociado.estadoAsociado == 'INACTIVO' %} selected {% endif %}>INACTIVO</option>
                                             <option value="RETIRO" {% if objAsociado.estadoAsociado == 'RETIRO' %} selected {% endif %}>RETIRO</option>
                                         </select>
                                     </div>
-                                    <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
                                         <div id="retiroContainer" hidden>
                                             <label for="id_fechaRetiro" class="form-label">Fecha Retiro *</label>
-                                            <input type="date" name="fechaRetiro" value="{{objAsociado.fechaRetiro|date:"Y-m-d"}}" class="form-control" id="id_fechaRetiro" required disabled>
+                                            <input type="date" name="fechaRetiro" value="{{objAsociado.fechaRetiro|date:"Y-m-d"}}" class="form-control editable1" id="id_fechaRetiro" required disabled>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
+                            <hr>
                             {% comment %} Fila 1 {% endcomment %}
                             <div class="container">
                                 <div class="row">
-                                    <div class="col-12 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-md-6 mb-3">
                                         <label for="id_nombre" class="form-label">Nombres *</label>
-                                        <input type="text" value="{{objAsociado.nombre}}" class="form-control input-form" name="nombre" id="id_nombre" maxlength="30" required disabled>
+                                        <input type="text" value="{{objAsociado.nombre}}" class="form-control input-form editable1" name="nombre" id="id_nombre" maxlength="30" required disabled>
                                     </div>
-                                    <div class="col-12 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-md-6 mb-3">
                                         <label for="id_apellido" class="form-label">Apellidos *</label>
-                                        <input type="text" value="{{objAsociado.apellido}}" class="form-control input-form" name="apellido" id="id_apellido" maxlength="30" required disabled>
+                                        <input type="text" value="{{objAsociado.apellido}}" class="form-control input-form editable1" name="apellido" id="id_apellido" maxlength="30" required disabled>
                                     </div>
                                 </div>
                             </div>
 
-                    
                             {% comment %} Fila 2 {% endcomment %}
                             <div class="container">
                                 <div class="row">
-                                    <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
                                         <label for="id_tipoDocumento" class="form-label">Tipo Documento *</label>
-                                        <select name="tipoDocumento" class="form-select" id="id_tipoDocumento" disabled>
+                                        <select name="tipoDocumento" class="form-select editable1" id="id_tipoDocumento" disabled>
                                             <option value="CEDULA" {% if objAsociado.tipoDocumento == 'CEDULA' %} selected {% endif %}>CEDULA</option>
                                             <option value="REGISTRO CIVIL" {% if objAsociado.tipoDocumento == 'REGISTRO CIVIL' %} selected {% endif %}>REGISTRO CIVIL</option>
                                             <option value="TARJETA IDENTIDAD" {% if objAsociado.tipoDocumento == 'TARJETA IDENTIDAD' %} selected {% endif %}>TARJETA IDENTIDAD</option>
                                             <option value="CEDULA EXTRANJERA" {% if objAsociado.tipoDocumento == 'CEDULA EXTRANJERA' %} selected {% endif %}>CEDULA EXTRANJERA</option>
                                             <option value="PASAPORTE" {% if objAsociado.tipoDocumento == 'PASAPORTE' %} selected {% endif %}>PASAPORTE</option>
-                                            <option value="PPT" {% if objAsociado.tipoDocumento == 'PPT' %} selected {% endif %}>PPT</option>
+                                            {% comment %} <option value="PPT" {% if objAsociado.tipoDocumento == 'PPT' %} selected {% endif %}>PPT</option> {% endcomment %}
                                         </select>
                                     </div>
-                                    <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
                                         <label for="id_numDocumento" class="form-label">Número Documento *</label>
-                                        <input type="number" value="{{objAsociado.numDocumento}}" class="form-control" name="numDocumento" id="id_numDocumento" min="0" required disabled>
+                                        <input type="number" value="{{objAsociado.numDocumento}}" class="form-control editable1" name="numDocumento" id="id_numDocumento" min="0" required disabled>
                                     </div>
-                                    <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
                                         <label for="id_fechaExpedicion" class="form-label">Fecha Expedición *</label>
-                                        <input type="date" value="{{objAsociado.fechaExpedicion|date:"Y-m-d"}}" class="form-control" name="fechaExpedicion" id="id_fechaExpedicion" required disabled>
+                                        <input type="date" value="{{objAsociado.fechaExpedicion|date:"Y-m-d"}}" class="form-control editable1" name="fechaExpedicion" id="id_fechaExpedicion" required disabled>
                                     </div>
-                                    <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
                                         <label for="id_mpioDoc" class="form-label">Lugar Expedición *</label>
-                                        <select name="mpioDoc" class="form-select form-control" id="id_mpioDoc" required disabled>
+                                        <select name="mpioDoc" class="form-select form-control editable1" id="id_mpioDoc" required disabled>
                                             <option value="{{ objAsociado.mpioDoc.id }}" selected>
                                                 {{ objAsociado.mpioDoc.nombre }} - {{ objAsociado.mpioDoc.departamento.nombre }}
                                             </option>
                                         </select>
                                     </div>
                                     {% comment %} Fila 3 {% endcomment %}
-                                    <div class="col-12 col-xl-2 col-lg-4 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-2 mb-3">
                                         <label for="id_nacionalidad" class="form-label">Nacionalidad *</label>
-                                        <input type="text" value="{{objAsociado.nacionalidad}}" class="form-control input-form" name="nacionalidad" id="id_nacionalidad" maxlength="30" required disabled>
+                                        <input type="text" value="{{objAsociado.nacionalidad}}" class="form-control input-form editable1" name="nacionalidad" id="id_nacionalidad" maxlength="30" required disabled>
                                     </div>
-                                    <div class="col-12 col-xl-2 col-lg-4 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3">
                                         <label for="id_fechaNacimiento" class="form-label">Fecha Nacimiento *</label>
-                                        <input type="date" value="{{objAsociado.fechaNacimiento|date:"Y-m-d"}}" class="form-control" name="fechaNacimiento" id="id_fechaNacimiento" required disabled>
+                                        <input type="date" value="{{objAsociado.fechaNacimiento|date:"Y-m-d"}}" class="form-control editable1" name="fechaNacimiento" id="id_fechaNacimiento" required disabled>
                                     </div>
-                                    <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
                                         <label for="id_dtoNacimiento" class="form-label">Departamento Nacimiento *</label>
-                                        <select name="dtoNacimiento" class="form-select departamento-select" id="id_dtoNacimiento" data-target="#id_mpioNacimiento" required disabled>
+                                        <select name="dtoNacimiento" class="form-select departamento-select editable1" id="id_dtoNacimiento" data-target="#id_mpioNacimiento" required disabled>
                                             {% for dpto in query_dpto %}
                                                 <option value="{{dpto.id}}" {% if dpto.id == objAsociado.dtoNacimiento.pk %} selected {% endif %}>{{dpto.nombre}}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
-                                    <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
                                         <label for="id_mpioNacimiento" class="form-label">Municipio Nacimiento *</label>
-                                        <select name="mpioNacimiento" class="form form-control" id="id_mpioNacimiento" required disabled>
+                                        <select name="mpioNacimiento" class="form form-control editable1" id="id_mpioNacimiento" required disabled>
                                             <option value="{{ objAsociado.mpioNacimiento.id }}" selected>
                                                 {{ objAsociado.mpioNacimiento.nombre }}
                                             </option>
                                         </select>
                                     </div>
-                                    <div class="col-12 col-xl-2 col-lg-4 col-md-6 mb-3">
+                                    
+                                    {% comment %} Fila 4 {% endcomment %}
+                                    <div class="col-12 col-xxl-2 col-md-6 mb-3">
                                         <label for="id_genero" class="form-label">Género *</label>
-                                        <select name="genero" class="form-select" id="id_genero" disabled>
+                                        <select name="genero" class="form-select editable1" id="id_genero" disabled>
                                             <option value="FEMENINO" {% if objAsociado.genero == "FEMENINO" %} selected {% endif %}>FEMENINO</option>
                                             <option value="MASCULINO" {% if objAsociado.genero == "MASCULINO" %} selected {% endif %}>MASCULINO</option>
                                         </select>
                                     </div>
-                    
-                                    {% comment %} Fila 4 {% endcomment %}
-                                    <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
                                         <label for="id_estadoCivil" class="form-label">Estado Civil *</label>
-                                        <select name="estadoCivil" class="form-select" id="id_estadoCivil" disabled>
+                                        <select name="estadoCivil" class="form-select editable1" id="id_estadoCivil" disabled>
                                             <option value="SOLTERO(A)" {% if objAsociado.estadoCivil == "SOLTERO(A)" %} selected {% endif %}>SOLTERO(A)</option>
                                             <option value="CASADO(A)" {% if objAsociado.estadoCivil == "CASADO(A)" %} selected {% endif %}>CASADO(A)</option>
                                             <option value="UNION LIBRE" {% if objAsociado.estadoCivil == "UNION LIBRE" %} selected {% endif %}>UNION LIBRE</option>
@@ -203,17 +209,24 @@
                                             <option value="VIUDO(A)" {% if objAsociado.estadoCivil == "VIUDO(A)" %} selected {% endif %}>VIUDO(A)</option>
                                         </select>
                                     </div>
-                                    <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-2 col-md-6 mb-3">
                                         <label for="id_tipoVivienda" class="form-label">Tipo Vivienda *</label>
-                                        <select name="tipoVivienda" class="form-select" id="id_tipoVivienda" disabled>
+                                        <select name="tipoVivienda" class="form-select editable1" id="id_tipoVivienda" disabled>
                                             <option value="PROPIA" {% if objAsociado.tipoVivienda == "PROPIA" %} selected {% endif %}>PROPIA</option>
                                             <option value="FAMILIAR" {% if objAsociado.tipoVivienda == "FAMILIAR" %} selected {% endif %}>FAMILIAR</option>
                                             <option value="ARRENDADA" {% if objAsociado.tipoVivienda == "ARRENDADA" %} selected {% endif %}>ARRENDADA</option>
                                         </select>
                                     </div>
-                                    <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
+                                        <label for="id_zonaUbicacion" class="form-label">Zona Ubicación *</label>
+                                        <select name="zonaUbicacion" class="form-select editable1" id="id_zonaUbicacion" disabled>
+                                            <option value="RURAL" {% if objAsociado.zonaUbicacion == 'RURAL' %} selected {% endif %}>RURAL</option>
+                                            <option value="URBANA" {% if objAsociado.zonaUbicacion == 'URBANA' %} selected {% endif %}>URBANA</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-xxl-2 col-md-6 mb-3">
                                         <label for="id_estrato" class="form-label">Estrato *</label>
-                                        <input type="number" value="{{objAsociado.estrato}}" class="form-control" name="estrato" id="id_estrato" min="0" required disabled>
+                                        <input type="number" value="{{objAsociado.estrato}}" class="form-control editable1" name="estrato" id="id_estrato" min="0" max="6" required disabled>
                                     </div>
                                 </div>
                             </div>
@@ -222,17 +235,40 @@
                             {% comment %} Fila 5 {% endcomment %}
                             <div class="container">
                                 <div class="row">
-                                    <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3">
+                                        <label for="id_empleadoCoohobienestar" class="form-label">¿Empleado(a) de Coohobienestar? *</label>
+                                        <select name="empleadoCoohobienestar" class="form-select editable1" id="id_empleadoCoohobienestar" required disabled>
+                                            <option value="SI" {% if objAsociado.empleadoCooho == 'SI' %} selected {% endif %}>SI</option>
+                                            <option value="NO" {% if objAsociado.empleadoCooho == 'NO' %} selected {% endif %}>NO</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
+                                        <label for="id_nPersonasCargo" class="form-label">N° de Personas a Cargo *</label>
+                                        <input type="number" class="form-control editable1" value="{{ objAsociado.nPersonasCargo }}" name="nPersonasCargo" id="id_nPersonasCargo" min="0" required disabled>
+                                    </div>
+                                    <div class="col-12 col-xxl-2 col-md-6 mb-3">
+                                        <label for="id_nHijos" class="form-label">N° de Hijos *</label>
+                                        <input type="number" class="form-control editable1" value="{{ objAsociado.nHijos }}" name="nHijos" id="id_nHijos" min="0" required disabled>
+                                    </div>
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
+                                        <label for="id_cabezaFamilia" class="form-label">¿Hombre/Mujer Cabeza de Familia? *</label>
+                                        <select name="cabezaFamilia" class="form-select editable1" id="id_cabezaFamilia" required disabled>
+                                            <option value="SI" {% if objAsociado.cabezaFamilia == 'SI' %} selected {% endif %}>SI</option>
+                                            <option value="NO" {% if objAsociado.cabezaFamilia == 'NO' %} selected {% endif %}>NO</option>
+                                        </select>
+                                    </div>
+                                    {% comment %}  {% endcomment %}
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3">
                                         <label for="id_direccion" class="form-label">Dirección *</label>
-                                        <input type="text" value="{{objAsociado.direccion}}" class="form-control input-form" name="direccion" id="id_direccion" maxlength="50" required disabled>
+                                        <input type="text" value="{{objAsociado.direccion}}" class="form-control input-form editable1" name="direccion" id="id_direccion" maxlength="50" required disabled>
                                     </div>
-                                    <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3">
                                         <label for="id_barrio" class="form-label">Barrio o Condominio *</label>
-                                        <input type="text" value="{{objAsociado.barrio}}" class="form-control input-form" name="barrio" id="id_barrio" maxlength="50" required disabled>
+                                        <input type="text" value="{{objAsociado.barrio}}" class="form-control input-form editable1" name="barrio" id="id_barrio" maxlength="50" required disabled>
                                     </div>
-                                    <div class="col-12 col-xl-4 col-lg-4 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3">
                                         <label for="id_deptoResidencia" class="form-label">Departamento *</label>
-                                        <select name="deptoResidencia" class="form-select departamento-select" id="id_deptoResidencia" data-target="#id_mpioResidencia" disabled>
+                                        <select name="deptoResidencia" class="form-select departamento-select editable1" id="id_deptoResidencia" data-target="#id_mpioResidencia" disabled>
                                             {% for dpto in query_dpto %}
                                                 <option value="{{dpto.id}}" {% if dpto.id == objAsociado.deptoResidencia.pk %}selected{% endif %}>{{dpto.nombre}}</option>
                                             {% endfor %}
@@ -240,31 +276,31 @@
                                     </div>
                                     
                                     {% comment %} Fila 6 {% endcomment %}
-                                    <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                                    <div class="col-12 col-md-6 mb-3">
                                         <label for="id_mpioResidencia" class="form-label">Municipio *</label>
-                                        <select name="mpioResidencia" class="form form-control" id="id_mpioResidencia" disabled>
+                                        <select name="mpioResidencia" class="form form-control editable1" id="id_mpioResidencia" disabled>
                                             <option value="{{ objAsociado.mpioResidencia.id }}" selected>
                                                 {{ objAsociado.mpioResidencia.nombre }}
                                             </option>
                                         </select>
                                     </div>
-                                    <div class="col-12 col-xl-3 col-lg-4 col-md-6 mb-3">
+                                    <div class="col-12 col-md-6 mb-3">
                                         <label for="id_email" class="form-label">Correo Electronico *</label>
-                                        <input type="email" value="{{objAsociado.email}}" class="form-control" name="email" id="id_email" autocomplete="off" required disabled>
+                                        <input type="email" value="{{objAsociado.email}}" class="form-control editable1" name="email" id="id_email" autocomplete="off" required disabled>
                                     </div>
-                                    <div class="col-12 col-xl-2 col-lg-4 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3">
                                         <label for="id_numResidencia" class="form-label">Telefono Residencia</label>
-                                        <input type="number" {% if objAsociado.numResidencia %} value="{{objAsociado.numResidencia}}" {% endif %} class="form-control" name="numResidencia" id="id_numResidencia" min="0" disabled>
+                                        <input type="number" {% if objAsociado.numResidencia %} value="{{objAsociado.numResidencia}}" {% endif %} class="form-control editable1" name="numResidencia" id="id_numResidencia" min="0" disabled>
                                     </div>
-                                    <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3">
                                         <label for="id_indicativo" class="form-label">Indicativo *</label>
-                                        <select class="form-control" name="indicativo" id="id_indicativo" required disabled data-pais-seleccionado="{{ pais_seleccionado }}">
+                                        <select class="form-control editable1" name="indicativo" id="id_indicativo" required disabled data-pais-seleccionado="{{ pais_seleccionado }}">
                                             <!-- Aquí se llenarán los países con banderas -->
                                         </select>
                                     </div>
-                                    <div class="col-12 col-xl-2 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3">
                                         <label for="id_numCelular" class="form-label">Telefono Celular *</label>
-                                        <input type="number" value="{{objAsociado.numCelular}}" class="form-control" name="numCelular" id="id_numCelular" min="0" required disabled>
+                                        <input type="number" value="{{objAsociado.numCelular}}" class="form-control editable1" name="numCelular" id="id_numCelular" min="0" required disabled>
                                     </div>
                                 </div>
                             </div>
@@ -278,25 +314,26 @@
                             {% comment %} Fila 8 {% endcomment %}
                             <div class="col-12 col-lg-3 col-md-12 mb-3 form-check">
                                 <label for="id_envioInfoCorreo" class="form-check-label">Correo Electronico</label>
-                                <input type="checkbox" class="form-check-input" name="envioInfoCorreo" id="id_envioInfoCorreo" {% if objAsociado.envioInfoCorreo == True %} checked {% endif %} disabled>
+                                <input type="checkbox" class="form-check-input editable1" name="envioInfoCorreo" id="id_envioInfoCorreo" {% if objAsociado.envioInfoCorreo == True %} checked {% endif %} disabled>
                             </div>
                             <div class="col-12 col-lg-3 col-md-12 mb-3 form-check">
                                 <label for="id_envioInfoMensaje" class="form-check-label">Mensaje de Texto</label>
-                                <input type="checkbox" class="form-check-input" name="envioInfoMensaje" id="id_envioInfoMensaje" {% if objAsociado.envioInfoMensaje == True %} checked {% endif %} disabled>
+                                <input type="checkbox" class="form-check-input editable1" name="envioInfoMensaje" id="id_envioInfoMensaje" {% if objAsociado.envioInfoMensaje == True %} checked {% endif %} disabled>
                             </div>
                             <div class="col-12 col-lg-3 col-md-12 mb-3 form-check">
                                 <label for="id_envioInfoWhatsapp" class="form-check-label">WhatsApp</label>
-                                <input type="checkbox" class="form-check-input" name="envioInfoWhatsapp" id="id_envioInfoWhatsapp" {% if objAsociado.envioInfoWhatsapp == True %} checked {% endif %} disabled>
+                                <input type="checkbox" class="form-check-input editable1" name="envioInfoWhatsapp" id="id_envioInfoWhatsapp" {% if objAsociado.envioInfoWhatsapp == True %} checked {% endif %} disabled>
                             </div>
 
                             <hr>
                             
                             {% comment %} Fila 9 {% endcomment %}
+                            <center><h4>NIVEL EDUCATIVO</h4></center>
                             <div class="container">
                                 <div class="row">
-                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3">
                                         <label for="id_nivelEducativo" class="form-label">Nivel Educativo *</label>
-                                        <select name="nivelEducativo" class="form-select" id="id_nivelEducativo" required disabled>
+                                        <select name="nivelEducativo" class="form-select editable1" id="id_nivelEducativo" required disabled>
                                             <option value="PRIMARIA" {% if objAsociado.nivelEducativo == 'PRIMARIA' %} selected {% endif %}>PRIMARIA</option>
                                             <option value="SECUNDARIA" {% if objAsociado.nivelEducativo == 'SECUNDARIA' %} selected {% endif %}>SECUNDARIA</option>
                                             <option value="TECNICO" {% if objAsociado.nivelEducativo == 'TECNICO' %} selected {% endif %}>TECNICO</option>
@@ -307,38 +344,38 @@
                                             <option value="DOCTORADO" {% if objAsociado.nivelEducativo == 'DOCTORADO' %} selected {% endif %}>DOCTORADO</option>
                                         </select>
                                     </div>
-                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3">
                                         <label for="id_tituloPregrado" class="form-label">Titulo Obtenido de Pregrado</label>
-                                        <input type="text" {% if objAsociado.tituloPregrado %}value="{{ objAsociado.tituloPregrado }}"{% endif %} class="form-control input-form" name="tituloPregrado" id="id_tituloPregrado" maxlength="100" disabled>
+                                        <input type="text" {% if objAsociado.tituloPregrado %}value="{{ objAsociado.tituloPregrado }}"{% endif %} class="form-control input-form editable1" name="tituloPregrado" id="id_tituloPregrado" maxlength="100" disabled>
                                     </div>
-                                    <div class="col-12 col-xl-4 col-lg-12 col-md-12 mb-3">
+                                    <div class="col-12 col-xxl-4 col-md-12 mb-3">
                                         <label for="id_tituloPosgrado" class="form-label">Titulo Obtenido de Posgrado</label>
-                                        <input type="text" {% if objAsociado.tituloPosgrado %} value="{{ objAsociado.tituloPosgrado }}" {% endif %} class="form-control input-form" name="tituloPosgrado" id="id_tituloPosgrado" maxlength="100" disabled>
+                                        <input type="text" {% if objAsociado.tituloPosgrado %} value="{{ objAsociado.tituloPosgrado }}" {% endif %} class="form-control input-form editable1" name="tituloPosgrado" id="id_tituloPosgrado" maxlength="100" disabled>
                                     </div>
                                 </div>
                             </div>
 
                             <hr>
 
-                            <center><h3>REFERENCIA FAMILIAR</h3></center>
+                            <center><h4>REFERENCIA FAMILIAR</h4></center>
                             <div class="container">
                                 <div class="row">
-                                    <div class="col-12 col-xl-4 col-lg-12 col-md-12 mb-3">
+                                    <div class="col-12 col-xxl-4 col-md-12 mb-3">
                                         <label for="id_nombreRF" class="form-label">Nombre Familiar de Contacto *</label>
-                                        <input type="text" class="form-control input-form" {% if objAsociado.nombreRF %}value="{{ objAsociado.nombreRF }}"{% endif %} name="nombreRF" id="id_nombreRF" maxlength="50" disabled>
+                                        <input type="text" class="form-control input-form editable1" {% if objAsociado.nombreRF %}value="{{ objAsociado.nombreRF }}"{% endif %} name="nombreRF" id="id_nombreRF" maxlength="50" disabled>
                                     </div>
-                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3">
                                         <label for="id_parentesco" class="form-label">Parentesco *</label>
-                                        <select name="parentesco" class="form-select" id="id_parentesco" disabled>
+                                        <select name="parentesco" class="form-select editable1" id="id_parentesco" disabled>
                                             <option value="0" selected>&nbsp;</option>
                                             {% for parent in objParentesco %}
                                                 <option value="{{parent.nombre}}" {% if parent.nombre == objAsociado.parentesco %} selected {% endif %}>{{parent.nombre}}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
-                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3">
                                         <label for="id_numContacto" class="form-label">Teléfono de Familiar *</label>
-                                        <input type="number" class="form-control" {% if objAsociado.numContacto %}value="{{ objAsociado.numContacto }}"{% endif %} name="numContacto" id="id_numContacto" min="0" disabled>
+                                        <input type="number" class="form-control editable1" {% if objAsociado.numContacto %}value="{{ objAsociado.numContacto }}"{% endif %} name="numContacto" id="id_numContacto" min="0" disabled>
                                     </div>
                                 </div>
                             </div>
@@ -351,13 +388,13 @@
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false" aria-controls="panelsStayOpen-collapseTwo">
-                        Laboral
+                        Laboral y Financiera
                     </button>
                 </h2>
                 <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse">
                     <div class="accordion-body">
                         {% comment %} Formulario Informacion Laboral {% endcomment %}
-                        <form method="post" class="row g-3" id="form" action="{% url 'asociado:editarLaboral' pkAsociado %}">
+                        <form method="post" class="row g-3" id="formLaboral" data-url="{% url 'asociado:editarLaboral' pkAsociado %}">
                             {% csrf_token %}   
                             
                             <div class="container">
@@ -394,119 +431,173 @@
                             {% comment %} Fila 1 {% endcomment %}
                             <div class="container">
                                 <div class="row">
-                                    <div class="col-12 col-xl-4 col-lg-12 col-md-12 mb-3">
+                                    <div class="col-12 col-md-6 mb-3">
                                         <label for="id_ocupacion" class="form-label">Ocupacion *</label>
-                                        <input type="text" {% if objLaboral.ocupacion != None %} value="{{ objLaboral.ocupacion }}" {% endif %} class="form-control input-form" name="ocupacion" id="id_ocupacion" maxlength="50" required disabled>
+                                        <select name="ocupacion" class="form-select editable2" id="id_ocupacion" disabled> 
+                                            <option value="0" selected>&nbsp;</option>
+                                            <option value="ESTUDIANTE" {%if objLaboral.ocupacion == 'ESTUDIANTE' %} selected {% endif %}>ESTUDIANTE</option>
+                                            <option value="EMPLEADO" {%if objLaboral.ocupacion == 'EMPLEADO' %} selected {% endif %}>EMPLEADO</option>
+                                            <option value="PENSIONADO" {%if objLaboral.ocupacion == 'PENSIONADO' %} selected {% endif %}>PENSIONADO</option>
+                                            <option value="INDEPENDIENTE" {%if objLaboral.ocupacion == 'INDEPENDIENTE' %} selected {% endif %}>INDEPENDIENTE</option>
+                                            <option value="COMERCIANTE" {%if objLaboral.ocupacion == 'COMERCIANTE' %} selected {% endif %}>COMERCIANTE</option>
+                                            <option value="HOGAR" {%if objLaboral.ocupacion == 'HOGAR' %} selected {% endif %}>HOGAR</option>
+                                            <option value="CESANTE" {%if objLaboral.ocupacion == 'CESANTE' %} selected {% endif %}>CESANTE</option>
+                                            <option value="OTRO" {%if objLaboral.ocupacion == 'OTRO' %} selected {% endif %}>OTRO</option>
+                                        </select>
+                                        {% comment %} <input type="text" {% if objLaboral.ocupacion != None %} value="{{ objLaboral.ocupacion }}" {% endif %} class="form-control input-form" name="ocupacion" id="id_ocupacion" maxlength="50" required disabled> {% endcomment %}
                                     </div>
-                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-md-6 mb-3 d-none" id="div-ocupacion-otro">
+                                        <label for="id_ocupacion_otro" class="form-label">¿Cuál Ocupación? *</label>
+                                        <input type="text" {% if objLaboral.ocupacionOtro %} value="{{ objLaboral.ocupacionOtro }}" {% endif %} class="form-control input-form editable2" name="ocupacionOtro" id="id_ocupacion_otro" maxlength="50" disabled>
+                                    </div>
+                                    <div class="col-12 col-md-6 mb-3">
+                                        <label for="id_tipoEmpresa" class="form-label">Tipo Empresa o Negocio</label>
+                                        <select name="tipoEmpresa" class="form-select editable2" id="id_tipoEmpresa" disabled>
+                                            <option value="0" selected>&nbsp;</option>
+                                            <option value="PUBLICA" {%if objLaboral.tipoEmpresa == 'PUBLICA' %} selected {% endif %}>PUBLICA</option>
+                                            <option value="PRIVADA" {%if objLaboral.tipoEmpresa == 'PRIVADA' %} selected {% endif %}>PRIVADA</option>
+                                            <option value="MIXTA" {%if objLaboral.tipoEmpresa == 'MIXTA' %} selected {% endif %}>MIXTA</option>
+                                            <option value="OTRO" {%if objLaboral.tipoEmpresa == 'OTRO' %} selected {% endif %}>OTRO</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-6 mb-3 d-none" id="div-tipoEmpresa-otro">
+                                        <label for="id_tipoEmpresa_otro" class="form-label">¿Cuál Tipo Empresa? *</label>
+                                        <input type="text" {% if objLaboral.tipoEmpresaOtro %} value="{{ objLaboral.tipoEmpresaOtro }}" {% endif %} class="form-control input-form editable2" name="tipoEmpresaOtro" id="id_tipoEmpresa_otro" maxlength="50" disabled>
+                                    </div>
+                                    <div class="col-12 col-xxl-6 col-md-6 mb-3">
                                         <label for="id_nombreEmpresa" class="form-label">Nombre Empresa</label>
-                                        <input type="text" {% if objLaboral.nombreEmpresa != None %} value="{{ objLaboral.nombreEmpresa }}" {% endif %} class="form-control input-form" name="nombreEmpresa" id="id_nombreEmpresa" maxlength="50" disabled>
+                                        <input type="text" {% if objLaboral.nombreEmpresa %} value="{{ objLaboral.nombreEmpresa }}" {% endif %} class="form-control input-form editable2" name="nombreEmpresa" id="id_nombreEmpresa" maxlength="50" disabled>
                                     </div>
-                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-6 col-md-6 mb-3">
                                         <label for="id_cargo" class="form-label">Cargo</label>
-                                        <input type="text" {% if objLaboral.cargo != None %} value="{{ objLaboral.cargo }}" {% endif %} class="form-control input-form" name="cargo" id="id_cargo" maxlength="50" disabled>
+                                        <input type="text" {% if objLaboral.cargo %} value="{{ objLaboral.cargo }}" {% endif %} class="form-control input-form editable2" name="cargo" id="id_cargo" maxlength="50" disabled>
                                     </div>
-                                </div>
-                            </div>
-
-                            {% comment %} Fila 2 {% endcomment %}
-                            <div class="container">
-                                <div class="row">
-                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
-                                        <label for="id_nomRepresenLegal" class="form-label">Nombre Representante Legal</label>
-                                        <input type="text" {% if objLaboral.nomRepresenLegal != None %} value="{{ objLaboral.nomRepresenLegal }}" {% endif %} class="form-control input-form" name="nomRepresenLegal" id="id_nomRepresenLegal" maxlength="50" disabled>
+                                    <div class="col-12 col-xxl-6 col-md-6 mb-3">
+                                        <label for="id_tipoContrato" class="form-label">Tipo de Contrato</label>
+                                        <select name="tipoContrato" class="form-select editable2" id="id_tipoContrato" disabled>
+                                            <option value="0" selected>&nbsp;</option>
+                                            <option value="INDEFINIDO" {%if objLaboral.tipoContrato == 'INDEFINIDO' %} selected {% endif %}>INDEFINIDO</option>
+                                            <option value="TERMINO FIJO" {%if objLaboral.tipoContrato == 'TERMINO FIJO' %} selected {% endif %}>TERMINO FIJO</option>
+                                            <option value="OBRA O LABOR" {%if objLaboral.tipoContrato == 'OBRA O LABOR' %} selected {% endif %}>OBRA O LABOR</option>
+                                            <option value="PRESTACION SERVICIOS" {%if objLaboral.tipoContrato == 'PRESTACION SERVICIOS' %} selected {% endif %}>PRESTACION SERVICIOS</option>
+                                            <option value="HONORARIOS" {%if objLaboral.tipoContrato == 'HONORARIOS' %} selected {% endif %}>HONORARIOS</option>
+                                        </select>
                                     </div>
-                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
-                                        <label for="id_numDocRL" class="form-label">N° Documento Representante Legal</label>
-                                        <input type="number" {% if objLaboral.numDocRL %} value="{{objLaboral.numDocRL}}" {% endif %} class="form-control" name="numDocRL" id="id_numDocRL" min="0" disabled>
-                                    </div>
-                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
                                         <label for="id_fechaInicio" class="form-label">Fecha Inicio</label>
-                                        <input type="date" value="{{objLaboral.fechaInicio|date:"Y-m-d"}}" class="form-control" name="fechaInicio" id="id_fechaInicio" disabled>
+                                        <input type="date" value="{{objLaboral.fechaInicio|date:"Y-m-d"}}" class="form-control editable2" name="fechaInicio" id="id_fechaInicio" disabled>
                                     </div>
-                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
                                         <label for="id_fechaTerminacion" class="form-label">Fecha Terminación</label>
-                                        <input type="date" value="{{objLaboral.fechaTerminacion|date:"Y-m-d"}}" class="form-control" name="fechaTerminacion" id="id_fechaTerminacion" disabled>
+                                        <input type="date" value="{{objLaboral.fechaTerminacion|date:"Y-m-d"}}" class="form-control editable2" name="fechaTerminacion" id="id_fechaTerminacion" disabled>
                                     </div>
-                                </div>
-                            </div>
-
-                            {% comment %} Fila 3 {% endcomment %}
-                            <div class="container">
-                                <div class="row">
-                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
-                                        <label for="id_direccion2" class="form-label">Dirección</label>
-                                        <input type="text" {% if objLaboral.direccion != None %} value="{{ objLaboral.direccion }}" {% endif %} class="form-control input-form" name="direccion" id="id_direccion2" maxlength="100" disabled>
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
+                                        <label for="id_nomRepresenLegal" class="form-label">Nombre Representante Legal</label>
+                                        <input type="text" {% if objLaboral.nomRepresenLegal %} value="{{ objLaboral.nomRepresenLegal }}" {% endif %} class="form-control input-form editable2" name="nomRepresenLegal" id="id_nomRepresenLegal" maxlength="50" disabled>
                                     </div>
-                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
+                                        <label for="id_numDocRL" class="form-label">N° Documento Representante Legal</label>
+                                        <input type="number" {% if objLaboral.numDocRL %} value="{{objLaboral.numDocRL}}" {% endif %} class="form-control editable2" name="numDocRL" id="id_numDocRL" min="0" disabled>
+                                    </div>
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
+                                        <label for="id_nomJefeInmediato" class="form-label">Nombre Jefe Inmediato</label>
+                                        <input type="text" {% if objLaboral.nomJefeInmediato %} value="{{ objLaboral.nomJefeInmediato }}" {% endif %} class="form-control input-form editable2" name="nomJefeInmediato" id="id_nomJefeInmediato" maxlength="50" disabled>
+                                    </div>
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
+                                        <label for="id_telefonoJefe" class="form-label">Telefono Jefe Inmediato</label>
+                                        <input type="number" {% if objLaboral.telefonoJefeInmediato %} value="{{objLaboral.telefonoJefeInmediato}}" {% endif %} class="form-control editable2" name="telefonoJefeInmediato" id="id_telefonoJefe" min="0" max="9999999999" disabled>   
+                                    </div>
+                                    <div class="col-12 col-xxl-6 col-md-6 mb-3">
+                                        <label for="id_direccion2" class="form-label">Dirección Laboral o Comercial</label>
+                                        <input type="text" {% if objLaboral.direccion %} value="{{ objLaboral.direccion }}" {% endif %} class="form-control input-form editable2" name="direccion" id="id_direccion2" maxlength="100" disabled>
+                                    </div>
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
                                         <label for="id_dptoTrabajo" class="form-label">Departamento</label>
-                                        <select name="dptoTrabajo" class="form-select departamento-select" id="id_dptoTrabajo" data-target="#id_mpioTrabajo" disabled>
+                                        <select name="dptoTrabajo" class="form-select departamento-select editable2" id="id_dptoTrabajo" data-target="#id_mpioTrabajo" disabled>
                                             <option value="0" selected>&nbsp;</option>
                                             {% for dpto in query_dpto %}
                                                 <option value="{{dpto.id}}" {% if dpto.id == objLaboral.dptoTrabajo.pk %} selected {% endif %}>{{dpto.nombre}}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
-                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
                                         <label for="id_mpioTrabajo" class="form-label">Municipio</label>
-                                        <select name="mpioTrabajo" class="form form-control" id="id_mpioTrabajo" disabled>
+                                        <select name="mpioTrabajo" class="form form-control editable2" id="id_mpioTrabajo" disabled>
                                             <option value="{{ objLaboral.mpioTrabajo.id }}" selected>
                                                 {{ objLaboral.mpioTrabajo.nombre }}
                                             </option>
                                         </select>  
                                     </div>
-                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
                                         <label for="id_telefono" class="form-label">Telefono</label>
-                                        <input type="number" {% if objLaboral.telefono %} value="{{objLaboral.telefono}}" {% endif %} class="form-control" name="telefono" id="id_telefono" min="0" max="9999999999" disabled>   
+                                        <input type="number" {% if objLaboral.telefonoLaboral %} value="{{objLaboral.telefonoLaboral}}" {% endif %} class="form-control editable2" name="telefonoLaboral" id="id_telefono" min="0" max="9999999999" disabled>   
                                     </div>
-                                </div>
-                            </div>
-
-
-                            {% comment %} Fila 4 {% endcomment %}
-                            <div class="container">
-                                <div class="row">
-                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
+                                        <label for="id_correoLaboral" class="form-label">Correo Electronico</label>
+                                        <input type="email" {% if objLaboral.correoLaboral %} value="{{objLaboral.correoLaboral}}" {% endif %} class="form-control editable2" name="correoLaboral" id="id_correoLaboral" autocomplete="off" disabled>
+                                    </div>
+                                    
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
                                         <label for="id_admRP" class="form-label">¿Administra Recursos Públicos?</label>
-                                        <select name="admRP" class="form-select" id="id_admRP" disabled> 
+                                        <select name="admRP" class="form-select editable2" id="id_admRP" disabled> 
                                             <option value="NO" {%if objLaboral.admRP == 'NO' %} selected {% endif %}>NO</option>
                                             <option value="SI" {%if objLaboral.admRP == 'SI' %} selected {% endif %}>SI</option>
                                         </select>
                                     </div>
-                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
                                         <label for="id_pep" class="form-label">¿Esta catalogado como PEP? (Persona Expuesta Publicamente?</label>
-                                        <select name="pep" class="form-select" id="id_pep" disabled>
+                                        <select name="pep" class="form-select editable2" id="id_pep" disabled>
                                             <option value="NO" {%if objLaboral.pep == 'NO' %} selected {% endif %}>NO</option>
                                             <option value="SI" {%if objLaboral.pep == 'SI' %} selected {% endif %}>SI</option>
                                         </select>
                                     </div>
-                                    <div class="col-12 col-xl-3 col-lg-6 col-md-12 mb-3">
+                                    <div class="col-12 col-md-6 mb-3">
                                         <label for="id_activEcono" class="form-label">Describa Actividad Economica</label>
-                                        <input type="text" {% if objLaboral.activEcono != None %} value="{{ objLaboral.activEcono }}" {% endif %} class="form-control input-form" name="activEcono" id="id_activEcono" maxlength="30" disabled>
+                                        <input type="text" {% if objLaboral.activEcono %} value="{{ objLaboral.activEcono }}" {% endif %} class="form-control input-form editable2" name="activEcono" id="id_activEcono" maxlength="30" disabled>
                                     </div>
-                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
                                         <label for="id_ciiu" class="form-label">CIIU</label>
-                                        <input type="text" {% if objLaboral.ciiu != None %} value="{{ objLaboral.ciiu }}" {% endif %} class="form-control input-form" name="ciiu" id="id_ciiu" maxlength="6" disabled>
+                                        <input type="number" {% if objLaboral.ciiu %} value="{{ objLaboral.ciiu }}" {% endif %} class="form-control input-form editable2" name="ciiu" id="id_ciiu" max="999999" min="0" disabled>
                                     </div>
 
                                     {% comment %} Fila 5 {% endcomment %}
-                           
-                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
+                                        <label for="id_declaraRenta" class="form-label">¿Declara Renta?</label>
+                                        <select name="declaraRenta" class="form-select editable2" id="id_declaraRenta" disabled> 
+                                            <option value="NO" {%if objLaboral.declaraRenta == 'NO' %} selected {% endif %}>NO</option>
+                                            <option value="SI" {%if objLaboral.declaraRenta == 'SI' %} selected {% endif %}>SI</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
+                                        <label for="id_responsableIva" class="form-label">¿Responsable de IVA?</label>
+                                        <select name="responsableIva" class="form-select editable2" id="id_responsableIva" disabled> 
+                                            <option value="NO" {%if objLaboral.responsableIva == 'NO' %} selected {% endif %}>NO</option>
+                                            <option value="SI" {%if objLaboral.responsableIva == 'SI' %} selected {% endif %}>SI</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-xxl-3 col-md-6 mb-3">
+                                        <label for="id_regimenTributario" class="form-label">Régimen Tributario</label>
+                                        <input type="text" {% if objLaboral.regimenTributario %} value="{{ objLaboral.regimenTributario }}" {% endif %} class="form-control input-form editable2" name="regimenTributario" id="id_regimenTributario" maxlength="50" disabled>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3">
                                         <label for="id_banco" class="form-label">Banco o Entidad Bancaria</label>
-                                        <input type="text" {% if objLaboral.banco != None %} value="{{ objLaboral.banco }}" {% endif %} class="form-control input-form" name="banco" id="id_banco" maxlength="30" disabled> 
+                                        <input type="text" {% if objLaboral.banco %} value="{{ objLaboral.banco }}" {% endif %} class="form-control input-form editable2" name="banco" id="id_banco" maxlength="30" disabled> 
                                     </div>
-                                    
-                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
-                                        <label for="id_numCuenta" class="form-label">Número Cuenta Bancaria</label>
-                                        <input type="number" value="{{objLaboral.numCuenta}}" class="form-control" name="numCuenta" id="id_numCuenta" min="0" disabled>
-                                    </div>
-                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3">
                                         <label for="id_tipoCuenta" class="form-label">Tipo de Cuenta Bancaria</label>
-                                        <select name="tipoCuenta" class="form-select" id="id_tipoCuenta" disabled>
+                                        <select name="tipoCuenta" class="form-select editable2" id="id_tipoCuenta" disabled>
                                             <option value="0" selected>&nbsp;</option>
                                             <option value="CUENTA AHORROS" {%if objLaboral.tipoCuenta == 'CUENTA AHORROS' %} selected {% endif %}>CUENTA AHORROS</option>
                                             <option value="CUENTA CORRIENTE" {%if objLaboral.tipoCuenta == 'CUENTA CORRIENTE' %} selected {% endif %}>CUENTA CORRIENTE</option>
                                         </select>
+                                    </div>
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3">
+                                        <label for="id_numCuenta" class="form-label">Número Cuenta Bancaria</label>
+                                        <input type="number" {% if objLaboral.numCuenta %} value="{{objLaboral.numCuenta}}" {% endif %} class="form-control editable2" name="numCuenta" id="id_numCuenta" min="0" disabled>
                                     </div>
                                 </div>
                             </div>
@@ -514,42 +605,317 @@
                             <hr>
 
                             {% comment %} Fila 6 {% endcomment %}
-                            <center><h3>INFORMACION FINANCIERA</h3></center>
-                            <div class="container">
+                            <h3 class="text-center">INFORMACION FINANCIERA</h3>
+                            {% comment %} Fila 7 {% endcomment %}
+                            <div class="container mt-4">
                                 <div class="row">
-                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
-                                        <label for="id_ingresosActPrin" class="form-label">Ingresos Mensuales</label>
-                                        <input type="number" value="{{objFinanciero.ingresosActPrin}}" class="form-control" name="ingresosActPrin" id="id_ingresosActPrin" min="0" disabled>
+                                    <!-- COLUMNA IZQUIERDA: INGRESOS -->
+                                    <div class="col-12 col-xxl-6 mb-3">
+                                        <h4 class="text-center bg-primary text-white p-2 rounded">INGRESOS MENSUALES</h4>
+
+                                        <div class="row mb-1 align-items-center">
+                                            <div class="col-6">
+                                                <label for="id_salarioMensual" class="form-label mb-0">Salario o Ingreso mensual</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" {% if objFinanciero.ingrSalario %} value="{{ objFinanciero.ingrSalario }}" {% endif %} class="form-control editable2" name="ingrSalario" id="id_salarioMensual" min="0" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-1 align-items-center">
+                                            <div class="col-6">
+                                                <label for="id_horasExtras" class="form-label mb-0">Horas extras y otros conceptos</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" {% if objFinanciero.ingrHorasExtras %} value="{{ objFinanciero.ingrHorasExtras }}" {% endif %} class="form-control editable2" name="ingrHorasExtras" id="id_horasExtras" min="0" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-1 align-items-center">
+                                            <div class="col-6">
+                                                <label for="id_pension" class="form-label mb-0">Pensión - Jubilación</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" {% if objFinanciero.ingrPension %} value="{{ objFinanciero.ingrPension }}" {% endif %} class="form-control editable2" name="ingrPension" id="id_pension" min="0" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-1 align-items-center">
+                                            <div class="col-6">
+                                                <label for="id_compensaciones" class="form-label mb-0">Compensaciones</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" {% if objFinanciero.ingrCompensacion %} value="{{ objFinanciero.ingrCompensacion }}" {% endif %} class="form-control editable2" name="ingrCompensacion" id="id_compensaciones" min="0" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-1 align-items-center">
+                                            <div class="col-6">
+                                                <label for="id_horarios" class="form-label mb-0">Honorarios</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" {% if objFinanciero.ingrHonorarios %} value="{{ objFinanciero.ingrHonorarios }}" {% endif %} class="form-control editable2" name="ingrHonorarios" id="id_horarios" min="0" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-1 align-items-center">
+                                            <div class="col-6">
+                                                <label for="id_ventas" class="form-label mb-0">Ventas</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" {% if objFinanciero.ingrVentas %} value="{{ objFinanciero.ingrVentas }}" {% endif %} class="form-control editable2" name="ingrVentas" id="id_ventas" min="0" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-1 align-items-center">
+                                            <div class="col-6">
+                                                <label for="id_intereses" class="form-label mb-0">Intereses - Dividendos</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" {% if objFinanciero.ingrIntereses %} value="{{ objFinanciero.ingrIntereses }}" {% endif %} class="form-control editable2" name="ingrIntereses" id="id_intereses" min="0" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-1 align-items-center">
+                                            <div class="col-6">
+                                                <label for="id_giros" class="form-label mb-0">Giros</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" {% if objFinanciero.ingrGiros %} value="{{ objFinanciero.ingrGiros }}" {% endif %} class="form-control editable2" name="ingrGiros" id="id_giros" min="0" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-1 align-items-center">
+                                            <div class="col-6">
+                                                <label for="id_arrendamiento" class="form-label mb-0">Arrendamientos</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" {% if objFinanciero.ingrArrendamientos %} value="{{ objFinanciero.ingrArrendamientos }}" {% endif %} class="form-control editable2" name="ingrArrendamientos" id="id_arrendamiento" min="0" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-1 align-items-center">
+                                            <div class="col-6">
+                                                <label for="id_otrosIngresos" class="form-label mb-0">Otros Ingresos</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" {% if objFinanciero.ingrOtros %} value="{{ objFinanciero.ingrOtros }}" {% endif %} class="form-control editable2" name="ingrOtros" id="id_otrosIngresos" min="0" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-1 align-items-center">
+                                            <div class="col-6">
+                                                <label for="id_descripcionOtrosIngresos" class="form-label mb-0">Descripción Otros Ingresos</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="text" {% if objFinanciero.ingrDescripcionOtros %} value="{{ objFinanciero.ingrDescripcionOtros }}" {% endif %} class="form-control editable2 input-form" name="ingrDescripcionOtros" id="id_descripcionOtrosIngresos" min="0" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mt-3">
+                                            <div class="col-6">
+                                                <label for="id_totalIngresos" class="form-label text-end fw-bold">Total Ingresos $</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="text" value="{{ objFinanciero.total_ingresos|intcomma }}" class="form-control" name="totalIngresos" id="id_totalIngresos" min="0" disabled>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
-                                        <label for="id_otroIngreso1" class="form-label">Otros Ingresos</label>
-                                        <input type="number" value="{{objFinanciero.otroIngreso1}}" class="form-control" name="otroIngreso1" id="id_otroIngreso1" min="0" disabled>
+
+                                    <!-- COLUMNA DERECHA: EGRESOS -->
+                                    <div class="col-12 col-xxl-6 mb-3">
+                                        <h4 class="text-center bg-primary text-white p-2 rounded">EGRESOS MENSUALES</h4>
+
+                                        <div class="row mb-1 align-items-center">
+                                            <div class="col-6">
+                                                <label for="id_egresoArrendamiento" class="form-label mb-0">Arrendamiento - Cuota de vivienda</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" {% if objFinanciero.egrArrendamiento %} value="{{ objFinanciero.egrArrendamiento }}" {% endif %} class="form-control editable2" name="egrArrendamiento" id="id_egresoArrendamiento" min="0" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-1 align-items-center">
+                                            <div class="col-6">
+                                                <label for="id_servicios" class="form-label mb-0">Servicios públicos</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" {% if objFinanciero.egrServiciosPublicos %} value="{{ objFinanciero.egrServiciosPublicos }}" {% endif %} class="form-control editable2" name="egrServiciosPublicos" id="id_servicios" min="0" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-1 align-items-center">
+                                            <div class="col-6">
+                                                <label for="id_aportesSalud" class="form-label mb-0">Aportes Salud, Pensión, otros</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" {% if objFinanciero.egrAportesSalud %} value="{{ objFinanciero.egrAportesSalud }}" {% endif %} class="form-control editable2" name="egrAportesSalud" id="id_aportesSalud" min="0" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-1 align-items-center">
+                                            <div class="col-6">
+                                                <label for="id_transporte" class="form-label mb-0">Transporte - Cuota Vehículo</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" {% if objFinanciero.egrTransporte %} value="{{ objFinanciero.egrTransporte }}" {% endif %} class="form-control editable2" name="egrTransporte" id="id_transporte" min="0" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-1 align-items-center">
+                                            <div class="col-6">
+                                                <label for="id_alimentacion" class="form-label mb-0">Alimentación - Educación</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" {% if objFinanciero.egrAlimentacion %} value="{{ objFinanciero.egrAlimentacion }}" {% endif %} class="form-control editable2" name="egrAlimentacion" id="id_alimentacion" min="0" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-1 align-items-center">
+                                            <div class="col-6">
+                                                <label for="id_obligacionesFinanc" class="form-label mb-0">Obligaciones financieras</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" {% if objFinanciero.egrObligaciones %} value="{{ objFinanciero.egrObligaciones }}" {% endif %} class="form-control editable2" name="egrObligaciones" id="id_obligacionesFinanc" min="0" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-1 align-items-center">
+                                            <div class="col-6">
+                                                <label for="id_tarjetasCredito" class="form-label mb-0">Tarjetas de crédito</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" {% if objFinanciero.egrTarjetas %} value="{{ objFinanciero.egrTarjetas }}" {% endif %} class="form-control editable2" name="egrTarjetas" id="id_tarjetasCredito" min="0" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-1 align-items-center">
+                                            <div class="col-6">
+                                                <label for="id_costosVenta" class="form-label mb-0">Costos y gastos de ventas</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" {% if objFinanciero.egrCostos %} value="{{ objFinanciero.egrCostos }}" {% endif %} class="form-control editable2" name="egrCostos" id="id_costosVenta" min="0" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-1 align-items-center">
+                                            <div class="col-6">
+                                                <label for="id_embargos" class="form-label mb-0">Embargos</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" {% if objFinanciero.egrEmbargos %} value="{{ objFinanciero.egrEmbargos }}" {% endif %} class="form-control editable2" name="egrEmbargos" id="id_embargos" min="0" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-1 align-items-center">
+                                            <div class="col-6">
+                                                <label for="id_otrosEgresos" class="form-label mb-0">Otros Egresos</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="number" {% if objFinanciero.egrOtros %} value="{{ objFinanciero.egrOtros }}" {% endif %} class="form-control editable2" name="egrOtros" id="id_otrosEgresos" min="0" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-1 align-items-center">
+                                            <div class="col-6">
+                                                <label for="id_descripcionOtrosEgresos" class="form-label mb-0">Descripción Otros Engresos</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="text" {% if objFinanciero.egrDescripcionOtros %} value="{{ objFinanciero.egrDescripcionOtros }}" {% endif %} class="form-control editable2 input-form" name="egrDescripcionOtros" id="id_descripcionOtrosEgresos" min="0" disabled>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mt-3">
+                                            <div class="col-6">
+                                                <label for="id_totalEgresos" class="form-label text-end fw-bold">Total Egresos $</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="text" value="{{ objFinanciero.total_egresos|intcomma }}" class="form-control" name="totalEgresos" id="id_totalEgresos" min="0" disabled>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
-                                        <label for="id_otroIngreso2" class="form-label">Otros Ingresos</label>
-                                        <input type="number" value="{{objFinanciero.otroIngreso2}}" class="form-control" name="otroIngreso2" id="id_otroIngreso2" min="0" disabled>
+                                </div>
+
+                                <!-- TOTALES FINALES -->
+                                <div class="row text-center mt-4">
+                                    <div class="row">
+                                        <div class="col-12 col-md-6 fw-bold border py-2 mt-2">Total Activos $</div>
+                                        <div class="col-12 col-md-6 mt-2">
+                                            <input type="text" value="{{ objFinanciero.total_ingresos|intcomma }}" class="form-control" name="totalActivos" id="id_totalActivos" min="0" disabled>
+                                        </div>
                                     </div>
-                                    <div class="col-12 col-xl-3 col-lg-6 col-md-6 mb-3">
-                                        <label for="id_egresos" class="form-label">Egresos</label>
-                                        <input type="number" value="{{objFinanciero.egresos}}" class="form-control" name="egresos" id="id_egresos" min="0" disabled>
+                                    <div class="row">
+                                        <div class="col-12 col-md-6 fw-bold border py-2 mt-2">Total Pasivos $</div>
+                                        <div class="col-12 col-md-6 mt-2">
+                                            <input type="text" value="{{ objFinanciero.total_egresos|intcomma }}" class="form-control" name="totalPasivos" id="id_totalPasivos" min="0" disabled>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12 col-md-6 fw-bold border py-2 mt-2">Total Patrimonio $</div>
+                                        <div class="col-12 col-md-6 mt-2">
+                                            <input type="text" value="{{ objFinanciero.total_patrimonio|intcomma }}" class="form-control" name="totalPatrimonio" id="id_totalPatrimonio" min="0" disabled>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {% comment %} Fila 7 {% endcomment %}
-                            <div class="container">
+                            <hr>
+                            <div class="container mt-3">
+                                <h4 class="text-center">OPERACIONES EN MONEDA EXTRANJERA</h4>
                                 <div class="row">
-                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
-                                        <label for="id_activos" class="form-label">Total Activos</label>
-                                        <input type="number" value="{{objFinanciero.activos}}" class="form-control" name="activos" id="id_activos" min="0" disabled>
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3">
+                                        <label for="id_monedaExtranjera" class="form-label">¿Realiza operaciones en moneda extranjera?*</label>
+                                        <select name="operacionesMonedaExtranjera" class="form-select editable2" id="id_monedaExtranjera" required disabled>
+                                            <option value="NO" {% if objFinanciero.operacionesMonedaExtranjera == 'NO' %} selected {% endif %}>NO</option>
+                                            <option value="SI" {% if objFinanciero.operacionesMonedaExtranjera == 'SI' %} selected {% endif %}>SI</option>
+                                        </select>
                                     </div>
-                                    <div class="col-12 col-xl-4 col-lg-6 col-md-6 mb-3">
-                                        <label for="id_pasivos" class="form-label">Total Pasivos</label>
-                                        <input type="number" value="{{objFinanciero.pasivos}}" class="form-control" name="pasivos" id="id_pasivos" min="0" disabled>
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3 d-none monedaExtranjera-campos">
+                                        <label for="id_monedaExtranjeraCuales" class="form-label">¿Cuáles?</label>
+                                        <input type="text" {% if objFinanciero.operacionesMonedaCuales %} value="{{ objFinanciero.operacionesMonedaCuales }}" {% endif %} class="form-control input-form editable2" name="operacionesMonedaCuales" id="id_monedaExtranjeraCuales" disabled>
                                     </div>
-                                    <div class="col-12 col-xl-4 col-lg-12 col-md-12 mb-3">
-                                        <label for="id_patrimonio" class="form-label">Total Patrimonio</label>
-                                        <input type="number" value="{{objFinanciero.patrimonio}}" class="form-control" name="patrimonio" id="id_patrimonio" readonly disabled>
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3 d-none monedaExtranjera-campos">
+                                        <label for="id_monedaExtranjeraTipo" class="form-label">Tipo de producto u Operación</label>
+                                        <input type="text" {% if objFinanciero.operacionesMonedaTipo %} value="{{ objFinanciero.operacionesMonedaTipo }}" {% endif %} class="form-control input-form editable2" name="operacionesMonedaTipo" id="id_monedaExtranjeraTipo" disabled>
+                                    </div>
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3 d-none monedaExtranjera-campos">
+                                        <label for="id_monedaExtranjeraMonto" class="form-label">Monto</label>
+                                        <input type="number" {% if objFinanciero.operacionesMonedaMonto %} value="{{ objFinanciero.operacionesMonedaMonto }}" {% endif %} class="form-control editable2" name="operacionesMonedaMonto" id="id_monedaExtranjeraMonto" min="0" disabled>
+                                    </div>
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3 d-none monedaExtranjera-campos">
+                                        <label for="id_monedaExtranjeraMoneda" class="form-label">Moneda</label>
+                                        <input type="text" {% if objFinanciero.operacionesMoneda %} value="{{ objFinanciero.operacionesMoneda }}" {% endif %} class="form-control input-form editable2" name="operacionesMoneda" id="id_monedaExtranjeraMoneda" disabled>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <hr>
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3">
+                                        <label for="id_poseeMonedaExtranjera" class="form-label">¿Posee Cuentas en Moneda Extranjera?</label>
+                                        <select name="poseeCuentasMonedaExtranjera" class="form-select editable2" id="id_poseeMonedaExtranjera" required disabled>
+                                            <option value="NO" {% if objFinanciero.poseeCuentasMonedaExtranjera == 'NO' %} selected {% endif %}>NO</option>
+                                            <option value="SI" {% if objFinanciero.poseeCuentasMonedaExtranjera == 'SI' %} selected {% endif %}>SI</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3 d-none poseeMonedaExtranjera-campos">
+                                        <label for="id_poseeMonedaExtranjeraBanco" class="form-label">Banco</label>
+                                        <input type="text" {% if objFinanciero.poseeCuentasBanco %} value="{{ objFinanciero.poseeCuentasBanco }}" {% endif %} class="form-control input-form editable2" name="poseeCuentasBanco" id="id_poseeMonedaExtranjeraBanco" disabled>
+                                    </div>
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3 d-none poseeMonedaExtranjera-campos">
+                                        <label for="id_poseeMonedaExtranjeraCuenta" class="form-label">N° de Cuenta</label>
+                                        <input type="number" {% if objFinanciero.poseeCuentasCuenta %} value="{{ objFinanciero.poseeCuentasCuenta }}" {% endif %} class="form-control editable2" name="poseeCuentasCuenta" id="id_poseeMonedaExtranjeraCuenta" min="0" disabled>
+                                    </div>
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3 d-none poseeMonedaExtranjera-campos">
+                                        <label for="id_poseeMonedaExtranjeraMoneda" class="form-label">Moneda</label>
+                                        <input type="text" {% if objFinanciero.poseeCuentasMoneda %} value="{{ objFinanciero.poseeCuentasMoneda }}" {% endif %} class="form-control input-form editable2" name="poseeCuentasMoneda" id="id_poseeMonedaExtranjeraMoneda" disabled>
+                                    </div>
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3 d-none poseeMonedaExtranjera-campos">
+                                        <label for="id_poseeMonedaExtranjeraCiudad" class="form-label">Ciudad</label>
+                                        <input type="text" {% if objFinanciero.poseeCuentasCiudad %} value="{{ objFinanciero.poseeCuentasCiudad }}" {% endif %} class="form-control input-form editable2" name="poseeCuentasCiudad" id="id_poseeMonedaExtranjeraCiudad" disabled>
+                                    </div>
+                                    <div class="col-12 col-xxl-4 col-md-6 mb-3 d-none poseeMonedaExtranjera-campos">
+                                        <label for="id_poseeMonedaExtranjeraPais" class="form-label">Pais</label>
+                                        <input type="text" {% if objFinanciero.poseeCuentasPais %} value="{{ objFinanciero.poseeCuentasPais }}" {% endif %} class="form-control input-form editable2" name="poseeCuentasPais" id="id_poseeMonedaExtranjeraPais" disabled>
                                     </div>
                                 </div>
                             </div>
@@ -657,6 +1023,8 @@
 {% endblock contenidoPagina %}
 
 {% block extrajs %}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/i18n/es.js"></script>
     <script src="{% static 'js/getMunicipios.js' %}"></script>
@@ -665,20 +1033,210 @@
     
     <script type="text/javascript">
         
-        document.addEventListener('DOMContentLoaded', function () {
-            const inputActivos = document.getElementById('id_activos');
-            const inputPasivos = document.getElementById('id_pasivos');
-            const inputPatrimonio = document.getElementById('id_patrimonio');;
-            
-            function calcularPatrimonio(){
-                const activos = parseFloat(inputActivos.value) || 0;
-                const pasivos = parseFloat(inputPasivos.value) || 0;
-                inputPatrimonio.value = activos - pasivos;
+        document.addEventListener('DOMContentLoaded', function () {            
+            // Manejo campo ocupacion OTRO
+            const selectOcupacion = document.getElementById("id_ocupacion");
+            const divOcupacionOtro = document.getElementById("div-ocupacion-otro");
+            const inputOcupacionOtro = document.getElementById("id_ocupacion_otro");
+
+            // Manejo campo tipo empresa OTRO
+            const selectEmpresa = document.getElementById("id_tipoEmpresa");
+            const divTipoEmpresaOtro = document.getElementById("div-tipoEmpresa-otro");
+            const inputTipoEmpresaOtro = document.getElementById("id_tipoEmpresa_otro");
+
+
+            // Funcion para mostrar/ocultar campo otro ocupacion
+            function toggleCampoOcupacionOtro() {
+                if (selectOcupacion.value === "OTRO") {
+                    divOcupacionOtro.classList.remove("d-none");
+                    inputOcupacionOtro.required = true;
+                } else {
+                    divOcupacionOtro.classList.add("d-none");
+                    inputOcupacionOtro.value = "";
+                    inputOcupacionOtro.required = false;
+                }
             }
-                
-            inputActivos.addEventListener("input", calcularPatrimonio);
-            inputPasivos.addEventListener("input", calcularPatrimonio);
+
+            // Funcion para mostrar/ocultar campo otro tipo empresa
+            function toggleCampoTipoEmpresaOtro() {
+                if (selectEmpresa.value === "OTRO") {
+                    divTipoEmpresaOtro.classList.remove("d-none");
+                    inputTipoEmpresaOtro.required = true;
+                } else {
+                    divTipoEmpresaOtro.classList.add("d-none");
+                    inputTipoEmpresaOtro.value = "";
+                    inputTipoEmpresaOtro.required = false;
+                }
+            }
+
+            // Detectar cambios
+            selectOcupacion.addEventListener("change", toggleCampoOcupacionOtro);
+            selectEmpresa.addEventListener("change", toggleCampoTipoEmpresaOtro);
+
+            // Ejecutar al cargar la página (por si ya está seleccionado OTRO)
+            toggleCampoOcupacionOtro();
+            toggleCampoTipoEmpresaOtro();
+
+
+            // Campos de Informacion laboral y financiera, Moneda extranjera
+            const monedaExtranjeraSelect = document.getElementById('id_monedaExtranjera');
+            const poseeMonedaExtranjeraSelect = document.getElementById('id_poseeMonedaExtranjera');
+
+            const monedaExtranjeraCampos = document.querySelectorAll('.monedaExtranjera-campos');
+            const poseeMonedaExtranjeraCampos = document.querySelectorAll('.poseeMonedaExtranjera-campos');
+            
+            function toggleCampos(select, campos) {
+                if (select.value === 'SI') {
+                    campos.forEach(campo => {
+                        campo.classList.remove('d-none');
+                        campo.querySelectorAll('input, select, textarea').forEach(input => {
+                            input.required = true;
+                        });
+                    });
+                } else {
+                    campos.forEach(campo => {
+                        campo.classList.add('d-none');
+                        // Buscar inputs y selects dentro del campo y limpiar sus valores
+                        campo.querySelectorAll('input, select, textarea').forEach(input => {
+                            input.value = "";
+                            input.required = false;
+                        });
+                    });
+                }
+            }
+
+            // Inicializar estado al cargar
+            toggleCampos(monedaExtranjeraSelect, monedaExtranjeraCampos);
+            toggleCampos(poseeMonedaExtranjeraSelect, poseeMonedaExtranjeraCampos);
+
+            // Eventos al cambiar valor
+            monedaExtranjeraSelect.addEventListener('change', () => toggleCampos(monedaExtranjeraSelect, monedaExtranjeraCampos));
+            poseeMonedaExtranjeraSelect.addEventListener('change', () => toggleCampos(poseeMonedaExtranjeraSelect, poseeMonedaExtranjeraCampos));
+
+
+            // Calcular totales ingresos y egresos y activos, pasivos y patrimonio
+            const ingresosCampos = [
+                'ingrSalario', 'ingrHorasExtras', 'ingrPension', 'ingrCompensacion',
+                'ingrHonorarios', 'ingrVentas', 'ingrIntereses', 'ingrGiros',
+                'ingrArrendamientos', 'ingrOtros'
+            ];
+
+            const egresosCampos = [
+                'egrArrendamiento', 'egrServiciosPublicos', 'egrAportesSalud',
+                'egrTransporte', 'egrAlimentacion', 'egrObligaciones', 'egrTarjetas',
+                'egrCostos', 'egrEmbargos', 'egrOtros'
+            ];
+
+            // Función para formatear con puntos de miles
+            function formatMiles(num) {
+                if (isNaN(num)) return "0";
+                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            }
+
+            function calcularTotales() {
+                let totalIngresos = 0;
+                let totalEgresos = 0;
+
+                ingresosCampos.forEach(id => {
+                    const input = document.querySelector(`[name="${id}"]`);
+                    totalIngresos += parseFloat(input?.value || 0);
+                });
+
+                egresosCampos.forEach(id => {
+                    const input = document.querySelector(`[name="${id}"]`);
+                    totalEgresos += parseFloat(input?.value || 0);
+                });
+
+                const totalPatrimonio = totalIngresos - totalEgresos;
+
+                // Actualizar los campos visibles
+                document.getElementById("id_totalIngresos").value = formatMiles(totalIngresos);
+                document.getElementById("id_totalEgresos").value = formatMiles(totalEgresos);
+                document.getElementById("id_totalActivos").value = formatMiles(totalIngresos);
+                document.getElementById("id_totalPasivos").value = formatMiles(totalEgresos);
+                document.getElementById("id_totalPatrimonio").value = formatMiles(totalPatrimonio);
+            }
+
+            // Escuchar cambios en los inputs numéricos de ingresos y egresos
+            [...ingresosCampos, ...egresosCampos].forEach(id => {
+                const input = document.querySelector(`[name="${id}"]`);
+                if (input) {
+                    input.addEventListener("input", calcularTotales);
+                }
+            });
+
+            // Funcion para mostrar toasts
+            function showToast(icon, message, timer = 3500) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: icon,
+                    title: message,
+                    showConfirmButton: false,
+                    timer: timer,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.onmouseenter = Swal.stopTimer
+                        toast.onmouseleave = Swal.resumeTimer
+                    }
+                });
+            }
+            
+            // Manejo envio formulario informacion laboral y financiera
+            formLaboral.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const url = formLaboral.getAttribute('data-url');
+                const formData = new FormData(formLaboral);
+
+                // Habilitar los inputs deshabilitados (por ejemplo correoLaboral)
+                formLaboral.querySelectorAll(':disabled').forEach(el => el.disabled = false);
+
+                try {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        title: 'Guardando...',
+                        icon: 'info',
+                        showConfirmButton: false,
+                        timerProgressBar: true,
+                        didOpen: () => Swal.showLoading(),
+                    });
+
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    const data = await response.json();
+                    Swal.close();
+
+                    if (data.ok) {
+                        showToast('success', data.mensaje || 'Información actualizada correctamente.');
+                            setTimeout(() => {
+                                if (data.redirect) {
+                                    window.location.href = data.redirect;
+                                } else {
+                                    location.reload();
+                                }
+                            }, 1500);
+                    } else {
+                        // Error controlado desde Django
+                        showToast('error', data.mensaje);
+                    }
+
+                } catch (error) {
+                    // Error inesperado
+                    Swal.close();
+                    showToast('error', 'Error inesperado: ' + error.message);
+                }
+            });
+
+
+
+
         });
+
         
     </script>
 

@@ -36,8 +36,11 @@
                                         {% if query.cuotaMascota %}
                                             Mascota: ${{ query.cuotaMascota|intcomma }}<br>
                                         {% endif %}
-                                        {% if query.cuotaRepatriacion %}
-                                            Repatriación: ${{ query.cuotaRepatriacion|intcomma }}<br>
+                                        {% if query.cuotaRepatriacionBeneficiarios %}
+                                            Repatriación Beneficiarios: ${{ query.cuotaRepatriacionBeneficiarios|intcomma }}<br>
+                                        {% endif %}
+                                        {% if query.cuotaRepatriacionTitular %}
+                                            Repatriación Titular: ${{ query.cuotaRepatriacionTitular|intcomma }}<br>
                                         {% endif %}
                                         {% if query.cuotaSeguroVida %}
                                             Seguro Vida: ${{ query.cuotaSeguroVida|intcomma }}<br>
@@ -99,7 +102,7 @@
                         </thead>
                         <tbody>
                             {% for obj in queryMes %}
-                                {% if obj.pk != 9999 and obj.pk != 9998 and obj.pk != 9995 and obj.pk != 9994 and obj.pk != 9990 %}
+                                {% if obj.pk != 9999 and obj.pk != 9998 and obj.pk != 9995 and obj.pk != 9994 and obj.pk != 9990 and obj.pk != 9989 %}
                                     <tr>
                                         <th>{{ forloop.counter }}</th>
                                         <td>{{ obj.concepto }}</th>

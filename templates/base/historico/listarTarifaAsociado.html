@@ -83,15 +83,15 @@
             </tr>
             {% if query.cuotaMascota != 0 %}
                 <tr>
-                    <th class="fw-bold text-start">Mascota</th>
+                    <th class="fw-bold text-start">Mascota | <span class="badge bg-primary text-white border ms-2"> {{count_mascota}}</th>
                     <th class="text-muted text-start">${{ query.cuotaMascota|intcomma }}</th>
                     <th></th>
                 </tr>
             {% endif %}
             {% if queryRepatriacionTitular %}
                 <tr>
-                    <th class="fw-bold text-start">Repatriación Titular - {{ queryRepatriacionTitular.paisRepatriacion|lower|capfirst }}</th>
-                    <th class="text-muted text-start">${{ repatriacion|intcomma }}</th>
+                    <th class="fw-bold text-start">Repatriación Titular - {{ queryRepatriacionTitular.paisRepatriacion|lower|capfirst }} | <span class="badge bg-success text-white border ms-2"> Inicio: {{ queryRepatriacionTitular.primerMes.concepto}} </span></th>
+                    <th class="text-muted text-start">${{ query.cuotaRepatriacionTitular|intcomma }}</th>
                     <th>
                         <div class="btn-group" role="group" aria-label="Basic example">
                             <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_creacion('{% url 'asociado:verRepatriacionTitular' pkAsociado queryRepatriacionTitular.pk %}')">
@@ -108,16 +108,16 @@
                     </th>
                 </tr>
             {% endif %}
-            {% if query.cuotaRepatriacion != 0 %}
+            {% if query.cuotaRepatriacionBeneficiarios %}
                 <tr>
-                    <th class="fw-bold text-start">Repatriación Beneficiarios</th>
-                    <th class="text-muted text-start">${{ query.cuotaRepatriacion|intcomma }}</th>
+                    <th class="fw-bold text-start">Repatriación Beneficiarios | <span class="badge bg-primary text-white border ms-2"> {{count_repatriacion_beneficiario}} </span></th>
+                    <th class="text-muted text-start">${{ query.cuotaRepatriacionBeneficiarios|intcomma }}</th>
                     <th></th>
                 </tr>
             {% endif %}
             {% if query.cuotaSeguroVida != 0 %}
                 <tr>
-                    <th class="fw-bold text-start">Seguro Vida</th>
+                    <th class="fw-bold text-start">Seguro Vida | <span class="badge bg-success text-white border ms-2"> Inicio: {{ qs_seguro_vida.primerMesSeguroVida.concepto}} </span></th>
                     <th class="text-muted text-start">${{ query.cuotaSeguroVida|intcomma }}</th>
                     <th></th>
                 </tr>
@@ -138,7 +138,7 @@
             {% endif %}
             {% if query.cuotaAdicionales != 0 %}
                 <tr>
-                    <th class="fw-bold text-start">Adicionales</th>
+                    <th class="fw-bold text-start">Adicionales <span class="badge bg-success text-white border ms-2"> Inicio: {{ query.primerMesCuotaAdicional.concepto}} </span></th>
                     <th class="text-muted text-start">${{ query.cuotaAdicionales|intcomma }}</th>
                     <th>
                         <div class="btn-group" role="group" aria-label="Basic example">
@@ -159,7 +159,7 @@
             {% if queryConvenio %}
                 {% for convenio in queryConvenio %}
                     <tr>
-                        <th class="fw-bold text-start">Convenio - {{ convenio.convenio.concepto|lower|capfirst }}</th>
+                        <th class="fw-bold text-start">Convenio - {{ convenio.convenio.concepto|lower|capfirst }} | <span class="badge bg-success text-white border ms-2"> Inicio: {{ convenio.primerMes.concepto }} </span></th>
                         {% if convenio.convenio.pk == 4 %}
                             <th class="text-muted text-start">${{ cuotaGasolina|intcomma }}</th>
                         {% else %}

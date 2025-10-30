@@ -1,105 +1,109 @@
 <div class="modal-dialog modal-lg" role="document">
     <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">Editar Beneficiario:</h1>
-          <hr>
-          <h2 class="modal-title fs-5" id="exampleModalLabel"></h2>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <form action="{% url 'asociado:editarBeneficiario' pkAsociado pk %}" method="post">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Editar Beneficiario:</h1>
+                <hr>
+                <h2 class="modal-title fs-5" id="exampleModalLabel"></h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'asociado:editarBeneficiario' pkAsociado pk %}" method="post">
 
-                <div class="col-sm-2">
-                    <div class="btn-group" role="group" aria-label="Basic example">
+                    <div class="col-sm-2">
+                        <div class="btn-group" role="group" aria-label="Basic example">
+                        </div>
                     </div>
-                </div>
-                {% csrf_token %}
-                <div class="form-group mb-3">
-                    {{ form.nombre.label_tag }}
-                    {{ form.nombre }}
-                </div>
-                <div class="form-group mb-3">
-                    {{ form.apellido.label_tag }}
-                    {{ form.apellido }}
-                </div>
-                <div class="form-group mb-3">
-                    {{ form.tipoDocumento.label_tag }}
-                    {{ form.tipoDocumento }}
-                </div>
-                <div class="form-group mb-3">
-                    {{ form.numDocumento.label_tag }}
-                    {{ form.numDocumento }}
-                </div>
-                <div class="form-group mb-3">
-                    {{ form.fechaNacimiento.label_tag }}
-                    {{ form.fechaNacimiento }}
-                </div>
-                <div class="form-group mb-3">
-                    {{ form.parentesco.label_tag }}
-                    {{ form.parentesco }}
-                </div>
-                <div class="form-group mb-3">
-                    {{ form.paisRepatriacion.label_tag }}
-                    {{ form.paisRepatriacion }}
-                </div>
-                <div id="contenedor" {% if not form.paisRepatriacion.value %} class="d-none mb-3" {% else %}class="mb-3"{% endif %} style="background-color: #f2f2f2; padding: 10px; border-radius: 10px;">
-                    <div id="id_fechaRepatriacion_div" class="form-group mb-3">
-                        {{ form.fechaRepatriacion.label_tag }}
-                        <input id="id_fechaRepatriacion" name="fechaRepatriacion" type="date" class="form-control" value="{{ form.fechaRepatriacion.value|date:'Y-m-d' }}">
+                    {% csrf_token %}
+                    <div class="form-group mb-3">
+                        {{ form.nombre.label_tag }}
+                        {{ form.nombre }}
                     </div>
-                    <div id="id_ciudadRepatriacion_div"class="form-group mb-3">
-                        {{ form.ciudadRepatriacion.label_tag }}
-                        <input id="id_ciudadRepatriacion" name="ciudadRepatriacion" value="{{ form.ciudadRepatriacion.value }}" type="text" class="form-control input-form">
+                    <div class="form-group mb-3">
+                        {{ form.apellido.label_tag }}
+                        {{ form.apellido }}
                     </div>
-                </div>
-                <div class="form-group mb-3">
-                    {{ form.fechaIngreso.label_tag }}
-                    {{ form.fechaIngreso }}
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16">
-                        <path d="M11 2H9v3h2z"/>
-                        <path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>
-                    </svg>
-                </button>
-            </form>
+                    <div class="form-group mb-3">
+                        {{ form.tipoDocumento.label_tag }}
+                        {{ form.tipoDocumento }}
+                    </div>
+                    <div class="form-group mb-3">
+                        {{ form.numDocumento.label_tag }}
+                        {{ form.numDocumento }}
+                    </div>
+                    <div class="form-group mb-3">
+                        {{ form.fechaNacimiento.label_tag }}
+                        {{ form.fechaNacimiento }}
+                    </div>
+                    <div class="form-group mb-3">
+                        {{ form.parentesco.label_tag }}
+                        {{ form.parentesco }}
+                    </div>
+                    <div class="form-group mb-3">
+                        {{ form.paisRepatriacion.label_tag }}
+                        {{ form.paisRepatriacion }}
+                    </div>
+                    <div id="contenedor" {% if not form.paisRepatriacion.value %} class="d-none mb-3" {% else %}class="mb-3"{% endif %} style="background-color: #f2f2f2; padding: 10px; border-radius: 10px;">
+                        <div id="id_fechaRepatriacion_div" class="form-group mb-3">
+                            {{ form.fechaRepatriacion.label_tag }}
+                            <input id="id_fechaRepatriacion" name="fechaRepatriacion" type="date" class="form-control" value="{{ form.fechaRepatriacion.value|date:'Y-m-d' }}">
+                        </div>
+                        <div id="id_ciudadRepatriacion_div"class="form-group mb-3">
+                            {{ form.ciudadRepatriacion.label_tag }}
+                            <input id="id_ciudadRepatriacion" name="ciudadRepatriacion" value="{{ form.ciudadRepatriacion.value }}" type="text" class="form-control input-form">
+                        </div>
+                        <div id="id_primerMes"class="form-group mb-3">
+                            {{ form.primerMesRepatriacion.label_tag }}
+                            {{ form.primerMesRepatriacion }}
+                        </div>
+                    </div>
+                    <div class="form-group mb-3">
+                        {{ form.fechaIngreso.label_tag }}
+                        {{ form.fechaIngreso }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16">
+                            <path d="M11 2H9v3h2z"/>
+                            <path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>
+                        </svg>
+                    </button>
+                </form>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
+</div>
 
-  <script>
-    $('#creacion').on('shown.bs.modal', function () {
-        const paisRepatriacion = document.querySelector('#id_paisRepatriacion');
-        const contenedor = document.querySelector('#contenedor');
-        const fechaRepatriacion = document.querySelector('#id_fechaRepatriacion_div');
-        const fechaRepatriacionInput = document.querySelector('#id_fechaRepatriacion');
-        const ciudadRepatriacion = document.querySelector('#id_ciudadRepatriacion_div');
-        const ciudadRepatriacionInput = document.querySelector('#id_ciudadRepatriacion');
-  
-        if (!paisRepatriacion || !fechaRepatriacion) {
-            console.error('No se encontraron los elementos en el modal.');
-            return;
+<script>
+$('#creacion').on('shown.bs.modal', function () {
+    const paisRepatriacion = document.querySelector('#id_paisRepatriacion');
+    const contenedor = document.querySelector('#contenedor');
+    const fechaRepatriacion = document.querySelector('#id_fechaRepatriacion_div');
+    const fechaRepatriacionInput = document.querySelector('#id_fechaRepatriacion');
+    const ciudadRepatriacion = document.querySelector('#id_ciudadRepatriacion_div');
+    const ciudadRepatriacionInput = document.querySelector('#id_ciudadRepatriacion');
+
+    if (!paisRepatriacion || !fechaRepatriacion) {
+        console.error('No se encontraron los elementos en el modal.');
+        return;
+    }
+
+    paisRepatriacion.addEventListener('change', function () {
+        if (paisRepatriacion.value) {
+            contenedor.classList.remove('d-none');
+            fechaRepatriacion.classList.remove('d-none');
+            fechaRepatriacionInput.setAttribute('required', 'required');
+            ciudadRepatriacion.classList.remove('d-none');
+            ciudadRepatriacionInput.setAttribute('required', 'required');
+        } else {
+            contenedor.classList.add('d-none');
+            fechaRepatriacion.classList.add('d-none');
+            fechaRepatriacionInput.removeAttribute('required');
+            fechaRepatriacion.value = '';
+            ciudadRepatriacion.classList.add('d-none');
+            ciudadRepatriacionInput.removeAttribute('required');
+            ciudadRepatriacion.value = '';
         }
-  
-        paisRepatriacion.addEventListener('change', function () {
-            if (paisRepatriacion.value) {
-                contenedor.classList.remove('d-none');
-                fechaRepatriacion.classList.remove('d-none');
-                fechaRepatriacionInput.setAttribute('required', 'required');
-                ciudadRepatriacion.classList.remove('d-none');
-                ciudadRepatriacionInput.setAttribute('required', 'required');
-            } else {
-                contenedor.classList.add('d-none');
-                fechaRepatriacion.classList.add('d-none');
-                fechaRepatriacionInput.removeAttribute('required');
-                fechaRepatriacion.value = '';
-                ciudadRepatriacion.classList.add('d-none');
-                ciudadRepatriacionInput.removeAttribute('required');
-                ciudadRepatriacion.value = '';
-            }
-        });
     });
-  
+});
+
 </script>

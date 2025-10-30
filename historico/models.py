@@ -68,6 +68,11 @@ class HistoricoAuxilio(models.Model):
 
     def __str__(self):
         return f"{self.id}"
+    
+    @property
+    def anexos(self):
+        return f"{self.anexoOne}, {self.anexoTwo}, {self.anexoThree}, {self.anexoFour}, {self.anexoFive}, {self.anexoSix}, {self.anexoSeven}, {self.anexoEight}"
+
 
 class TipoCuentaOp(models.TextChoices):
         ahorros = 'CUENTA AHORROS', 'CUENTA AHORROS'
@@ -139,12 +144,21 @@ class HistorialPagos(models.Model):
     
     def __str__(self):
         return f"{self.id}"
+    
+
 class HistoricoSeguroVida(models.Model):
     id = models.AutoField(primary_key=True)
     asociado = models.ForeignKey(Asociado, on_delete=models.RESTRICT, blank=False, null=False)
     valorPago = models.IntegerField('Valor Pago', blank=False, null=False)
     estadoRegistro = models.BooleanField('Estado')
     fechaIngreso = models.DateField('Fecha Ingreso', blank=False, null=False)
+    primerMesSeguroVida = models.ForeignKey(
+        MesTarifa,
+        on_delete=models.RESTRICT,
+        blank=True,
+        null=True,
+        related_name='historico_seguro_vida'
+    )
     fechaRetiro = models.DateField('Fecha Retiro', blank=True, null=True)
     fechaCreacion = models.DateTimeField(auto_now_add=True)
     fechaModificacion = models.DateTimeField(auto_now=True)

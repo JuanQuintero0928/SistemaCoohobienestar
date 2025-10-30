@@ -44,14 +44,18 @@
                     {{ form.paisRepatriacion.label_tag }}
                     {{ form.paisRepatriacion }}
                 </div>
-                <div id="contenedor" class="d-none mb-3" style="background-color: #f2f2f2; padding: 10px; border-radius: 10px;">
-                  <div id="id_fechaRepatriacion_div"class="form-group d-none mb-3">
+                <div class="d-none mb-3 contenedor-repatriacion" style="background-color: #f2f2f2; padding: 10px; border-radius: 10px;">
+                  <div class="form-group d-none mb-3 campo-repatriacion">
                     {{ form.fechaRepatriacion.label_tag }}
                     {{ form.fechaRepatriacion }}
                   </div>
-                  <div id="id_ciudadRepatriacion_div"class="form-group d-none mb-3">
+                  <div class="form-group d-none mb-3 campo-repatriacion">
                     {{ form.ciudadRepatriacion.label_tag }}
                     {{ form.ciudadRepatriacion }}
+                  </div>
+                  <div class="form-group d-none mb-3 campo-repatriacion">
+                    {{ form.primerMesRepatriacion.label_tag }}
+                    {{ form.primerMesRepatriacion }}
                   </div>
                 </div>
                 <div class="form-group mb-3">
@@ -72,33 +76,37 @@
 
   <script>
     $('#creacion').on('shown.bs.modal', function () {
-      const paisRepatriacion = document.querySelector('#id_paisRepatriacion');
-      const contenedor = document.querySelector('#contenedor');
-      const fechaRepatriacion = document.querySelector('#id_fechaRepatriacion_div');
-      const fechaRepatriacionInput = document.querySelector('#id_fechaRepatriacion');
-      const ciudadRepatriacion = document.querySelector('#id_ciudadRepatriacion_div');
-      const ciudadRepatriacionInput = document.querySelector('#id_ciudadRepatriacion');
-  
-      if (!paisRepatriacion || !fechaRepatriacion) {
-          console.error('No se encontraron los elementos en el modal.');
-          return;
-      }
-  
-      paisRepatriacion.addEventListener('change', function () {
-          if (paisRepatriacion.value) {
-            contenedor.classList.remove('d-none');
-            fechaRepatriacion.classList.remove('d-none');
-            fechaRepatriacionInput.setAttribute('required', 'required');
-            ciudadRepatriacion.classList.remove('d-none');
-            ciudadRepatriacionInput.setAttribute('required', 'required');
+      const paisSelect = document.getElementById('id_paisRepatriacion');
+      const contenedor = document.querySelector(".contenedor-repatriacion");
+      const campos = contenedor.querySelectorAll(".campo-repatriacion");
+
+      paisSelect.addEventListener("change", function() {
+          const valor = this.value.trim();
+
+          if (valor) {
+              // Mostrar el contenedor
+              contenedor.classList.remove("d-none");
+
+              // Mostrar cada campo y poner required
+              campos.forEach(campo => {
+                  campo.classList.remove("d-none");
+                  const input = campo.querySelector("input, select, textarea");
+                  if (input) input.required = true;
+              });
+
           } else {
-            contenedor.classList.add('d-none');
-            fechaRepatriacion.classList.add('d-none');
-            fechaRepatriacionInput.removeAttribute('required');
-            fechaRepatriacion.value = '';
-            ciudadRepatriacion.classList.add('d-none');
-            ciudadRepatriacionInput.removeAttribute('required');
-            ciudadRepatriacion.value = '';
+              // Ocultar el contenedor
+              contenedor.classList.add("d-none");
+
+              // Ocultar campos, quitar required y limpiar valor
+              campos.forEach(campo => {
+                  campo.classList.add("d-none");
+                  const input = campo.querySelector("input, select, textarea");
+                  if (input) {
+                      input.required = false;
+                      input.value = "";
+                  }
+              });
           }
       });
   });

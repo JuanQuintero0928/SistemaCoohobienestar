@@ -1,6 +1,7 @@
 from django.urls import path, include
 from django.contrib.auth.decorators import login_required
 from .views import *
+from .utils.form_utils import actualizar_fecha_actualizacion
 from ventas.views import ListarProductos, CrearProducto, EditarProducto, ListarVentasAsociado, CrearVentaAsociado, ListarDetalleVenta, EliminarDetalleVenta, UtilidadesProductos, verPagosVentas
 
 urlpatterns = [
@@ -10,6 +11,7 @@ urlpatterns = [
     path('editarAsociado/<int:pkAsociado>', login_required(EditarAsociado.as_view()), name='editarAsociado'),
     path('editarLaboral/<int:pkAsociado>', login_required(EditarLaboral.as_view()), name='editarLaboral'),
     path('editarParametroAsociado/<int:pkAsociado>', login_required(EditarParametroAsociado.as_view()), name='editarParametroAsociado'),
+    path('actualizarFechaActualizacion/<int:asociado_id>/', login_required(actualizar_fecha_actualizacion), name='actualizarFechaActualizacion'),
     path('beneficiario/<int:pkAsociado>', login_required(Beneficiarios.as_view()), name='beneficiario'),
     path('crearBeneficiario/<int:pkAsociado>', login_required(CrearBeneficiario.as_view()), name='crearBeneficiario'),
     path('editarBeneficiario/<int:pkAsociado>/<int:pk>', login_required(EditarBeneficiario.as_view()), name='editarBeneficiario'),

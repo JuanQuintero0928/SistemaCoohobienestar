@@ -1,3 +1,9 @@
+/* :root {
+    --bs-body-font-family: Verdana, Geneva, sans-serif;
+    --bs-body-font-size: 0.875rem;
+    
+} */
+
 .input-form{
   text-transform: uppercase;
 }
