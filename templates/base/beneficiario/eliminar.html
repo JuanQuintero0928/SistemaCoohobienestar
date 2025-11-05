@@ -74,7 +74,7 @@
                 <tr>
                     <th>Fecha Ingreso</th>
                     <th>Pais Repatriación</th>
-                    <th>Ciudad Repatriación</th>
+                    <th>Ciudad Repatriación {{object.pk}} {{pkAsociado}}</th>
                 </tr>
                 <tr>
                     <td>{{queryRepatriacionTitular.fechaRepatriacion|date:'d/m/Y'}}</td>
@@ -98,12 +98,12 @@
             {% csrf_token %}
           {% endif %}
           {% if queryRepatriacionTitular %}
-            <form action="{% url 'asociado:eliminarRepatriacionTitular' pkAsociado pk %}" method="post">
+            <form action="{% url 'asociado:eliminarRepatriacionTitular' queryRepatriacionTitular.pk pkAsociado %}" method="post">
             {% csrf_token %}
           {% endif %}
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-              <button  type="submit" class="btn btn-danger">Eliminar</a>
-            </form>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button  type="submit" class="btn btn-danger">Eliminar</a>
+          </form>
           </div>
       </div>
     </div>

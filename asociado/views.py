@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_http_methods
-from django.views.generic import ListView, CreateView, UpdateView, DetailView, View
+from django.views.generic import ListView, CreateView, UpdateView, DetailView, View, DeleteView
 from django.http import HttpResponseRedirect, JsonResponse
 from django.core.paginator import Paginator
 from django.contrib import messages
@@ -12,6 +12,7 @@ from django.db.models.functions import Concat
 from datetime import date
 from funciones.function import StaffRequiredMixin
 import json
+from django.core.serializers.json import DjangoJSONEncoder
 from .utils.form_utils import asignar_campos
 from .models import (
     Asociado,
@@ -44,7 +45,7 @@ from parametro.models import (
 )
 from ventas.models import HistoricoVenta
 
-from .form import ConvenioAsociadoForm, RepatriacionTitularForm
+from .form import ConvenioAsociadoForm, RepatriacionTitularForm, TarifaAsociadoAdicionalForm
 from beneficiario.form import BeneficiarioForm, MascotaForm, CoohoperativitoForm
 from credito.form import CodeudorForm
 from historico.form import (
@@ -723,6 +724,11 @@ class CrearBeneficiario(CreateView):
     form_class = BeneficiarioForm
     template_name = "base/beneficiario/crearBeneficiario.html"
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["asociado_id"] = self.kwargs.get("pkAsociado")
+        return kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         pk_asociado = self.kwargs.get("pkAsociado")
@@ -771,6 +777,11 @@ class EditarBeneficiario(UpdateView):
     model = Beneficiario
     form_class = BeneficiarioForm
     template_name = "base/beneficiario/editarBeneficiario.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["asociado_id"] = self.kwargs.get("pkAsociado")
+        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -916,6 +927,11 @@ class CrearMascota(CreateView):
     form_class = MascotaForm
     template_name = "base/beneficiario/crearMascota.html"
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["asociado_id"] = self.kwargs.get("pkAsociado")
+        return kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         asociado_id = self.kwargs.get("pkAsociado")
@@ -953,6 +969,11 @@ class EditarMascota(UpdateView):
     model = Mascota
     form_class = MascotaForm
     template_name = "base/beneficiario/editarMascota.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["asociado_id"] = self.kwargs.get("pkAsociado")
+        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1577,60 +1598,39 @@ def EliminarDetalleGasolina(request, pkConvenio):
         return JsonResponse({"error": "Metodo no permitido"})
 
 
-class CrearAdicionalAsociado(ListView):
-    def get(self, request, *args, **kwargs):
-        template_name = "base/historico/crearAdicional.html"
-        return render(
-            request,
-            template_name,
-            {"pkAsociado": kwargs["pkAsociado"], "create": "yes"},
-        )
+class CrearAdicionalAsociado(UpdateView):
+    model = TarifaAsociado
+    form_class = TarifaAsociadoAdicionalForm
+    template_name = "base/historico/crearAdicional.html"
 
-    def post(self, request, *args, **kwargs):
-        cuotaAdicional = request.POST["cuotaAdicionales"]
-        fechaInicioAdicional = request.POST["fechaInicioAdicional"]
-        objTarifa = TarifaAsociado.objects.get(asociado=kwargs["pkAsociado"])
-        objTarifa.cuotaAdicionales = cuotaAdicional
-        objTarifa.fechaInicioAdicional = fechaInicioAdicional
-        objTarifa.conceptoAdicional = request.POST["concepto"].upper()
-        objTarifa.total = objTarifa.total + int(cuotaAdicional)
-        objTarifa.estadoAdicional = True
-        objTarifa.save()
-        messages.info(request, "Información Registrada Correctamente")
-        return HttpResponseRedirect(
-            reverse_lazy("asociado:tarifaAsociado", args=[kwargs["pkAsociado"]])
-        )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["pkAsociado"] = self.object.asociado_id
+        context["create"] = True
+        return context
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["asociado_id"] = self.object.asociado_id
+        return kwargs
 
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.estadoAdicional = True
 
-class EditarAdicionalAsociado(ListView):
-    def get(self, request, *args, **kwargs):
-        template_name = "base/historico/crearAdicional.html"
-        query = TarifaAsociado.objects.get(pk=kwargs["pk"])
-        return render(
-            request,
-            template_name,
-            {
-                "pkAsociado": kwargs["pkAsociado"],
-                "pk": kwargs["pk"],
-                "update": "yes",
-                "query": query,
-            },
-        )
+        # Recuperar el valor anterior antes de guardar
+        valor_anterior = TarifaAsociado.objects.get(pk=obj.pk).cuotaAdicionales or 0
+        valor_nuevo = obj.cuotaAdicionales or 0
 
-    def post(self, request, *args, **kwargs):
-        cuotaAdicional = request.POST["cuotaAdicionales"]
-        valorAnterior = request.POST["adicionalAnterior"]
-        fechaInicioAdicional = request.POST["fechaInicioAdicional"]
-        objTarifa = TarifaAsociado.objects.get(asociado=kwargs["pkAsociado"])
-        objTarifa.cuotaAdicionales = cuotaAdicional
-        objTarifa.conceptoAdicional = request.POST["concepto"].upper()
-        objTarifa.total = objTarifa.total + int(cuotaAdicional) - int(valorAnterior)
-        objTarifa.fechaInicioAdicional = fechaInicioAdicional
-        objTarifa.save()
-        messages.info(request, "Registo Modificado Correctamente")
-        return HttpResponseRedirect(
-            reverse_lazy("asociado:tarifaAsociado", args=[kwargs["pkAsociado"]])
-        )
+        diferencia = valor_nuevo - valor_anterior
+        obj.total = (obj.total or 0) + diferencia
+
+        obj.save()
+        messages.success(self.request, "Adicional guardado correctamente.")
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse_lazy("asociado:tarifaAsociado", args=[self.object.asociado_id])
 
 
 class EliminarAdicionalAsociado(UpdateView):
@@ -1680,110 +1680,93 @@ class VerSeguroVida(DetailView):
 
 
 class CrearSeguroVida(CreateView):
+    model = HistoricoSeguroVida
     form_class = HistoricoSeguroVidaForm
     template_name = "base/historico/crearSeguroVida.html"
 
-    def get(self, request, *args, **kwargs):
-        query = Asociado.objects.get(pk=kwargs["pkAsociado"])
-        return render(
-            request,
-            self.template_name,
-            {
-                "form": self.form_class,
-                "create": "yes",
-                "pkAsociado": kwargs["pkAsociado"],
-                "query": query,
-            },
-        )
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["asociado_id"] = self.kwargs.get("pkAsociado")
+        return kwargs
 
-    def post(self, request, *args, **kwargs):
-        formulario = HistoricoSeguroVidaForm(request.POST)
-        if formulario.is_valid():
-            obj = HistoricoSeguroVida()
-            obj.asociado = Asociado.objects.get(pk=kwargs["pkAsociado"])
-            obj.valorPago = formulario.cleaned_data["valorPago"]
-            obj.fechaIngreso = formulario.cleaned_data["fechaIngreso"]
-            obj.estadoRegistro = True
-            obj.save()
-            objTarifaAsociado = TarifaAsociado.objects.get(
-                asociado=kwargs["pkAsociado"]
-            )
-            objTarifaAsociado.cuotaSeguroVida = obj.valorPago
-            objTarifaAsociado.total = objTarifaAsociado.total + obj.valorPago
-            objTarifaAsociado.save()
-            messages.info(request, "Registro Creado Correctamente")
-            return HttpResponseRedirect(
-                reverse_lazy("asociado:seguroVida", args=[kwargs["pkAsociado"]])
-            )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        asociado_id = self.kwargs.get("pkAsociado")
+        context["pkAsociado"] = asociado_id
+        context["create"] = "yes"
+        context["query"] = get_object_or_404(Asociado, id = asociado_id)
+        return context
+    
+    def form_valid(self, form):
+        asociado_id = self.kwargs.get('pkAsociado')
+        asociado = get_object_or_404(Asociado, pk = asociado_id)
+
+        obj = form.save(commit=False)
+        obj.asociado = asociado
+        obj.estadoRegistro = True
+        obj.save()
+
+        obj_tarifa_asociado = TarifaAsociado.objects.get(asociado_id = asociado_id)
+        obj_tarifa_asociado.cuotaSeguroVida = obj.valorPago
+        obj_tarifa_asociado.total += obj.valorPago
+        obj_tarifa_asociado.save()
+        
+        messages.info(self.request, "Seguro de Vida Creado Correctamente")
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse_lazy("asociado:seguroVida", args=[self.kwargs["pkAsociado"]]) 
 
 
 class EditarSeguroVida(UpdateView):
+    model = HistoricoSeguroVida
+    form_class = HistoricoSeguroVidaForm
     template_name = "base/historico/crearSeguroVida.html"
 
-    def get(self, request, *args, **kwargs):
-        form_update = get_object_or_404(HistoricoSeguroVida, pk=kwargs["pk"])
-        fechaIngFormateada = form_update.fechaIngreso.strftime("%Y-%m-%d")
-        if form_update.fechaRetiro != None:
-            fechaRetFormateada = form_update.fechaRetiro.strftime("%Y-%m-%d")
-            form = HistoricoSeguroVidaForm(
-                initial={
-                    "valorPago": form_update.valorPago,
-                    "fechaIngreso": fechaIngFormateada,
-                    "fechaRetiro": fechaRetFormateada,
-                }
-            )
-        else:
-            form = HistoricoSeguroVidaForm(
-                initial={
-                    "valorPago": form_update.valorPago,
-                    "fechaIngreso": fechaIngFormateada,
-                }
-            )
-        return render(
-            request,
-            self.template_name,
-            {"form": form, "pkAsociado": kwargs["pkAsociado"], "pk": kwargs["pk"]},
-        )
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["asociado_id"] = self.kwargs.get("pkAsociado")
+        return kwargs
 
-    def post(self, request, *args, **kwargs):
-        formulario = HistoricoSeguroVidaForm(request.POST)
-        if formulario.is_valid():
-            obj = HistoricoSeguroVida.objects.get(pk=kwargs["pk"])
-            # se guarda esta variable, en caso que ponga fecha retiro y el usuario ponga valor en 0, le pueda restar el valor que estaba al total de la tarifa del asociado
-            valorActual = obj.valorPago
-            obj.valorPago = formulario.cleaned_data["valorPago"]
-            obj.fechaIngreso = formulario.cleaned_data["fechaIngreso"]
-            objTarifaAsociado = TarifaAsociado.objects.get(
-                asociado=kwargs["pkAsociado"]
-            )
-            # si se ingresa fecha de retiro, se inactiva y se resta al valor de la tarifa
-            if formulario.cleaned_data["fechaRetiro"] != None:
-                obj.fechaRetiro = formulario.cleaned_data["fechaRetiro"]
-                obj.estadoRegistro = False
-                objTarifaAsociado.cuotaSeguroVida = 0
-                objTarifaAsociado.total = objTarifaAsociado.total - valorActual
-                objTarifaAsociado.save()
-                obj.save()
-                messages.info(request, "Registro Editado Correctamente")
-                return HttpResponseRedirect(
-                    reverse_lazy("asociado:seguroVida", args=[kwargs["pkAsociado"]])
-                )
-            else:
-                obj.save()
-            # validaciones si aumenta o disminuye el valor del seguro de vida
-            objTarifaAsociado.cuotaSeguroVida = obj.valorPago
-            if valorActual > obj.valorPago:
-                diferencia = valorActual - obj.valorPago
-                objTarifaAsociado.total = objTarifaAsociado.total - diferencia
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        asociado_id = self.kwargs.get('pkAsociado')
+        seguro_vida_id = self.kwargs.get('pk')
+        context["pkAsociado"] = asociado_id
+        context["pk"] = seguro_vida_id
+        return context
+    
+    def form_valid(self, form):
+        asociado_id = self.kwargs.get('pkAsociado')
 
-            else:
-                diferencia = obj.valorPago - valorActual
-                objTarifaAsociado.total = objTarifaAsociado.total + diferencia
-            objTarifaAsociado.save()
-            messages.info(request, "Registro Editado Correctamente")
-            return HttpResponseRedirect(
-                reverse_lazy("asociado:seguroVida", args=[kwargs["pkAsociado"]])
-            )
+        obj = form.save(commit=False)
+        valor_actual = self.get_object().valorPago
+
+        obj_tarifa_asociado = TarifaAsociado.objects.get(asociado = asociado_id)
+
+        fecha_retiro = form.cleaned_data.get("fechaRetiro")
+
+        if fecha_retiro:
+            obj.fecha_retiro = fecha_retiro
+            obj.estadoRegistro = False
+            obj_tarifa_asociado.cuotaSeguroVida = 0
+            obj_tarifa_asociado.total -= valor_actual
+            obj_tarifa_asociado.save()
+            messages.info(self.request, "Seguro de vida Eliminado Correctamente")
+            return super().form_valid(form)
+        
+        obj.save()
+        obj_tarifa_asociado.cuotaSeguroVida = obj.valorPago
+
+        diferencia = obj.valorPago - valor_actual
+        obj_tarifa_asociado.total += diferencia
+        obj_tarifa_asociado.save()
+
+        messages.info(self.request, "Seguro de vida Modificado Correctamente")
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse_lazy("asociado:seguroVida", args=[self.kwargs["pkAsociado"]])
 
 
 class VerCoohoperativitos(DetailView):
@@ -2129,11 +2112,10 @@ class ModalFormato(ListView):
 
 
 # Descarga Formato Auxilios
-class GenerarFormato(ListView):
+class GenerarFormato(View):
     @medir_rendimiento("formato_extracto")
     def get(self, request, *args, **kwargs):
         template_name = "base/asociado/generar.html"
-        fechaActual = date.today()
         objAsoc = Asociado.objects.select_related("mpioResidencia").get(
             pk=kwargs["pkAsociado"]
         )
@@ -2147,7 +2129,71 @@ class GenerarFormato(ListView):
             context = obtenerValorExtracto(id_asociado, saldos, mes)
             context["objAsoc"] = objAsoc
             context["formato"] = formato
-            print(context)
+            # Preparar datos para JSON
+            context_serializable = {
+                'formato': formato,
+                'fechaCorte': context['fechaCorte'].strftime('%Y-%m-%d'),
+                'nombre': f"{objAsoc.nombre} {objAsoc.apellido}",
+                'numDocumento': objAsoc.numDocumento,
+                'mpioResidencia': str(objAsoc.mpioResidencia),
+                'direccion': objAsoc.direccion,
+                'numCelular': objAsoc.numCelular,
+                
+                # Valores del extracto
+                'mes': context['mes'].concepto,
+                'saldo': context['saldo'],
+                'cuotaVencida': context['cuotaVencida'],
+                'cuotaPeriodica': context['cuotaPeriodica'],
+                'valorVencido': context['valorVencido'],
+                
+                # Servicios
+                'valorVencidoMasc': context['valorVencidoMasc'],
+                'valorVencidoRep': context['valorVencidoRep'],
+                'valorVencidoSeg': context['valorVencidoSeg'],
+                'valorVencidoAdic': context['valorVencidoAdic'],
+                'valorVencidoCoohop': context['valorVencidoCoohop'],
+                
+                # Convenios
+                'convenios': [
+                    {
+                        'concepto': conv.convenio.concepto,
+                        'cantidad_meses': conv.cantidad_meses,
+                        'valor_mes': conv.convenio.valor,
+                        'valor_vencido': conv.valor_vencido_convenio
+                    }
+                    for conv in context['objConvenio']
+                ],
+                'convenioGasolina': context['convenioGasolina'],
+                'valorVencidoConvenio': context['valorVencidoConvenio'],
+                
+                # Créditos (NUEVO)
+                'creditos': context['creditos'],
+                'ventasHomeElements': context['ventasHomeElements'],
+                'valorTotalCreditos': context['valorTotalCreditos'],
+                
+                # Beneficiarios
+                'beneficiarios': [
+                    {
+                        'nombre': f"{b.nombre} {b.apellido}",
+                        'parentesco': str(b.parentesco),
+                        'paisRepatriacion': str(b.paisRepatriacion) if b.paisRepatriacion else ''
+                    }
+                    for b in context['objBeneficiario']
+                ],
+                
+                # Mascotas
+                'mascotas': [
+                    {'nombre': m.nombre}
+                    for m in context['objMascota']
+                ],
+                
+                # Totales
+                'pagoTotal': context['pagoTotal'],
+                'mensaje': context['mensaje'],
+            }
+            
+            # context['context_json'] = json.dumps(context_serializable, cls=DjangoJSONEncoder)
+            context['context_json'] = context_serializable
             return render(request, template_name, context)
 
 
@@ -2156,171 +2202,148 @@ class UtilidadesAsociado(ListView):
     template_name = "base/asociado/utilidades.html"
 
 
-class CrearRepatriacionTitular(ListView):
+class CrearRepatriacionTitular(CreateView):
+    model = RepatriacionTitular
     form_class = RepatriacionTitularForm
     template_name = "base/asociado/repatriacionTitular.html"
 
-    def get(self, request, *args, **kwargs):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        asociado_id = self.kwargs.get('pkAsociado')
+        context['create'] = True
+        context['pkAsociado'] = asociado_id
+        return context
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['asociado_id'] = self.kwargs.get('pkAsociado')
+        return kwargs
 
-        context = {
-            "form": self.form_class,
-            "create": "yes",
-            "pkAsociado": kwargs["pkAsociado"],
-        }
+    def form_valid(self, form):
+        asociado_id = self.kwargs['pkAsociado']
+        obj_asociado = get_object_or_404(Asociado, pk = asociado_id)
+        obj_tarifa_asociado = TarifaAsociado.objects.get(asociado = asociado_id)
+        obj_tarifa = Tarifas.objects.get(pk = 4)
+        obj = form.save(commit=False)
+        obj.estadoRegistro = True
+        obj.asociado = obj_asociado
+        obj.ciudadRepatriacion = obj.ciudadRepatriacion.upper()
 
-        return render(request, self.template_name, context)
+        
+        obj_tarifa_asociado.cuotaRepatriacionTitular = obj_tarifa.valor
+        obj_tarifa_asociado.total += obj_tarifa.valor
+        obj_tarifa_asociado.save()
 
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-
-        if form.is_valid():
-            objRepat = RepatriacionTitular(
-                asociado=get_object_or_404(Asociado, pk=kwargs["pkAsociado"]),
-                paisRepatriacion=form.cleaned_data["paisRepatriacion"],
-                fechaRepatriacion=form.cleaned_data["fechaRepatriacion"],
-                ciudadRepatriacion=form.cleaned_data["ciudadRepatriacion"],
-                estadoRegistro=True,
-            )
-            objTarifa = TarifaAsociado.objects.get(pk=kwargs["pkAsociado"])
-            TarifaRep = Tarifas.objects.get(pk=4)
-            objTarifa.cuotaRepatriacion += TarifaRep.valor
-            objTarifa.total += TarifaRep.valor
-            objTarifa.save()
-            objRepat.save()
-            messages.info(request, "Repatriación del Titular registrada correctamente.")
-            return HttpResponseRedirect(
-                reverse_lazy("asociado:tarifaAsociado", args=[kwargs["pkAsociado"]])
-            )
-        else:
-            # Si el formulario es inválido, re-renderiza el formulario con errores
-            return render(
-                request,
-                self.template_name,
-                {
-                    "form": form,
-                    "create": "yes",
-                    "pkAsociado": kwargs["pkAsociado"],
-                },
-            )
-
-
-class VerRepatriacionTitular(ListView):
-    def get(self, request, *args, **kwargs):
-        template_name = "base/asociado/verRepatriacionTitular.html"
-        form_update = get_object_or_404(RepatriacionTitular, pk=kwargs["pk"])
-        form = RepatriacionTitularForm(
-            initial={
-                "fechaRepatriacion": form_update.fechaRepatriacion,
-                "paisRepatriacion": form_update.paisRepatriacion,
-                "ciudadRepatriacion": form_update.ciudadRepatriacion,
-            }
-        )
-        return render(
-            request,
-            template_name,
-            {"form": form, "pk": kwargs["pk"], "pkAsociado": kwargs["pkAsociado"]},
-        )
-
-    def post(self, request, *args, **kwargs):
-        form = RepatriacionTitularForm(request.POST)
-        if form.is_valid():
-            obj = RepatriacionTitular.objects.get(pk=kwargs["pk"])
-            obj.fechaRepatriacion = form.cleaned_data["fechaRepatriacion"]
-            obj.paisRepatriacion = form.cleaned_data["paisRepatriacion"]
-            obj.ciudadRepatriacion = form.cleaned_data["ciudadRepatriacion"]
-            obj.save()
-            messages.info(request, "Registro editado correctamente")
-            return HttpResponseRedirect(
-                reverse_lazy("asociado:tarifaAsociado", args=[kwargs["pkAsociado"]])
-            )
-
-
-class EliminarRepatriacionTitular(UpdateView):
-    template_name = "base/beneficiario/eliminar.html"
-
-    def get(self, request, *args, **kwargs):
-        query = RepatriacionTitular.objects.get(pk=kwargs["pk"])
-        return render(
-            request,
-            self.template_name,
-            {
-                "pk": kwargs["pk"],
-                "pkAsociado": kwargs["pkAsociado"],
-                "queryRepatriacionTitular": query,
-            },
-        )
-
-    def post(self, request, *args, **kwargs):
-        obj = RepatriacionTitular.objects.get(pk=kwargs["pk"])
-        obj.estadoRegistro = False
-        obj.fechaRetiro = date.today()
         obj.save()
-        # Valor quemado de la repatriacion, pk = 4
-        objTarifa = Tarifas.objects.get(pk=4)
-        objTarifaAsoc = TarifaAsociado.objects.get(asociado=kwargs["pkAsociado"])
-        objTarifaAsoc.cuotaRepatriacion = (
-            objTarifaAsoc.cuotaRepatriacion - objTarifa.valor
-        )
-        objTarifaAsoc.total = objTarifaAsoc.total - objTarifa.valor
-        objTarifaAsoc.save()
-        messages.info(request, "Registro Eliminado Correctamente")
-        return HttpResponseRedirect(
-            reverse_lazy("asociado:tarifaAsociado", args=[kwargs["pkAsociado"]])
-        )
+        messages.info(self.request, "Repatriación titular creada correctamente")
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse_lazy("asociado:tarifaAsociado", args=[self.kwargs["pkAsociado"]])
 
 
-class CrearConvenio(ListView):
-    form_class = ConvenioAsociadoForm
-    template_name = "base/asociado/crearConvenio.html"
+class VerRepatriacionTitular(UpdateView):
+    model = RepatriacionTitular
+    form_class = RepatriacionTitularForm
+    template_name = 'base/asociado/repatriacionTitular.html'
 
-    def get(self, request, *args, **kwargs):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        asociado_id = self.kwargs.get('pkAsociado')
+        context['pkAsociado'] = asociado_id
+        context['create'] = False
+        return context
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['asociado_id'] = self.kwargs.get('pkAsociado')
+        return kwargs
+    
+    def form_valid(self, form):
+        # Guardar los cambios primero
+        obj = form.save(commit=False)
+        obj.ciudadRepatriacion = obj.ciudadRepatriacion.upper()
+        obj.save()
 
-        context = {
-            "form": self.form_class,
-            "create": "yes",
-            "pkAsociado": kwargs["pkAsociado"],
-        }
+        messages.info(self.request, 'Repatriación actualizada correctamente.')
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse_lazy('asociado:tarifaAsociado', args=[self.kwargs['pkAsociado']])
 
-        return render(request, self.template_name, context)
+
+class EliminarRepatriacionTitular(DeleteView):
+    model = RepatriacionTitular
+    template_name = 'base/beneficiario/eliminar.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        asociado_id = self.kwargs.get('pkAsociado')
+        obj_repatriacion = get_object_or_404(RepatriacionTitular, pk = self.kwargs.get('pk'))
+        context['pkAsociado'] = asociado_id
+        context['queryRepatriacionTitular'] = obj_repatriacion
+        return context
 
     def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
+        self.object = self.get_object()
+        asociado_id = self.kwargs.get('pkAsociado')
 
-        if form.is_valid():
-            objConvenio = ConveniosAsociado(
-                asociado=get_object_or_404(Asociado, pk=kwargs["pkAsociado"]),
-                convenio=form.cleaned_data["convenio"],
-                fechaIngreso=form.cleaned_data["fechaIngreso"],
-                primerMes=MesTarifa.objects.get(
-                    concepto=form.cleaned_data["primerMes"]
-                ),
-                estadoRegistro=True,
-            )
-            # Tarifa del asociado
-            objTarifa = TarifaAsociado.objects.get(asociado=kwargs["pkAsociado"])
-            # Tarifa del convenio
-            TarifaConvenio = Convenio.objects.get(
-                concepto=form.cleaned_data["convenio"]
-            )
-            objTarifa.cuotaConvenio += TarifaConvenio.valor
-            objTarifa.total += TarifaConvenio.valor
-            objTarifa.save()
-            objConvenio.save()
-            messages.info(request, "Convenio registrado correctamente.")
-            return HttpResponseRedirect(
-                reverse_lazy("asociado:tarifaAsociado", args=[kwargs["pkAsociado"]])
-            )
-        else:
-            # Si el formulario es inválido, re-renderiza el formulario con errores
-            return render(
-                request,
-                self.template_name,
-                {
-                    "form": form,
-                    "create": "yes",
-                    "pkAsociado": kwargs["pkAsociado"],
-                },
-            )
+        obj_tarifa_asociado = get_object_or_404(TarifaAsociado, asociado=asociado_id)
+
+        self.object.estadoRegistro = False
+        self.object.fechaRetiro = date.today()
+        self.object.save()
+
+        obj_tarifa_asociado.total -= obj_tarifa_asociado.cuotaRepatriacionTitular
+        obj_tarifa_asociado.cuotaRepatriacionTitular = 0
+        obj_tarifa_asociado.save()
+
+        messages.info(self.request, "Repatriación eliminada correctamente.")
+        return redirect(self.get_success_url())
+    
+    def get_success_url(self):
+        return reverse_lazy('asociado:tarifaAsociado', args=[self.kwargs['pkAsociado']])
+
+
+class CrearConvenio(CreateView):
+    model = ConveniosAsociado
+    form_class = ConvenioAsociadoForm
+    template_name = 'base/asociado/crearConvenio.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['create'] = True
+        context['pkAsociado'] = self.kwargs.get('pkAsociado')
+        return context
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['asociado_id'] = self.kwargs.get('pkAsociado')
+        return kwargs
+
+    def form_valid(self, form):
+        asociado_id = self.kwargs.get('pkAsociado')
+        obj_asociado = get_object_or_404(Asociado, pk = asociado_id)
+        obj_tarifa_asociado = TarifaAsociado.objects.get(asociado = asociado_id)
+        obj = form.save(commit=False)
+
+        # Obtenemos el objeto del convenio a crear
+        obj_convenio = Convenio.objects.get(id = obj.convenio_id)
+
+        obj.asociado = obj_asociado
+        obj.estadoRegistro = True
+
+        obj_tarifa_asociado.cuotaConvenio += obj_convenio.valor
+        obj_tarifa_asociado.total += obj_convenio.valor
+
+        obj.save()
+        obj_tarifa_asociado.save()
+
+        messages.info(self.request, "Convenio registrado correctamente.")
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse_lazy("asociado:tarifaAsociado", args=[self.kwargs['pkAsociado']])
 
 
 class EditarConvenioAsociado(UpdateView):

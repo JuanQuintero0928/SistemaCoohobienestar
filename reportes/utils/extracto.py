@@ -18,6 +18,10 @@ from ventas.models import HistoricoVenta
 Refactorización del sistema de extractos financieros
 Versión 2.0 - Con soporte para primerMes en mascotas, repatriaciones y convenio gasolina
 """
+from django.db.models import Sum, Count, Q, Max
+from datetime import timedelta
+from typing import Dict, List, Tuple, Optional
+
 
 # ============================================================================
 # CONSTANTES
@@ -664,27 +668,31 @@ def obtenerValorExtracto(id_asociado: int, saldos: bool, mes):
     )
     
     # Valor unitario de repatriación (calculado dividiendo entre cantidad actual)
-    # Para compatibilidad, usamos el valor total en tarifa si existe
+    # Primero contar cuántas repatriaciones hay activas ACTUALMENTE
+    cantidad_repatriaciones_benef_actuales = sum(1 for b in beneficiarios if b.repatriacion)
+    cantidad_rep_titular_actual = 1 if repatriacion_titular else 0
+    cantidad_total_repatriaciones = cantidad_repatriaciones_benef_actuales + cantidad_rep_titular_actual
+    
+    # Obtener el total en tarifa (usando campos separados)
     total_repatriaciones_tarifa = (
         (tarifa_asociado.cuotaRepatriacionBeneficiarios or 0) +
         (tarifa_asociado.cuotaRepatriacionTitular or 0)
     )
     
-    # Si no hay separación, usar el campo antiguo
-    if total_repatriaciones_tarifa == 0 and tarifa_asociado.cuotaRepatriacion:
-        total_repatriaciones_tarifa = tarifa_asociado.cuotaRepatriacion
-    
     # Calcular valor unitario
-    cantidad_repatriaciones_activas = (
-        sum(1 for b in beneficiarios if b.repatriacion) +
-        (1 if repatriacion_titular else 0)
-    )
-    
     valor_unitario_repatriacion = (
-        total_repatriaciones_tarifa // cantidad_repatriaciones_activas 
-        if cantidad_repatriaciones_activas > 0 
+        total_repatriaciones_tarifa // cantidad_total_repatriaciones 
+        if cantidad_total_repatriaciones > 0 
         else 10500  # Valor por defecto
     )
+    
+    print(f"\n=== CÁLCULO VALOR UNITARIO REPATRIACIÓN ===")
+    print(f"Total en tarifa: {total_repatriaciones_tarifa}")
+    print(f"Beneficiarios con repatriación: {cantidad_repatriaciones_benef_actuales}")
+    print(f"Titular con repatriación: {cantidad_rep_titular_actual}")
+    print(f"Total repatriaciones: {cantidad_total_repatriaciones}")
+    print(f"Valor unitario calculado: {valor_unitario_repatriacion}")
+    print("==========================================\n")
     
     valor_rep_benef, valor_rep_titular, cuotas_repatriaciones = (
         CalculadoraCuotasService.calcular_valores_repatriaciones(

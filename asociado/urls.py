@@ -35,8 +35,8 @@ urlpatterns = [
 
 
     path('tarifaAsociado/<int:pkAsociado>', login_required(VerTarifaAsociado.as_view()), name='tarifaAsociado'),
-    path('crearAdicional/<int:pkAsociado>', login_required(CrearAdicionalAsociado.as_view()), name='crearAdicional'),    
-    path('editarAdicional/<int:pkAsociado>/<int:pk>', login_required(EditarAdicionalAsociado.as_view()), name='editarAdicional'),
+    path('crearAdicional/<int:pk>/', login_required(CrearAdicionalAsociado.as_view()), name='crearAdicional'),    
+    # path('editarAdicional/<int:pkAsociado>/<int:pk>', login_required(EditarAdicionalAsociado.as_view()), name='editarAdicional'),
     path('eliminarAdicional/<int:pkAsociado>/<int:pk>', login_required(EliminarAdicionalAsociado.as_view()), name='eliminarAdicional'),
     path('seguroVida/<int:pkAsociado>', login_required(VerSeguroVida.as_view()), name='seguroVida'),
     path('crearSeguroVida/<int:pkAsociado>', login_required(CrearSeguroVida.as_view()), name='crearSeguroVida'),
@@ -52,8 +52,8 @@ urlpatterns = [
     path('generarFormato/<int:pkAsociado>/<int:pk>/<int:formato>', login_required(GenerarFormato.as_view()), name='generarFormato'),
     path('utilidades', login_required(UtilidadesAsociado.as_view()), name='utilidades'),
     path('repatriacionTitular/<int:pkAsociado>', login_required(CrearRepatriacionTitular.as_view()), name='repatriacionTitular'),
-    path('verRepatriacionTitular/<int:pkAsociado>/<int:pk>', login_required(VerRepatriacionTitular.as_view()), name='verRepatriacionTitular'),
-    path('eliminarRepatriacionTitular/<int:pkAsociado>/<int:pk>', login_required(EliminarRepatriacionTitular.as_view()), name='eliminarRepatriacionTitular'),
+    path('verRepatriacionTitular/<int:pk>/<int:pkAsociado>', login_required(VerRepatriacionTitular.as_view()), name='verRepatriacionTitular'),
+    path('eliminarRepatriacionTitular/<int:pk>/<int:pkAsociado>', login_required(EliminarRepatriacionTitular.as_view()), name='eliminarRepatriacionTitular'),
     path('crearConvenio/<int:pkAsociado>', login_required(CrearConvenio.as_view()), name='crearConvenio'),
     path('editarConvenio/<int:pkAsociado>/<int:pk>', login_required(EditarConvenioAsociado.as_view()), name='editarConvenio'),
     path('eliminarConvenio/<int:pkAsociado>/<int:pk>', login_required(EliminarConvenioAsociado.as_view()), name='eliminarConvenio'),

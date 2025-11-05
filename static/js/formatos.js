@@ -530,6 +530,11 @@ async function llamarPDF(formato, url, asociadoId, tipoFormato, opciones = {}, b
             const datos = await cargarDatosFormatoAuxilioEconomico(asociadoId, tipoFormato, auxilioId);
             await generarPDFAuxilioEconomico(url, datos);
         }
+        // Formato Extracto Individual
+        else if (formato == 4) {
+            const extractoData = JSON.parse(document.getElementById("extracto-data").textContent);
+            await generarPDFExtractoIndividual(url, extractoData);
+        }
     // }
     //  catch (error) {
     //     console.log(error);
@@ -918,6 +923,7 @@ async function generarPDFRegistro(url, datos) {
     pdf.save('Formato_Registro_'+datos.numDocumento+'.pdf');
 }
 
+
 // Formato 2
 // Formato Servicios Exequiales
 async function generarPDFServiciosExequiales(url, datos) {
@@ -1059,6 +1065,7 @@ async function generarPDFServiciosExequiales(url, datos) {
     pdf.save('Formato_Servicios_Exequiales_'+datos.numDocumento+'.pdf');
 }
 
+
 // Formato 3
 // Formato Auxilios
 async function generarPDFAuxilioEconomico(url, datos) {
@@ -1175,199 +1182,237 @@ async function generarPDFAuxilioEconomico(url, datos) {
 
 }
 
+
 // Formato 4
-// Formato Extracto
-async function generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF4, direccionF4, numCelularF4, concepto1, cuotaVencida, cuotaMes1, totalConcepto1, concepto2, cuotaMes2, totalConcepto2, concepto3, cuotaMes3, totalConcepto3, concepto4, cuotaMes4, totalConcepto4, concepto5, cuotaMes5, totalConcepto5, concepto6, cuotaMes6, totalConcepto6, arrayConveniosF4, pagoTotal, cuentaBeneficiariosF4, arrayBeneficiariosF4, arrayMascotasF4, saldo, mensaje) {
+// Formato Extracto Individual
+async function generarPDFExtractoIndividual(url, extractoData) {
     const image = await loadImage(url);
     const pdf = new jsPDF('p', 'pt', 'legal');
     pdf.addImage(image, 'PNG', 0, 0, 613, 1010);
-    pdf.setFont("helvetica", "normal");
 
-    // renglon 0
-    pdf.setFontSize(11);
+    console.log("extractoData:", extractoData);
+    
+    // Globales
+    pdf.setFontSize(10);
+    pdf.setFont("verdana", "normal");
 
-    if (nombreF4.length > 32) {
-            nombreF4 = nombreF4.substring(0, 31) + "."; 
-        }
-    pdf.text(nombreF4, 16,138.5);
+    // Variables
+    var fecha = extractoData.fechaCorte.split("-")
+    var fechaFormateada = fecha[2] + '/' + fecha[1] + '/' + fecha[0]
 
-    // pdf.text(nombreF4, 16,138.5);
-    pdf.text(formatearNumeroSinSimbolo(numDocF4), 244, 138.5);
-    pdf.text(mpioResidenciaF4, 339,138.5);
+    // renglon 1
+    pdf.text(extractoData.nombre, 16,138.5);
+    pdf.text(extractoData.numDocumento, 244,138.5);
+    pdf.text(extractoData.mpioResidencia, 339, 138.5)
+    pdf.text(fechaFormateada, 486, 138.5)
 
-    var arrFechaCorte = fechaCorte.split("-");
-    const fecha = arrFechaCorte[2] + '/' + arrFechaCorte[1] + '/' + arrFechaCorte[0]
-    pdf.text(fecha, 486,138.5);
-
-    pdf.text(direccionF4, 91,157.8);
-    pdf.text(numCelularF4, 486,157.8);
+    // renglon 2
+    pdf.text(extractoData.direccion, 91,157.8);
+    pdf.text(extractoData.numCelular, 486,157.8);
 
     // valores a pagar
-    pdf.setFontSize(9);
-    
-    pdf.text(concepto1, 17,285);
-    pdf.text(fecha, 166,285);
+    pdf.text(extractoData.mes, 17, 285);
+    pdf.text(fechaFormateada, 166, 285);
+    writeText(pdf, extractoData.cuotaVencida, 329, 285);
+    pdf.text(formatearNumero(extractoData.cuotaPeriodica), 385,285);
+    pdf.text(formatearNumero(extractoData.valorVencido), 531,285);
 
-    if(saldo != 0){;
-        pdf.text(formatearNumero(saldo), 236,285);
-    }
-
-    pdf.text(cuotaVencida, 329,285);
-    pdf.text(formatearNumero(cuotaMes1), 385,285);
-    // pdf.text('0', 452,285); interes de mora
-    pdf.text(formatearNumero(totalConcepto1), 531,285);
-
-    let fila = 305
-    if(cuotaMes2 > 0){
-        pdf.text(concepto2, 17,fila);
-        pdf.text(fecha, 166,fila);
-        // pdf.text('saldo', 248,fila);
-        pdf.text(cuotaVencida, 329,fila);
-        pdf.text(formatearNumero(cuotaMes2), 385,fila);
-        // pdf.text('interes mora', 452,fila);
-        pdf.text(formatearNumero(totalConcepto2), 531,fila);
-        fila = fila + 20
-    }
-    if(cuotaMes3 > 0){
-        pdf.text(concepto3, 17,fila);
-        pdf.text(fecha, 166,fila);
-        // pdf.text('saldo', 248,fila);
-        pdf.text(cuotaVencida, 329,fila);
-        pdf.text(formatearNumero(cuotaMes3), 385,fila);
-        // pdf.text('interes mora', 452,fila);
-        pdf.text(formatearNumero(totalConcepto3), 531,fila);
-        fila = fila + 20
-    }
-    if(cuotaMes4 > 0){
-        pdf.text(concepto4, 17,fila);
-        pdf.text(fecha, 166,fila);
-        // pdf.text('saldo', 248,fila);
-        pdf.text(cuotaVencida, 329,fila);
-        pdf.text(formatearNumero(cuotaMes4), 385,fila);
-        // pdf.text('interes mora', 452,fila);
-        pdf.text(formatearNumero(totalConcepto4), 531,fila);
-        fila = fila + 20
-    }
-    if(cuotaMes5 > 0){
-        pdf.text(concepto5, 17,fila);
-        pdf.text(fecha, 166,fila);
-        // pdf.text('saldo', 248,fila);
-        pdf.text(cuotaVencida, 329,fila);
-        pdf.text(formatearNumero(cuotaMes5), 385,fila);
-        // pdf.text('interes mora', 452,fila);
-        pdf.text(formatearNumero(totalConcepto5), 531,fila);
-        fila = fila + 20
-    }
-    if(cuotaMes6 > 0){
-        pdf.text(concepto6, 17,fila);
-        pdf.text(fecha, 166,fila);
-        // pdf.text('saldo', 248,fila);
-        pdf.text(cuotaVencida, 329,fila);
-        pdf.text(formatearNumero(cuotaMes6), 385,fila);
-        // pdf.text('interes mora', 452,fila);
-        pdf.text(formatearNumero(totalConcepto6), 531,fila);
-        fila = fila + 20
-    }
-    // Listas Convenios del asociado
-    for (let i=0; i < arrayConveniosF4.length; i++){
-        const convenio = arrayConveniosF4[i];
-        pdf.text("CONVENIO -" + " " + convenio.concepto, 17,fila);
-        pdf.text(fecha, 166,fila);
-        pdf.text(convenio.cantidadMeses.toString(), 329,fila);
-        pdf.text(formatearNumero(convenio.valorMes), 385,fila);
-        pdf.text(formatearNumero(convenio.total), 531,fila);
-        fila = fila + 20
-    }
-    // if(cuotaMes7 > 0){
-    //     pdf.text(concepto7, 17,fila);
-    //     pdf.text(fecha, 166,fila);
-    //     // pdf.text('saldo', 248,fila);
-    //     pdf.text(cuotaVencida, 329,fila);
-    //     pdf.text(formatearNumero(cuotaMes7), 385,fila);
-    //     // pdf.text('interes mora', 452,fila);
-    //     pdf.text(formatearNumero(totalConcepto7), 531,fila);
-    //     fila = fila + 20
-    // }
-    
-    // valor total a pagar
-    pdf.setTextColor(255,255,255)
-    pdf.setFont(undefined, "bold");
-    pdf.setFontSize(12)
-
-    pdf.text(formatearNumero(pagoTotal), 523,526.7);
-
-    // observaciones
-    pdf.setTextColor(0,0,0);
-    pdf.setFont(undefined, "normal");
-    // pdf.setFontSize(10)
-    // pdf.text(mensaje, 30,460);
-
-    pdf.setFontSize(8)
-    let filaB = 621.3;
-    let num_filas = 0
-    let columna_1 = 17;
-    let columna_2 = 181;
-    let columna_3 = 255;
-
-    // se lista beneficiarios
-    for(let i = 0;i < arrayBeneficiariosF4.length; i++){
-        let nombre = arrayBeneficiariosF4[i][0];
-
-        if (nombre.length > 27) {
-            nombre = nombre.substring(0, 25) + "..."; 
-        }
-        pdf.text(nombre, columna_1,filaB);
-
-        if(arrayBeneficiariosF4[i][2] != 'None'){
-            // pdf.text(arrayBeneficiariosF4[i][2], 332,filaB);  NOMBRE DEL PAIS
-            pdf.text("SI", columna_2,filaB);
-            pdf.text("NO", columna_3,filaB);
-        }else{
-            pdf.text("NO", columna_2,filaB);
-            pdf.text("NO", columna_3,filaB);
-        }
-        // pdf.text(arrayBeneficiariosF4[i][1], 515,filaB); PARENTESCO
-        filaB = filaB + 17;
-        num_filas += 1;
-        if (num_filas == 8){
-            columna_1 = 301;
-            columna_2 = 472;
-            columna_3 = 549;
-            filaB = 621.3;
-        }
-    }
-
-    // se lista mascotas
-    for(let i = 0;i < arrayMascotasF4.length; i++){
-        pdf.text(arrayMascotasF4[i][0], columna_1,filaB);
-        pdf.text("NO", columna_2,filaB);
-        pdf.text("SI", columna_3,filaB);
-        filaB += 17;
-        num_filas += 1;
-        if (num_filas == 8){
-            columna_1 = 301;
-            columna_2 = 472;
-            columna_3 = 549;
-            filaB = 621.3;
-        }
-    }
-
-    // pago pse
-    // pdf.textWithLink('                ', 430, 875, {url:"https://bit.ly/3XBQdEE"});
-    // sede google maps
-    pdf.textWithLink('                  ', 283, 941, {url:"https://maps.app.goo.gl/VbPt5H2EJ6nTxU6Q6"});
-    // WhatsApp
-    pdf.textWithLink('                  ', 131, 941, {url:"https://api.whatsapp.com/send/?phone=573135600507&text=Hola%2C+me+gustar%C3%ADa+obtener+m%C3%A1s+informaci%C3%B3n.&type=phone_number&app_absent=0"});
-    // contacto
-    pdf.textWithLink('                  ', 201, 941, {url:"mailto:contacto@coohobienestar.org"});
-    // icono instagram
-    pdf.textWithLink('                  ', 443, 941, {url:"https://www.instagram.com/coohobienestar/"});
-    // icono facebook
-    pdf.textWithLink('                  ', 364, 941, {url:"https://www.facebook.com/ccoohobienestar/"});
-
-    pdf.save('Formato_Extracto_'+numDocF4+'.pdf');
-
+    pdf.save('Formato_Auxilios_'+extractoData.numDocumento+'.pdf');
 }
+
+// Formato 4
+// Formato Extracto
+// async function generarPDFf4(url, fechaCorte, nombreF4, numDocF4, mpioResidenciaF4, direccionF4, numCelularF4, concepto1, cuotaVencida, cuotaMes1, totalConcepto1, concepto2, cuotaMes2, totalConcepto2, concepto3, cuotaMes3, totalConcepto3, concepto4, cuotaMes4, totalConcepto4, concepto5, cuotaMes5, totalConcepto5, concepto6, cuotaMes6, totalConcepto6, arrayConveniosF4, pagoTotal, cuentaBeneficiariosF4, arrayBeneficiariosF4, arrayMascotasF4, saldo, mensaje) {
+//     const image = await loadImage(url);
+//     const pdf = new jsPDF('p', 'pt', 'legal');
+//     pdf.addImage(image, 'PNG', 0, 0, 613, 1010);
+//     pdf.setFont("helvetica", "normal");
+
+//     // renglon 0
+//     pdf.setFontSize(11);
+
+//     if (nombreF4.length > 32) {
+//             nombreF4 = nombreF4.substring(0, 31) + "."; 
+//         }
+//     pdf.text(nombreF4, 16,138.5);
+
+//     // pdf.text(nombreF4, 16,138.5);
+//     pdf.text(formatearNumeroSinSimbolo(numDocF4), 244, 138.5);
+//     pdf.text(mpioResidenciaF4, 339,138.5);
+
+//     var arrFechaCorte = fechaCorte.split("-");
+//     const fecha = arrFechaCorte[2] + '/' + arrFechaCorte[1] + '/' + arrFechaCorte[0]
+//     pdf.text(fecha, 486,138.5);
+
+//     pdf.text(direccionF4, 91,157.8);
+//     pdf.text(numCelularF4, 486,157.8);
+
+//     // valores a pagar
+//     pdf.setFontSize(9);
+    
+//     pdf.text(concepto1, 17,285);
+//     pdf.text(fecha, 166,285);
+
+//     if(saldo != 0){;
+//         pdf.text(formatearNumero(saldo), 236,285);
+//     }
+
+//     pdf.text(cuotaVencida, 329,285);
+//     pdf.text(formatearNumero(cuotaMes1), 385,285);
+//     // pdf.text('0', 452,285); interes de mora
+//     pdf.text(formatearNumero(totalConcepto1), 531,285);
+
+//     let fila = 305
+//     if(cuotaMes2 > 0){
+//         pdf.text(concepto2, 17,fila);
+//         pdf.text(fecha, 166,fila);
+//         // pdf.text('saldo', 248,fila);
+//         pdf.text(cuotaVencida, 329,fila);
+//         pdf.text(formatearNumero(cuotaMes2), 385,fila);
+//         // pdf.text('interes mora', 452,fila);
+//         pdf.text(formatearNumero(totalConcepto2), 531,fila);
+//         fila = fila + 20
+//     }
+//     if(cuotaMes3 > 0){
+//         pdf.text(concepto3, 17,fila);
+//         pdf.text(fecha, 166,fila);
+//         // pdf.text('saldo', 248,fila);
+//         pdf.text(cuotaVencida, 329,fila);
+//         pdf.text(formatearNumero(cuotaMes3), 385,fila);
+//         // pdf.text('interes mora', 452,fila);
+//         pdf.text(formatearNumero(totalConcepto3), 531,fila);
+//         fila = fila + 20
+//     }
+//     if(cuotaMes4 > 0){
+//         pdf.text(concepto4, 17,fila);
+//         pdf.text(fecha, 166,fila);
+//         // pdf.text('saldo', 248,fila);
+//         pdf.text(cuotaVencida, 329,fila);
+//         pdf.text(formatearNumero(cuotaMes4), 385,fila);
+//         // pdf.text('interes mora', 452,fila);
+//         pdf.text(formatearNumero(totalConcepto4), 531,fila);
+//         fila = fila + 20
+//     }
+//     if(cuotaMes5 > 0){
+//         pdf.text(concepto5, 17,fila);
+//         pdf.text(fecha, 166,fila);
+//         // pdf.text('saldo', 248,fila);
+//         pdf.text(cuotaVencida, 329,fila);
+//         pdf.text(formatearNumero(cuotaMes5), 385,fila);
+//         // pdf.text('interes mora', 452,fila);
+//         pdf.text(formatearNumero(totalConcepto5), 531,fila);
+//         fila = fila + 20
+//     }
+//     if(cuotaMes6 > 0){
+//         pdf.text(concepto6, 17,fila);
+//         pdf.text(fecha, 166,fila);
+//         // pdf.text('saldo', 248,fila);
+//         pdf.text(cuotaVencida, 329,fila);
+//         pdf.text(formatearNumero(cuotaMes6), 385,fila);
+//         // pdf.text('interes mora', 452,fila);
+//         pdf.text(formatearNumero(totalConcepto6), 531,fila);
+//         fila = fila + 20
+//     }
+//     // Listas Convenios del asociado
+//     for (let i=0; i < arrayConveniosF4.length; i++){
+//         const convenio = arrayConveniosF4[i];
+//         pdf.text("CONVENIO -" + " " + convenio.concepto, 17,fila);
+//         pdf.text(fecha, 166,fila);
+//         pdf.text(convenio.cantidadMeses.toString(), 329,fila);
+//         pdf.text(formatearNumero(convenio.valorMes), 385,fila);
+//         pdf.text(formatearNumero(convenio.total), 531,fila);
+//         fila = fila + 20
+//     }
+//     // if(cuotaMes7 > 0){
+//     //     pdf.text(concepto7, 17,fila);
+//     //     pdf.text(fecha, 166,fila);
+//     //     // pdf.text('saldo', 248,fila);
+//     //     pdf.text(cuotaVencida, 329,fila);
+//     //     pdf.text(formatearNumero(cuotaMes7), 385,fila);
+//     //     // pdf.text('interes mora', 452,fila);
+//     //     pdf.text(formatearNumero(totalConcepto7), 531,fila);
+//     //     fila = fila + 20
+//     // }
+    
+//     // valor total a pagar
+//     pdf.setTextColor(255,255,255)
+//     pdf.setFont(undefined, "bold");
+//     pdf.setFontSize(12)
+
+//     pdf.text(formatearNumero(pagoTotal), 523,526.7);
+
+//     // observaciones
+//     pdf.setTextColor(0,0,0);
+//     pdf.setFont(undefined, "normal");
+//     // pdf.setFontSize(10)
+//     // pdf.text(mensaje, 30,460);
+
+//     pdf.setFontSize(8)
+//     let filaB = 621.3;
+//     let num_filas = 0
+//     let columna_1 = 17;
+//     let columna_2 = 181;
+//     let columna_3 = 255;
+
+//     // se lista beneficiarios
+//     for(let i = 0;i < arrayBeneficiariosF4.length; i++){
+//         let nombre = arrayBeneficiariosF4[i][0];
+
+//         if (nombre.length > 27) {
+//             nombre = nombre.substring(0, 25) + "..."; 
+//         }
+//         pdf.text(nombre, columna_1,filaB);
+
+//         if(arrayBeneficiariosF4[i][2] != 'None'){
+//             // pdf.text(arrayBeneficiariosF4[i][2], 332,filaB);  NOMBRE DEL PAIS
+//             pdf.text("SI", columna_2,filaB);
+//             pdf.text("NO", columna_3,filaB);
+//         }else{
+//             pdf.text("NO", columna_2,filaB);
+//             pdf.text("NO", columna_3,filaB);
+//         }
+//         // pdf.text(arrayBeneficiariosF4[i][1], 515,filaB); PARENTESCO
+//         filaB = filaB + 17;
+//         num_filas += 1;
+//         if (num_filas == 8){
+//             columna_1 = 301;
+//             columna_2 = 472;
+//             columna_3 = 549;
+//             filaB = 621.3;
+//         }
+//     }
+
+//     // se lista mascotas
+//     for(let i = 0;i < arrayMascotasF4.length; i++){
+//         pdf.text(arrayMascotasF4[i][0], columna_1,filaB);
+//         pdf.text("NO", columna_2,filaB);
+//         pdf.text("SI", columna_3,filaB);
+//         filaB += 17;
+//         num_filas += 1;
+//         if (num_filas == 8){
+//             columna_1 = 301;
+//             columna_2 = 472;
+//             columna_3 = 549;
+//             filaB = 621.3;
+//         }
+//     }
+
+//     // pago pse
+//     // pdf.textWithLink('                ', 430, 875, {url:"https://bit.ly/3XBQdEE"});
+//     // sede google maps
+//     pdf.textWithLink('                  ', 283, 941, {url:"https://maps.app.goo.gl/VbPt5H2EJ6nTxU6Q6"});
+//     // WhatsApp
+//     pdf.textWithLink('                  ', 131, 941, {url:"https://api.whatsapp.com/send/?phone=573135600507&text=Hola%2C+me+gustar%C3%ADa+obtener+m%C3%A1s+informaci%C3%B3n.&type=phone_number&app_absent=0"});
+//     // contacto
+//     pdf.textWithLink('                  ', 201, 941, {url:"mailto:contacto@coohobienestar.org"});
+//     // icono instagram
+//     pdf.textWithLink('                  ', 443, 941, {url:"https://www.instagram.com/coohobienestar/"});
+//     // icono facebook
+//     pdf.textWithLink('                  ', 364, 941, {url:"https://www.facebook.com/ccoohobienestar/"});
+
+//     pdf.save('Formato_Extracto_'+numDocF4+'.pdf');
+
+// }
 
 // Formato 5
 // Formato Extracto TODOS
