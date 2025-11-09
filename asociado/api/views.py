@@ -13,7 +13,8 @@ from asociado.models import (
     ParametroAsociado,
 )
 from beneficiario.models import Beneficiario, Mascota
-from historico.models import HistoricoAuxilio
+from historico.models import HistoricoAuxilio, HistoricoCredito
+from credito.models import Codeudor
 from asociado.utils.utils import generar_radicado
 
 
@@ -67,12 +68,31 @@ def obtener_datos_servicios_exequiales(request, asociado_id, tipo_formato):
 def obtener_datos_auxilio_economico(request, asociado_id, tipo_formato, auxilio_id):
     try:
         hoy = date.today()
-        print(hoy.strftime("%d/%m/%Y"))
         datos = {
             "id": asociado_id,
             "fechaFormateada": hoy.strftime("%d/%m/%Y"),
             **datos_modelo_asociado(asociado_id),
             **datos_modelo_historicoAuxilio(auxilio_id),
+        }
+        radicado = generar_radicado(asociado_id, tipo_formato)
+        datos["numeroRadicado"] = radicado
+        return JsonResponse(datos)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+
+def obtener_datos_solicitud_credito(request, asociado_id, tipo_formato, credito_id):
+    try:
+        hoy = date.today()
+        datos = {
+            "id": asociado_id,
+            "fechaFormateada": hoy.strftime("%d/%m/%Y"),
+            **datos_modelo_asociado(asociado_id),
+            **datos_modelo_laboral(asociado_id),
+            **datos_modelo_financiera(asociado_id),
+            **datos_modelo_parametro_asociado(asociado_id),
+            **datos_modelo_historicoCredito(credito_id),
+            **datos_modelo_codeudor(credito_id),
         }
         print(datos)
         radicado = generar_radicado(asociado_id, tipo_formato)
@@ -269,3 +289,37 @@ def datos_modelo_historicoAuxilio(auxilio_id):
     qs_historicoAuxilio["anexos_concat"] = ", ".join(anexos)
     
     return {"auxilio": qs_historicoAuxilio}
+
+
+def datos_modelo_historicoCredito(credito_id):
+    qs_historicoCredito = HistoricoCredito.objects.filter(
+        id = credito_id
+    ).values(
+        "fechaSolicitud",
+        "valor",
+        "lineaCredito",
+        "amortizacion",
+        "tasaInteres__porcentaje",
+        "medioPago",
+        "cuotas",
+        "valorCuota",
+        "totalCredito",
+        "formaDesembolso",
+        "banco",
+        "numCuenta",
+        "tipoCuenta"
+    ).first() or {}
+    return {"credito": qs_historicoCredito}
+
+
+def datos_modelo_codeudor(credito_id):
+    qs_codeudor = Codeudor.objects.filter(
+        historicoCredito_id=credito_id
+    ).values(
+        "nombre",
+        "apellido",
+        "tipoDocumento",
+        "numDocumento",
+        "mpioDoc__nombre",
+    ).first() or {}
+    return {"codeudor": qs_codeudor}

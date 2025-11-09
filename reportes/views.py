@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, TemplateView, View
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.db.models import Sum, F, Subquery, Prefetch
 from datetime import timedelta
 from datetime import datetime
@@ -475,23 +475,106 @@ class FormatoExtracto(ListView):
     def get(self, request, *args, **kwargs):
         template_name = 'reporte/reporteExtracto.html'
         mes = MesTarifa.objects.all()
-        return render(request, template_name, {'mes':mes})
+        return render(request, template_name, {'mes': mes})
 
-    @medir_rendimiento('formato extracto todos')
     def post(self, request, *args, **kwargs):
+        """
+        Mostrar template inmediatamente sin procesar datos
+        """
         template_name = 'reporte/generarExtracto.html'
         
-        objAsoc = Asociado.objects.exclude(estadoAsociado = ['RETIRO'])
-        # objAsoc = Asociado.objects.filter(numDocumento = 1088028032)
-        mesExtracto = request.POST['mesExtracto']
-        mes = MesTarifa.objects.get(pk = mesExtracto)
+        mesExtracto = request.POST.get('mesExtracto')
         saldos = 'saldos' in request.POST
-        asociados = []
-        for asociado in objAsoc:
-            asociados.append(obtenerValorExtracto(asociado.id, saldos, mes))
+        
+        mes = MesTarifa.objects.get(pk=mesExtracto)
+        
+        # Renderizar template inmediatamente (sin datos)
+        return render(request, template_name, {
+            'mesExtracto': mesExtracto,
+            'saldos': 'true' if saldos else 'false',
+            'mes': mes.concepto
+        })
 
-        return render(request, template_name, {'lista':asociados, 'mes':mes})
-    
+
+class ObtenerExtractosAPI(View):
+    """
+    API endpoint para obtener extractos procesados
+    """
+    @medir_rendimiento('obtener_extractos_api')
+    def post(self, request, *args, **kwargs):
+        try:
+            mesExtracto = request.POST.get('mesExtracto')
+            saldos = request.POST.get('saldos') == 'true'
+            
+            # Obtener asociados
+            objAsoc = Asociado.objects.exclude(estadoAsociado='ACTIVO').select_related('mpioResidencia')
+            total = objAsoc.count()
+            mes = MesTarifa.objects.get(pk=mesExtracto)
+            
+            extractos_lista = []
+            errores = []
+            
+            for i, asociado in enumerate(objAsoc, 1):
+                try:
+                    # Generar extracto
+                    context = obtenerValorExtracto(asociado.id, saldos, mes)
+                    
+                    extracto_serializable = {
+                        "pkAsociado": asociado.id,
+                        "nombre": f"{asociado.nombre} {asociado.apellido}",
+                        "numDocumento": asociado.numDocumento,
+                        "mpioResidencia": str(asociado.mpioResidencia),
+                        "direccion": asociado.direccion,
+                        "numCelular": asociado.numCelular,
+                        "fechaCorte": context["fechaCorte"].strftime("%Y-%m-%d"),
+                        "mes": context["mes"].concepto,
+                        "saldo": context["saldo"],
+                        "saldoDiferencia": context["saldoDiferencia"],
+                        "pagoTotal": context["pagoTotal"],
+                        "mensaje": context["mensaje"],
+                        "conceptos_detallados": context["conceptos_detallados"],
+                        "beneficiarios": [
+                            {
+                                "nombre": f"{b.nombre} {b.apellido}",
+                                "parentesco": str(b.parentesco),
+                                "paisRepatriacion": str(b.paisRepatriacion) if b.paisRepatriacion else "",
+                            }
+                            for b in context["objBeneficiario"]
+                        ],
+                        "mascotas": [
+                            {"nombre": m.nombre, "tipo": m.tipo}
+                            for m in context["objMascota"]
+                        ],
+                    }
+                    
+                    extractos_lista.append(extracto_serializable)
+                    
+                    # Enviar progreso periódicamente (cada 10 asociados)
+                    if i % 10 == 0:
+                        print(f"Progreso: {i}/{total} asociados procesados")
+                    
+                except Exception as e:
+                    errores.append({
+                        'asociado_id': asociado.id,
+                        'nombre': f"{asociado.nombre} {asociado.apellido}",
+                        'error': str(e)
+                    })
+                    continue
+            
+            return JsonResponse({
+                'success': True,
+                'extractos': extractos_lista,
+                'total': len(extractos_lista),
+                'errores': errores
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=500)
+
+
 class VerDescuentosNomina(ListView):
     template_name = 'reporte/dctosNomina.html'
     
@@ -604,7 +687,7 @@ class ExcelDescuentosNomina(TemplateView):
             ws.cell(row = cont, column = 7).value = obj.tarifaAsociado.cuotaAporte
             ws.cell(row = cont, column = 8).value = obj.tarifaAsociado.cuotaBSocial
             ws.cell(row = cont, column = 9).value = obj.tarifaAsociado.cuotaMascota
-            ws.cell(row = cont, column = 10).value = obj.tarifaAsociado.cuotaRepatriacion
+            ws.cell(row = cont, column = 10).value = (obj.tarifaAsociado.cuotaRepatriacionBeneficiarios or 0) + (obj.tarifaAsociado.cuotaRepatriacionTitular or 0)
             ws.cell(row = cont, column = 11).value = obj.tarifaAsociado.cuotaSeguroVida
             ws.cell(row = cont, column = 12).value = obj.tarifaAsociado.cuotaAdicionales
             ws.cell(row = cont, column = 13).value = obj.tarifaAsociado.cuotaCoohopAporte
@@ -791,6 +874,7 @@ class DescargarAsociados(BaseReporteExcel):
             obj.fechaRetiro.strftime("%d/%m/%Y") if obj.fechaRetiro else None,
         ]
 
+
 class DescargarTarifasAsociados(BaseReporteExcel):
     nombre_hoja = "Listado Tarifas Asociados"
     columnas = [
@@ -804,7 +888,7 @@ class DescargarTarifasAsociados(BaseReporteExcel):
         self.titulo = "Listado Tarifas de Asociados"
 
         return TarifaAsociado.objects.values('asociado__id',
-                            'asociado__nombre','asociado__apellido','asociado__numDocumento','asociado__tAsociado__concepto', 'cuotaAporte', 'cuotaBSocial', 'cuotaMascota', 'cuotaRepatriacion', 
+                            'asociado__nombre','asociado__apellido','asociado__numDocumento','asociado__tAsociado__concepto', 'cuotaAporte', 'cuotaBSocial', 'cuotaMascota', 'cuotaRepatriacionBeneficiarios', 'cuotaRepatriacionTitular',
                             'cuotaSeguroVida', 'cuotaAdicionales', 'cuotaCoohopAporte', 'cuotaCoohopBsocial', 'cuotaConvenio', 'total'
                         )
 
@@ -818,13 +902,14 @@ class DescargarTarifasAsociados(BaseReporteExcel):
             obj['cuotaAporte'],
             obj['cuotaBSocial'],
             obj['cuotaMascota'],
-            obj['cuotaRepatriacion'],
+            (obj['cuotaRepatriacionBeneficiarios'] or 0) + (obj['cuotaRepatriacionTitular'] or 0),
             obj['cuotaSeguroVida'],
             obj['cuotaAdicionales'],
             obj['cuotaCoohopAporte'],
             obj['cuotaCoohopBsocial'],
             obj['cuotaConvenio'],
         ]
+
 
 class DescargarBeneficiarios(BaseReporteExcel):
     nombre_hoja = "Listado Beneficiarios"
@@ -874,7 +959,8 @@ class DescargarBeneficiarios(BaseReporteExcel):
             obj['parentesco__nombre'],
             repatriacion
         ]
-    
+
+
 class DescargarMascotas(BaseReporteExcel):
     nombre_hoja = "Listado Mascotas"
     columnas = [

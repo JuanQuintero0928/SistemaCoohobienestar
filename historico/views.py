@@ -8,6 +8,7 @@ from django.views.generic import ListView, DeleteView, TemplateView, DetailView
 from usuarios.models import UsuarioAsociado
 from django.contrib import messages
 from django.db.models import Sum, F, Q, Subquery, Case, When, Value, IntegerField
+from django.db.models.functions import Coalesce
 from django.db import transaction
 from django.core.paginator import Paginator
 from django.utils.timezone import timedelta
@@ -107,20 +108,23 @@ class ModalPago(ListView):
             asociado=kwargs["pkAsociado"]
         ).aggregate(
             total_tarifa_asociado=Sum(
-                F("cuotaMascota")
-                + F("cuotaRepatriacionBeneficiarios")
-                + F("cuotaRepatriacionTitular")
-                + F("cuotaSeguroVida")
-                + F("cuotaAdicionales")
-                + F("cuotaCoohopAporte")
-                + F("cuotaCoohopBsocial")
-                + F("cuotaConvenio")
+                Coalesce(F("cuotaMascota"), Value(0)) +
+                Coalesce(F("cuotaRepatriacionBeneficiarios"), Value(0)) +
+                Coalesce(F("cuotaRepatriacionTitular"), Value(0)) +
+                Coalesce(F("cuotaSeguroVida"), Value(0)) +
+                Coalesce(F("cuotaAdicionales"), Value(0)) +
+                Coalesce(F("cuotaCoohopAporte"), Value(0)) +
+                Coalesce(F("cuotaCoohopBsocial"), Value(0)) +
+                Coalesce(F("cuotaConvenio"), Value(0))
             )
         )
+
+        print(queryValor)
 
         total_tarifa_asociado = (
             queryTarifa["total_tarifa_asociado"] or 0
         )  # Se obtiene el valor de la suma a 0 si no hay datos
+        print(total_tarifa_asociado)
 
         if queryHistorial:
             mesesPagados = HistorialPagos.objects.filter(
@@ -1017,7 +1021,19 @@ class ActualizarEstadoAsoc(TemplateView):
                 .values_list("primerMes", flat=True)
                 .first()
             )
-            # Si el asociado se vinculo antes del mes seleccionado
+            print(asociado, primerMes)
+
+            if primerMes is None:
+                resultado.append({
+                    "id": asociado["id"],
+                    "numero_documento": asociado["numDocumento"],
+                    "nombre_completo": f"{asociado['nombre']} {asociado['apellido']}",
+                    "estado_actual": asociado["estadoAsociado"],
+                    "estado_calculado": "INACTIVO",
+                    "observaciones": "No tiene registrado el primer mes en ParametroAsociado",
+                })
+                continue
+
             if primerMes <= mes:
                 # numero de pagos del asociado del mes seleccionado hacia atras
                 pagosRealizados = HistorialPagos.objects.filter(

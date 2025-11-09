@@ -2127,73 +2127,131 @@ class GenerarFormato(View):
             mes = MesTarifa.objects.get(pk=request.GET["mes"])
             formato = kwargs["formato"]
             context = obtenerValorExtracto(id_asociado, saldos, mes)
+            
             context["objAsoc"] = objAsoc
             context["formato"] = formato
+    
             # Preparar datos para JSON
             context_serializable = {
-                'formato': formato,
-                'fechaCorte': context['fechaCorte'].strftime('%Y-%m-%d'),
-                'nombre': f"{objAsoc.nombre} {objAsoc.apellido}",
-                'numDocumento': objAsoc.numDocumento,
-                'mpioResidencia': str(objAsoc.mpioResidencia),
-                'direccion': objAsoc.direccion,
-                'numCelular': objAsoc.numCelular,
+                # ================================================================
+                # IDENTIFICACIÓN Y ENCABEZADO
+                # ================================================================
+                "formato": formato,
+                "fechaCorte": context["fechaCorte"].strftime("%Y-%m-%d"),
+                "nombre": f"{objAsoc.nombre} {objAsoc.apellido}",
+                "numDocumento": objAsoc.numDocumento,
+                "mpioResidencia": str(objAsoc.mpioResidencia),
+                "direccion": objAsoc.direccion,
+                "numCelular": objAsoc.numCelular,
+
+                # ================================================================
+                # INFORMACIÓN GENERAL DEL EXTRACTO
+                # ================================================================
+                "mes": context["mes"].concepto,
+                "saldo": context["saldo"],
+                "saldoDiferencia": context["saldoDiferencia"],  # ← NUEVO
+                "pagoTotal": context["pagoTotal"],
+                "mensaje": context["mensaje"],
+
+                # ================================================================
+                # CUOTAS Y TARIFAS GENERALES
+                # ================================================================
+                "cuotaPeriodica": context["cuotaPeriodica"],
+                "cuotaCoohop": context["cuotaCoohop"],
+                "cuotaVencida": context["cuotaVencida"],
+                "valorVencido": context["valorVencido"],
+
+                # ================================================================
+                # SERVICIOS (totales por categoría)
+                # ================================================================
+                "valorVencidoMasc": context["valorVencidoMasc"],
+                "valorVencidoRep": context["valorVencidoRep"],
+                "valorVencidoRepBeneficiarios": context["valorVencidoRepBeneficiarios"],
+                "valorVencidoRepTitular": context["valorVencidoRepTitular"],
+                "valorVencidoSeg": context["valorVencidoSeg"],
+                "valorVencidoAdic": context["valorVencidoAdic"],
+                "valorVencidoCoohop": context["valorVencidoCoohop"],
+
+                # ================================================================
+                # CONVENIOS
+                # ================================================================
+                "valorVencidoConvenio": context["valorVencidoConvenio"],
+                "valorVencidoConveniosNormales": context["valorVencidoConveniosNormales"],
+                "valorVencidoGasolina": context["valorVencidoGasolina"],
                 
-                # Valores del extracto
-                'mes': context['mes'].concepto,
-                'saldo': context['saldo'],
-                'cuotaVencida': context['cuotaVencida'],
-                'cuotaPeriodica': context['cuotaPeriodica'],
-                'valorVencido': context['valorVencido'],
-                
-                # Servicios
-                'valorVencidoMasc': context['valorVencidoMasc'],
-                'valorVencidoRep': context['valorVencidoRep'],
-                'valorVencidoSeg': context['valorVencidoSeg'],
-                'valorVencidoAdic': context['valorVencidoAdic'],
-                'valorVencidoCoohop': context['valorVencidoCoohop'],
-                
-                # Convenios
-                'convenios': [
+                "convenios": [
                     {
-                        'concepto': conv.convenio.concepto,
-                        'cantidad_meses': conv.cantidad_meses,
-                        'valor_mes': conv.convenio.valor,
-                        'valor_vencido': conv.valor_vencido_convenio
+                        "concepto": conv.convenio.concepto,
+                        "cantidad_meses": conv.cantidad_meses,
+                        "valor_mes": conv.convenio.valor,
+                        "valor_vencido": conv.valor_vencido_convenio,
                     }
-                    for conv in context['objConvenio']
+                    for conv in context["objConvenio"]
                 ],
-                'convenioGasolina': context['convenioGasolina'],
-                'valorVencidoConvenio': context['valorVencidoConvenio'],
-                
-                # Créditos (NUEVO)
-                'creditos': context['creditos'],
-                'ventasHomeElements': context['ventasHomeElements'],
-                'valorTotalCreditos': context['valorTotalCreditos'],
-                
-                # Beneficiarios
-                'beneficiarios': [
+                "convenioGasolina": context["convenioGasolina"],
+
+                # ================================================================
+                # CRÉDITOS Y VENTAS HOME ELEMENTS
+                # ================================================================
+                "creditos": context["creditos"],
+                "ventasHomeElements": context["ventasHomeElements"],
+                "valorTotalCreditos": context["valorTotalCreditos"],
+
+                # ================================================================
+                # BENEFICIARIOS
+                # ================================================================
+                "beneficiarios": [
                     {
-                        'nombre': f"{b.nombre} {b.apellido}",
-                        'parentesco': str(b.parentesco),
-                        'paisRepatriacion': str(b.paisRepatriacion) if b.paisRepatriacion else ''
+                        "nombre": f"{b.nombre} {b.apellido}",
+                        "parentesco": str(b.parentesco),
+                        "paisRepatriacion": str(b.paisRepatriacion) if b.paisRepatriacion else "",
+                        "repatriacion": b.repatriacion,  # Indica si tiene repatriación
                     }
-                    for b in context['objBeneficiario']
+                    for b in context["objBeneficiario"]
                 ],
-                
-                # Mascotas
-                'mascotas': [
-                    {'nombre': m.nombre}
-                    for m in context['objMascota']
+                "cuentaBeneficiario": context["cuentaBeneficiario"],
+                "cuentaBeneficiarioConRepatriacion": context["cuentaBeneficiarioConRepatriacion"],
+
+                # ================================================================
+                # MASCOTAS
+                # ================================================================
+                "mascotas": [
+                    {
+                        "nombre": m.nombre,
+                        "tipo": m.tipo,
+                    }
+                    for m in context["objMascota"]
                 ],
-                
-                # Totales
-                'pagoTotal': context['pagoTotal'],
-                'mensaje': context['mensaje'],
+                "cuentaMascota": context["cuentaMascota"],
+
+                # ================================================================
+                # REPATRIACIÓN TITULAR Y SEGUROS
+                # ================================================================
+                "repatriacionTitular": (
+                    {
+                        "pais": str(context["objRepatriacionTitular"].paisRepatriacion),
+                        "valor": context["valorVencidoRepTitular"],
+                    }
+                    if context["objRepatriacionTitular"]
+                    else None
+                ),
+                "seguroVida": (
+                    {
+                        "valorPago": context["objSeguroVida"].valorPago,
+                        "valor": context["valorVencidoSeg"],
+                    }
+                    if context["objSeguroVida"]
+                    else None
+                ),
+
+                # ================================================================
+                # CONCEPTOS DETALLADOS PARA PDF
+                # ================================================================
+                "conceptos_detallados": context["conceptos_detallados"],
             }
+
+            context["context_json"] = context_serializable
             
-            # context['context_json'] = json.dumps(context_serializable, cls=DjangoJSONEncoder)
-            context['context_json'] = context_serializable
             return render(request, template_name, context)
 
 

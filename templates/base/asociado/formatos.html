@@ -1,6 +1,40 @@
 {% extends 'index.html' %}
 {% load static %}
 
+{% block extraHead %}
+    <style>
+        .card-modern {
+        transition: all 0.3s ease;
+        background: #fff;
+        border-radius: 1rem;
+    }
+
+    .card-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .icon-wrapper {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-danger {
+        transition: all 0.2s ease-in-out;
+    }
+
+    .btn-danger:hover {
+        background-color: #b30000;
+        transform: scale(1.03);
+    }
+
+    </style>
+{% endblock extraHead %}
+
 {% block breadcrumb %}
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
     <li class="breadcrumb-item"><a href="{% url 'informacion:informacion' %}">Información</a></li>
@@ -79,10 +113,10 @@
                                 Registro Actualización Servicios Exequiales
                             </h5>
                         </div>
-                        <button type="button" class="btn btn-danger rounded-3 px-4 py-2 shadow-sm fw-semibold d-flex align-items-center gap-2" id="btnDescargar"
-                            onclick="llamarPDF(2,'{% static 'img/Formato_Servicios_Exequiales_2025_page_0001.jpg'%}', {{pkAsociado}}, 'RSE')">
+                        <button type="button" class="btn btn-danger rounded-3 px-4 py-2 shadow-sm fw-semibold d-flex align-items-center gap-2"
+                            onclick="llamarPDF(2,'{% static 'img/Formato_Servicios_Exequiales_2025_page_0001.jpg'%}', {{pkAsociado}}, 'RSE', {}, this)">
                             <span id="btnText">Descargar</span>
-                            <div id="btnSpinner" class="spinner-border spinner-border-sm text-light d-none" role="status"></div>
+                            <div class="spinner-border spinner-border-sm text-light d-none btnSpinner" role="status"></div>
                         </button>
                         </div>
                     </div>
@@ -156,138 +190,12 @@
 
             </div>
         </div>
-<style>
-    .card-modern {
-    transition: all 0.3s ease;
-    background: #fff;
-    border-radius: 1rem;
-}
-
-.card-modern:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-}
-
-.icon-wrapper {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.btn-danger {
-    transition: all 0.2s ease-in-out;
-}
-
-.btn-danger:hover {
-    background-color: #b30000;
-    transform: scale(1.03);
-}
-
-</style>
-        
-        {% comment %} <form style="display:block">
-            <h2>Tabla Asociado</h2>
-            <input type="date" id="id_fechaIngreso" value="{{query.fechaIngreso|date:"Y-m-d"}}">
-            <input type="date" id="id_fechaActual" value="{{fechaActual|date:"Y-m-d"}}">
-            <input type="text" id="id_tPersona" value="{{query.tPersona}}">
-            <input type="text" id="id_actualizacion" value="{{actualizacion}}">
-            <input type="text" id="id_nombre" value="{{query.nombre}}">
-            <input type="text" id="id_apellido" value="{{query.apellido}}">
-            <input type="text" id="id_tipoDocumento" value="{{query.tipoDocumento}}">
-            <input type="text" id="id_numDocumento" value="{{query.numDocumento}}">
-            <input type="date" id="id_fechaExpedicion" value="{{query.fechaExpedicion|date:"Y-m-d"}}">
-            <input type="text" id="id_mpioDoc" value="{{query.mpioDoc}}">
-            <input type="text" id="id_nacionalidad" value="{{query.nacionalidad}}">
-            <input type="text" id="id_genero" value="{{query.genero}}">
-            <input type="text" id="id_estadoCivil" value="{{query.estadoCivil}}">
-            <input type="text" id="id_email" value="{{query.email}}">
-            <input type="text" id="id_numResidencia" value="{{query.numResidencia}}">
-            <input type="text" id="id_numCelular" value="{{query.numCelular}}">
-            <input type="text" id="id_envioInfoCorreo" value="{{query.envioInfoCorreo}}">
-            <input type="text" id="id_envioInfoMensaje" value="{{query.envioInfoMensaje}}">
-            <input type="text" id="id_envioInfoWhatsapp" value="{{query.envioInfoWhatsapp}}">
-            <input type="text" id="id_nivelEducativo" value="{{query.nivelEducativo}}">
-            <input type="text" id="id_tituloPregrado" value="{{query.tituloPregrado}}">
-            <input type="text" id="id_tituloPosgrado" value="{{query.tituloPosgrado}}">
-            <h2>Informacion Nacimiento</h2>
-            <input type="date" id="id_fechaNacimiento" value="{{query.fechaNacimiento|date:"Y-m-d"}}">
-            <input type="text" id="id_dtoNacimiento" value="{{query.dtoNacimiento}}">
-            <input type="text" id="id_mpioNacimiento" value="{{query.mpioNacimiento}}">
-            <h2>Informacion Residencia</h2>
-            <input type="text" id="id_tipoVivienda" value="{{query.tipoVivienda}}">
-            <input type="number" id="id_estrato" value="{{query.estrato}}">
-            <input type="text" id="id_direccion" value="{{query.direccion}}">
-            <input type="text" id="id_barrio" value="{{query.barrio}}">
-            <input type="text" id="id_deptoResidencia" value="{{query.deptoResidencia}}">
-            <input type="text" id="id_mpioResidencia" value="{{query.mpioResidencia}}">
-            <h2>Tabla Laboral</h2>
-            <input type="text" id="id_ocupacion" value="{{queryLaboral.ocupacion}}">
-            <input type="text" id="id_nombreEmpresa" value="{{queryLaboral.nombreEmpresa}}">
-            <input type="text" id="id_cargo" value="{{queryLaboral.cargo}}">
-            <input type="text" id="id_nomRepresenLegal" value="{{queryLaboral.nomRepresenLegal}}">
-            <input type="text" id="id_numDocRL" value="{{queryLaboral.numDocRL}}">
-            <input type="date" id="id_fechaInicio" value="{{queryLaboral.fechaInicio|date:"Y-m-d"}}">
-            <input type="date" id="id_fechaTerminacion" value="{{queryLaboral.fechaTerminacion|date:"Y-m-d"}}">
-            <input type="text" id="id_direccionLab" value="{{queryLaboral.direccion}}">
-            <input type="text" id="id_mpioTrabajo" value="{{queryLaboral.mpioTrabajo}}">
-            <input type="text" id="id_dptoTrabajo" value="{{queryLaboral.dptoTrabajo}}">
-            <input type="text" id="id_telefono" value="{{queryLaboral.telefono}}">
-            <input type="text" id="id_admRP" value="{{queryLaboral.admRP}}">
-            <input type="text" id="id_pep" value="{{queryLaboral.pep}}">
-            <input type="text" id="id_activEcono" value="{{queryLaboral.activEcono}}">
-            <input type="text" id="id_ciiu" value="{{queryLaboral.ciiu}}">
-            <input type="text" id="id_banco" value="{{queryLaboral.banco}}">
-            <input type="text" id="id_numCuenta" value="{{queryLaboral.numCuenta}}">
-            <input type="text" id="id_tipoCuenta" value="{{queryLaboral.tipoCuenta}}">
-            <h2>Tabla Financiera</h2>
-            <input type="text" id="id_ingresosActPrin" value="{{objFinanciera.ingresosActPrin}}">
-            <input type="text" id="id_otroIngreso1" value="{{objFinanciera.otroIngreso1}}">
-            <input type="text" id="id_otroIngreso2" value="{{objFinanciera.otroIngreso2}}">
-            <input type="text" id="id_egresos" value="{{objFinanciera.egresos}}">
-            <input type="text" id="id_activos" value="{{objFinanciera.activos}}">
-            <input type="text" id="id_pasivos" value="{{objFinanciera.pasivos}}">
-            <input type="text" id="id_patrimonio" value="{{objFinanciera.patrimonio}}">
-            <h2>Informacion Referencia Familiar</h2>
-            <input type="text" id="id_nombreRF" value="{{query.nombreRF}}">
-            <input type="text" id="id_parentesco" value="{{query.parentesco}}">
-            <input type="text" id="id_numContacto" value="{{query.numContacto}}">           
-            <h2>Tabla Parametro Asociado</h2>
-            <input type="text" id="id_autorizaciondcto" value="{{objParametroAsociado.autorizaciondcto}}">           
-            <input type="text" id="id_empresa" value="{{objParametroAsociado.empresa}}">
-            <h2>Tabla Beneficiarios</h2>
-            {% for beneficiarios in objBeneficiario %}
-                <input type="text" id="id_nombreBenef_{{forloop.counter}}" value="{{beneficiarios.nombre}} {{beneficiarios.apellido}}">           
-                <input type="text" id="id_apellidoBenef_{{forloop.counter}}" value="{{beneficiarios.tipoDocumento}}">
-                <input type="text" id="id_numDocume_{{forloop.counter}}" value="{{beneficiarios.numDocumento}}">
-                <input type="text" id="id_parentesco_{{forloop.counter}}" value="{{beneficiarios.parentesco}}">
-                <input type="text" id="id_ciudadRepatriacion_{{forloop.counter}}" value="{{beneficiarios.ciudadRepatriacion}}">
-                <input type="text" id="id_paisRepatriacion_{{forloop.counter}}" value="{{beneficiarios.paisRepatriacion}}">
-                <input type="date" id="id_NacBen_{{forloop.counter}}" value="{{beneficiarios.fechaNacimiento|date:"Y-m-d"}}">
-            {% endfor %}
-            <input type="text" id="id_cuentaBeneficiario" value="{{cuentaBeneficiario}}">
-            <h2>Tabla Mascotas</h2>
-            {% for mascota in objMascota %}
-                <input type="text" id="id_nombreMasc_{{forloop.counter}}" value="{{mascota.nombre}}">           
-                <input type="text" id="id_tipoMasc_{{forloop.counter}}" value="{{mascota.tipo}}">
-                <input type="text" id="id_raza_{{forloop.counter}}" value="{{mascota.raza}}">
-                <input type="date" id="id_nacMasc_{{forloop.counter}}" value="{{mascota.fechaNacimiento|date:"Y-m-d"}}">
-                <input type="text" id="id_vacunas_{{forloop.counter}}" value="{{mascota.vacunasCompletas}}">
-            {% endfor %}
-            <input type="text" id="id_cuentaMascota" value="{{cuentaMascota}}">
-            <h2>Usuario</h2>
-            <input type="text" id="usuario" value="{{user.first_name}} {{user.last_name}}">
-            <h2>Credito</h2>
-            <input type="number" id="credito" value="{{credito}}">
-        </form> {% endcomment %}
-            
-        {% endif %}
+    {% endif %}
 
 {% endblock contenidoPagina %}
 
 {% block extrajs %}
+    <script src="{% static 'js/funcionesFormatos.js' %}"></script>
 
     <script type="text/javascript">
 

@@ -11,6 +11,7 @@ function descargarExcel() {
     }
 }
 
+
 function descargarExcel2() {
     let fechaInicial = document.getElementById('id_fechaInicial').value;
     let fechaFinal = document.getElementById('id_fechaFinal').value;

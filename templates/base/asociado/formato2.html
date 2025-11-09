@@ -118,103 +118,61 @@
                   <td>{{ credito.cuotas }}</td>
                   <td>{{ credito.estado }}</td>
                   <td>
-                    <a onclick="llamarPDFCredito('{{credito.valor}}', '{{credito.cuotas}}', '{% static 'img/Solicitud_Credito_page_0001.jpg'%}', '{{forloop.counter}}')" type="button" class="btn btn-danger btn-sm px-2 py-1 mb-1">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-pdf" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
-                      </svg>
-                    </a> Solicitud de Crédito
+
+                    <button type="button" class="btn btn-danger btn-sm px-2 py-1 mb-1 w-100"
+                      onclick="llamarPDF(5, '{% static 'img/Solicitud_Credito_2025_page_0001.jpg'%}', {{ pkAsociado }}, 'SC', { id_credito: {{ credito.pk }} }, this)">
+                      <span class="btnText">  
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-pdf" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
+                          </svg>
+                        </span>
+                        Solicitud de Crédito
+                        <div class="spinner-border spinner-border-sm text-light d-none btnSpinner" role="status"></div>
+                    </button>
+
                     <br>
-                    <div style="display:none">
-                      <input type="text" id="numCredito{{forloop.counter}}" value="{{credito.pk}}">
-                      <input type="text" id="lineaCredito{{forloop.counter}}" value="{{credito.lineaCredito}}">
-                      <input type="text" id="amortizacion{{forloop.counter}}" value="{{credito.amortizacion}}">
-                      <input type="text" id="medioPago{{forloop.counter}}" value="{{credito.medioPago}}">
-                      <input type="text" id="valorCuota{{forloop.counter}}" value="{{credito.valorCuota}}">
-                      <input type="text" id="totalCredito{{forloop.counter}}" value="{{credito.totalCredito}}">
-                      <input type="text" id="formaDesembolso{{forloop.counter}}" value="{{credito.formaDesembolso}}">
-                    </div>
-                    {% for codeudor in credito.codeudores %}
-                      <div style="display:none">
-                        <input type="text" id="existCodeudor{{forloop.parentloop.counter}}" value="True">
-                        <input type="text" id="nombreCod{{forloop.parentloop.counter}}" value="{{codeudor.nombre}}">
-                        <input type="text" id="apellidoCod{{forloop.parentloop.counter}}" value="{{codeudor.apellido}}">
-                        <input type="text" id="tipoDocumentoCod{{forloop.parentloop.counter}}" value="{{codeudor.tipoDocumento}}">
-                        <input type="text" id="numDocumentoCod{{forloop.parentloop.counter}}" value="{{codeudor.numDocumento}}">
-                        <input type="text" id="mpioDocCod{{forloop.parentloop.counter}}" value="{{codeudor.mpioDoc}}">
-                        <input type="text" id="emailCod{{forloop.parentloop.counter}}" value="{{codeudor.email}}">
-                        <input type="text" id="numCelularCod{{forloop.parentloop.counter}}" value="{{codeudor.numCelular}}">
-                        <input type="text" id="direccionCod{{forloop.parentloop.counter}}" value="{{codeudor.direccion}}">
-                      </div>
-                    {% empty %}
-                      <input type="hidden" id="existCodeudor{{forloop.counter}}" value="False">
-                    {% endfor %}
-                    <a onclick="llamarPDFPagare( '{% static 'img/Pagare_page_0001.jpg' %}', '{{credito.asociado.numDocumento}}', '{{forloop.counter}}' )" type="button" class="btn btn-danger btn-sm px-2 py-1 mb-1">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-pdf" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
-                      </svg>
-                    </a> Pagaré
+
+                    <button type="button" class="btn btn-danger btn-sm px-2 py-1 mb-1 w-100"
+                      onclick="llamarPDF(6, '{% static 'img/PagarePersonaNatural_2025_page_0001.jpg' %}', '{{ pkAsociado }}', 'PPN', {}, this)">
+                      <span class="btnText">  
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-pdf" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
+                        </svg>
+                      </span>
+                      Pagaré
+                      <div class="spinner-border spinner-border-sm text-light d-none btnSpinner" role="status"></div>
+                    </button>
+
                     <br>
-                    <a onclick="llamarPDFTablaAmortizacion( '{% static 'img/Otorgamiento_Credito_page_0001.jpg' %}', '{{credito.asociado.numDocumento}}', '{{credito.fechaSolicitud|date:'Y-m-d'}}', '{{credito.valor}}', '{{credito.cuotas}}', '{{credito.tasaInteres.porcentaje}}', '{{forloop.counter}}' )" type="button" class="btn btn-danger btn-sm px-2 py-1 mb-1">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-pdf" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
-                      </svg>
-                    </a>  Otorgamiento de Crédito
+
+                    <button type="button" class="btn btn-danger btn-sm px-2 py-1 mb-1 w-100"
+                      onclick="llamarPDF(7, '{% static 'img/Otorgamiento_Credito_page_0001.jpg' %}', '{{ pkAsociado }}', 'OC', { id_credito: {{ credito.pk }} }, this)">
+                      <span class="btnText">  
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-pdf" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
+                        </svg>
+                      </span>
+                      Otorgamiento de Crédito
+                      <div class="spinner-border spinner-border-sm text-light d-none btnSpinner" role="status"></div>
+                    </button>
+
+                    <br>
+
+                    <button type="button" class="btn btn-danger btn-sm px-2 py-1 mb-1 w-100"
+                      onclick="llamarPDF(8, '{% static 'img/Tabla_Amortizacion_Credito_2025_page_0001.jpg' %}', '{{ pkAsociado }}', 'TA', { id_credito: {{ credito.pk }} }, this)">
+                      <span class="btnText">  
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-pdf" viewBox="0 0 16 16">
+                          <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
+                        </svg>
+                      </span>
+                      Tabla de Amortización
+                      <div class="spinner-border spinner-border-sm text-light d-none btnSpinner" role="status"></div>
+                    </button> 
+
                   </td>
                 </tr>
               {% endfor %}
             </table>
-            <form style="display:block">
-              <h2>Tabla Asociado</h2>
-              <input type="date" id="id_fechaActual" value="{{fechaActual|date:"Y-m-d"}}">
-              <input type="text" id="id_tipoAsociado" value="{{queryAsociado.tipo}}" readonly>
-              <input type="text" id="id_nombre" value="{{queryAsociado.nombre}}">
-              <input type="text" id="id_apellido" value="{{queryAsociado.apellido}}">
-              <input type="text" id="id_tipoDocumento" value="{{queryAsociado.tipoDocumento}}">
-              <input type="text" id="id_numDocumento" value="{{queryAsociado.numDocumento}}">
-              <input type="date" id="id_fechaExp" value="{{queryAsociado.fechaExpedicion|date:"Y-m-d"}}">
-              <input type="text" id="id_lugarExp" value="{{queryAsociado.mpioDoc}}">
-              <input type="text" id="id_nacionalidad" value="{{queryAsociado.nacionalidad}}">
-              <input type="date" id="id_fechaNac" value="{{queryAsociado.fechaNacimiento|date:"Y-m-d"}}">
-              <input type="text" id="id_dtoNac" value="{{queryAsociado.dtoNacimiento}}">
-              <input type="text" id="id_mpioNac" value="{{queryAsociado.mpioNacimiento}}">
-              <input type="text" id="id_genero" value="{{queryAsociado.genero}}">
-              <input type="text" id="id_estadoCivil" value="{{queryAsociado.estadoCivil}}">
-              <input type="text" id="id_tipoVivienda" value="{{queryAsociado.tipoVivienda}}">
-              <input type="text" id="id_estrato" value="{{queryAsociado.estrato}}">   
-              <input type="text" id="id_direccion" value="{{queryAsociado.direccion}}">
-              <input type="text" id="id_barrio" value="{{queryAsociado.barrio}}">
-              <input type="text" id="id_mpioRes" value="{{queryAsociado.mpioResidencia}}">
-              <input type="text" id="id_dptoRes" value="{{queryAsociado.deptoResidencia}}">
-              <input type="text" id="id_numCelular" value="{{queryAsociado.numCelular}}">
-              <input type="text" id="id_numResidencia" value="{{queryAsociado.numResidencia}}">
-              <input type="text" id="id_email" value="{{queryAsociado.email}}">
-              <input type="text" id="id_envioInfoCorreo" value="{{queryAsociado.envioInfoCorreo}}">
-              <input type="text" id="id_envioInfoMensaje" value="{{queryAsociado.envioInfoMensaje}}">
-              <input type="text" id="id_envioInfoWhatsapp" value="{{queryAsociado.envioInfoWhatsapp}}">
-              <input type="text" id="id_nivelEducativo" value="{{queryAsociado.nivelEducativo}}">
-              <input type="text" id="id_tituloPregrado" value="{{queryAsociado.tituloPregrado}}">
-              <h2>Tabla Laboral</h2>
-              <input type="text" id="id_nombreEmpresa" value="{{queryLab.nombreEmpresa}}">
-              <input type="text" id="id_cargo" value="{{queryLab.cargo}}">
-              <input type="date" id="id_fechaInicio" value="{{queryLab.fechaInicio|date:"Y-m-d"}}">
-              <input type="date" id="id_fechaTerminacion" value="{{queryLab.fechaTerminacion|date:"Y-m-d"}}">
-              <input type="text" id="id_nomRepresenLegal" value="{{queryLab.nomRepresenLegal}}">
-              <input type="text" id="id_numDocRL" value="{{queryLab.numDocRL}}">
-              <input type="text" id="id_direccionTrabajo" value="{{queryLab.direccion}}"> 
-              <input type="text" id="id_mpioTrabajo" value="{{queryLab.mpioTrabajo}}">
-              <input type="text" id="id_dptoTrabajo" value="{{queryLab.dptoTrabajo}}">
-              <input type="text" id="id_telefono" value="{{queryLab.telefono}}">
-              <input type="text" id="id_admRP" value="{{queryLab.admRP}}">
-              <input type="text" id="id_pep" value="{{queryLab.pep}}">
-              <input type="text" id="id_activEcono" value="{{queryLab.activEcono}}">
-              <input type="text" id="id_ciiu" value="{{queryLab.ciiu}}">
-              <input type="text" id="id_banco" value="{{queryLab.banco}}">
-              <input type="text" id="id_numCuenta" value="{{queryLab.numCuenta}}">
-              <input type="text" id="id_tipoCuenta" value="{{queryLab.tipoCuenta}}">
-              <h2>Tabla Parametro Asociado</h2>
-              <input type="text" id="id_autorizaciondcto" value="{{queryParametroAsoc.autorizaciondcto}}">           
-              <input type="text" id="id_empresa" value="{{queryParametroAsoc.asociado__tAsociado__concepto}}">
-            </form>
           </div>
         {% endif %}
       </div>
@@ -222,4 +180,7 @@
     
   </div>
   {% endblock content %}
-  <script src="{% static 'js/funcionesFormatos.js' %}"></script>
+
+  {% block extrajs %}
+    <script src="{% static 'js/funcionesFormatos.js' %}"></script>
+  {% endblock extrajs %}
