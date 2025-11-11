@@ -1,526 +1,636 @@
 {% load humanize %}
 
+{% load humanize %}
+
 <div class="modal-dialog modal-xl custom-modal" role="dialog" id="creacion">
-    <div class="modal-dialog custom-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Registrar Venta:</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>N°</th>
-                            <th>Asociado</th>
-                            <th>N° Documento</th>
-                            <th>Tipo Asociado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <th>1</th>
-                            <td>{{asociado.nombre}} {{query.apellido}}</td>
-                            <td>{{asociado.numDocumento|intcomma}}</td>
-                            <td>{{asociado.tAsociado}}</td>
-                        </tr>
-                </table>
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Información Venta:</h1>
+    <div class="modal-content">
+        <!-- Encabezado -->
+        <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">Registrar Venta</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+            <!-- Datos del asociado -->
+            <div class="card mb-4 shadow-sm border-0">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 text-secondary">Información del Asociado</h6>
                 </div>
-                <form action="{% url 'asociado:crearVentaAsociado' pkAsociado %}" method="post">
-                    {% csrf_token %}
-                    
-                    {% comment %} Primera Fila {% endcomment %}
-                    <div class="row">
-                        <div class="col-12 col-lg-6 col-md-6 mb-3">
-                            {{ form.fechaVenta.label_tag }}
-                            {{ form.fechaVenta }} 
-                        </div>
-                        <div class="col-12 col-lg-6 col-md-6 mb-3">
-                            {{ form.formaPago.label_tag }}
-                            {{ form.formaPago }}
-                        </div>
-                        <div class="col-12 col-lg-6 mb-3" id="contenedorMetodoPago" hidden>
-                            <label for="id_metodoPago">Método de Pago:</label>
-                            <select name="metodoPago" class="form-select" id="id_metodoPago" required>
-                                {% for metodo in metodoPago %}
-                                    <option value="{{ metodo.id }}">{{ metodo.formaPago }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-12 col-lg-4 mb-3" id="contenedorTasaInteres">
-                            {{ form.tasaInteres.label_tag }}
-                            {{ form.tasaInteres }}
-                        </div>
-                        <div class="col-12 col-lg-4 mb-3" id="contenedorCuotas">
-                            {{ form.cuotas.label_tag }}
-                            {{ form.cuotas }} 
-                        </div>
-                        <div class="col-12 col-lg-4 mb-3" id="contenedorValorCuotas">
-                            <label for="id_valorCuotas">Valor Cuotas:</label>
-                            <input type="text" name="valorCuotas" id="id_valorCuotas" class="form-control" readonly>
-                        </div>
+                <div class="card-body">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>N°</th>
+                                <th>Asociado</th>
+                                <th>N° Documento</th>
+                                <th>Tipo Asociado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>{{ asociado.nombre }} {{ query.apellido }}</td>
+                                <td>{{ asociado.numDocumento|intcomma }}</td>
+                                <td>{{ asociado.tAsociado }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-                    </div>
+            <form action="{% url 'asociado:crearVentaAsociado' pkAsociado %}" method="post">
+                {% csrf_token %}
 
-                    {% comment %} Segunda Fila {% endcomment %}
-                    <div class="row">
-                        <div class="col-12 col-md-6 mb-3">
-                            {{ form.valorBruto.label_tag }}
-                            <input type="text" name="valorBruto" class="form-control" id="id_valorBruto" name="valorBruto" readonly>
-                        </div>
-                        <div class="col-12 col-md-6 mb-3">
-                            {{ form.valorNeto.label_tag }}
-                            {{ form.valorNeto }} 
+                <!-- Información de la venta -->
+                <div class="card mb-4 shadow-sm border-0">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0 text-secondary">Información de la Venta</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                {{ form.fechaVenta.label_tag }}
+                                {{ form.fechaVenta }}
+                            </div>
+                            <div class="col-12 col-md-6">
+                                {{ form.formaPago.label_tag }}
+                                {{ form.formaPago }}
+                            </div>
+
+                            <!-- Método de pago (solo contado) -->
+                            <div class="col-12 col-md-6" id="contenedorMetodoPago" hidden>
+                                <label for="id_metodoPago">Método de Pago</label>
+                                <select name="metodoPago" class="form-select" id="id_metodoPago" required>
+                                    {% for metodo in metodoPago %}
+                                        <option value="{{ metodo.id }}">{{ metodo.formaPago }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                {{ form.valorBruto.label_tag }}
+                                <input type="text" name="valorBruto" class="form-control" id="id_valorBruto" readonly>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                {{ form.valorNeto.label_tag }}
+                                {{ form.valorNeto }}
+                            </div>
                         </div>
                     </div>
-                    <hr>
-                    <div class="row" id="contenedorAmortizacion">
-                        <div class="col-6 text-start">
-                            <h5>Tabla Amortización:</h5>
+                </div>
+
+                <!-- Información del crédito -->
+                <div id="contenedorCredito" class="card mb-4 shadow-sm border-0">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0 text-secondary">Detalles del Crédito</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12 col-lg-4" id="contenedorTasaInteres">
+                                {{ form.tasaInteres.label_tag }}
+                                {{ form.tasaInteres }}
+                            </div>
+                            <div class="col-12 col-lg-4" id="contenedorPrimerMes">
+                                <label for="id_primerMes">Primer Mes Cobro</label>
+                                <select name="primerMes" class="form-select" id="id_primerMes">
+                                    {% for mes in meses %}
+                                        <option value="{{ mes.id }}">{{ mes.concepto }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-12 col-lg-4" id="contenedorCuotas">
+                                {{ form.cuotas.label_tag }}
+                                {{ form.cuotas }}
+                            </div>
+                            <div class="col-12 col-lg-4" id="contenedorValorCuotas">
+                                <label for="id_valorCuotas">Valor Cuotas</label>
+                                <input type="text" name="valorCuotas" id="id_valorCuotas" class="form-control" readonly>
+                            </div>
+                            <div class="col-12 col-lg-4 d-none" id="contenedorAnticipo">
+                                <label for="id_anticipo">Anticipo</label>
+                                <input type="number" name="anticipo" id="id_anticipo" min="0" class="form-control" placeholder="Mínimo 15%">
+                            </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de amortización -->
+                <div id="contenedorAmortizacion" class="card mb-4 shadow-sm border-0">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 text-secondary">Tabla de Amortización</h6>
+                        <a type="button" id="calcular" class="btn btn-sm btn-primary">Calcular</a>
+                    </div>
+                    <div class="card-body">
                         <input id="id_valorCuota" type="hidden" name="valorCuota">
                         <input id="id_totalCredito" type="hidden" name="totalCredito">
                         <div class="table-responsive">
-                            <table class="table table-hover" id="tablaAmortizacion">
-                                <thead>
+                            <table class="table table-hover align-middle" id="tablaAmortizacion">
+                                <thead class="table-light">
                                     <tr>
                                         <th>N° Cuota</th>
                                         <th>Fecha</th>
-                                        <th>Saldo inicial</th>
-                                        <th>Abono capital</th>
+                                        <th>Saldo Inicial</th>
+                                        <th>Abono Capital</th>
                                         <th>Intereses</th>
                                         <th>Cuota</th>
-                                        <th>Saldo final</th>
+                                        <th>Saldo Final</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                <!-- Aquí se generará dinámicamente la tabla -->
-                                </tbody>
+                                <tbody></tbody>
                             </table>
                         </div>
-                        <div class="col-12">
-                            <a type="button" id="calcular" class="btn btn-primary">Calcular Tabla de Amortización</a>
-                        </div>
-                    </div>                            
-                    <!-- Formulario de productos -->
-                    <hr>
-                    <div class="row">
-                        <div class="col-6 text-start">
-                            <h5>Lista de Productos:</h5>
-                        </div>
-                        <div class="col-6 text-end">
-                            <button id="add-product" type="button" class="btn btn-primary">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-                                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
-                                </svg>
-                            </button>
-                        </div>
                     </div>
-                    <hr>
-                    <div id="encabezados-container" hidden>
-                        <div class="row">
-                            <div class="col-12 col-md-1 mb-1 text-center fw-bold">
-                                <label class="form-label">N°</label>
+                </div>
+
+                <!-- Lista de productos -->
+                <div class="card mb-4 shadow-sm border-0">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 text-secondary">Lista de Productos</h6>
+                        <button id="add-product" type="button" class="btn btn-sm btn-primary">
+                            <i class="bi bi-plus-circle"></i> Agregar Producto
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="encabezados-container" hidden>
+                            <div class="row fw-bold text-secondary mb-2">
+                                <div class="col-12 col-md-1 text-center">N°</div>
+                                <div class="col-12 col-md-4">Producto</div>
+                                <div class="col-12 col-md-1">Precio</div>
+                                <div class="col-12 col-md-1">Cantidad</div>
+                                <div class="col-12 col-md-2">Total Bruto</div>
+                                <div class="col-12 col-md-2">Total Neto</div>
+                                <div class="col-12 col-md-1 text-center">Opciones</div>
                             </div>
-                            <div class="col-12 col-md-4 mb-1 fw-bold">
-                                <label class="form-label">Producto</label>
+                        </div>
+
+                        <div id="productos-container"><!-- Contenedor dinámico JS --></div>
+
+                        <div class="row align-items-center mt-3" id="total-general-container" hidden>
+                            <div class="col-12 col-md-7 text-end">
+                                <h6 class="fw-bold mb-0">Totales:</h6>
                             </div>
-                            <div class="col-12 col-md-1 mb-1 fw-bold">
-                                <label class="form-label">Precio</label>
+                            <div class="col-12 col-md-2 mb-2">
+                                <input type="text" id="id_totales_bruto" class="form-control" placeholder="Total Bruto" readonly>
                             </div>
-                            <div class="col-12 col-md-1 mb-1 fw-bold">
-                                <label class="form-label">Cantidad</label>
-                            </div>
-                            <div class="col-12 col-md-2 mb-1 fw-bold">
-                                <label class="form-label">Total Bruto</label>
-                            </div>
-                            <div class="col-12 col-md-2 mb-1 fw-bold">
-                                <label class="form-label">Total Neto con Interés</label>
-                            </div>
-                            <div class="col-12 col-md-1 mb-1 fw-bold">
-                                <label class="form-label">Opciones</label>
+                            <div class="col-12 col-md-2 mb-2">
+                                <input type="text" id="id_totales_neto" class="form-control" placeholder="Total Neto" readonly>
                             </div>
                         </div>
                     </div>
-                    <div id="productos-container">
-                        {% comment %} aca se agregará el contenedor de productos {% endcomment %}
-                    </div>
-                    <div class="row" id="total-general-container" hidden>
-                        <hr>
-                        <div class="col-12 col-md-7 mb-3">
-                            <h5 class="text-end">Totales</h5>
-                        </div>
-                        <div class="col-12 col-md-2 mb-3">
-                            <input type="text" id="id_totales_bruto" class="form-control" placeholder="Total Bruto" readonly>
-                        </div>
-                        <div class="col-12 col-md-2 mb-3">
-                            <input type="text" id="id_totales_neto" class="form-control" placeholder="Total Neto" readonly>
-                        </div>
-                    </div>
-                    <button id="submit" type="submit" class="btn btn-primary" hidden>Guardar</button>
-                </form>                
-            </div>
+                </div>
+
+                <!-- Botón Guardar -->
+                <div class="text-end">
+                    <button id="submit" type="submit" class="btn btn-success" hidden>Guardar Venta</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+$('#creacion').on('shown.bs.modal', function () {
+    const formaPago = document.getElementById('id_formaPago');
+    const contenedorMetodoPago = document.getElementById('contenedorMetodoPago');
+    const contenedorPrimerMes = document.getElementById('contenedorPrimerMes');
+    const contenedorCuotas = document.getElementById('contenedorCuotas');
+    const contenedorValorCuotas = document.getElementById('contenedorValorCuotas');
+    const contenedorTasaInteres = document.getElementById('contenedorTasaInteres');
+    const contenedorAmortizacion = document.getElementById('contenedorAmortizacion');
+    const contenedorAnticipo = document.getElementById('contenedorAnticipo');
+    const tasaInteres = document.getElementById('id_tasaInteres');
+    const inputAnticipo = document.getElementById('id_anticipo');
+    const encabezado = document.getElementById('encabezados-container');
+    const contenedor_totales = document.getElementById('total-general-container');
+    const submit = document.getElementById('submit');
+    const cuotas = document.getElementById('id_cuotas');
+    const container = document.getElementById('productos-container');
+    const addButton = document.getElementById('add-product');
+    const inputValorBruto = document.getElementById('id_valorBruto');
+    const btnCalcular = document.getElementById('calcular');
+
+    let productCount = 0;
+    let anticipoMinimo = 0;
     
-
-    $('#creacion').on('shown.bs.modal', function () {
-        const formaPago = document.getElementById('id_formaPago');
-        const contenedorMetodoPago = document.getElementById('contenedorMetodoPago');
-        const contenedorCuotas = document.getElementById('contenedorCuotas');
-        const contenedorValorCuotas = document.getElementById('contenedorValorCuotas');
-        const contenedorTasaInteres = document.getElementById('contenedorTasaInteres');
-        const contenedorAmortizacion = document.getElementById('contenedorAmortizacion');
-        const tasaInteres = document.getElementById('id_tasaInteres');
-        const encabezado = document.getElementById('encabezados-container');
-        const contenedor_totales = document.getElementById('total-general-container');
-        const submit = document.getElementById('submit');
-        const cuotas = document.getElementById('id_cuotas');
-        const container = document.getElementById('productos-container');
-        const addButton = document.getElementById('add-product');
-
-        let productCount = 0; // Contador para asignar IDs únicos
-        
-        // Funcion que cambia los input entre credito y contado
-        function toggleCuotas() {
-            if (formaPago.value === 'CONTADO') {
-                cuotas.disabled = true;
-                cuotas.value = 0;
-                cuotas.removeAttribute('required');
-                tasaInteres.removeAttribute('required');
-                contenedorTasaInteres.setAttribute('hidden', 'hidden');
-                contenedorCuotas.setAttribute('hidden', 'hidden');
-                contenedorValorCuotas.setAttribute('hidden', 'hidden');
-                contenedorMetodoPago.removeAttribute('hidden');
-                contenedorAmortizacion.setAttribute('hidden', 'hidden');
-            } else {
-                cuotas.disabled = false;
-                cuotas.setAttribute('required', 'required');
-                tasaInteres.setAttribute('required', 'required');
-                contenedorMetodoPago.setAttribute('hidden', 'hidden');
-                contenedorTasaInteres.removeAttribute('hidden');
-                contenedorCuotas.removeAttribute('hidden');
-                contenedorValorCuotas.removeAttribute('hidden');
-                contenedorAmortizacion.removeAttribute('hidden');
-
-            }
-            actualizarValorBruto();
-            actualizarValorCuotas();
-            actualizarValorNeto();
+    // Funcion que cambia los input entre credito y contado
+    function toggleCuotas() {
+        if (formaPago.value === 'CONTADO') {
+            cuotas.disabled = true;
+            cuotas.value = 0;
+            cuotas.removeAttribute('required');
+            tasaInteres.removeAttribute('required');
+            contenedorPrimerMes.setAttribute('hidden', 'hidden');
+            contenedorTasaInteres.setAttribute('hidden', 'hidden');
+            contenedorCuotas.setAttribute('hidden', 'hidden');
+            contenedorValorCuotas.setAttribute('hidden', 'hidden');
+            contenedorMetodoPago.removeAttribute('hidden');
+            contenedorAmortizacion.setAttribute('hidden', 'hidden');
+        } else {
+            cuotas.disabled = false;
+            cuotas.setAttribute('required', 'required');
+            contenedorPrimerMes.removeAttribute('hidden');
+            contenedorPrimerMes.setAttribute('required', 'required');
+            tasaInteres.setAttribute('required', 'required');
+            contenedorMetodoPago.setAttribute('hidden', 'hidden');
+            contenedorTasaInteres.removeAttribute('hidden');
+            contenedorCuotas.removeAttribute('hidden');
+            contenedorValorCuotas.removeAttribute('hidden');
+            contenedorAmortizacion.removeAttribute('hidden');
         }
+        actualizarValorBruto();
+        actualizarValorCuotas();
+        actualizarValorNeto();
+    }
 
-        // Evento que calcula la tabla de amortizacion cuando se hace clic en el botón
-        document.getElementById("calcular").addEventListener("click", function () {
-            const valor = document.getElementById("id_totales_bruto").value.replace(/\./g, '').replace(',', '.');
-            const tasa = parseFloat(document.getElementById("id_tasaInteres").value) || 0;
-            const cuotas = parseInt(document.getElementById("id_cuotas").value) || 0;
-            const fechaSolicitud = document.getElementById("id_fechaVenta").value;
+    // Evento que calcula la tabla de amortizacion cuando se hace clic en el botón
+    btnCalcular.addEventListener('click', () => {
+        const valorBruto = parseInt(inputValorBruto.value.replace(/\D/g, '')) || 0;
 
-            if (!fechaSolicitud) {
-                alert("Por favor, ingresa una fecha válida.");
-                return;
-            }
-
-            console.log(valor, tasa, cuotas, fechaSolicitud);
-
-            if (parseInt(valor) > 0 && cuotas > 0) {
-                generarTablaAmortizacion(parseInt(valor), tasa, cuotas, fechaSolicitud, 1);
-            }else {
-                alert("Por favor, ingresa valores válidos.");
-            }
-        });
-
-        formaPago.addEventListener('change', () => {
-            toggleCuotas();
-            actualizarTotalConInteresPorProducto();
-        });
+        const [tasaStr, concepto] = tasaInteres.value.split('|');
+        const tasa = parseFloat(tasaStr) || 0;
         
-        tasaInteres.addEventListener('change', () => {
-            actualizarValorBruto();
-            actualizarTotalConInteresPorProducto();
-            actualizarValorCuotas();
-            actualizarValorNeto();
-        });
-        
-        cuotas.addEventListener('change', () => {
-            actualizarValorBruto();
-            actualizarTotalConInteresPorProducto();
-            actualizarValorCuotas();
-            actualizarValorNeto();
-        });
+        const cuotas = parseInt(document.getElementById('id_cuotas').value) || 0;
+        const fechaSolicitud = document.getElementById('id_fechaVenta').value;
 
-        // Evento que agrega una nueva fila de producto
-        addButton.addEventListener('click', () => {
-            const newRow = document.createElement('div');
-            newRow.classList.add('row', 'producto-item');
-            newRow.innerHTML = `
-                <div class="col-12 col-xl-1 mb-3 producto-numero">
-                    <span class="form-control text-center bg-light border-0 fw-bold" readonly></span>
-                </div>
-                <div class="col-12 col-xl-4 mb-3">
-                    <select name="producto_${productCount}" class="form-select" id="id_producto_${productCount}" required>
-                        <option value="">Seleccionar Producto</option>
-                        {% for producto in queryProducto %}
-                        <option value="{{ producto.id }}" data-precio="{{ producto.precio }}">{{ producto.nombre }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-12 col-xl-1 mb-3">
-                    <input type="text" class="form-control" id="id_precio_${productCount}" placeholder="Precio" name="precio_${productCount}" readonly>
-                </div>
-                <div class="col-12 col-xl-1 mb-3">
-                    <input type="number" class="form-control" id="id_cantidad_${productCount}" placeholder="Cantidad" name="cantidad_${productCount}" min="0" required>
-                </div>
-                <div class="col-12 col-xl-2 mb-3">
-                    <input type="text" class="form-control" id="id_totalBruto_${productCount}" placeholder="Total Bruto" name="totalBruto_${productCount}" readonly>
-                </div>
-                <div class="col-12 col-xl-2 mb-3">
-                    <input type="text" class="form-control" id="id_totalConInteres_${productCount}" placeholder="Total Con Interes" name="totalConInteres_${productCount}" readonly>
-                </div>
-                <div class="col-12 col-xl-1 mb-3">
-                    <a onclick="eliminarProducto(this)" class="btn btn-danger">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-slash-circle" viewBox="0 0 16 16">
-                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-                            <path d="M11.354 4.646a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 .708.708l6-6a.5.5 0 0 0 0-.708"/>
-                        </svg>
-                    </a>
-                </div>
-            `;
-            container.appendChild(newRow);
-            renombrarProductos();  // <--- aquí
-            productCount = document.querySelectorAll('.producto-item').length; // Actualiza el contador de productos
-
-            // Se agrega el div del encabezado y se muestra el boton de guardar
-            encabezado.removeAttribute('hidden');
-            submit.removeAttribute('hidden');
-            contenedor_totales.removeAttribute('hidden');
-
-            // Recalcular el valor total
-            actualizarValorBruto();
-            actualizarValorCuotas();
-            actualizarValorNeto();
-        });
-    
-        // Evento delegado para manejar cambios en los productos
-        container.addEventListener('change', (event) => {
-            if (event.target.matches('select')) {
-                const precioInput = event.target.closest('.producto-item').querySelector('input[name^="precio"]');
-                const precio = event.target.selectedOptions[0].dataset.precio || 0;
-                precioInput.value = precio.toLocaleString('es-ES');
-            }
-            // Recalcular el valor total de todos los productos
-            actualizarValorBruto();
-            actualizarValorCuotas();
-            actualizarValorNeto();
-        });
-
-        // Evento delegado para manejar cambios en los productos
-        container.addEventListener('change', (event) => {
-            if (event.target.matches('select')) {
-                const precioInput = event.target.closest('.producto-item').querySelector('input[name^="precio"]');
-                const precio = event.target.selectedOptions[0].dataset.precio || 0;
-                precioInput.value = parseFloat(precio).toLocaleString('es-ES'); // Formateamos con separador de miles
-            }
-            // Recalcular el valor total de todos los productos
-            actualizarValorBruto();
-            actualizarValorNeto();
-        });
-
-        // Evento delegado para calcular el total por producto
-        container.addEventListener('input', (event) => {
-            if (event.target.matches('input[name^="cantidad"]')) {
-                const itemRow = event.target.closest('.producto-item');
-                const precio = parseFloat(itemRow.querySelector('input[name^="precio"]').value.replace(/\./g, '').replace(',', '.')) || 0;
-                const cantidad = parseInt(event.target.value, 10) || 0;
-                const totalInput = itemRow.querySelector('input[name^="totalBruto"]');
-                const total = precio * cantidad;
-
-                totalInput.value = total.toLocaleString('es-ES');
-                // Calcular total neto con interés por producto
-                const totalConInteresInput = itemRow.querySelector(`input[name^="totalConInteres"]`);
-                const tasa = parseFloat(tasaInteres.value);
-                const cuotasVal = parseInt(cuotas.value);
-
-                if (!isNaN(tasa) && !isNaN(cuotasVal) && cuotasVal > 0) {
-                    const calcularCuota = (monto, tasa, cuotas) => {
-                        if (tasa === 0) return monto;
-                        const cuota = Math.round((monto * tasa * Math.pow(1 + tasa, cuotas)) / (Math.pow(1 + tasa, cuotas) - 1));
-                        return cuota * cuotas;
-                    };
-                    const totalConInteres = calcularCuota(total, tasa, cuotasVal);
-                    totalConInteresInput.value = totalConInteres.toLocaleString('es-ES');
-                } else {
-                    totalConInteresInput.value = total.toLocaleString('es-ES'); // mismo que el bruto si contado
-                }
-            }
-        
-            actualizarValorBruto();
-            actualizarValorCuotas();
-            actualizarValorNeto();
-        });
-
-        function actualizarTotalConInteresPorProducto() {
-            document.querySelectorAll('.producto-item').forEach(itemRow => {
-                const precioInput = itemRow.querySelector('input[name^="precio"]');
-                const cantidadInput = itemRow.querySelector('input[name^="cantidad"]');
-                const totalInput = itemRow.querySelector('input[name^="totalBruto"]');
-                const totalConInteresInput = itemRow.querySelector('input[name^="totalConInteres"]');
-        
-                const precio = parseFloat(precioInput.value.replace(/\./g, '').replace(',', '.')) || 0;
-                const cantidad = parseInt(cantidadInput.value, 10) || 0;
-                const total = precio * cantidad;
-        
-                const tasa = parseFloat(document.getElementById("id_tasaInteres").value);
-                const cuotas = parseInt(document.getElementById("id_cuotas").value);
-        
-                if (!isNaN(tasa) && !isNaN(cuotas) && cuotas > 0) {
-                    const calcularCuota = (monto, tasa, cuotas) => {
-                        if (tasa === 0) return monto;
-                        const cuota = Math.round((monto * tasa * Math.pow(1 + tasa, cuotas)) / (Math.pow(1 + tasa, cuotas) - 1));
-                        return cuota * cuotas;
-                    };
-                    const totalConInteres = calcularCuota(total, tasa, cuotas);
-                    totalConInteresInput.value = totalConInteres.toLocaleString('es-ES');
-                } else {
-                    totalConInteresInput.value = total.toLocaleString('es-ES');
-                }
+        if (valorBruto <= 0 || cuotas <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Datos incompletos',
+                text: 'Por favor, ingresa valores válidos para el valor bruto y las cuotas.',
+                confirmButtonText: 'Entendido',
+                confirmButtonColor: '#3085d6'
             });
+            return;
         }
-        
-        // Función para calcular el valor total de todos los productos
-        function actualizarValorBruto() {
-            let totalBruto = 0;
 
-            // Iterar por todos los elementos de productos
-            document.querySelectorAll('.producto-item').forEach(item => {
-                const totalNeto = item.querySelector('input[name^="totalBruto"]').value
-                    .replace(/\./g, '') // Eliminar puntos de miles
-                    .replace(',', '.'); // Reemplazar coma decimal por punto
-                totalBruto += parseFloat(totalNeto) || 0; // Convertir a número flotante
+        if (fechaSolicitud === "") {
+            Swal.fire({
+                icon: 'info',
+                title: 'Falta la fecha',
+                text: 'Por favor, ingresa la fecha de solicitud.',
+                confirmButtonText: 'Ok',
+                confirmButtonColor: '#3085d6'
             });
-
-            // Actualizar el campo valorBruto
-            const valorBrutoInput = document.querySelector('#id_valorBruto'); 
-            valorBrutoInput.value = totalBruto.toLocaleString('es-ES'); // Mostrar con separador de miles
-            document.getElementById("id_totales_bruto").value = valorBrutoInput.value.toLocaleString('es-ES');
-
+            return;
         }
 
-        function actualizarValorCuotas() {
-            const valorCuota = document.getElementById("id_valorCuotas");
-            const tasaMensual = parseFloat(document.getElementById("id_tasaInteres").value);
-            const numCuotas = parseInt(document.getElementById("id_cuotas").value, 10);
-        
-            if (isNaN(tasaMensual) || isNaN(numCuotas) || numCuotas <= 0) {
-                valorCuota.value = 0;
-                return;
-            }
-        
-            let totalConInteresGlobal = 0;
-        
-            // Sumar todos los "totalConInteres" de los productos
-            document.querySelectorAll('input[name^="totalConInteres"]').forEach(input => {
-                const valor = parseFloat(input.value.replace(/\./g, '').replace(',', '.')) || 0;
-                totalConInteresGlobal += valor;
-            });
-        
-            if (totalConInteresGlobal <= 0) {
-                valorCuota.value = 0;
-                return;
-            }
-            const cuota = Math.round(totalConInteresGlobal / numCuotas);
-            valorCuota.value = cuota.toLocaleString('es-ES');
-        }
-        
-        
-        function actualizarValorNeto() {
-            const formaPago = document.getElementById('id_formaPago').value;
-            if (formaPago === 'CONTADO'){
-                document.getElementById("id_valorNeto").value = document.getElementById("id_valorBruto").value;
-                document.getElementById("id_totales_neto").value = document.getElementById("id_valorBruto").value;
-            } else {
+        const selectedText = tasaInteres.options[tasaInteres.selectedIndex].text;
+        let saldoInicial = valorBruto;
 
-                let valorCuota = document.getElementById("id_valorCuotas").value.replace(/\./g, ''); 
-                let cuotas = parseInt(document.getElementById("id_cuotas").value);
-                
-                if (isNaN(valorCuota) || isNaN(cuotas) || cuotas <= 0) {
-                    document.getElementById("id_valorNeto").value = 0;
-                    document.getElementById("id_totales_neto").value = 0;
-                    return;
-                }
-                // Convertimos a número solo si valorCuota tiene contenido válido
-                valorCuota = valorCuota ? parseInt(valorCuota, 10) : 0;
-                cuotas = isNaN(cuotas) ? 0 : cuotas;
-            
-                let valorNeto = valorCuota * cuotas;
-                
-                document.getElementById("id_valorNeto").value = valorNeto.toLocaleString('es-ES');
-                document.getElementById("id_totales_neto").value = valorNeto.toLocaleString('es-ES');
-            }
+        // Si es CREDITO PRODUCTO, se descuenta el anticipo
+        if (selectedText.includes("CREDITO PRODUCTO")) {
+            const anticipo = parseInt(inputAnticipo.value.replace(/\D/g, '')) || 0;
+            saldoInicial = valorBruto - anticipo;
         }
 
-        // Función para eliminar una fila de producto
-        window.eliminarProducto = function(button) {
-            const row = button.closest('.row'); // Obtiene la fila completa del producto
-            row.remove();
-            renombrarProductos();  // <--- aquí
-            productCount = document.querySelectorAll('.producto-item').length;
-            actualizarValorBruto();
-            actualizarValorCuotas();
-            actualizarValorNeto();
-
-            if (productCount == 0) {
-                // Si el contador de productos es 0, se oculta el boton de guardar y el encabezado
-                submit.setAttribute('hidden', 'hidden');
-                encabezado.setAttribute('hidden', 'hidden');
-            }
-        }       
-    
-        function renombrarProductos() {
-            const items = document.querySelectorAll('.producto-item');
-        
-            items.forEach((item, index) => {
-    
-                // Número de producto
-                const numeroSpan = item.querySelector('.producto-numero span');
-                if (numeroSpan) {
-                    numeroSpan.textContent = index + 1;
-                }
-    
-                // Producto
-                const productoSelect = item.querySelector('select');
-                productoSelect.name = `producto_${index}`;
-                productoSelect.id = `id_producto_${index}`;
-        
-                // Precio
-                const precio = item.querySelector('input[name^="precio"]');
-                precio.name = `precio_${index}`;
-                precio.id = `id_precio_${index}`;
-        
-                // Cantidad
-                const cantidad = item.querySelector('input[name^="cantidad"]');
-                cantidad.name = `cantidad_${index}`;
-                cantidad.id = `id_cantidad_${index}`;
-        
-                // Total Bruto
-                const totalBruto = item.querySelector('input[name^="totalBruto"]');
-                totalBruto.name = `totalBruto_${index}`;
-                totalBruto.id = `id_totalBruto_${index}`;
-        
-                // Total con Interés
-                const totalConInteres = item.querySelector('input[name^="totalConInteres"]');
-                totalConInteres.name = `totalConInteres_${index}`;
-                totalConInteres.id = `id_totalConInteres_${index}`;
-            });
-        }
-
+        // Generar la tabla de amortización con el saldo ajustado
+        generarTablaAmortizacion(saldoInicial, tasa, cuotas, fechaSolicitud, 1);
     });
+
+    formaPago.addEventListener('change', () => {
+        toggleCuotas();
+        actualizarTotalConInteresPorProducto();
+    });
+    
+    tasaInteres.addEventListener('change', () => {
+        const selectedText = tasaInteres.options[tasaInteres.selectedIndex].text;
+
+        if (selectedText.includes("CREDITO PRODUCTO")) {
+            contenedorAnticipo.classList.remove('d-none');
+            calcularAnticipo();
+        } else {
+            contenedorAnticipo.classList.add('d-none');
+            inputAnticipo.value = 0;
+        }
+
+        actualizarValorBruto();
+        actualizarTotalConInteresPorProducto();
+        actualizarValorCuotas();
+        actualizarValorNeto();
+    });
+    
+    cuotas.addEventListener('change', () => {
+        actualizarValorBruto();
+        actualizarTotalConInteresPorProducto();
+        actualizarValorCuotas();
+        actualizarValorNeto();
+    });
+
+    // Si cambia el valor bruto, se recalcula el anticipo automáticamente
+    const observerValorBruto = new MutationObserver(() => {
+        const selectedText = tasaInteres.options[tasaInteres.selectedIndex].text;
+        if (selectedText.includes("CREDITO PRODUCTO")) {
+            calcularAnticipo();
+        }
+    });
+
+    observerValorBruto.observe(inputValorBruto, { attributes: true, attributeFilter: ['value'] });
+
+    // 🔹 VALIDACIÓN DEL ANTICIPO - Solo permite valores >= al mínimo
+    inputAnticipo.addEventListener('input', () => {
+        let valorIngresado = parseInt(inputAnticipo.value.replace(/\D/g, '')) || 0;
+        
+        // Si el valor es menor al mínimo, se ajusta al mínimo
+        if (valorIngresado < anticipoMinimo && anticipoMinimo > 0) {
+            inputAnticipo.value = anticipoMinimo;
+        }
+    });
+
+    // 🔹 CUANDO PIERDE EL FOCO, RECALCULA TODO
+    inputAnticipo.addEventListener('blur', () => {
+        let valorIngresado = parseInt(inputAnticipo.value.replace(/\D/g, '')) || 0;
+        
+        // Si el valor es menor al mínimo, se ajusta al mínimo
+        if (valorIngresado < anticipoMinimo && anticipoMinimo > 0) {
+            inputAnticipo.value = anticipoMinimo;
+        }
+        
+        // Recalcular valores
+        actualizarValorCuotas();
+        actualizarValorNeto();
+    });
+
+    // Función para calcular el 15% de anticipo
+    function calcularAnticipo() {
+        const valorBruto = parseInt(inputValorBruto.value.replace(/\D/g, '')) || 0;
+        anticipoMinimo = Math.floor(valorBruto * 0.15);
+        
+        // Solo actualizar el valor si está vacío o es menor al mínimo
+        const valorActual = parseInt(inputAnticipo.value.replace(/\D/g, '')) || 0;
+        if (valorActual < anticipoMinimo || valorActual === 0) {
+            inputAnticipo.value = anticipoMinimo;
+        }
+
+        actualizarValorCuotas();
+        actualizarValorNeto();
+    }
+
+    // Evento que agrega una nueva fila de producto
+    addButton.addEventListener('click', () => {
+        const newRow = document.createElement('div');
+        newRow.classList.add('row', 'producto-item');
+        newRow.innerHTML = `
+            <div class="col-12 col-xl-1 mb-3 producto-numero">
+                <span class="form-control text-center bg-light border-0 fw-bold" readonly></span>
+            </div>
+            <div class="col-12 col-xl-4 mb-3">
+                <select name="producto_${productCount}" class="form-select" id="id_producto_${productCount}" required>
+                    <option value="">Seleccionar Producto</option>
+                    {% for producto in queryProducto %}
+                    <option value="{{ producto.id }}" data-precio="{{ producto.precio }}">{{ producto.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-xl-1 mb-3">
+                <input type="text" class="form-control" id="id_precio_${productCount}" placeholder="Precio" name="precio_${productCount}" readonly>
+            </div>
+            <div class="col-12 col-xl-1 mb-3">
+                <input type="number" class="form-control" id="id_cantidad_${productCount}" placeholder="Cantidad" name="cantidad_${productCount}" min="0" required>
+            </div>
+            <div class="col-12 col-xl-2 mb-3">
+                <input type="text" class="form-control" id="id_totalBruto_${productCount}" placeholder="Total Bruto" name="totalBruto_${productCount}" readonly>
+            </div>
+            <div class="col-12 col-xl-2 mb-3">
+                <input type="text" class="form-control" id="id_totalConInteres_${productCount}" placeholder="Total Con Interes" name="totalConInteres_${productCount}" readonly>
+            </div>
+            <div class="col-12 col-xl-1 mb-3">
+                <a onclick="eliminarProducto(this)" class="btn btn-danger">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-slash-circle" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                        <path d="M11.354 4.646a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 .708.708l6-6a.5.5 0 0 0 0-.708"/>
+                    </svg>
+                </a>
+            </div>
+        `;
+        container.appendChild(newRow);
+        renombrarProductos();
+        productCount = document.querySelectorAll('.producto-item').length;
+
+        encabezado.removeAttribute('hidden');
+        submit.removeAttribute('hidden');
+        contenedor_totales.removeAttribute('hidden');
+
+        actualizarValorBruto();
+        actualizarValorCuotas();
+        actualizarValorNeto();
+    });
+
+    // Evento delegado para manejar cambios en los productos
+    container.addEventListener('change', (event) => {
+        if (event.target.matches('select')) {
+            const precioInput = event.target.closest('.producto-item').querySelector('input[name^="precio"]');
+            const precio = event.target.selectedOptions[0].dataset.precio || 0;
+            precioInput.value = parseFloat(precio).toLocaleString('es-ES');
+        }
+        actualizarValorBruto();
+        actualizarValorCuotas();
+        actualizarValorNeto();
+    });
+
+    // Evento delegado para calcular el total por producto
+    container.addEventListener('input', (event) => {
+        if (event.target.matches('input[name^="cantidad"]')) {
+            const itemRow = event.target.closest('.producto-item');
+            const precio = parseFloat(itemRow.querySelector('input[name^="precio"]').value.replace(/\./g, '').replace(',', '.')) || 0;
+            const cantidad = parseInt(event.target.value, 10) || 0;
+            const totalInput = itemRow.querySelector('input[name^="totalBruto"]');
+            const total = precio * cantidad;
+
+            totalInput.value = total.toLocaleString('es-ES');
+            
+            // Calcular total neto con interés por producto
+            const totalConInteresInput = itemRow.querySelector(`input[name^="totalConInteres"]`);
+
+            const [tasaStr, concepto] = tasaInteres.value.split('|');
+            const tasa = parseFloat(tasaStr) || 0;
+            const cuotasVal = parseInt(cuotas.value);
+
+            if (!isNaN(tasa) && !isNaN(cuotasVal) && cuotasVal > 0) {
+                const calcularCuota = (monto, tasa, cuotas) => {
+                    if (tasa === 0) return monto;
+                    const cuota = Math.round((monto * tasa * Math.pow(1 + tasa, cuotas)) / (Math.pow(1 + tasa, cuotas) - 1));
+                    return cuota * cuotas;
+                };
+                const totalConInteres = calcularCuota(total, tasa, cuotasVal);
+                totalConInteresInput.value = totalConInteres.toLocaleString('es-ES');
+            } else {
+                totalConInteresInput.value = total.toLocaleString('es-ES');
+            }
+        }
+    
+        actualizarValorBruto();
+        actualizarValorCuotas();
+        actualizarValorNeto();
+    });
+
+    function actualizarTotalConInteresPorProducto() {
+        document.querySelectorAll('.producto-item').forEach(itemRow => {
+            const precioInput = itemRow.querySelector('input[name^="precio"]');
+            const cantidadInput = itemRow.querySelector('input[name^="cantidad"]');
+            const totalInput = itemRow.querySelector('input[name^="totalBruto"]');
+            const totalConInteresInput = itemRow.querySelector('input[name^="totalConInteres"]');
+    
+            const precio = parseFloat(precioInput.value.replace(/\./g, '').replace(',', '.')) || 0;
+            const cantidad = parseInt(cantidadInput.value, 10) || 0;
+            const total = precio * cantidad;
+    
+            const [tasaStr, concepto] = tasaInteres.value.split('|');
+            const tasa = parseFloat(tasaStr) || 0;
+            
+            const cuotas = parseInt(document.getElementById("id_cuotas").value);
+    
+            if (!isNaN(tasa) && !isNaN(cuotas) && cuotas > 0) {
+                const calcularCuota = (monto, tasa, cuotas) => {
+                    if (tasa === 0) return monto;
+                    const cuota = Math.round((monto * tasa * Math.pow(1 + tasa, cuotas)) / (Math.pow(1 + tasa, cuotas) - 1));
+                    return cuota * cuotas;
+                };
+                const totalConInteres = calcularCuota(total, tasa, cuotas);
+                totalConInteresInput.value = totalConInteres.toLocaleString('es-ES');
+            } else {
+                totalConInteresInput.value = total.toLocaleString('es-ES');
+            }
+        });
+    }
+    
+    // Función para calcular el valor total de todos los productos
+    function actualizarValorBruto() {
+        let totalBruto = 0;
+
+        document.querySelectorAll('.producto-item').forEach(item => {
+            const totalNeto = item.querySelector('input[name^="totalBruto"]').value
+                .replace(/\./g, '')
+                .replace(',', '.');
+            totalBruto += parseFloat(totalNeto) || 0;
+        });
+
+        const valorBrutoInput = document.querySelector('#id_valorBruto'); 
+        valorBrutoInput.value = totalBruto.toLocaleString('es-ES');
+        document.getElementById("id_totales_bruto").value = valorBrutoInput.value;
+
+        // 🔹 Si está seleccionado CREDITO PRODUCTO, recalcular anticipo automáticamente
+        const selectedText = tasaInteres.options[tasaInteres.selectedIndex].text;
+        if (selectedText.includes("CREDITO PRODUCTO") && totalBruto > 0) {
+            calcularAnticipo();
+        }
+    }
+
+    function actualizarValorCuotas() {
+        const valorCuota = document.getElementById("id_valorCuotas");
+
+        const [tasaStr, concepto] = tasaInteres.value.split('|');
+        const tasaMensual = parseFloat(tasaStr) || 0;
+
+        const numCuotas = parseInt(document.getElementById("id_cuotas").value, 10);
+        const selectedText = tasaInteres.options[tasaInteres.selectedIndex].text;
+        const valorBruto = parseInt(inputValorBruto.value.replace(/\D/g, '')) || 0;
+
+        if (isNaN(tasaMensual) || isNaN(numCuotas) || numCuotas <= 0) {
+            valorCuota.value = 0;
+            return;
+        }
+
+        // Obtener el monto base para el cálculo
+        let montoBase = valorBruto;
+        
+        // Si es CREDITO PRODUCTO, restar el anticipo del monto base
+        if (selectedText.includes("CREDITO PRODUCTO")) {
+            const anticipo = parseInt(inputAnticipo.value.replace(/\D/g, '')) || 0;
+            montoBase = valorBruto - anticipo;
+        }
+
+        if (montoBase <= 0) {
+            valorCuota.value = 0;
+            return;
+        }
+
+        // Calcular el total con interés sobre el monto base (sin anticipo)
+        const calcularTotalConInteres = (monto, tasa, cuotas) => {
+            if (tasa === 0) return monto;
+            const cuota = Math.round((monto * tasa * Math.pow(1 + tasa, cuotas)) / (Math.pow(1 + tasa, cuotas) - 1));
+            return cuota * cuotas;
+        };
+
+        const totalConInteres = calcularTotalConInteres(montoBase, tasaMensual, numCuotas);
+        const cuota = Math.round(totalConInteres / numCuotas);
+        
+        valorCuota.value = cuota.toLocaleString('es-ES');
+    }
+    
+    function actualizarValorNeto() {
+        const formaPago = document.getElementById('id_formaPago').value;
+        const selectedText = tasaInteres.options[tasaInteres.selectedIndex].text;
+        const valorBruto = parseInt(document.getElementById("id_valorBruto").value.replace(/\D/g, '')) || 0;
+        const cuotas = parseInt(document.getElementById("id_cuotas").value) || 0;
+        const valorCuota = parseInt(document.getElementById("id_valorCuotas").value.replace(/\D/g, '')) || 0;
+
+        if (formaPago === 'CONTADO') {
+            document.getElementById("id_valorNeto").value = valorBruto.toLocaleString('es-ES');
+            document.getElementById("id_totales_neto").value = valorBruto.toLocaleString('es-ES');
+        } else {
+            // Calcular el valor neto como (cuota * número de cuotas)
+            let valorNeto = valorCuota * cuotas;
+
+            // Si es crédito producto, sumar el anticipo al total
+            if (selectedText.includes("CREDITO PRODUCTO")) {
+                const anticipo = parseInt(inputAnticipo.value.replace(/\D/g, '')) || 0;
+                valorNeto += anticipo;
+            }
+
+            document.getElementById("id_valorNeto").value = valorNeto.toLocaleString('es-ES');
+            document.getElementById("id_totales_neto").value = valorNeto.toLocaleString('es-ES');
+        }
+    }
+
+    // Función para eliminar una fila de producto
+    window.eliminarProducto = function(button) {
+        const row = button.closest('.row');
+        row.remove();
+        renombrarProductos();
+        productCount = document.querySelectorAll('.producto-item').length;
+        actualizarValorBruto();
+        actualizarValorCuotas();
+        actualizarValorNeto();
+
+        if (productCount == 0) {
+            submit.setAttribute('hidden', 'hidden');
+            encabezado.setAttribute('hidden', 'hidden');
+        }
+    }       
+
+    function renombrarProductos() {
+        const items = document.querySelectorAll('.producto-item');
+    
+        items.forEach((item, index) => {
+            const numeroSpan = item.querySelector('.producto-numero span');
+            if (numeroSpan) {
+                numeroSpan.textContent = index + 1;
+            }
+
+            const productoSelect = item.querySelector('select');
+            productoSelect.name = `producto_${index}`;
+            productoSelect.id = `id_producto_${index}`;
+    
+            const precio = item.querySelector('input[name^="precio"]');
+            precio.name = `precio_${index}`;
+            precio.id = `id_precio_${index}`;
+    
+            const cantidad = item.querySelector('input[name^="cantidad"]');
+            cantidad.name = `cantidad_${index}`;
+            cantidad.id = `id_cantidad_${index}`;
+    
+            const totalBruto = item.querySelector('input[name^="totalBruto"]');
+            totalBruto.name = `totalBruto_${index}`;
+            totalBruto.id = `id_totalBruto_${index}`;
+    
+            const totalConInteres = item.querySelector('input[name^="totalConInteres"]');
+            totalConInteres.name = `totalConInteres_${index}`;
+            totalConInteres.id = `id_totalConInteres_${index}`;
+        });
+    }
+});
 
     
     

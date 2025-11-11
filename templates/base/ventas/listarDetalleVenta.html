@@ -3,82 +3,115 @@
 <div class="modal-dialog modal-xl custom-modal" role="document" id="modal1">
     <div class="modal-dialog custom-modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Detalle Venta:</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>N°</th>
-                            <th>Asociado</th>
-                            <th>N° Documento</th>
-                            <th>Tipo Asociado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <th>1</th>
-                            <td>{{asociado.nombre}} {{query.apellido}}</td>
-                            <td>{{asociado.numDocumento|intcomma}}</td>
-                            <td>{{asociado.tAsociado}}</td>
-                        </tr>
-                </table>
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Información Venta:</h1>
-                </div>
-                <form>
-                    {% comment %} Primera Fila {% endcomment %}
-                    <div class="row">
-                        <div class="col-12 col-md-6 mb-3">
-                            <label for="fechaVenta">Fecha Venta:</label>
-                            <input type="date" id="fechaVenta" value="{{ historicoVenta.fechaVenta|date:'Y-m-d' }}" class="form-control" readonly>
-                        </div>
-                        <div class="col-12 col-md-6 mb-3">
-                            <label for="formaPago">Forma Pago:</label>
-                            <input type="text" id="formaPago" value="{{ historicoVenta.formaPago }}" class="form-control" readonly>
-                        </div>
-                        {% if historicoVenta.formaPago == 'CREDITO' or historicoVenta.formaPago == 'DESCUENTO NOMINA' %}
-                            <div class="col-12 col-md-4 mb-3">
-                                <label for="tasaInteres">Tasa de Interés:</label>
-                                <input type="text" id="tasaInteres" value="{{ historicoVenta.tasaInteres.concepto }}" class="form-control" readonly>
-                            </div>
-                            <div class="col-12 col-md-4 mb-3 d-none">
-                                <label for="tasaInteres">Tasa de Interés oculto:</label>
-                                <input type="text" id="id_tasaInteres" value="{{ historicoVenta.tasaInteres.porcentaje }}" class="form-control">
-                            </div>
-                            <div class="col-12 col-md-4 mb-3">
-                                <label for="numeroCuotas">Número Cuotas:</label>
-                                <input type="number" id="numeroCuotas" value="{{ historicoVenta.cuotas }}" class="form-control" readonly>
-                            </div>
-                            <div class="col-12 col-md-4 mb-3">
-                                <label for="valorCuotas">Valor Cuotas:</label>
-                                <input type="text" id="valorCuotas" value="{{ historicoVenta.valorCuotas|intcomma }}" class="form-control" readonly>
-                            </div>
-                        {% endif %}
-                        
-                        {% comment %} Segunda Fila {% endcomment %}
             
-                        <div class="col-12 col-md-6 mb-3">
-                            <label for="id_valorBruto">Valor Bruto:</label>
-                            <input type="text" class="form-control" id="id_valorBruto" value="{{ historicoVenta.valorBruto|intcomma }}" readonly>
-                        </div>
-                        <div class="col-12 col-md-6 mb-3">
-                            <label for="id_valorNeto">Valor Neto:</label>
-                            <input type="text" class="form-control" id="id_valorNeto" value="{{ historicoVenta.valorNeto|intcomma }}" readonly>
+            <!-- Encabezado -->
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Registrar Venta</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body">
+                
+                <!-- Datos del asociado -->
+                <div class="card mb-4 shadow-sm border-0">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0 text-secondary">Información del Asociado</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>N°</th>
+                                    <th>Asociado</th>
+                                    <th>N° Documento</th>
+                                    <th>Tipo Asociado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>{{ asociado.nombre }} {{ query.apellido }}</td>
+                                    <td>{{ asociado.numDocumento|intcomma }}</td>
+                                    <td>{{ asociado.tAsociado }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Información de la venta -->
+                <div class="card mb-4 shadow-sm border-0">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0 text-secondary">Información de la Venta</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label for="fechaVenta">Fecha Venta:</label>
+                                <input type="date" id="fechaVenta" value="{{ historicoVenta.fechaVenta|date:'Y-m-d' }}" class="form-control" readonly>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label for="formaPago">Forma Pago:</label>
+                                <input type="text" id="formaPago" value="{{ historicoVenta.formaPago }}" class="form-control" readonly>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label for="id_valorBruto">Valor Bruto:</label>
+                                <input type="text" class="form-control" id="id_valorBruto" value="{{ historicoVenta.valorBruto|intcomma }}" readonly>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label for="id_valorNeto">Valor Neto:</label>
+                                <input type="text" class="form-control" id="id_valorNeto" value="{{ historicoVenta.valorNeto|intcomma }}" readonly>
+                            </div>
                         </div>
                     </div>
-                    <hr>
-                    <div class="row" id="contenedorAmortizacion">
-                        <div class="col-6 text-start">
-                            <h5>Tabla Amortización:</h5>
+                </div>
+
+                <!-- Información del crédito -->
+                {% if historicoVenta.formaPago == 'CREDITO' or historicoVenta.formaPago == 'DESCUENTO NOMINA' %}
+                    <div id="contenedorCredito" class="card mb-4 shadow-sm border-0">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0 text-secondary">Detalles del Crédito</h6>
                         </div>
-                        <input id="id_valorCuota" type="hidden" name="valorCuota">
-                        <input id="id_totalCredito" type="hidden" name="totalCredito">
-                        <div class="table-responsive">
-                            <table class="table table-hover" id="tablaAmortizacion">
-                                <thead>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-12 col-md-4 mb-3">
+                                    <label for="tasaInteres">Tasa de Interés:</label>
+                                    <input type="text" id="tasaInteres" value="{{ historicoVenta.tasaInteres.concepto }}" class="form-control" readonly>
+                                </div>
+                                <div class="col-12 col-md-4 mb-3">
+                                    <label for="primerMes">Primer Mes Cobro:</label>
+                                    <input type="text" id="primerMes" value="{{ historicoVenta.primerMes }}" class="form-control" readonly>
+                                </div>
+                                <div class="col-12 col-md-4 mb-3 d-none">
+                                    <label for="tasaInteres">Tasa de Interés oculto:</label>
+                                    <input type="text" id="id_tasaInteres" value="{{ historicoVenta.tasaInteres.porcentaje }}" class="form-control">
+                                </div>
+                                <div class="col-12 col-md-4 mb-3">
+                                    <label for="numeroCuotas">Número Cuotas:</label>
+                                    <input type="number" id="numeroCuotas" value="{{ historicoVenta.cuotas }}" class="form-control" readonly>
+                                </div>
+                                <div class="col-12 col-md-4 mb-3">
+                                    <label for="valorCuotas">Valor Cuotas:</label>
+                                    <input type="text" id="valorCuotas" value="{{ historicoVenta.valorCuotas|intcomma }}" class="form-control" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Tabla de amortización -->
+                {% if historicoVenta.formaPago == 'CREDITO' or historicoVenta.formaPago == 'DESCUENTO NOMINA' %}
+                    <div id="contenedorAmortizacion" class="card mb-4 shadow-sm border-0">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0 text-secondary">Tabla de Amortización</h6>
+                            <a type="button" id="calcular" class="btn btn-sm btn-primary">Calcular</a>
+                        </div>
+                        <div class="card-body">
+                            <input id="id_valorCuota" type="hidden" name="valorCuota">
+                            <input id="id_totalCredito" type="hidden" name="totalCredito">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle" id="tablaAmortizacion">
+                                    <thead class="table-light">
                                     <tr>
                                         <th>N° Cuota</th>
                                         <th>Fecha</th>
@@ -94,66 +127,53 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="col-12">
-                            <a type="button" id="calcular" class="btn btn-primary">Ver Tabla de Amortización</a>
-                        </div>
-                    </div> 
+                    </div>
+                {% endif %}
+                    
                     <!-- Formulario de productos -->
-                    <hr>
-                    <div class="row">
-                        <div class="col-6 text-start">
-                            <h5>Lista de Productos:</h5>
-                        </div>
+                <div class="card mb-4 shadow-sm border-0">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 text-secondary">Lista de Productos</h6>
                     </div>
-                    <hr>
-                    <div id="encabezados-container">
-                        <div class="row">
-                            <div class="col-12 col-md-1 mb-1 text-center fw-bold">
-                                <label class="form-label">N°</label>
-                            </div>
-                            <div class="col-12 col-md-4 mb-1">
-                                <label class="form-label">Producto</label>
-                            </div>
-                            <div class="col-12 col-md-2 mb-1">
-                                <label class="form-label">Precio</label>
-                            </div>
-                            <div class="col-12 col-md-1 mb-1">
-                                <label class="form-label">Cantidad</label>
-                            </div>
-                            <div class="col-12 col-md-2 mb-1">
-                                <label class="form-label">Total Bruto</label>
-                            </div>
-                            <div class="col-12 col-md-2 mb-1">
-                                <label class="form-label">Total Neto</label>
+                    <div class="card-body">
+                        <div id="encabezados-container" hidden>
+                            <div class="row fw-bold text-secondary mb-2">
+                                <div class="col-12 col-md-1 text-center">N°</div>
+                                <div class="col-12 col-md-4">Producto</div>
+                                <div class="col-12 col-md-1">Precio</div>
+                                <div class="col-12 col-md-1">Cantidad</div>
+                                <div class="col-12 col-md-2">Total Bruto</div>
+                                <div class="col-12 col-md-2">Total Neto</div>
+                                <div class="col-12 col-md-1 text-center">Opciones</div>
                             </div>
                         </div>
+                        <div id="productos-container">
+                            {% for product in detalleVenta %}
+                                <div class="row">
+                                    <div class="col-12 col-xl-1 mb-3">
+                                        <span class="form-control text-center bg-light border-0 fw-bold" readonly>{{forloop.counter}}</span>
+                                    </div>
+                                    <div class="col-12 col-md-4 mb-3">
+                                        <input type="text" value="{{product.producto}}" class="form-control" readonly>
+                                    </div>
+                                    <div class="col-12 col-md-2 mb-3">
+                                        <input type="text" value="{{ product.precio|intcomma }}" class="form-control" readonly>
+                                    </div>
+                                    <div class="col-12 col-md-1 mb-3">
+                                        <input type="text" value="{{ product.cantidad }}" class="form-control" readonly>
+                                    </div>
+                                    <div class="col-12 col-md-2 mb-3">
+                                        <input type="text" value="{{ product.totalBruto|intcomma }}" class="form-control" readonly>
+                                    </div>
+                                    <div class="col-12 col-md-2 mb-3">
+                                        <input type="text" value="{{ product.totalNeto|intcomma }}" class="form-control" readonly>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
                     </div>
-                    <div id="productos-container">
-                        {% for product in detalleVenta %}
-                            <div class="row">
-                                <div class="col-12 col-xl-1 mb-3">
-                                    <span class="form-control text-center bg-light border-0 fw-bold" readonly>{{forloop.counter}}</span>
-                                </div>
-                                <div class="col-12 col-md-4 mb-3">
-                                    <input type="text" value="{{product.producto}}" class="form-control" readonly>
-                                </div>
-                                <div class="col-12 col-md-2 mb-3">
-                                    <input type="text" value="{{ product.precio|intcomma }}" class="form-control" readonly>
-                                </div>
-                                <div class="col-12 col-md-1 mb-3">
-                                    <input type="text" value="{{ product.cantidad }}" class="form-control" readonly>
-                                </div>
-                                <div class="col-12 col-md-2 mb-3">
-                                    <input type="text" value="{{ product.totalBruto|intcomma }}" class="form-control" readonly>
-                                </div>
-                                <div class="col-12 col-md-2 mb-3">
-                                    <input type="text" value="{{ product.totalNeto|intcomma }}" class="form-control" readonly>
-                                </div>
-                            </div>
-                            
-                        {% endfor %}    
-                    </div>
-                </form>
+                </div>
+
             </div>
         </div>
     </div>
@@ -161,25 +181,23 @@
 
 
 <script>
-
     document.getElementById("calcular").addEventListener("click", function () {
-            const valor = document.getElementById("id_valorBruto").value.replace(/\./g, '').replace(',', '.');
-            const rawtasa = document.getElementById("id_tasaInteres").value.replace(',', '.');
-            const tasa = parseFloat(rawtasa) || 0;
-            const cuotas = parseInt(document.getElementById("numeroCuotas").value) || 0;
-            const fechaSolicitud = document.getElementById("fechaVenta").value;
+        const valor = document.getElementById("id_valorBruto").value.replace(/\./g, '').replace(',', '.');
+        const rawtasa = document.getElementById("id_tasaInteres").value.replace(',', '.');
+        const tasa = parseFloat(rawtasa) || 0;
+        const cuotas = parseInt(document.getElementById("numeroCuotas").value) || 0;
+        const fechaSolicitud = document.getElementById("fechaVenta").value;
 
-            if (!fechaSolicitud) {
-                alert("Por favor, ingresa una fecha válida.");
-                return;
-            }
+        if (!fechaSolicitud) {
+            alert("Por favor, ingresa una fecha válida.");
+            return;
+        }
 
 
-            if (parseInt(valor) > 0 && cuotas > 0) {
-                generarTablaAmortizacion(parseInt(valor), tasa, cuotas, fechaSolicitud, 1);
-            }else {
-                alert("Por favor, ingresa valores válidos.");
-            }
-        });
-
+        if (parseInt(valor) > 0 && cuotas > 0) {
+            generarTablaAmortizacion(parseInt(valor), tasa, cuotas, fechaSolicitud, 1);
+        }else {
+            alert("Por favor, ingresa valores válidos.");
+        }
+    });
 </script>

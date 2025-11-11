@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 
 from asociado.models import Asociado
-from parametro.models import TasasInteresCredito
+from parametro.models import TasasInteresCredito, MesTarifa
 
 # Create your models here.
 
@@ -65,6 +65,13 @@ class HistoricoVenta(models.Model):
     tasaInteres = models.ForeignKey(TasasInteresCredito, on_delete=models.CASCADE, blank=True, null=True)
     valorDescuento = models.IntegerField(blank=True, null=True)
     valorNeto = models.IntegerField(blank=False, null=False)
+    primerMes = models.ForeignKey(
+        MesTarifa, 
+        on_delete=models.RESTRICT, 
+        blank=True, 
+        null=True,
+        related_name='historico_ventas'
+    )
     userCreacion = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=False, null=False)
     estadoRegistro = models.BooleanField(default=True)
     fechaCreacion = models.DateTimeField(auto_now_add=True)

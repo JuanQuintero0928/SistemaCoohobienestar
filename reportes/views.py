@@ -1082,10 +1082,10 @@ class DescargarAuxilios(BaseReporteExcel):
 class DescargarCreditos(BaseReporteExcel):
     nombre_hoja = "Listado Créditos"
     columnas = [
-        'ID Crédito', 'Número Documento', 'Nombre Completo', 'Fecha Solicitud', 'Valor', 'Número Cuotas', 'Valor Cuota', 'Total Credito', 'Estado', 'Linea Credito', 'Amortización', 'Tasa Interes', 'Forma Desembolso', 'Medio de Pago', 'Tipo Asociado', 'Banco', 'Tipo de Cuenta', 'Número de Cuenta'
+        'ID Crédito', 'Número Documento', 'Nombre Completo', 'Fecha Solicitud', 'Valor', 'Número Cuotas', 'Valor Cuota', 'Total Credito', 'Cuotas Pagas', 'Pendiente Pago', 'Estado', 'Linea Credito', 'Amortización', 'Tasa Interes', 'Forma Desembolso', 'Medio de Pago', 'Tipo Asociado', 'Banco', 'Tipo de Cuenta', 'Número de Cuenta'
         ]
     
-    ancho_columnas = [11, 14, 32, 15, 12, 12, 12, 13, 13, 21, 16, 20, 28, 15, 21, 16, 18, 15]
+    ancho_columnas = [11, 14, 32, 15, 12, 12, 12, 13, 13, 13, 13, 21, 16, 20, 28, 15, 21, 16, 18, 15]
 
     def get(self, request, *args, **kwargs):
         template = 'reporte/modalReporte.html'
@@ -1120,6 +1120,8 @@ class DescargarCreditos(BaseReporteExcel):
             obj.cuotas,
             obj.valorCuota,
             obj.totalCredito,
+            obj.cuotasPagas,
+            obj.pendientePago,
             obj.estado,
             obj.lineaCredito,
             obj.amortizacion,

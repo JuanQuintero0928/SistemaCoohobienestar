@@ -356,7 +356,8 @@ class ModalPago(ListView):
                         MesTarifa.objects.get(pk=pk).aporte
                         + MesTarifa.objects.get(pk=pk).bSocial
                         + tarifaAsociado.cuotaMascota
-                        + tarifaAsociado.cuotaRepatriacion
+                        + tarifaAsociado.cuotaRepatriacionBeneficiarios
+                        + tarifaAsociado.cuotaRepatriacionTitular
                         + tarifaAsociado.cuotaSeguroVida
                         + tarifaAsociado.cuotaAdicionales
                         + tarifaAsociado.cuotaCoohopAporte
@@ -377,7 +378,7 @@ class ModalPago(ListView):
                         "aportePago": MesTarifa.objects.get(pk=pk).aporte,
                         "bSocialPago": MesTarifa.objects.get(pk=pk).bSocial,
                         "mascotaPago": tarifaAsociado.cuotaMascota,
-                        "repatriacionPago": tarifaAsociado.cuotaRepatriacion,
+                        "repatriacionPago": (tarifaAsociado.cuotaRepatriacionBeneficiarios or 0) + (tarifaAsociado.cuotaRepatriacionTitular or 0),
                         "seguroVidaPago": tarifaAsociado.cuotaSeguroVida,
                         "adicionalesPago": tarifaAsociado.cuotaAdicionales,
                         "coohopAporte": tarifaAsociado.cuotaCoohopAporte,

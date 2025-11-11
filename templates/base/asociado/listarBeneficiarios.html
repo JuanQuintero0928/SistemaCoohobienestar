@@ -39,10 +39,6 @@
             </div>
         </div>
     </div>
-    
-    <div class="modal fade" id="creacion" role="dialog">
-    <!-- En este div se visualiza la informacion para la creacion de un nuevo registro de entrada -->
-    </div>
 
 {% endblock submenu %}
 
@@ -93,34 +89,103 @@
         </tr>
     {% endfor %}
 
-    <div class="modal fade" id="creacion" role="dialog">
-        <!-- En este div se visualiza la informacion para la creacion de un nuevo registro de entrada -->
-    </div>
-  
+    <!-- Contenedores vacios -->
+    <div class="modal fade" id="create" role="dialog"></div>
+    <div class="modal fade" id="update" role="dialog"></div>
+    <div class="modal fade" id="delete" role="dialog"></div>
 
 {% endblock tablafilas %}
 
 {% block extrajs %}
+    <script type="text/javascript">
+        var $ = jQuery.noConflict()
 
-<script type="text/javascript">
-    var $ = jQuery.noConflict()
-    function abrir_modal_creacion(url){
-        $('#creacion').load(url, function(){
-            $(this).modal('show');
+        function abrir_modal_creacion(url){
+            $('#create').load(url, function(){
+                $(this).modal('show');
+            });
+        }
+
+        function abrir_modal_edicion(url){
+            $('#update').load(url, function(){
+                $(this).modal('show');
+            });
+        }
+
+        function abrir_modal_eliminacion(url){
+            $('#delete').load(url, function(){
+                $(this).modal('show');
+            });
+        }
+
+        // Lógica de repatriación - Create
+        $(document).on('shown.bs.modal', '#create', function () {
+            const paisSelect = document.getElementById('id_paisRepatriacion');
+            const contenedor = document.querySelector(".contenedor-repatriacion");
+            const campos = contenedor.querySelectorAll(".campo-repatriacion");
+
+            paisSelect.addEventListener("change", function() {
+                const valor = this.value.trim();
+
+                if (valor) {
+                    // Mostrar el contenedor
+                    contenedor.classList.remove("d-none");
+
+                    // Mostrar cada campo y poner required
+                    campos.forEach(campo => {
+                        campo.classList.remove("d-none");
+                        const input = campo.querySelector("input, select, textarea");
+                        if (input) input.required = true;
+                    });
+
+                } else {
+                    // Ocultar el contenedor
+                    contenedor.classList.add("d-none");
+
+                    // Ocultar campos, quitar required y limpiar valor
+                    campos.forEach(campo => {
+                        campo.classList.add("d-none");
+                        const input = campo.querySelector("input, select, textarea");
+                        if (input) {
+                            input.required = false;
+                            input.value = "";
+                        }
+                    });
+                }
+            });
         });
-    }
-    var $ = jQuery.noConflict()
-    function abrir_modal_edicion(url){
-        $('#creacion').load(url, function(){
-            $(this).modal('show');
+
+        // Lógica de repatriación - Update
+        $(document).on('shown.bs.modal', '#update', function () {
+            const paisRepatriacion = document.querySelector('#id_paisRepatriacion');
+            const contenedor = document.querySelector('#contenedor');
+            const fechaRepatriacion = document.querySelector('#id_fechaRepatriacion_div');
+            const ciudadRepatriacion = document.querySelector('#id_ciudadRepatriacion_div');
+
+            if (!paisRepatriacion || !contenedor) return;
+
+            // Control inicial
+            if (paisRepatriacion.value) {
+            contenedor.classList.remove('d-none');
+            } else {
+            contenedor.classList.add('d-none');
+            }
+
+            // Cambio dinámico
+            paisRepatriacion.addEventListener('change', function() {
+            if (paisRepatriacion.value) {
+                contenedor.classList.remove('d-none');
+                fechaRepatriacion.classList.remove('d-none');
+                ciudadRepatriacion.classList.remove('d-none');
+            } else {
+                contenedor.classList.add('d-none');
+                fechaRepatriacion.classList.add('d-none');
+                ciudadRepatriacion.classList.add('d-none');
+            }
+            });
         });
-    }
-    function abrir_modal_eliminacion(url){
-        $('#creacion').load(url, function(){
-            $(this).modal('show');
-        });
-    }
-</script>
+
+    </script>
 {% endblock extrajs %}  
 
 

@@ -1,40 +1,6 @@
 {% extends 'index.html' %}
 {% load static %}
 
-{% block extraHead %}
-    <style>
-        .card-modern {
-        transition: all 0.3s ease;
-        background: #fff;
-        border-radius: 1rem;
-    }
-
-    .card-modern:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-    }
-
-    .icon-wrapper {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .btn-danger {
-        transition: all 0.2s ease-in-out;
-    }
-
-    .btn-danger:hover {
-        background-color: #b30000;
-        transform: scale(1.03);
-    }
-
-    </style>
-{% endblock extraHead %}
-
 {% block breadcrumb %}
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
     <li class="breadcrumb-item"><a href="{% url 'informacion:informacion' %}">Información</a></li>

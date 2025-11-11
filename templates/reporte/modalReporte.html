@@ -1,18 +1,21 @@
 <div class="modal-dialog modal-md" role="document">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">
-            {% if tipoReporte == 'auxilio' %}
-                Descargar Auxilio por fecha
-            {% elif tipoReporte == 'credito' %}
-                Descargar Créditos por fecha
-            {% elif tipoReporte == 'ventasHE' %}
-                Descargar Ventas Home Elements
-            {% endif %}</h1>
-          <hr>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-content">
+
+        <!-- ENCABEZADO -->
+        <div class="modal-header bg-primary text-white">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">
+                {% if tipoReporte == 'auxilio' %}
+                    Descargar Auxilio por fecha
+                {% elif tipoReporte == 'credito' %}
+                    Descargar Créditos por fecha
+                {% elif tipoReporte == 'ventasHE' %}
+                    Descargar Ventas Home Elements
+                {% endif %}</h1>
+            <hr>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
+
+        <!-- CUERPO -->
         <div class="modal-body">
             {% if tipoReporte == 'auxilio' %}
                 <form action="{% url 'reportes:descargarAuxilio' %}" method="post">
@@ -47,6 +50,6 @@
                 </button>
             </form>
         </div>
-      </div>
+
     </div>
-  </div>
+</div>

@@ -97,6 +97,13 @@ class HistoricoCredito(models.Model):
     tipoCuenta = models.CharField('Tipo Cuenta', choices=TipoCuentaOp.choices, blank=True, null=True)
     cuotasPagas = models.IntegerField(blank=True, null=True)
     pendientePago = models.IntegerField(blank=True, null=True)
+    primerMes = models.ForeignKey(
+        MesTarifa, 
+        on_delete=models.RESTRICT, 
+        blank=True, 
+        null=True,
+        related_name='historico_creditos'
+    )
     estadoRegistro = models.BooleanField('Estado')
     fechaCreacion = models.DateTimeField(auto_now_add=True)
     fechaModificacion = models.DateTimeField(auto_now=True)

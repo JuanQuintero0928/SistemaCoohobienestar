@@ -193,7 +193,7 @@
             {% if query_credito_prod %}
                 {% for homeElements in query_credito_prod %}
                     <tr>
-                        <th class="fw-bold text-start">Crédito - Home Elements {{homeElements.cuotasPagas}}/{{homeElements.cuotas}}</th>
+                        <th class="fw-bold text-start">Crédito - Home Elements {{homeElements.cuotasPagas}}/{{homeElements.cuotas}} | <span class="badge bg-success text-white border ms-2"> Inicio: {{ homeElements.primerMes.concepto }} </span></th>
                         <th class="text-muted text-start">${{ homeElements.valorCuotas|intcomma }}</th>
                         <th></th>
                     </tr>
@@ -202,7 +202,7 @@
             {% if queryCredito %}
                 {% for credito in queryCredito %}
                     <tr>
-                        <th class="fw-bold text-start">Crédito - {{credito.lineaCredito|lower|capfirst}} {{credito.cuotasPagas}}/{{credito.cuotas}}</th>
+                        <th class="fw-bold text-start">Crédito - {{credito.lineaCredito|lower|capfirst}} {{credito.cuotasPagas}}/{{credito.cuotas}} | <span class="badge bg-success text-white border ms-2"> Inicio: {{ credito.primerMes.concepto }} </span></th>
                         <th class="text-muted text-start">${{ credito.valorCuota|intcomma }}</th>
                         <th></th>
                     </tr>
@@ -210,7 +210,7 @@
             {% endif %}
             {% if queryVinculacion %}    
                 <tr>
-                    <th class="fw-bold text-start">Vinculación - Cuota {{vinculacionCuotasPte}}/{{queryVinculacion.vinculacionCuotas}}</th>
+                    <th class="fw-bold text-start">Vinculación - Cuota {{vinculacionCuotasPte}}/{{queryVinculacion.vinculacionCuotas}} | <span class="badge bg-success text-white border ms-2"> Inicio: {{ queryVinculacion.primerMes.concepto }} </span></th>
                     <th class="text-muted text-start">${{ queryVinculacion.vinculacionValor|intcomma }}</th>
                     <th></th>
                 </tr>

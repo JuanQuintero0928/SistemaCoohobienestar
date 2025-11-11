@@ -285,7 +285,7 @@ async function generarPDFRegistro(url, datos) {
     pdf.text(nombreCompleto, 38.4, 181.1);
     pdf.text(datos.numDocumento, 486, 181.1);
     pdf.text(datos.mpioDoc, 21.7, 191.2);
-    pdf.text("9.5", 285, 228.8);
+    pdf.text("5", 287.5, 228.8);
 
     // Datos personales
     // renglon 1
@@ -551,7 +551,7 @@ async function generarPDFRegistro(url, datos) {
         pdf.text(nombreCompleto, 42.4, 750.6);
         pdf.text(datos.numDocumento, 23.7, 760.5);
         pdf.text(datos.mpioDoc, 183, 760.5);
-        pdf.text("9.8", 502, 806.5);
+        pdf.text("2", 504.5, 806.5);
     }
 
     // /////////////////////////////////////////////////////////////////////////////////////////
@@ -697,9 +697,9 @@ async function generarPDFServiciosExequiales(url, datos) {
 
     // Firma y Huella
     pdf.setFontSize(9);
-    pdf.text(arrFechaHoy[0], 299,861);
-    pdf.text(arrFechaHoy[1], 444,861);
-    pdf.text(arrFechaHoy[2], 541,861);
+    pdf.text(convertirDias(arrFechaHoy[0]), 290, 861);
+    pdf.text(convertirMes(arrFechaHoy[1]), 435, 861);
+    pdf.text(arrFechaHoy[2], 541, 861);
     pdf.text("Armenia", 72,871);
 
     // // Firma
@@ -815,9 +815,9 @@ async function generarPDFAuxilioEconomico(url, datos) {
     });
 
     // // Firma y Huella
-    pdf.text(arrFechaHoy[0], 305,618);
-    pdf.text(arrFechaHoy[1], 449,618);
-    pdf.text(arrFechaHoy[2], 539,618);
+    pdf.text(convertirDias(arrFechaHoy[0]), 292, 618);
+    pdf.text(convertirMes(arrFechaHoy[1]), 432, 618);
+    pdf.text(arrFechaHoy[2], 539, 618)
     pdf.text("ARMENIA", 69,629);
     pdf.text(nombreCompleto, 153, 687);
     pdf.text(datos.numDocumento, 153, 710);
@@ -947,7 +947,7 @@ async function generarPDFExtractoIndividual(url, extractoData) {
     // icono facebook
     pdf.textWithLink('                  ', 364, 941, {url:"https://www.facebook.com/ccoohobienestar/"});
 
-    pdf.save('Formato_Auxilios_'+extractoData.numDocumento+'.pdf');
+    pdf.save('Formato_Extracto_'+extractoData.numDocumento+'.pdf');
 }
 
 
@@ -1197,15 +1197,22 @@ async function generarPDFSolicitudCredito(url, datos) {
     }
 
     var nombreCompleto = datos.nombre + ' ' + datos.apellido;
+    var nombreCodeudor = (datos.codeudor?.nombre || '') + ' ' + (datos.codeudor?.apellido || '');
     var arrFechaHoy = datos.fechaFormateada.split("/")
     
     // Tipo persona y actualizacion y radicado
-    pdf.text(datos.fechaFormateada, 285, 119.8);
+    pdf.text(datos.fechaFormateada, 275, 119.8);
     pdf.setFontSize(8);
     pdf.text(datos.numeroRadicado, 401.5, 118.5);
     pdf.setFontSize(9);
     const coordTipoPersona = coordenadas.tipoPersona[datos.tPersona] || coordenadas.tipoPersona["OTRO"];
     writeBoldText(pdf, "X", coordTipoPersona.x, coordTipoPersona.y, 10);
+
+    // Tipo solicitante
+    writeBoldText(pdf, "X", 61.5, 181, 10);
+    writeBoldText(pdf, "X", 437.5, 181, 10);
+    pdf.text(nombreCompleto, 18, 202);
+    writeText(pdf, nombreCodeudor, 299.8, 202);
 
     // Conficiones financieras
     // renglon 1
@@ -1493,8 +1500,23 @@ async function generarPDFSolicitudCredito(url, datos) {
     const image3 = await loadImage('/static/img/Solicitud_Credito_2025_page_0003.jpg');
     pdf.addImage(image3, 'PNG', 0, 0, 613, 1010);
 
-    pdf.save('Formato_Solicitud_Credito_'+datos.numDocumento+'.pdf');
+    //firma y huella
+    console.log(arrFechaHoy[2]);
+    pdf.text(convertirDias(arrFechaHoy[0]), 291.8, 355);
+    pdf.text(convertirMes(arrFechaHoy[1]), 470.5, 355);
+    pdf.text(arrFechaHoy[2], 17.8, 366.7);
+    pdf.text('ARMENIA', 148.7, 366.7); 
 
+    // deudor
+    pdf.text(nombreCompleto, 78, 434.7);
+    pdf.text(datos.numDocumento, 88.5, 448);
+    pdf.text(datos.mpioDoc, 88.5, 461.4);
+    // codeudor
+    pdf.text(nombreCodeudor, 347, 434.7);
+    pdf.text(datos.codeudor?.numDocumento || '', 355, 448);
+    pdf.text(datos.codeudor?.mpioDoc__nombre || '', 355, 461.4);
+
+    pdf.save('Formato_Solicitud_Credito_'+datos.numDocumento+'.pdf');
 }
 
 
@@ -1559,7 +1581,7 @@ async function generarPDFOtorgamientoCredito(url, datos) {
 
     // Deudores
     let nombreCompleto = datos.nombre + " " + datos.apellido
-    let nombreCodeudor = datos.codeudor.nombre + " " + datos.codeudor.apellido
+    let nombreCodeudor = (datos.codeudor?.nombre || '') + " " + (datos.codeudor?.apellido || '')
 
     // tabla deudores
     // deudor
@@ -1569,9 +1591,9 @@ async function generarPDFOtorgamientoCredito(url, datos) {
     pdf.text(datos.mpioDoc, 491.1, 287.4);
     // codeudor
     pdf.text(nombreCodeudor, 19, 303.4);
-    pdf.text(datos.codeudor.tipoDocumento, 304, 303.4);
-    pdf.text(String(datos.codeudor.numDocumento), 407.1, 303.4);
-    pdf.text(datos.codeudor.mpioDoc__nombre, 491.1, 303.4);
+    pdf.text(datos.codeudor?.tipoDocumento || '', 304, 303.4);
+    pdf.text(String(datos.codeudor?.numDocumento || ''), 407.1, 303.4);
+    pdf.text(datos.codeudor?.mpioDoc__nombre || '', 491.1, 303.4);
 
     // renglon 1
     pdf.text(convertirDias(fecha[2]), 133.1, 401.4);
@@ -1609,8 +1631,8 @@ async function generarPDFOtorgamientoCredito(url, datos) {
     pdf.text(String(datos.numDocumento), 169, 685.4);
     pdf.text(datos.mpioDoc, 169, 712);
     pdf.text(nombreCodeudor, 169, 806.7);
-    pdf.text(String(datos.codeudor.numDocumento), 169, 832.7);
-    pdf.text(datos.codeudor.mpioDoc__nombre, 169, 858.7);
+    pdf.text(String(datos.codeudor?.numDocumento || ''), 169, 832.7);
+    pdf.text(datos.codeudor?.mpioDoc__nombre || '', 169, 858.7);
 
     pdf.save('Otorgamiento_Credito_'+datos.numDocumento+'.pdf');
 }
@@ -1635,7 +1657,7 @@ async function generarPDFTablaAmortizacion(url, datos) {
 
     // Deudores
     let nombreCompleto = datos.nombre + " " + datos.apellido
-    let nombreCodeudor = datos.codeudor.nombre + " " + datos.codeudor.apellido
+    let nombreCodeudor = (datos.codeudor?.nombre || '') + ' ' + (datos.codeudor?.apellido || '')
 
     // Encabezados
     pdf.text(datos.fechaFormateada, 270.5, 120);
@@ -1651,9 +1673,9 @@ async function generarPDFTablaAmortizacion(url, datos) {
     pdf.text(datos.mpioDoc, 491.1, 166);
     // codeudor
     pdf.text(nombreCodeudor, 19, 182);
-    pdf.text(datos.codeudor.tipoDocumento, 304, 182);
-    pdf.text(String(datos.codeudor.numDocumento), 407.1, 182);
-    pdf.text(datos.codeudor.mpioDoc__nombre, 491.1, 182);
+    pdf.text(datos.codeudor?.tipoDocumento || '', 304, 182);
+    pdf.text(String(datos.codeudor?.numDocumento || ''), 407.1, 182);
+    pdf.text(datos.codeudor?.mpioDoc__nombre || '', 491.1, 182);
 
     //tabla informacion
     pdf.text(sumarMeses(datos.credito.fechaSolicitud, 0), 281.1, 252.7);
@@ -1741,178 +1763,10 @@ async function generarPDFTablaAmortizacion(url, datos) {
     pdf.text(String(datos.numDocumento), 159, 744);
     pdf.text(datos.mpioDoc, 159, 770);
     pdf.text(nombreCodeudor, 159, 862);
-    pdf.text(String(datos.codeudor.numDocumento), 159, 888);
-    pdf.text(datos.codeudor.mpioDoc__nombre, 159, 914);
+    pdf.text(String(datos.codeudor?.numDocumento || ''), 159, 888);
+    pdf.text(datos.codeudor?.mpioDoc__nombre || '', 159, 914);
 
     pdf.save('Tabla_Amortizacion_'+datos.numDocumento+'.pdf');
-}
-
-async function descargarTablaAmortizacion(url, numDoc, fechaSolicitud, valor, cuotas, tasa, datos) {
-    const image = await loadImage(url);
-    const pdf = new jsPDF('p', 'pt', 'legal');
-    pdf.addImage(image, 'PNG', 0, 0, 613, 1010);
-
-    // Convertimos a numeros los valores de valor y cuotas
-    let valorNumerica = parseFloat(valor);
-    let cuotasNumerica = parseFloat(cuotas);
-    // Remplazamos comas por puntos
-    let tasaString = tasa.replace(',', '.');
-    let tasaNumerica = parseFloat(tasaString);
-
-    //Encabezados
-    pdf.setFontSize(10);
-    pdf.text('ARMENIA',111,130);
-
-    var arrFechaHoy = fechaSolicitud.split("-")
-    pdf.text('   /    /',325,130);
-    pdf.text(arrFechaHoy[2], 321,130);
-    pdf.text(arrFechaHoy[1], 336,130);
-    pdf.text(arrFechaHoy[0], 351,130);
-
-    pdf.setFontSize(12);
-    pdf.text(datos.numCredito, 480,130);
-
-    pdf.setFontSize(10);
-    let nombreCompleto = datos.nombre + " " + datos.apellido
-    let nombreCodeudor = datos.nombreCodeudor + " " + datos.apellidoCodeudor
-
-    // Titular
-    pdf.text(nombreCompleto, 53,256);
-    pdf.text(datos.tipoDocumento, 268,256);
-    pdf.text(datos.numDocumento, 361,256);
-    pdf.text(datos.mpioDoc, 448,256);
-    
-    // Codeudor
-    pdf.text(nombreCodeudor, 53,269);
-    pdf.text(datos.tipoDocumentoCodeudor, 268,269);
-    pdf.text(datos.numDocumentoCodeudor, 361,269);
-    pdf.text(datos.mpioCodeudor, 448,269);
-
-    // Renglon 1
-    pdf.text(sumarMeses(fechaSolicitud, 0), 181,340);
-    pdf.text(datos.lineaCredito, 345,340);
-    // Renglon 2
-    pdf.text(numeroALetras(valorNumerica), 60,355);
-    pdf.text(formatearNumero(valor), 321,355);
-    // Renglon 3
-    let tasaPorcentaje = (tasaNumerica * 100).toFixed(1);
-    pdf.text(tasaPorcentaje+'%', 341,384);
-    // Renglon 4
-    pdf.text(cuotas, 56,400);
-    pdf.text(sumarMeses(fechaSolicitud, 1), 346,400)
-    // Renglon 5
-    pdf.text(sumarMeses(fechaSolicitud, cuotasNumerica), 111,415);
-    pdf.text(formatearNumero(datos.valorCuota), 390,415);
-    // Renglon 6
-    pdf.text(datos.amortizacion, 88,430);
-    pdf.text(formatearNumero(datos.totalCredito), 369,430);
-    // Renglon 7
-    pdf.text(datos.medioPago, 58,446);
-
-    // Constancia
-    console.log(arrFechaHoy[1]);
-    pdf.text(arrFechaHoy[2], 95, 493);
-    pdf.text(convertirMes(arrFechaHoy[1]), 275, 493);
-    pdf.text(arrFechaHoy[0], 432, 493); 
-    pdf.text('ARMENIA', 61, 506);
-    
-    // Firmas
-    pdf.text(nombreCompleto, 159, 584);
-    pdf.text(numDoc, 159, 598);
-    pdf.text(datos.mpioDoc, 159, 611);
-
-    pdf.text(nombreCodeudor, 159, 689);
-    pdf.text(datos.numDocumentoCodeudor, 159, 702);
-    pdf.text(datos.mpioCodeudor, 159, 715);
-
-    /////////////////////////////////////////////////////////////////////////////////////////
-    // Se añade Pagina 2 al documento
-    pdf.addPage();
-    const image3 = await loadImage('/static/img/Otorgamiento_Credito_page_0002.jpg');
-    pdf.addImage(image3, 'PNG', 0, 0, 613, 1010);
-
-    //Encabezados
-    pdf.text('ARMENIA', 119, 134);
-    pdf.text('   /    /',325,134);
-    pdf.text(arrFechaHoy[2], 321,134);
-    pdf.text(arrFechaHoy[1], 336,134);
-    pdf.text(arrFechaHoy[0], 351,134);
-
-    pdf.setFontSize(12);
-    pdf.text(datos.numCredito, 480,134);
-    pdf.setFontSize(10);
-
-    // Deudores
-    pdf.text(nombreCompleto, 182, 181);
-    pdf.text(numDoc, 473, 181);
-    pdf.text(nombreCodeudor, 182, 206);
-    pdf.text(datos.numDocumentoCodeudor, 473, 206);
-
-    // Informacion Credito
-    pdf.text(sumarMeses(fechaSolicitud, 0), 231, 252);
-    pdf.text(datos.lineaCredito, 231, 267);
-    pdf.text(datos.amortizacion, 231, 283);
-    pdf.text(formatearNumero(valor), 231, 299);
-    pdf.text(cuotas, 231, 314);
-    pdf.text(tasaPorcentaje+'%', 231, 329);
-    pdf.text(sumarMeses(fechaSolicitud, cuotasNumerica), 231, 344);
-    
-    // Tabla Amortizacion
-
-    let cuotaFija;
-    if (tasaNumerica === 0) {
-        cuotaFija = Math.ceil(valorNumerica / cuotasNumerica);
-    } else {
-        cuotaFija = ((valorNumerica * tasaNumerica * Math.pow(1 + tasaNumerica, cuotasNumerica)) / 
-                    (Math.pow(1 + tasaNumerica, cuotasNumerica) - 1)).toFixed(0);
-    }
-    const fechas = generarFechas(cuotasNumerica, fechaSolicitud);
-    
-    let saldoRestante = parseFloat(valorNumerica);
-
-    let fila = 415;
-    for (let i = 0; i <= cuotasNumerica; i++) {
-        if (i === 0) {
-            pdf.text(String(i), 81, fila);
-            pdf.text(fechas[i], 101, fila);
-            pdf.text(formatearMoneda(saldoRestante), 156, fila);
-            pdf.text(formatearMoneda(0), 225, fila);
-            pdf.text(formatearMoneda(0), 290, fila);
-            pdf.text(formatearMoneda(0), 347, fila);
-            pdf.text(formatearMoneda(0), 392, fila);
-            pdf.text(formatearMoneda(cuotaFija), 430, fila);
-            pdf.text(formatearMoneda(saldoRestante), 493, fila);
-            fila = fila + 15.5;
-        } else {
-            const intereses = (saldoRestante * tasaNumerica).toFixed(0);
-            const abonoCapital = (cuotaFija - intereses).toFixed(0);
-            
-            // Si es la última fila, forzamos saldoRestante a 0
-            if (i === cuotasNumerica) {
-                saldoRestante = 0;
-            } else {
-                saldoRestante = (saldoRestante - abonoCapital).toFixed(0);
-            }
-
-            pdf.text(String(i), 81, fila);
-            pdf.text(fechas[i], 101, fila);
-            pdf.text(formatearMoneda(parseFloat(saldoRestante) + parseFloat(abonoCapital)), 156, fila);
-            pdf.text(formatearMoneda(abonoCapital), 225, fila);
-            pdf.text(formatearMoneda(intereses), 290, fila);
-            pdf.text(formatearMoneda(0), 347, fila);
-            pdf.text(formatearMoneda(0), 392, fila);
-            pdf.text(formatearMoneda(cuotaFija), 430, fila);
-            pdf.text(formatearMoneda(saldoRestante), 493, fila);
-            fila = fila + 15.5;
-        }
-    }
-
-    // Firma
-    pdf.text(nombreCompleto, 157, 687);
-    pdf.text(numDoc, 157, 702);
-    pdf.text(datos.mpioDoc, 157, 717);
-
-    pdf.save('Otorgamiento_Credito_'+numDoc+'.pdf');
 }
 
 

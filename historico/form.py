@@ -155,12 +155,10 @@ class HistoricoAuxilioForm(forms.ModelForm):
 
 class HistoricoCreditoForm(forms.ModelForm):
 
-    tasaInteres = forms.ModelChoiceField(
-        queryset=TasasInteresCredito.objects.all(),
+    tasaInteres = forms.ChoiceField(
         label="Tasa de interés mensual (%)",
-        empty_label="Seleccione una tasa",
-        widget=forms.Select(attrs={"class": "form-select", "id": "tasaInteres"}),
-        to_field_name="porcentaje",  # Se define que el value sea el porcentaje en vez del ID
+        choices=[],
+        widget=forms.Select(attrs={"class": "form-select", "id": "id_tasaInteres"})
     )
 
     class Meta:
@@ -178,6 +176,7 @@ class HistoricoCreditoForm(forms.ModelForm):
             "totalCredito",
             "estado",
             "banco",
+            "primerMes",
             "numCuenta",
             "tipoCuenta",
         ]
@@ -193,6 +192,7 @@ class HistoricoCreditoForm(forms.ModelForm):
             "Banco": "Banco",
             "numCuenta": "Número de Cuenta",
             "Tipo Cuenta": "Tipo Cuenta",
+            "primerMes": "Primer Mes Cobro",
         }
         widgets = {
             "fechaSolicitud": forms.DateInput(
@@ -218,7 +218,6 @@ class HistoricoCreditoForm(forms.ModelForm):
             "totalCredito": forms.NumberInput(
                 attrs={
                     "class": "form-control",
-                    # 'hidden':'hidden',
                 }
             ),
             "lineaCredito": forms.Select(attrs={"class": "form-control"}),
@@ -229,7 +228,6 @@ class HistoricoCreditoForm(forms.ModelForm):
             "numCuenta": forms.NumberInput(
                 attrs={
                     "class": "form-control",
-                    # 'hidden':'hidden',
                 }
             ),
             "tipoCuenta": forms.Select(attrs={"class": "form-control"}),
@@ -239,7 +237,40 @@ class HistoricoCreditoForm(forms.ModelForm):
                     "style": "text-transform: uppercase;",
                 }
             ),
+            "primerMes": forms.Select(
+                attrs={
+                    "class": "form-control",
+                    "style": "text-transform: uppercase;",
+                }
+            ),
         }
+
+    def __init__(self, *args, **kwargs):
+        asociado_id = kwargs.pop("asociado_id", None)
+        super().__init__(*args, **kwargs)
+
+        # === Filtro de primerMes ===
+        queryset = MesTarifa.objects.filter(id__lt=9000)
+        if asociado_id:
+            from asociado.models import ParametroAsociado
+            parametro = ParametroAsociado.objects.filter(asociado_id=asociado_id).first()
+            if parametro and parametro.primerMes:
+                queryset = queryset.filter(id__gte=parametro.primerMes.id)
+        self.fields["primerMes"].queryset = queryset
+
+        # === Construcción del select de tasas ===
+        tasas = TasasInteresCredito.objects.all()
+        self.fields["tasaInteres"].choices = [
+            (f"{t.porcentaje}|{t.concepto}", t.concepto)
+            for t in tasas
+        ]
+        self.fields["tasaInteres"].choices.insert(0, ("", "Seleccione una tasa"))
+
+        # === 3️⃣ Establecer valor inicial al editar ===
+        if self.instance.pk and self.instance.tasaInteres:
+            tasa = self.instance.tasaInteres
+            self.initial["tasaInteres"] = f"{tasa.porcentaje}|{tasa.concepto}"
+
 
 
 class CargarArchivoForm(forms.Form):

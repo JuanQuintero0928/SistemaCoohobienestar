@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_http_methods
 from django.views.generic import ListView, CreateView, UpdateView, TemplateView, DetailView
 from django.db import transaction
@@ -10,7 +10,7 @@ from django.db.models import Sum
 
 from .models import Producto, HistoricoVenta, DetalleVenta, PorcentajeDescuento
 from .form import ProductoForm, HistoricoVentaForm, DetalleVentaForm
-from asociado.models import Asociado
+from asociado.models import Asociado, ParametroAsociado
 from historico.models import HistorialPagos
 from parametro.models import FormaPago, TasasInteresCredito, MesTarifa
 
@@ -128,91 +128,117 @@ class CrearVentaAsociado(CreateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        obj_asociado = get_object_or_404(Asociado, pk=self.kwargs.get('pkAsociado'))
+        obj_parametro_asociado = get_object_or_404(ParametroAsociado, asociado = obj_asociado)
         context.update({
-            'asociado': Asociado.objects.get(pk = self.kwargs['pkAsociado']),
+            'asociado': obj_asociado,
             'pkAsociado': self.kwargs['pkAsociado'],
             'queryProducto': Producto.objects.all(),
             'descuento': PorcentajeDescuento.objects.filter(estado = True),
-            'metodoPago': FormaPago.objects.all().exclude(id = 2)
+            'metodoPago': FormaPago.objects.all().exclude(id = 2),
+            'meses': MesTarifa.objects.filter(id__lte= 9000, id__gte= obj_parametro_asociado.primerMes_id),
         })
         return context
 
     def post(self, request, *args, **kwargs):
         with transaction.atomic():
-            objHistoricoVenta = HistoricoVenta()
-            objHistoricoVenta.asociado = Asociado.objects.get(pk = self.kwargs['pkAsociado'])
-            objHistoricoVenta.fechaVenta = request.POST['fechaVenta']
-            objHistoricoVenta.formaPago = request.POST['formaPago']
-            objHistoricoVenta.valorBruto = int(request.POST['valorBruto'].replace('.', ''))
-            objHistoricoVenta.valorNeto = int(request.POST['valorNeto'].replace('.', ''))
-            objHistoricoVenta.userCreacion = request.user
-            objHistoricoVenta.estadoRegistro = True
+            asociado = get_object_or_404(Asociado, pk=self.kwargs['pkAsociado'])
+            user = request.user
 
-            if objHistoricoVenta.formaPago == 'CREDITO' or objHistoricoVenta.formaPago == 'DESCUENTO NOMINA':
+            # === Datos comunes ===
+            valor_bruto = int(request.POST['valorBruto'].replace('.', ''))
+            valor_neto = int(request.POST['valorNeto'].replace('.', ''))
+            forma_pago = request.POST['formaPago']
+            fecha_venta = request.POST['fechaVenta']
+
+            # === Crear histórico de venta ===
+            objHistoricoVenta = HistoricoVenta.objects.create(
+                asociado=asociado,
+                fechaVenta=fecha_venta,
+                formaPago=forma_pago,
+                valorBruto=valor_bruto,
+                valorNeto=valor_neto,
+                userCreacion=user,
+                estadoRegistro=True,
+            )
+
+            # === Casos según forma de pago ===
+            if forma_pago in ['CREDITO', 'DESCUENTO NOMINA']:
+                objHistoricoVenta.primerMes = get_object_or_404(MesTarifa, pk=request.POST['primerMes'])
                 objHistoricoVenta.cuotas = request.POST['cuotas']
                 objHistoricoVenta.valorCuotas = int(request.POST['valorCuotas'].replace('.', ''))
-                objHistoricoVenta.pendientePago = int(request.POST['valorNeto'].replace('.', ''))
-                objHistoricoVenta.tasaInteres = TasasInteresCredito.objects.get(porcentaje = request.POST['tasaInteres'])
+                objHistoricoVenta.pendientePago = valor_neto
                 objHistoricoVenta.cuotasPagas = 0
-            else:
-                objHistoricoVenta.descuento = PorcentajeDescuento.objects.get(pk = 1)
+
+                tasa_valor, concepto = request.POST['tasaInteres'].split('|')
+                objHistoricoVenta.tasaInteres = get_object_or_404(TasasInteresCredito, concepto=concepto)
+                objHistoricoVenta.save()
+
+            else:  # CONTADO u otras formas
+                objHistoricoVenta.descuento = get_object_or_404(PorcentajeDescuento, pk=1)
                 objHistoricoVenta.valorDescuento = 0
-            
-            objHistoricoVenta.save()
+                objHistoricoVenta.save()
 
-            if objHistoricoVenta.formaPago == 'CONTADO':
-                # Se crea el HistoricoPago
-                objHistoricoPago = HistorialPagos()
-                objHistoricoPago.asociado = objHistoricoVenta.asociado
-                objHistoricoPago.mesPago = MesTarifa.objects.get(pk = 9992)
-                objHistoricoPago.fechaPago = objHistoricoVenta.fechaVenta
-                objHistoricoPago.formaPago = FormaPago.objects.get(pk = request.POST['metodoPago'])
-                objHistoricoPago.aportePago = 0
-                objHistoricoPago.bSocialPago = 0
-                objHistoricoPago.mascotaPago = 0
-                objHistoricoPago.repatriacionPago = 0
-                objHistoricoPago.seguroVidaPago = 0
-                objHistoricoPago.adicionalesPago = 0
-                objHistoricoPago.coohopAporte = 0
-                objHistoricoPago.coohopBsocial = 0
-                objHistoricoPago.convenioPago = 0
-                objHistoricoPago.creditoHomeElements = 0
-                objHistoricoPago.diferencia = 0
-                objHistoricoPago.valorPago = int(request.POST['valorNeto'].replace('.', ''))
-                objHistoricoPago.estadoRegistro = True
-                objHistoricoPago.userCreacion = request.user
-                objHistoricoPago.ventaHE = objHistoricoVenta
-                objHistoricoPago.save()
+            # === Función auxiliar para crear HistoricoPago ===
+            def crear_historico_pago(valor_pago, mes_pk, metodo_pago_pk):
+                return HistorialPagos.objects.create(
+                    asociado=asociado,
+                    mesPago=get_object_or_404(MesTarifa, pk=mes_pk),
+                    fechaPago=fecha_venta,
+                    formaPago=get_object_or_404(FormaPago, pk=metodo_pago_pk),
+                    aportePago=0,
+                    bSocialPago=0,
+                    mascotaPago=0,
+                    repatriacionPago=0,
+                    seguroVidaPago=0,
+                    adicionalesPago=0,
+                    coohopAporte=0,
+                    coohopBsocial=0,
+                    convenioPago=0,
+                    creditoHomeElements=0,
+                    diferencia=0,
+                    valorPago=valor_pago,
+                    estadoRegistro=True,
+                    userCreacion=user,
+                    ventaHE=objHistoricoVenta,
+                )
 
-        products = []
-        for key, value in request.POST.items():
-            if key.startswith('producto_'):
-                # Se obtiene el indice del producto
+            # === Crear pago inmediato ===
+            metodo_pago_pk = request.POST.get('metodoPago')
+
+            if forma_pago == 'CONTADO':
+                crear_historico_pago(valor_neto, mes_pk=9992, metodo_pago_pk=metodo_pago_pk)
+
+            elif forma_pago in ['CREDITO', 'DESCUENTO NOMINA'] and concepto.strip() == 'CREDITO PRODUCTO - 1.0 %':
+                anticipo = int(request.POST['anticipo'].replace('.', ''))
+                objHistoricoVenta.pendientePago -= anticipo
+                objHistoricoVenta.save()
+                crear_historico_pago(anticipo, mes_pk=9988, metodo_pago_pk=metodo_pago_pk)
+
+            # === Procesar productos ===
+            productos = []
+            for key, value in request.POST.items():
+                if not key.startswith('producto_'):
+                    continue
+
                 index = key.split('_')[1]
+                producto = get_object_or_404(Producto, pk=int(value))
+                productos.append(DetalleVenta(
+                    historicoVenta=objHistoricoVenta,
+                    producto=producto,
+                    precio=int(request.POST.get(f"precio_{index}", "0").replace('.', '')),
+                    cantidad=int(request.POST.get(f"cantidad_{index}", "0")),
+                    totalBruto=int(request.POST.get(f"totalBruto_{index}", "0").replace('.', '')),
+                    totalNeto=int(request.POST.get(f"totalConInteres_{index}", "0").replace('.', '')),
+                ))
 
-                # Extrar los datos relacionados
-                producto_id = value
-                precio = int(request.POST.get(f"precio_{index}", "0").replace('.', ''))
-                cantidad = int(request.POST.get(f"cantidad_{index}", "0"))
-                total_bruto = int(request.POST.get(f"totalBruto_{index}", "0").replace('.', ''))
-                total_neto = int(request.POST.get(f"totalConInteres_{index}", "0").replace('.', ''))
-                products.append({
-                    "historicoVenta": objHistoricoVenta,
-                    "producto": Producto.objects.get(pk = int(producto_id)),
-                    "precio": precio,
-                    "cantidad": cantidad,
-                    "totalBruto": total_bruto,
-                    "totalNeto": total_neto,
-                    # "totalNeto": precio * cantidad if objHistoricoVenta.formaPago == "CREDITO" or objHistoricoVenta.formaPago == "DESCUENTO NOMINA" else (precio * cantidad * (1 - objHistoricoVenta.descuento.porcentaje)), se utilizaba cuando daban descuento al comprar de contado
-                })
+            # Inserción en bloque para eficiencia
+            DetalleVenta.objects.bulk_create(productos)
 
-        # Crear cada registro en un bucle
-        for data in products:
-            DetalleVenta.objects.create(**data)
-
-        messages.info(request, f"Venta creada correctamente.")
+        messages.info(request, "Venta creada correctamente.")
         return HttpResponseRedirect(reverse_lazy('asociado:listarVentasAsociado', kwargs={'pkAsociado': self.kwargs['pkAsociado']}))
-    
+
+
 class ListarDetalleVenta(ListView):
     model = DetalleVenta
     template_name = 'base/ventas/listarDetalleVenta.html'

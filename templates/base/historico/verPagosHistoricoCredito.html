@@ -1,203 +1,206 @@
 {% load humanize %}
-    <div class="modal-dialog modal-xl" role="document">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Detalle pagos de credito</h1>
-                    <hr>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
 
-                    <table class="table table-sm table-borderless align-middle">
-                        <thead class="table-light border-bottom">
-                            <tr>
-                                <th class="fw-semibold">Número Cuota</th>
-                                <th class="fw-semibold">Fecha Pago</th>
-                                <th class="fw-semibold">Valor Pago</th>
-                                <th class="fw-semibold">Diferencia</th>
-                                <th class="fw-semibold">Forma Pago</th>
-                                <th class="fw-semibold">Opciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for obj in data %}
-                            <tr class="border-bottom" id="fila-pago-{{ obj.id }}">
-                                <td>{{ forloop.counter }}</td>
-                                <td>
-                                    <input type="date" class="form form-control" value="{{ obj.fechaPago|date:'Y-m-d' }}" disabled id="input-date-{{ obj.id }}">
-                                </td>
-                                <td>
-                                    <input type="number" class="form form-control" value="{{ obj.valorPago }}" disabled id="input-{{ obj.id }}">
-                                </td>
-                                <td id="diferencia-{{obj.id}}">{{ obj.diferencia }}</td>
-                                <td>
-                                    <select class="form form-select" id="input-formaPago-{{ obj.id }}" disabled>
-                                        {% for opcion in forma_pago %}
-                                            <option value="{{opcion.id }}" {% if obj.formaPago.pk == opcion.pk %} selected {% endif %}>{{opcion.formaPago}}</option>
-                                        {% endfor %}
-                                    </select>
-                                </td>
-                                <td>
-                                    <div class="btn-group" role="group" aria-label="Basic example">
-                                        <button class="btn btn-outline-primary btn-sm" onclick="toggleEditarGuardar({{ obj.id }})" id="btn-{{ obj.id }}">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
-                                                <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
-                                            </svg>
-                                        </button>
-                                        <button class="btn btn-outline-primary btn-sm" onclick="toggleEliminar({{ obj.pk }})" id="btn-eliminar-{{ obj.id }}" data-id-fila="fila-pago-{{ obj.id }}">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                                                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            <tr class="fw-semibold">
-                                {% if total_pagado == 0 %}
-                                    <td colspan="6" class="text-muted text-center">
-                                        No hay pagos relacionados al credito
-                                    </td>
-                                {% else %}
-                                    <td colspan="2" class="text-end">Total Pagado</td>
-                                    <td colspan="2" class="text-muted" id="total-pagado">${{ total_pagado|intcomma }}</td>
-                                {% endif %}
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+<div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+
+        <!-- ENCABEZADO -->
+        <div class="modal-header bg-primary text-white">
+            <div>
+                <h5 class="modal-title mb-0">Detalle Pagos de Crédito</h5>
             </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <!-- CUERPO -->
+        <div class="modal-body">
+            <table class="table table-sm table-borderless align-middle">
+                <thead class="table-light border-bottom">
+                    <tr>
+                        <th class="fw-semibold">Número Cuota</th>
+                        <th class="fw-semibold">Fecha Pago</th>
+                        <th class="fw-semibold">Valor Pago</th>
+                        <th class="fw-semibold">Diferencia</th>
+                        <th class="fw-semibold">Forma Pago</th>
+                        <th class="fw-semibold">Opciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in data %}
+                    <tr class="border-bottom" id="fila-pago-{{ obj.id }}">
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            <input type="date" class="form form-control" value="{{ obj.fechaPago|date:'Y-m-d' }}" disabled id="input-date-{{ obj.id }}">
+                        </td>
+                        <td>
+                            <input type="number" class="form form-control" value="{{ obj.valorPago }}" disabled id="input-{{ obj.id }}">
+                        </td>
+                        <td id="diferencia-{{obj.id}}">{{ obj.diferencia }}</td>
+                        <td>
+                            <select class="form form-select" id="input-formaPago-{{ obj.id }}" disabled>
+                                {% for opcion in forma_pago %}
+                                    <option value="{{opcion.id }}" {% if obj.formaPago.pk == opcion.pk %} selected {% endif %}>{{opcion.formaPago}}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group" aria-label="Basic example">
+                                <button class="btn btn-outline-primary btn-sm" onclick="toggleEditarGuardar({{ obj.id }})" id="btn-{{ obj.id }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
+                                        <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                                    </svg>
+                                </button>
+                                <button class="btn btn-outline-primary btn-sm" onclick="toggleEliminar({{ obj.pk }})" id="btn-eliminar-{{ obj.id }}" data-id-fila="fila-pago-{{ obj.id }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                        <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    <tr class="fw-semibold">
+                        {% if total_pagado == 0 %}
+                            <td colspan="6" class="text-muted text-center">
+                                No hay pagos relacionados al credito
+                            </td>
+                        {% else %}
+                            <td colspan="2" class="text-end">Total Pagado</td>
+                            <td colspan="2" class="text-muted" id="total-pagado">${{ total_pagado|intcomma }}</td>
+                        {% endif %}
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
+</div>
 
-    <script>
-    function toggleEditarGuardar(id) {
-        const input = document.getElementById(`input-${id}`);
-        const inputDate = document.getElementById(`input-date-${id}`);
-        const inputFormaPago = document.getElementById(`input-formaPago-${id}`);
-        const btn = document.getElementById(`btn-${id}`);
 
-        if (input.disabled) {
-            // Activar el input para edición
-            input.disabled = false;
-            input.focus();
-            inputDate.disabled = false;
-            inputFormaPago.disabled = false;
-            btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16"><path d="M11 2H9v3h2z"/><path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/></svg>';
-            btn.classList.remove("btn-outline-primary");
-            btn.classList.add("btn-outline-success");
-        } else {
-            // Guardar el valor y desactivar el input
-            const nuevoValor = input.value;
-            const nuevaFecha = inputDate.value;
-            const nuevaFormaPago = inputFormaPago.value;
+<script>
+function toggleEditarGuardar(id) {
+    const input = document.getElementById(`input-${id}`);
+    const inputDate = document.getElementById(`input-date-${id}`);
+    const inputFormaPago = document.getElementById(`input-formaPago-${id}`);
+    const btn = document.getElementById(`btn-${id}`);
 
-            // Aquí puedes hacer la petición a tu backend, por ejemplo con fetch/AJAX:
-            fetch(`/proceso/actualizar_pago/${id}/2/`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": getCookie('csrftoken'), // Asegúrate de incluir el token CSRF
-                },
-                body: JSON.stringify({ valorPago: nuevoValor, fechaPago: nuevaFecha, formaPago: nuevaFormaPago })
-            })
-            .then(response => {
-                if (!response.ok) throw new Error("Error al guardar");
-                return response.json();
-            })
-            .then(data => {
-                input.disabled = true;
-                inputDate.disabled = true;
-                inputFormaPago.disabled = true;
-                btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16"><path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/></svg>';
-                btn.classList.remove("btn-outline-success");
-                btn.classList.add("btn-outline-primary");
+    if (input.disabled) {
+        // Activar el input para edición
+        input.disabled = false;
+        input.focus();
+        inputDate.disabled = false;
+        inputFormaPago.disabled = false;
+        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16"><path d="M11 2H9v3h2z"/><path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/></svg>';
+        btn.classList.remove("btn-outline-primary");
+        btn.classList.add("btn-outline-success");
+    } else {
+        // Guardar el valor y desactivar el input
+        const nuevoValor = input.value;
+        const nuevaFecha = inputDate.value;
+        const nuevaFormaPago = inputFormaPago.value;
 
-                // Actualizar diferencia y total pagado en la tabla
-                const diferenciaTd = document.querySelector(`#diferencia-${id}`);
-                if (diferenciaTd) {
-                    diferenciaTd.textContent = data.diferencia.toFixed(2);
-                }
+        // Aquí puedes hacer la petición a tu backend, por ejemplo con fetch/AJAX:
+        fetch(`/proceso/actualizar_pago/${id}/2/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie('csrftoken'), // Asegúrate de incluir el token CSRF
+            },
+            body: JSON.stringify({ valorPago: nuevoValor, fechaPago: nuevaFecha, formaPago: nuevaFormaPago })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Error al guardar");
+            return response.json();
+        })
+        .then(data => {
+            input.disabled = true;
+            inputDate.disabled = true;
+            inputFormaPago.disabled = true;
+            btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16"><path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/></svg>';
+            btn.classList.remove("btn-outline-success");
+            btn.classList.add("btn-outline-primary");
 
-                const totalPagadoTd = document.getElementById("total-pagado");
-                if (totalPagadoTd) {
-                    totalPagadoTd.textContent = `$${new Intl.NumberFormat().format(data.total_pagado)}`;
-                }
-            })
-            .catch(error => {
-                alert("Error al guardar el pago");
-                console.error(error);
-            });
-        }
+            // Actualizar diferencia y total pagado en la tabla
+            const diferenciaTd = document.querySelector(`#diferencia-${id}`);
+            if (diferenciaTd) {
+                diferenciaTd.textContent = data.diferencia.toFixed(2);
+            }
+
+            const totalPagadoTd = document.getElementById("total-pagado");
+            if (totalPagadoTd) {
+                totalPagadoTd.textContent = `$${new Intl.NumberFormat().format(data.total_pagado)}`;
+            }
+        })
+        .catch(error => {
+            alert("Error al guardar el pago");
+            console.error(error);
+        });
     }
+}
 
-    // Función para obtener el CSRF token de las cookies
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (const cookie of cookies) {
-                const trimmed = cookie.trim();
-                if (trimmed.startsWith(name + '=')) {
-                    cookieValue = decodeURIComponent(trimmed.substring(name.length + 1));
-                    break;
-                }
+// Función para obtener el CSRF token de las cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (const cookie of cookies) {
+            const trimmed = cookie.trim();
+            if (trimmed.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(trimmed.substring(name.length + 1));
+                break;
             }
         }
-        return cookieValue;
     }
+    return cookieValue;
+}
 
-    function toggleEliminar(id) {
-        const btn = document.getElementById(`btn-eliminar-${id}`);
-        const filaId = btn.dataset.idFila;
-        const fila = document.getElementById(filaId)
+function toggleEliminar(id) {
+    const btn = document.getElementById(`btn-eliminar-${id}`);
+    const filaId = btn.dataset.idFila;
+    const fila = document.getElementById(filaId)
 
-        // Verifica si ya está en modo confirmación
-        if (btn.dataset.confirmar === "true") {
-            // Ya se había hecho clic una vez, ahora sí eliminar
-            fetch(`/proceso/eliminar_pago/${id}/2/`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": getCookie('csrftoken'),
-                },
-            })
-            .then(response => {
-                if (!response.ok) throw new Error("Error al eliminar");
-                return response.json();
-            })
-            .then(data => {
-                // Opcional: eliminar la fila, recargar, etc.
-                fila.remove();
-                const totalPagadoTd = document.getElementById("total-pagado");
-                if (totalPagadoTd) {
-                    totalPagadoTd.textContent = `$${new Intl.NumberFormat().format(data.total_pagado)}`;
-                }
-            })
-            .catch(error => {
-                alert("Error al eliminar el pago");
-                console.error(error);
-            });
+    // Verifica si ya está en modo confirmación
+    if (btn.dataset.confirmar === "true") {
+        // Ya se había hecho clic una vez, ahora sí eliminar
+        fetch(`/proceso/eliminar_pago/${id}/2/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie('csrftoken'),
+            },
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Error al eliminar");
+            return response.json();
+        })
+        .then(data => {
+            // Opcional: eliminar la fila, recargar, etc.
+            fila.remove();
+            const totalPagadoTd = document.getElementById("total-pagado");
+            if (totalPagadoTd) {
+                totalPagadoTd.textContent = `$${new Intl.NumberFormat().format(data.total_pagado)}`;
+            }
+        })
+        .catch(error => {
+            alert("Error al eliminar el pago");
+            console.error(error);
+        });
 
-        } else {
-            // Primera vez que se hace clic: activar confirmación
-            btn.dataset.confirmar = "true";
-            btn.innerHTML = "¿Está seguro?";
-            btn.classList.remove("btn-outline-primary");
-            btn.classList.add("btn-outline-danger");
+    } else {
+        // Primera vez que se hace clic: activar confirmación
+        btn.dataset.confirmar = "true";
+        btn.innerHTML = "¿Está seguro?";
+        btn.classList.remove("btn-outline-primary");
+        btn.classList.add("btn-outline-danger");
 
-            // Si no confirma en 5 segundos, restaurar botón
-            setTimeout(() => {
-                if (btn.dataset.confirmar === "true") {
-                    btn.dataset.confirmar = "false";
-                    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16"><path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/></svg>';
-                    btn.classList.remove("btn-outline-danger");
-                    btn.classList.add("btn-outline-primary");
-                }
-            }, 5000);
-        }
+        // Si no confirma en 5 segundos, restaurar botón
+        setTimeout(() => {
+            if (btn.dataset.confirmar === "true") {
+                btn.dataset.confirmar = "false";
+                btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16"><path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/></svg>';
+                btn.classList.remove("btn-outline-danger");
+                btn.classList.add("btn-outline-primary");
+            }
+        }, 5000);
     }
+}
 
-    
 </script>

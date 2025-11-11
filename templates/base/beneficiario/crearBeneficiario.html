@@ -1,114 +1,77 @@
 <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">Crear Beneficiario para:</h1>
-          <h2 class="modal-title fs-5" id="exampleModalLabel" style="margin-left: 8px;">
-              {{ query.nombre }} {{ query.apellido }}
-          </h2>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <form action="{% url 'asociado:crearBeneficiario' pkAsociado %}" method="post">
-
-                <div class="col-sm-2">
-                    <div class="btn-group" role="group" aria-label="Basic example">
-                    </div>
-                </div>
-                {% csrf_token %}
-                <div class="form-group mb-3">
-                  {{ form.nombre.label_tag }}
-                  {{ form.nombre }}
-                </div>
-                <div class="form-group mb-3">
-                    {{ form.apellido.label_tag }}
-                    {{ form.apellido }}
-                </div>
-                <div class="form-group mb-3">
-                    {{ form.tipoDocumento.label_tag }}
-                    {{ form.tipoDocumento }}
-                </div>
-                <div class="form-group mb-3">
-                    {{ form.numDocumento.label_tag }}
-                    {{ form.numDocumento }}
-                </div>
-                <div class="form-group mb-3">
-                    {{ form.fechaNacimiento.label_tag }}
-                    {{ form.fechaNacimiento }}
-                </div>
-                <div class="form-group mb-3">
-                    {{ form.parentesco.label_tag }}
-                    {{ form.parentesco }}
-                </div>
-                <div class="form-group mb-3">
-                    {{ form.paisRepatriacion.label_tag }}
-                    {{ form.paisRepatriacion }}
-                </div>
-                <div class="d-none mb-3 contenedor-repatriacion" style="background-color: #f2f2f2; padding: 10px; border-radius: 10px;">
-                  <div class="form-group d-none mb-3 campo-repatriacion">
-                    {{ form.fechaRepatriacion.label_tag }}
-                    {{ form.fechaRepatriacion }}
-                  </div>
-                  <div class="form-group d-none mb-3 campo-repatriacion">
-                    {{ form.ciudadRepatriacion.label_tag }}
-                    {{ form.ciudadRepatriacion }}
-                  </div>
-                  <div class="form-group d-none mb-3 campo-repatriacion">
-                    {{ form.primerMesRepatriacion.label_tag }}
-                    {{ form.primerMesRepatriacion }}
-                  </div>
-                </div>
-                <div class="form-group mb-3">
-                    {{ form.fechaIngreso.label_tag }}
-                    {{ form.fechaIngreso }}
-                </div>
-                <button type="submit" class="btn btn-primary">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16">
-                    <path d="M11 2H9v3h2z"/>
-                    <path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>
-                  </svg>
-                </button>
-            </form>
-        </div>
+  <div class="modal-content">
+    <!-- Encabezado -->
+    <div class="modal-header bg-primary text-white">
+      <div>
+        <h5 class="modal-title mb-0">Crear Beneficiario</h5>
+        <h6 class="text-light mb-0">{{ query.nombre }} {{ query.apellido }}</h6>
       </div>
+      <input type="hidden" id="pkAsociado" value="{{ asociado.pk }}">
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Datos del asociado -->
+      <form action="{% url 'asociado:crearBeneficiario' pkAsociado %}" method="post">
+        {% csrf_token %}
+        <div class="card mb-4 shadow-sm border-0">
+          <div class="card-header bg-light">
+            <h6 class="mb-0 text-secondary">Información del Beneficiario</h6>
+          </div>
+
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                {{ form.nombre.label_tag }}
+                {{ form.nombre }}
+              </div>
+              <div class="col-md-6">
+                {{ form.apellido.label_tag }}
+                {{ form.apellido }}
+              </div>
+              <div class="col-md-6">
+                {{ form.tipoDocumento.label_tag }}
+                {{ form.tipoDocumento }}
+              </div>
+              <div class="col-md-6">
+                {{ form.numDocumento.label_tag }}
+                {{ form.numDocumento }}
+              </div>
+              <div class="col-md-6">
+                {{ form.fechaNacimiento.label_tag }}
+                {{ form.fechaNacimiento }}
+              </div>
+              <div class="col-md-6">
+                {{ form.parentesco.label_tag }}
+                {{ form.parentesco }}
+              </div>
+              <div class="col-md-6">
+                {{ form.paisRepatriacion.label_tag }}
+                {{ form.paisRepatriacion }}
+              </div>
+              <div class="col-md-6">
+                {{ form.fechaIngreso.label_tag }}
+                {{ form.fechaIngreso }}
+              </div>
+            </div>
+            
+            <!-- Sección repatriación -->
+            <div class="d-none mt-3 contenedor-repatriacion p-3 rounded bg-light">
+              <div class="row g-3 campo-repatriacion d-none">
+                <div class="col-md-4">{{ form.fechaRepatriacion.label_tag }}{{ form.fechaRepatriacion }}</div>
+                <div class="col-md-4">{{ form.ciudadRepatriacion.label_tag }}{{ form.ciudadRepatriacion }}</div>
+                <div class="col-md-4">{{ form.primerMesRepatriacion.label_tag }}{{ form.primerMesRepatriacion }}</div>
+              </div>
+            </div>
+
+            <div class="text-end mt-4">
+              <button type="submit" class="btn btn-success">
+                <i class="bi bi-floppy"></i> Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
     </div>
   </div>
-
-  <script>
-    $('#creacion').on('shown.bs.modal', function () {
-      const paisSelect = document.getElementById('id_paisRepatriacion');
-      const contenedor = document.querySelector(".contenedor-repatriacion");
-      const campos = contenedor.querySelectorAll(".campo-repatriacion");
-
-      paisSelect.addEventListener("change", function() {
-          const valor = this.value.trim();
-
-          if (valor) {
-              // Mostrar el contenedor
-              contenedor.classList.remove("d-none");
-
-              // Mostrar cada campo y poner required
-              campos.forEach(campo => {
-                  campo.classList.remove("d-none");
-                  const input = campo.querySelector("input, select, textarea");
-                  if (input) input.required = true;
-              });
-
-          } else {
-              // Ocultar el contenedor
-              contenedor.classList.add("d-none");
-
-              // Ocultar campos, quitar required y limpiar valor
-              campos.forEach(campo => {
-                  campo.classList.add("d-none");
-                  const input = campo.querySelector("input, select, textarea");
-                  if (input) {
-                      input.required = false;
-                      input.value = "";
-                  }
-              });
-          }
-      });
-  });
-  
-</script>
+</div>

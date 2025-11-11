@@ -68,12 +68,10 @@ class ProductoForm(forms.ModelForm):
 
 
 class HistoricoVentaForm(forms.ModelForm):
-    tasaInteres = forms.ModelChoiceField(
-        queryset=TasasInteresCredito.objects.all(),
+
+    tasaInteres = forms.ChoiceField(
         label="Tasa de interés mensual (%)",
-        empty_label="Seleccione una tasa",
         widget=forms.Select(attrs={"class": "form-select", "id": "id_tasaInteres"}),
-        to_field_name="porcentaje",  # Se define que el value sea el porcentaje en vez del ID
     )
 
     class Meta:
@@ -115,6 +113,19 @@ class HistoricoVentaForm(forms.ModelForm):
             "valorBruto": "Valor Bruto",
             "valorNeto": "Valor Neto",
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        tasas = TasasInteresCredito.objects.all()
+
+        # Construir choices personalizados: (value, label)
+        self.fields['tasaInteres'].choices = [
+            (f"{t.porcentaje}|{t.concepto}", f"{t.concepto}")
+            for t in tasas
+        ]
+
+        # Opción vacía
+        self.fields['tasaInteres'].choices.insert(0, ("", "Seleccione una tasa"))
 
 
 class DetalleVentaForm(forms.ModelForm):
