@@ -1,3 +1,9 @@
+/* :root {
+    --bs-body-font-family: Verdana, Geneva, sans-serif;
+    --bs-body-font-size: 0.875rem;
+    
+} */
+
 .input-form{
   text-transform: uppercase;
 }
@@ -182,10 +188,41 @@
   margin-bottom: 30px;
 }
 
-/* 🔹 Mejorar selector de registros */
+/* Mejorar selector de registros */
 .dataTables_length select {
   border: 1px solid #dee2e6;
   padding: 6px;
   border-radius: 6px;
   outline: none;
+}
+
+
+/* Mejorar estilos de las tarjetas de formatos, utilidades */
+.card-modern {
+  transition: all 0.3s ease;
+  background: #fff;
+  border-radius: 1rem;
+}
+
+.card-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.icon-wrapper {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-danger {
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-danger:hover {
+  background-color: #b30000;
+  transform: scale(1.03);
 }

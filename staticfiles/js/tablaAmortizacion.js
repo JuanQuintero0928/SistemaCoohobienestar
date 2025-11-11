@@ -62,7 +62,7 @@ function generarTablaAmortizacion(saldoInicial, tasaMensual, numCuotas, fechaSol
     }
 }
 
-  
+
 function generarFechas(cuotas, fechaSolicitud) {
     const fechas = [];
     // Convertir la fecha inicial en un objeto Date sin UTC
@@ -81,7 +81,8 @@ function generarFechas(cuotas, fechaSolicitud) {
     }
     return fechas;
 }
-  
+
+
 function formatearMoneda(valor) {
     return "$" + parseFloat(valor)
         .toLocaleString("es-CO", {
@@ -90,6 +91,7 @@ function formatearMoneda(valor) {
             maximumFractionDigits: 0  // Eliminar decimales
     });
 }
+
 
 function calcularCapacidadEndeudamiento(pkAsociado) {
     fetch(`/api/obtener_total_tarifa/${pkAsociado}/`)
