@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
-from django.views.generic import ListView, DeleteView, TemplateView, DetailView
+from django.views.generic import ListView, DeleteView, TemplateView, DetailView, View
 from usuarios.models import UsuarioAsociado
 from django.contrib import messages
 from django.db.models import Sum, F, Q, Subquery, Case, When, Value, IntegerField
@@ -119,12 +119,9 @@ class ModalPago(ListView):
             )
         )
 
-        print(queryValor)
-
         total_tarifa_asociado = (
             queryTarifa["total_tarifa_asociado"] or 0
-        )  # Se obtiene el valor de la suma a 0 si no hay datos
-        print(total_tarifa_asociado)
+        )
 
         if queryHistorial:
             mesesPagados = HistorialPagos.objects.filter(
@@ -352,17 +349,18 @@ class ModalPago(ListView):
 
                 # Aplica para pagos de mes normal, se crea un registro de pago con el valor del mes
                 else:
+                    tarifa = MesTarifa.objects.get(pk=pk)
                     valorMes = (
-                        MesTarifa.objects.get(pk=pk).aporte
-                        + MesTarifa.objects.get(pk=pk).bSocial
-                        + tarifaAsociado.cuotaMascota
-                        + tarifaAsociado.cuotaRepatriacionBeneficiarios
-                        + tarifaAsociado.cuotaRepatriacionTitular
-                        + tarifaAsociado.cuotaSeguroVida
-                        + tarifaAsociado.cuotaAdicionales
-                        + tarifaAsociado.cuotaCoohopAporte
-                        + tarifaAsociado.cuotaCoohopBsocial
-                        + tarifaAsociado.cuotaConvenio
+                        (tarifa.aporte or 0)
+                        + (tarifa.bSocial or 0)
+                        + (tarifaAsociado.cuotaMascota or 0)
+                        + (tarifaAsociado.cuotaRepatriacionBeneficiarios or 0)
+                        + (tarifaAsociado.cuotaRepatriacionTitular or 0)
+                        + (tarifaAsociado.cuotaSeguroVida or 0)
+                        + (tarifaAsociado.cuotaAdicionales or 0)
+                        + (tarifaAsociado.cuotaCoohopAporte or 0)
+                        + (tarifaAsociado.cuotaCoohopBsocial or 0)
+                        + (tarifaAsociado.cuotaConvenio or 0)
                     )
                     valorPago = (
                         valorMes
@@ -372,11 +370,11 @@ class ModalPago(ListView):
 
                     pago = {
                         "asociado": Asociado.objects.get(pk=kwargs["pkAsociado"]),
-                        "mesPago": MesTarifa.objects.get(pk=pk),
+                        "mesPago": tarifa,
                         "fechaPago": fechaPago,
                         "formaPago": FormaPago.objects.get(pk=formaPago),
-                        "aportePago": MesTarifa.objects.get(pk=pk).aporte,
-                        "bSocialPago": MesTarifa.objects.get(pk=pk).bSocial,
+                        "aportePago": tarifa.aporte,
+                        "bSocialPago": tarifa.bSocial,
                         "mascotaPago": tarifaAsociado.cuotaMascota,
                         "repatriacionPago": (tarifaAsociado.cuotaRepatriacionBeneficiarios or 0) + (tarifaAsociado.cuotaRepatriacionTitular or 0),
                         "seguroVidaPago": tarifaAsociado.cuotaSeguroVida,

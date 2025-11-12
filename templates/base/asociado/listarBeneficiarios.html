@@ -101,8 +101,15 @@
         var $ = jQuery.noConflict()
 
         function abrir_modal_creacion(url){
+            // Desactivar evento previo si existe para evitar duplicados
+            $('#create').off('shown.bs.modal');
+
             $('#create').load(url, function(){
-                $(this).modal('show');
+                $('#create').modal('show');
+            
+                $('#create').off('hidden.bs.modal').on('hidden.bs.modal', function () {
+                    $('#create').html('');
+                });
             });
         }
 
@@ -157,32 +164,41 @@
 
         // Lógica de repatriación - Update
         $(document).on('shown.bs.modal', '#update', function () {
-            const paisRepatriacion = document.querySelector('#id_paisRepatriacion');
-            const contenedor = document.querySelector('#contenedor');
-            const fechaRepatriacion = document.querySelector('#id_fechaRepatriacion_div');
-            const ciudadRepatriacion = document.querySelector('#id_ciudadRepatriacion_div');
+            const paisSelect = document.getElementById('id_paisRepatriacion');
+            const contenedor = document.getElementById('contenedor-repatriacion');
+            const campos = contenedor.querySelectorAll('.campo-repatriacion');
 
-            if (!paisRepatriacion || !contenedor) return;
+            if (!paisSelect || !contenedor) return;
 
-            // Control inicial
-            if (paisRepatriacion.value) {
-            contenedor.classList.remove('d-none');
-            } else {
-            contenedor.classList.add('d-none');
-            }
+            // Función para mostrar u ocultar campos
+            const toggleCampos = () => {
+                const valor = paisSelect.value.trim();
 
-            // Cambio dinámico
-            paisRepatriacion.addEventListener('change', function() {
-            if (paisRepatriacion.value) {
-                contenedor.classList.remove('d-none');
-                fechaRepatriacion.classList.remove('d-none');
-                ciudadRepatriacion.classList.remove('d-none');
-            } else {
-                contenedor.classList.add('d-none');
-                fechaRepatriacion.classList.add('d-none');
-                ciudadRepatriacion.classList.add('d-none');
-            }
-            });
+                if (valor) {
+                    contenedor.classList.remove('d-none');
+                    campos.forEach(campo => {
+                        campo.classList.remove('d-none');
+                        const input = campo.querySelector('input, select, textarea');
+                        if (input) input.required = true;
+                    });
+                } else {
+                    contenedor.classList.add('d-none');
+                    campos.forEach(campo => {
+                        campo.classList.add('d-none');
+                        const input = campo.querySelector('input, select, textarea');
+                        if (input) {
+                            input.required = false;
+                            input.value = '';
+                        }
+                    });
+                }
+            };
+
+            // Ejecución inicial (por si ya hay un valor cargado al abrir el modal)
+            toggleCampos();
+
+            // Cambio dinámico cuando se modifica el país
+            paisSelect.addEventListener('change', toggleCampos);
         });
 
     </script>

@@ -179,6 +179,9 @@ class RepatriacionTitularForm(forms.ModelForm):
                 queryset = queryset.filter(id__gte=parametro.primerMes.id)
 
         self.fields["primerMes"].queryset = queryset
+        self.fields["primerMes"].required = True
+        self.fields["ciudadRepatriacion"].required = True
+        self.fields["paisRepatriacion"].required = True
 
 
 class ConvenioAsociadoForm(forms.ModelForm):
@@ -242,7 +245,7 @@ class TarifaAsociadoAdicionalForm(forms.ModelForm):
         widgets = {
             "cuotaAdicionales": forms.NumberInput(
                 attrs={
-                    "class": "form-control",
+                    "class": "form-control", "min": "1"
                 }
             ),
             "conceptoAdicional": forms.TextInput(
@@ -276,3 +279,7 @@ class TarifaAsociadoAdicionalForm(forms.ModelForm):
                 queryset = queryset.filter(id__gte=parametro.primerMes.id)
 
         self.fields["primerMesCuotaAdicional"].queryset = queryset
+        self.fields["conceptoAdicional"].required = True
+        self.fields["fechaInicioAdicional"].required = True
+        self.fields["primerMesCuotaAdicional"].required = True
+

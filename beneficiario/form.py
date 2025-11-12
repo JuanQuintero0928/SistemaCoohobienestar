@@ -176,3 +176,8 @@ class CoohoperativitoForm(forms.ModelForm):
                 format="%Y-%m-%d",
             ),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["fechaNacimiento"].required = True

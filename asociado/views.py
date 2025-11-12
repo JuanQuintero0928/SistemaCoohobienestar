@@ -7,6 +7,7 @@ from django.views.generic import (
     DetailView,
     View,
     DeleteView,
+    TemplateView
 )
 from django.http import HttpResponseRedirect, JsonResponse
 from django.core.paginator import Paginator
@@ -21,6 +22,7 @@ from funciones.function import StaffRequiredMixin
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 from .utils.form_utils import asignar_campos
+from .utils.utils import inactivar_asociado
 from .models import (
     Asociado,
     ConveniosAsociado,
@@ -435,96 +437,114 @@ class VerAsociado(DetailView):
         return super().get(self, request, *args, **kwargs)
 
 
-class EditarAsociado(UpdateView):
-
+class EditarAsociado(View):
     def post(self, request, *args, **kwargs):
-        obj = Asociado.objects.get(pk=kwargs["pkAsociado"])
-        obj.tPersona = request.POST["tPersona"]
-        obj.tAsociado = TipoAsociado.objects.get(pk=request.POST["tAsociado"])
-        obj.fechaActualizacionDatos = request.POST["fechaActualizacionDatos"]
-        # se valida si cambia el estado del asociado
-        if obj.estadoAsociado != request.POST["estadoAsociado"]:
-            # se valida si en el form se paso de activo a retiro
-            if request.POST["estadoAsociado"] == "RETIRO":
-                obj.fechaRetiro = request.POST["fechaRetiro"]
-                obj.estadoAsociado = request.POST["estadoAsociado"]
-            # si pasa de retiro o inactivo a activo
-            elif request.POST["estadoAsociado"] == "ACTIVO":
-                obj.fechaRetiro = None
-                obj.estadoAsociado = request.POST["estadoAsociado"]
-            # INACTIVO
-            else:
-                obj.estadoAsociado = request.POST["estadoAsociado"]
-        elif obj.estadoAsociado == "RETIRO":
-            obj.fechaRetiro = request.POST["fechaRetiro"]
-        obj.nombre = request.POST["nombre"].upper()
-        obj.apellido = request.POST["apellido"].upper()
-        obj.tipoDocumento = request.POST["tipoDocumento"]
-        obj.numDocumento = request.POST["numDocumento"]
-        obj.fechaExpedicion = request.POST["fechaExpedicion"]
-        obj.mpioDoc = Municipio.objects.get(pk=int(request.POST["mpioDoc"]))
-        obj.nacionalidad = request.POST["nacionalidad"].upper()
-        obj.genero = request.POST["genero"]
-        obj.estadoCivil = request.POST["estadoCivil"]
-        obj.email = request.POST["email"]
-        if request.POST["numResidencia"] != None:
-            obj.numResidencia = request.POST["numResidencia"]
-        else:
-            obj.numResidencia = None
-        obj.indicativoCelular = Pais.objects.get(pk=request.POST["indicativo"])
-        obj.numCelular = request.POST["numCelular"]
-        envioCorreo = request.POST.getlist("envioInfoCorreo")
-        envioMensaje = request.POST.getlist("envioInfoMensaje")
-        envioWhatsapp = request.POST.getlist("envioInfoWhatsapp")
+        asociado = get_object_or_404(Asociado, pk=kwargs["pkAsociado"])
+        resultado = {}
+        data = request.POST
 
-        if len(envioCorreo) == 1:
-            obj.envioInfoCorreo = True
-        else:
-            obj.envioInfoCorreo = False
-        if len(envioMensaje) == 1:
-            obj.envioInfoMensaje = True
-        else:
-            obj.envioInfoMensaje = False
-        if len(envioWhatsapp) == 1:
-            obj.envioInfoWhatsapp = True
-        else:
-            obj.envioInfoWhatsapp = False
-        obj.nivelEducativo = request.POST["nivelEducativo"]
-        if request.POST["tituloPregrado"] != "":
-            obj.tituloPregrado = request.POST["tituloPregrado"].upper()
-        if request.POST["tituloPosgrado"] != "":
-            obj.tituloPosgrado = request.POST["tituloPosgrado"].upper()
-        obj.fechaIngreso = request.POST["fechaIngreso"]
-        obj.estadoRegistro = True
-        obj.tipoVivienda = request.POST["tipoVivienda"].upper()
-        obj.estrato = request.POST["estrato"]
-        obj.direccion = request.POST["direccion"].upper()
-        obj.barrio = request.POST["barrio"].upper()
-        obj.deptoResidencia = Departamento.objects.get(
-            pk=request.POST["deptoResidencia"]
-        )
-        obj.mpioResidencia = Municipio.objects.get(pk=request.POST["mpioResidencia"])
-        obj.fechaNacimiento = request.POST["fechaNacimiento"]
-        obj.dtoNacimiento = Departamento.objects.get(pk=request.POST["dtoNacimiento"])
-        obj.mpioNacimiento = Municipio.objects.get(pk=request.POST["mpioNacimiento"])
-        obj.nombreRF = request.POST["nombreRF"]
-        obj.parentesco = request.POST["parentesco"]
-        obj.numContacto = request.POST["numContacto"]
-        obj.zonaUbicacion = request.POST["zonaUbicacion"]
-        obj.empleadoCooho = request.POST["empleadoCoohobienestar"]
-        obj.nPersonasCargo = (
-            request.POST["nPersonasCargo"]
-            if request.POST["nPersonasCargo"] != ""
-            else 0
-        )
-        obj.nHijos = request.POST["nHijos"] if request.POST["nHijos"] != "" else 0
-        obj.cabezaFamilia = request.POST["cabezaFamilia"]
+        # === Actualización de estado general ===
+        nuevo_estado = data.get("estadoAsociado")
+        if asociado.estadoAsociado != nuevo_estado:
+            if nuevo_estado == "RETIRO":
+                asociado.fechaRetiro = data.get("fechaRetiro")
+                resultado = inactivar_asociado(asociado.pk)
+                print("Resultado de inactivar_asociado:", resultado)
+            elif nuevo_estado == "ACTIVO":
+                asociado.fechaRetiro = None
+            asociado.estadoAsociado = nuevo_estado
+        elif asociado.estadoAsociado == "RETIRO":
+            # Si ya está en retiro, pero vuelve a actualizar la fecha
+            asociado.fechaRetiro = data.get("fechaRetiro")
+            resultado = inactivar_asociado(asociado.pk)
+            print("Resultado de inactivar_asociado:", resultado)
 
-        obj.save()
-        messages.info(request, "Información Modificada Correctamente")
-        return HttpResponseRedirect(
-            reverse_lazy("asociado:verAsociado", args=[kwargs["pkAsociado"]])
-        )
+        # === Asignaciones directas simples ===
+        mapeo_campos = {
+            "tPersona": data.get("tPersona"),
+            "fechaActualizacionDatos": data.get("fechaActualizacionDatos"),
+            "nombre": data.get("nombre", "").upper(),
+            "apellido": data.get("apellido", "").upper(),
+            "tipoDocumento": data.get("tipoDocumento"),
+            "numDocumento": data.get("numDocumento"),
+            "fechaExpedicion": data.get("fechaExpedicion"),
+            "nacionalidad": data.get("nacionalidad", "").upper(),
+            "genero": data.get("genero"),
+            "estadoCivil": data.get("estadoCivil"),
+            "email": data.get("email"),
+            "nivelEducativo": data.get("nivelEducativo"),
+            "fechaIngreso": data.get("fechaIngreso"),
+            "estadoRegistro": True,
+            "tipoVivienda": data.get("tipoVivienda", "").upper(),
+            "estrato": data.get("estrato"),
+            "direccion": data.get("direccion", "").upper(),
+            "barrio": data.get("barrio", "").upper(),
+            "fechaNacimiento": data.get("fechaNacimiento"),
+            "nombreRF": data.get("nombreRF"),
+            "parentesco": data.get("parentesco"),
+            "numContacto": data.get("numContacto"),
+            "zonaUbicacion": data.get("zonaUbicacion"),
+            "empleadoCooho": data.get("empleadoCoohobienestar"),
+            "cabezaFamilia": data.get("cabezaFamilia"),
+        }
+        for campo, valor in mapeo_campos.items():
+            setattr(asociado, campo, valor)
+
+        # === Relaciones foráneas ===
+        asociado.tAsociado = TipoAsociado.objects.get(pk=data["tAsociado"])
+        asociado.mpioDoc = Municipio.objects.get(pk=int(data["mpioDoc"]))
+        asociado.indicativoCelular = Pais.objects.get(pk=data["indicativo"])
+        asociado.deptoResidencia = Departamento.objects.get(pk=data["deptoResidencia"])
+        asociado.mpioResidencia = Municipio.objects.get(pk=data["mpioResidencia"])
+        asociado.dtoNacimiento = Departamento.objects.get(pk=data["dtoNacimiento"])
+        asociado.mpioNacimiento = Municipio.objects.get(pk=data["mpioNacimiento"])
+
+        # === Campos opcionales o numéricos ===
+        asociado.numResidencia = data.get("numResidencia") or None
+        asociado.numCelular = data.get("numCelular")
+        asociado.nPersonasCargo = int(data.get("nPersonasCargo") or 0)
+        asociado.nHijos = int(data.get("nHijos") or 0)
+
+        if data.get("tituloPregrado"):
+            asociado.tituloPregrado = data["tituloPregrado"].upper()
+        if data.get("tituloPosgrado"):
+            asociado.tituloPosgrado = data["tituloPosgrado"].upper()
+
+        # === Preferencias de envío ===
+        asociado.envioInfoCorreo = "envioInfoCorreo" in data
+        asociado.envioInfoMensaje = "envioInfoMensaje" in data
+        asociado.envioInfoWhatsapp = "envioInfoWhatsapp" in data
+
+        # === Mensaje personalizado en caso de retiro ===
+        # Mapeo de nombres legibles
+        nombres = {
+            "mascotas": "Mascotas",
+            "beneficiarios": "Beneficiarios",
+            "coohoperativitos": "Coohoperativitos",
+            "seguro_vida": "Seguro de Vida",
+            "convenios": "Convenios",
+            "repatriacion_titular": "Repatriación Titular",
+        }
+
+        detalles = [f"{nombres[k]}: {v}" for k, v in resultado.items() if v > 0]
+
+        # === Guardado final ===
+        asociado.save()
+
+        # === Mensaje segun corresponda, de actualizacion o retiro ===
+        if detalles:
+            detalle_texto = ", ".join(detalles)
+            messages.success(
+                request,
+                f"Información del asociado actualizada correctamente. "
+                f"Registros desactivados → {detalle_texto}"
+            )
+        else:
+            messages.success(
+                request,
+                "Información del asociado actualizada correctamente."
+            )
+        return HttpResponseRedirect(reverse_lazy("asociado:verAsociado", args=[asociado.pk]))
 
 
 class EditarLaboral(CreateView):
@@ -2001,71 +2021,19 @@ class DetalleHistorialPago(ListView):
         return render(request, template_name, {"query": query})
 
 
-class DescargarFormatos(DetailView):
-    model = Asociado
-    template_name = "base/asociado/formatos.html"
-    context_object_name = "query"
-    pk_url_kwarg = "pkAsociado"
-
-    def get_queryset(self):
-        return Asociado.objects.select_related(
-            "tAsociado",
-            "mpioDoc",
-            "deptoResidencia",
-            "dtoNacimiento",
-            "mpioNacimiento",
-            "mpioResidencia",
-        )
+class DescargarFormatos(TemplateView):
+    template_name = 'base/asociado/formatos.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        asociado = self.object
-        fecha_actual = date.today()
-
-        try:
-            obj_financiera = Financiera.objects.get(asociado=asociado)
-            obj_parametro = ParametroAsociado.objects.get(asociado=asociado)
-            obj_laboral = Laboral.objects.select_related(
-                "mpioTrabajo", "dptoTrabajo"
-            ).get(asociado=asociado)
-
-            beneficiarios = Beneficiario.objects.filter(
-                asociado=asociado, estadoRegistro=True
-            ).select_related("paisRepatriacion", "parentesco")
-
-            mascotas = Mascota.objects.filter(asociado=asociado, estadoRegistro=True)
-
-            context.update(
-                {
-                    "updateAsociado": "yes",
-                    "pkAsociado": asociado.pk,
-                    "residenciaExiste": "yes",
-                    "queryLaboral": obj_laboral,
-                    "actualizacion": asociado.fechaIngreso != fecha_actual,
-                    "objFinanciera": obj_financiera,
-                    "fechaActual": fecha_actual,
-                    "objParametroAsociado": obj_parametro,
-                    "objBeneficiario": beneficiarios,
-                    "cuentaBeneficiario": beneficiarios.count(),
-                    "objMascota": mascotas,
-                    "cuentaMascota": mascotas.count(),
-                    "vista": 10,
-                }
-            )
-        except (
-            Financiera.DoesNotExist,
-            ParametroAsociado.DoesNotExist,
-            Laboral.DoesNotExist,
-        ):
-            messages.warning(
-                self.request, "Información incompleta para descargar formatos."
-            )
-            context.update({"mensaje": "yes", "pkAsociado": asociado.pk, "vista": 10})
-
+        context.update({
+            'pkAsociado': kwargs['pkAsociado'],
+            'query': Asociado.objects.get(pk=kwargs['pkAsociado']),
+            'vista': 10,
+        })
         return context
 
 
-# Descarga Formato Auxilios
 class ModalFormato(ListView):
     def get(self, request, *args, **kwargs):
         template_name = "base/asociado/formato2.html"
@@ -2446,7 +2414,7 @@ class GenerarFormato(View):
                 ),
 
                 # ================================================================
-                # CONCEPTOS DETALLADOS PARA PDF (★ NUEVO Y MÁS IMPORTANTE ★)
+                # CONCEPTOS DETALLADOS PARA PDF 
                 # ================================================================
                 "conceptos_detallados": context["conceptos_detallados"],
             }
@@ -2487,7 +2455,7 @@ class CrearRepatriacionTitular(CreateView):
         obj = form.save(commit=False)
         obj.estadoRegistro = True
         obj.asociado = obj_asociado
-        obj.ciudadRepatriacion = obj.ciudadRepatriacion.upper()
+        obj.ciudadRepatriacion = obj.ciudadRepatriacion.strip().upper() if obj.ciudadRepatriacion else None
 
         obj_tarifa_asociado.cuotaRepatriacionTitular = obj_tarifa.valor
         obj_tarifa_asociado.total += obj_tarifa.valor
@@ -2521,7 +2489,7 @@ class VerRepatriacionTitular(UpdateView):
     def form_valid(self, form):
         # Guardar los cambios primero
         obj = form.save(commit=False)
-        obj.ciudadRepatriacion = obj.ciudadRepatriacion.upper()
+        obj.ciudadRepatriacion = obj.ciudadRepatriacion.strip().upper() if obj.ciudadRepatriacion else None
         obj.save()
 
         messages.info(self.request, "Repatriación actualizada correctamente.")

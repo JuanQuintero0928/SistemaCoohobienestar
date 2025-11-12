@@ -77,7 +77,7 @@ class Asociado(models.Model):
     barrio = models.CharField('barrio', max_length=90, blank=True, null=True)
     deptoResidencia = models.ForeignKey(Departamento, on_delete=models.RESTRICT, blank=True, null=True, related_name='deptoResidencia')
     mpioResidencia = models.ForeignKey(Municipio, on_delete=models.RESTRICT, blank=True, null=True, related_name='mpioResidencia')
-    numResidencia = models.CharField('Numero Residencia', max_length=13, blank=False, null=False)
+    numResidencia = models.CharField('Numero Residencia', max_length=13, blank=True, null=True)
     indicativoCelular = models.ForeignKey(Pais, on_delete=models.RESTRICT, blank=True, null=True)
     numCelular = models.CharField('Numero Celular', max_length=13, blank=False, null=False)
     envioInfoCorreo = models.BooleanField('Envio Información Email', default=False)

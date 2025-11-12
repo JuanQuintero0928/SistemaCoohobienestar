@@ -136,7 +136,7 @@ async function cargarDatosFormatoCredito(asociadoId, tipoFormato, creditoId) {
 async function llamarPDF(formato, url, asociadoId, tipoFormato, opciones = {}, boton = null) {
     try {
 
-        if ([2, 3, 5, 6, 7, 8].includes(formato)){
+        if ([2, 3, 5, 6, 7, 8, 9].includes(formato)){
             mostrarSpinner(boton);
         }
 
@@ -172,18 +172,23 @@ async function llamarPDF(formato, url, asociadoId, tipoFormato, opciones = {}, b
             const datos = await cargarDatosFormatoCredito(asociadoId, tipoFormato, creditoId);
             await generarPDFOtorgamientoCredito(url, datos)
         }
+        // Tabla de amortización
         else if (formato == 8) {
             const creditoId = opciones.id_credito ?? null;
             const datos = await cargarDatosFormatoCredito(asociadoId, tipoFormato, creditoId);
             await generarPDFTablaAmortizacion(url, datos)
-        }        
+        }
+        // Formato retiro de asociado
+        else if (formato == 9) {
+            await generarPDFRetiroAsociado(url)
+        }
     }
     catch (error) {
         console.log(error);
         alert("Ocurrió un problema al generar el formato. Recargue la página e intente nuevamente. Si el error persiste comunicarse con el administrador.")
     } finally {
         console.log("Finalizando proceso formato:", formato);
-        if ([2, 3, 5, 6, 7, 8].includes(formato)){
+        if ([2, 3, 5, 6, 7, 8, 9].includes(formato)){
             ocultarSpinner(boton);
         }
     }
@@ -348,7 +353,7 @@ async function generarPDFRegistro(url, datos) {
     // renglon 7
     pdf.text(datos.deptoResidencia, 21.7, 489.5);
     pdf.text(datos.email, 125.7, 489.5);
-    pdf.text(datos.numResidencia, 385, 489.5);
+    writeText(pdf, datos.numResidencia, 385, 489.5);
     pdf.text(datos.numCelular, 492.4, 489.5);
 
     // renglon 8
@@ -1767,6 +1772,18 @@ async function generarPDFTablaAmortizacion(url, datos) {
     pdf.text(datos.codeudor?.mpioDoc__nombre || '', 159, 914);
 
     pdf.save('Tabla_Amortizacion_'+datos.numDocumento+'.pdf');
+}
+
+
+// Formato 9
+// Formato Retiro de Asociado
+async function generarPDFRetiroAsociado(url) {
+
+    const image = await loadImage(url);
+    const pdf = new jsPDF('p', 'pt', 'legal');
+    pdf.addImage(image, 'PNG', 0, 0, 613, 1010);
+
+    pdf.save('Formato_Retiro_Asociado.pdf');
 }
 
 

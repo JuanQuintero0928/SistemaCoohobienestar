@@ -3,11 +3,11 @@
 
         <!-- ENCABEZADO -->
         <div class="modal-header bg-primary text-white">
-        <div>
-            <h5 class="modal-title mb-0">Editar Beneficiario</h5>
-            <h6 class="text-light mb-0">{{ query.nombre }} {{ query.apellido }}</h6>
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div>
+                <h5 class="modal-title mb-0">Editar Beneficiario</h5>
+                <h6 class="text-light mb-0">{{ query.nombre }} {{ query.apellido }}</h6>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
         <!-- CUERPO -->
@@ -15,94 +15,82 @@
             <form action="{% url 'asociado:editarBeneficiario' pkAsociado pk %}" method="post">
                 {% csrf_token %}
                 <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-light">
-                    <h6 class="mb-0 text-secondary">Información del Beneficiario</h6>
-                </div>
-
-                <div class="card-body">
-                    <div class="row g-3">
-                    <div class="col-md-6">
-                        {{ form.nombre.label_tag }}
-                        {{ form.nombre }}
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0 text-secondary">Información del Beneficiario</h6>
                     </div>
 
-                    <div class="col-md-6">
-                        {{ form.apellido.label_tag }}
-                        {{ form.apellido }}
-                    </div>
-
-                    <div class="col-md-6">
-                        {{ form.tipoDocumento.label_tag }}
-                        {{ form.tipoDocumento }}
-                    </div>
-
-                    <div class="col-md-6">
-                        {{ form.numDocumento.label_tag }}
-                        {{ form.numDocumento }}
-                    </div>
-
-                    <div class="col-md-6">
-                        {{ form.fechaNacimiento.label_tag }}
-                        {{ form.fechaNacimiento }}
-                    </div>
-
-                    <div class="col-md-6">
-                        {{ form.parentesco.label_tag }}
-                        {{ form.parentesco }}
-                    </div>
-
-                    <div class="col-md-6">
-                        {{ form.paisRepatriacion.label_tag }}
-                        {{ form.paisRepatriacion }}
-                    </div>
-
-                    <div class="col-md-6">
-                        {{ form.fechaIngreso.label_tag }}
-                        {{ form.fechaIngreso }}
-                    </div>
-                    </div>
-
-                    <!-- SECCIÓN REPATRIACIÓN -->
-                    <div id="contenedor"
-                        {% if not form.paisRepatriacion.value %}
-                        class="d-none mt-4"
-                        {% else %}
-                        class="mt-4"
-                        {% endif %}
-                        style="background-color: #f8f9fa; padding: 15px; border-radius: 10px;">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                        {{ form.fechaRepatriacion.label_tag }}
-                        <input id="id_fechaRepatriacion"
-                                name="fechaRepatriacion"
-                                type="date"
-                                class="form-control"
-                                value="{{ form.fechaRepatriacion.value|date:'Y-m-d' }}">
+                    <div class="card-body">
+                        <div class="row g-3">
+                        <div class="col-md-6">
+                            {{ form.nombre.label_tag }}
+                            {{ form.nombre }}
                         </div>
 
-                        <div class="col-md-4">
-                        {{ form.ciudadRepatriacion.label_tag }}
-                        <input id="id_ciudadRepatriacion"
-                                name="ciudadRepatriacion"
-                                value="{{ form.ciudadRepatriacion.value }}"
-                                type="text"
-                                class="form-control input-form">
+                        <div class="col-md-6">
+                            {{ form.apellido.label_tag }}
+                            {{ form.apellido }}
                         </div>
 
-                        <div class="col-md-4">
-                        {{ form.primerMesRepatriacion.label_tag }}
-                        {{ form.primerMesRepatriacion }}
+                        <div class="col-md-6">
+                            {{ form.tipoDocumento.label_tag }}
+                            {{ form.tipoDocumento }}
+                        </div>
+
+                        <div class="col-md-6">
+                            {{ form.numDocumento.label_tag }}
+                            {{ form.numDocumento }}
+                        </div>
+
+                        <div class="col-md-6">
+                            {{ form.fechaNacimiento.label_tag }}
+                            {{ form.fechaNacimiento }}
+                        </div>
+
+                        <div class="col-md-6">
+                            {{ form.parentesco.label_tag }}
+                            {{ form.parentesco }}
+                        </div>
+
+                        <div class="col-md-6">
+                            {{ form.paisRepatriacion.label_tag }}
+                            {{ form.paisRepatriacion }}
+                        </div>
+
+                        <div class="col-md-6">
+                            {{ form.fechaIngreso.label_tag }}
+                            {{ form.fechaIngreso }}
+                        </div>
+                        </div>
+
+                        <!-- SECCIÓN REPATRIACIÓN -->
+                        <div id="contenedor-repatriacion" {% if not form.paisRepatriacion.value %} class="d-none mt-4" {% else %} class="mt-4" {% endif %} style="background-color: #f8f9fa; padding: 15px; border-radius: 10px;">
+                            <div class="row g-3">
+
+                                <div class="col-md-6 col-lg-4 campo-repatriacion d-none">
+                                    {{ form.fechaRepatriacion.label_tag }}
+                                    {{ form.fechaRepatriacion }}
+                                </div>
+
+                                <div class="col-md-6 col-lg-4 campo-repatriacion d-none">
+                                    {{ form.ciudadRepatriacion.label_tag }}
+                                    {{ form.ciudadRepatriacion }}
+                                </div>
+
+                                <div class="col-md-12 col-lg-4 campo-repatriacion d-none">
+                                    {{ form.primerMesRepatriacion.label_tag }}
+                                    {{ form.primerMesRepatriacion }}
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- BOTÓN GUARDAR -->
+                        <div class="text-end mt-4">
+                            <button type="submit" class="btn btn-success">
+                                Guardar Cambios
+                            </button>
                         </div>
                     </div>
-                    </div>
-
-                    <!-- BOTÓN GUARDAR -->
-                    <div class="text-end mt-4">
-                    <button type="submit" class="btn btn-success">
-                        Guardar Cambios
-                    </button>
-                    </div>
-                </div>
                 </div>
             </form>
         </div>
