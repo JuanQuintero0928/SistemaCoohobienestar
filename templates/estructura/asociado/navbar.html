@@ -1,4 +1,4 @@
-{% if not query.fechaRetiro and not objAsociado.fechaRetiro %}
+{% comment %} {% if not query.fechaRetiro and not objAsociado.fechaRetiro %} {% endcomment %}
 
     <ul class="nav nav-tabs">
         <li class="nav-item">
@@ -35,7 +35,7 @@
             <a {% if vista == 11 %} class="nav-link active" aria-current="page" {% else %} class="nav-link" {% endif %} href="{% url 'asociado:listarVentasAsociado' pkAsociado %}">Ventas</a>
         </li>
     </ul>
-{% else %}
+{% comment %} {% else %}
     <ul class="nav nav-tabs">
         <li class="nav-item">
             <a  {% if vista == 1 %} class="nav-link active" aria-current="page" {% else %} class="nav-link" {% endif %} href="{% url 'asociado:verAsociado' pkAsociado %}">Información</a>
@@ -44,4 +44,4 @@
             <a {% if vista == 10 %} class="nav-link active" aria-current="page" {% else %} class="nav-link" {% endif %} href="{% url 'asociado:descargarFormatos' pkAsociado %}">Formatos</a>
         </li>
     </ul>
-{% endif %} 
+{% endif %}  {% endcomment %}
