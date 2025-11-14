@@ -16,6 +16,7 @@ from beneficiario.models import Beneficiario, Mascota
 from historico.models import HistoricoAuxilio, HistoricoCredito
 from credito.models import Codeudor
 from asociado.utils.utils import generar_radicado
+from parametro.utils.utils import funcion_mes_tarifa_info
 
 
 @api_view(["GET"])
@@ -42,7 +43,6 @@ def obtener_datos_formato_registro(request, asociado_id, tipo_formato):
         }
         radicado = generar_radicado(asociado_id, tipo_formato)
         datos["numeroRadicado"] = radicado
-        print(datos)
         return JsonResponse(datos)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
@@ -307,8 +307,17 @@ def datos_modelo_historicoCredito(credito_id):
         "formaDesembolso",
         "banco",
         "numCuenta",
-        "tipoCuenta"
+        "tipoCuenta",
+        "primerMes_id"
     ).first() or {}
+
+    if qs_historicoCredito.get("primerMes_id"):
+        fechaModificada = funcion_mes_tarifa_info(qs_historicoCredito.get("primerMes_id"))
+        qs_historicoCredito["fechaPrimerCobro"] = fechaModificada
+
+    if qs_historicoCredito.get("fechaSolicitud"):
+        qs_historicoCredito["fechaSolicitud"] = qs_historicoCredito["fechaSolicitud"].strftime("%Y-%m-%d")
+
     return {"credito": qs_historicoCredito}
 
 

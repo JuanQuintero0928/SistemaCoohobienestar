@@ -180,7 +180,8 @@ async function llamarPDF(formato, url, asociadoId, tipoFormato, opciones = {}, b
         }
         // Formato retiro de asociado
         else if (formato == 9) {
-            await generarPDFRetiroAsociado(url)
+            const datos = await cargarDatosFormatoRegistro(asociadoId, tipoFormato);
+            await generarPDFRetiroAsociado(url, datos)
         }
     }
     catch (error) {
@@ -1614,9 +1615,9 @@ async function generarPDFOtorgamientoCredito(url, datos) {
 
     // renglon 4
     console.log(datos.credito.fechaSolicitud);
-    pdf.text(sumarMeses(datos.credito.fechaSolicitud, 1), 49.1, 448);
-    pdf.text(sumarMeses(datos.credito.fechaSolicitud, datos.credito.cuotas), 323.1, 448);
-
+    pdf.text(formatearFechaTexto(datos.credito.fechaPrimerCobro), 49.1, 448);
+    pdf.text(formatearFechaTexto(datos.credito.fechaPrimerCobro, datos.credito.cuotas - 1), 323.1, 448);
+    
     // renglon 5
     pdf.text(formatearNumero(datos.credito.valorCuota), 18.5, 459);
     pdf.text(datos.credito.lineaCredito, 273.1, 459);
@@ -1646,6 +1647,7 @@ async function generarPDFOtorgamientoCredito(url, datos) {
 // Formato 8
 // Formato Tabla de Amortización
 async function generarPDFTablaAmortizacion(url, datos) {
+    console.log(datos);
 
     const image = await loadImage(url);
     const pdf = new jsPDF('p', 'pt', 'legal');
@@ -1656,10 +1658,13 @@ async function generarPDFTablaAmortizacion(url, datos) {
     pdf.setFont("verdana", "normal");
 
     // variables
-    let fecha = datos.credito.fechaSolicitud.split("-");
-    let tasa = parseFloat(datos.credito.tasaInteres__porcentaje);
-    let tasaPorcentaje = (tasa * 100).toFixed(2);
+    const fechaSolicitudCredito = datos.credito.fechaSolicitud;
+    const fechaPrimerCobro = datos.credito.fechaPrimerCobro;
 
+    const fechaArray = fechaSolicitudCredito.split("-");
+    const tasa = parseFloat(datos.credito.tasaInteres__porcentaje);
+    const tasaPorcentaje = (tasa * 100).toFixed(2);
+    
     // Deudores
     let nombreCompleto = datos.nombre + " " + datos.apellido
     let nombreCodeudor = (datos.codeudor?.nombre || '') + ' ' + (datos.codeudor?.apellido || '')
@@ -1683,19 +1688,18 @@ async function generarPDFTablaAmortizacion(url, datos) {
     pdf.text(datos.codeudor?.mpioDoc__nombre || '', 491.1, 182);
 
     //tabla informacion
-    pdf.text(sumarMeses(datos.credito.fechaSolicitud, 0), 281.1, 252.7);
+    pdf.text(formatearFechaTexto(datos.credito.fechaSolicitud), 281.1, 252.7);
     pdf.text(datos.credito.lineaCredito, 281.1, 268);
     pdf.text(datos.credito.amortizacion, 281.1, 282);
     pdf.text(formatearNumeroSinSimbolo(datos.credito.valor), 307.1, 295.4);
     pdf.text(String(datos.credito.cuotas), 281.1, 311);
     pdf.text(tasaPorcentaje, 411, 324.4);
-    pdf.text(sumarMeses(datos.credito.fechaSolicitud, datos.credito.cuotas), 281.1, 340);
+    pdf.text(formatearFechaTexto(datos.credito.fechaPrimerCobro, datos.credito.cuotas - 1), 281.1, 340);
 
     // variables de inicializacion tabla de amortizacion
     const valorNumerica = parseFloat(datos.credito.valor);
     const cuotasNumerica = parseInt(datos.credito.cuotas);
     const tasaNumerica = parseFloat(datos.credito.tasaInteres__porcentaje);
-    const fechaSolicitud = datos.credito.fechaSolicitud;
 
     //Calcular cuota fija
     let cuotaFija;
@@ -1709,7 +1713,8 @@ async function generarPDFTablaAmortizacion(url, datos) {
     }
 
     // Generar fechas
-    const fechas = generarFechas(cuotasNumerica, fechaSolicitud);
+    
+    const fechas = generarFechas(cuotasNumerica, fechaPrimerCobro);
 
     // Tabla de amortización
     let saldoRestante = valorNumerica;
@@ -1719,9 +1724,7 @@ async function generarPDFTablaAmortizacion(url, datos) {
         if (i === 0) {
             // Fila inicial (sin pago)
             // pdf.text(String(i), 81, fila);
-            pdf.setFontSize(8);
-            pdf.text(fechas[i], 58.2, fila);
-            pdf.setFontSize(9);
+            writeTextSize(pdf, formatearFecha(fechaSolicitudCredito), 58.2, fila, 8);
             pdf.text(formatearNumero(saldoRestante), 119.5, fila);
             pdf.text(formatearMoneda(0), 208.1, fila);
             pdf.text(formatearMoneda(0), 293.2, fila);
@@ -1743,9 +1746,7 @@ async function generarPDFTablaAmortizacion(url, datos) {
 
             // Pintar fila
             // pdf.text(String(i), 81, fila);
-            pdf.setFontSize(8);
-            pdf.text(fechas[i], 58.2, fila);
-            pdf.setFontSize(9);
+            writeTextSize(pdf, fechas[i-1], 58.2, fila, 8);
             pdf.text(formatearNumero(parseFloat(saldoRestante) + parseFloat(abonoCapital)), 119.5, fila);
             pdf.text(formatearNumero(abonoCapital), 208.1, fila);
             pdf.text(formatearNumero(intereses), 293.2, fila);
@@ -1758,9 +1759,9 @@ async function generarPDFTablaAmortizacion(url, datos) {
     }
 
     // Constancia
-    pdf.text(convertirDias(fecha[2]), 480, 612);
-    pdf.text(convertirMes(fecha[1]), 57.8, 623.4);
-    pdf.text(fecha[0], 205, 623.4);
+    pdf.text(convertirDias(fechaArray[2]), 480, 612);
+    pdf.text(convertirMes(fechaArray[1]), 57.8, 623.4);
+    pdf.text(fechaArray[0], 205, 623.4);
     pdf.text('ARMENIA', 330.5, 623.4); 
 
     // firmas deudores
@@ -1777,33 +1778,97 @@ async function generarPDFTablaAmortizacion(url, datos) {
 
 // Formato 9
 // Formato Retiro de Asociado
-async function generarPDFRetiroAsociado(url) {
+async function generarPDFRetiroAsociado(url, datos) {
 
     const image = await loadImage(url);
     const pdf = new jsPDF('p', 'pt', 'legal');
     pdf.addImage(image, 'PNG', 0, 0, 613, 1010);
+
+    // Globales
+    pdf.setFontSize(9);
+    pdf.setFont("verdana", "normal");
+
+    // Variables
+    var nombreCompleto = datos.nombre + ' ' + datos.apellido
+    var arrFechaHoy = datos.fechaFormateada.split('/')
+    
+    // Encabezados
+    pdf.text(datos.fechaFormateada, 268, 120);
+    writeTextSize(pdf, datos.numeroRadicado, 459.5, 119.4, 8);
+
+    // Texto
+    pdf.text(nombreCompleto, 38.5, 264);
+    pdf.text(datos.numDocumento, 71.8, 274.7);
+    pdf.text(datos.mpioDoc, 291.8, 274.7);
+    pdf.text(datos.mpioResidencia, 17.1, 285.4);
+    
+    // Constancia
+    pdf.text(convertirDias(arrFechaHoy[0]), 448.5, 594);
+    pdf.text(convertirMes(arrFechaHoy[1]), 21.8, 605.4);
+    pdf.text(arrFechaHoy[2], 172.5, 605.4);
+    pdf.text('ARMENIA', 294.5, 605.4)
+
+    // Firmas
+    pdf.text(nombreCompleto, 149.1, 682.7);
+    pdf.text(datos.numDocumento, 149.1, 706.7);
+    pdf.text(datos.numCelular, 149.1, 729.4);
+    pdf.text(datos.email, 195.1, 752);
 
     pdf.save('Formato_Retiro_Asociado.pdf');
 }
 
 
 // Formato Texto Plano
-async function generarTxt(arrayExtracto2) {
-    // Contenido del archivo
-    const texto = arrayExtracto2.join('\n');
-
+async function generarTxtMasivo(extractosData) {
+    // Encabezados del CSV
+    const encabezados = [
+        "Cédula",
+        "Nombre",
+        "Municipio",
+        "Dirección",
+        "Celular",
+        "Mes",
+        "Cuota Periódica",
+        "Cuota Coohop",
+        "Valor Vencido",
+        "Saldo",
+        "Pago Total"
+    ].join(',');
+    
+    // Construir líneas de datos para TODOS los extractos
+    const lineas = extractosData.map(extractoData => {
+        return [
+            extractoData.numDocumento || '',
+            `"${extractoData.nombre}"`,
+            `"${extractoData.mpioResidencia}"`,
+            `"${extractoData.direccion}"`,
+            extractoData.numCelular || '',
+            `"${extractoData.mes}"`,
+            extractoData.cuotaPeriodica || 0,
+            extractoData.cuotaCoohop || 0,
+            extractoData.valorVencido || 0,
+            extractoData.saldo || 0,
+            extractoData.pagoTotal || 0
+        ].join(',');
+    });
+    
+    // Unir encabezados y todas las líneas
+    const texto = `${encabezados}\n${lineas.join('\n')}`;
+    
     // Crear un Blob con el contenido
-    const blob = new Blob([texto], { type: "text/plain" });
-
+    const blob = new Blob([texto], { type: "text/plain;charset=utf-8" });
+    
     // Crear un enlace temporal para la descarga
     const enlace = document.createElement("a");
     enlace.href = URL.createObjectURL(blob);
-    enlace.download = "archivo.txt"; // Nombre del archivo
-
+    const nombreMes = extractosData[0]?.mes || 'Extractos';
+    enlace.download = `Extractos_${nombreMes}_${new Date().getTime()}.txt`;
+    
     // Simular un clic para descargar el archivo
     enlace.click();
-
+    
     // Limpiar el URL Object creado
     URL.revokeObjectURL(enlace.href);
     
+    console.log('TXT masivo generado exitosamente');
 }

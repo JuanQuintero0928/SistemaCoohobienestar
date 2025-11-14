@@ -36,10 +36,6 @@
                 </div>
             </div>
         </div>
-    </div> 
-
-    <div class="modal fade" id="creacion" role="dialog">
-    <!-- En este div se visualiza la informacion para la creacion de un nuevo registro de entrada -->
     </div>
 
 {% endblock submenu %}
@@ -81,7 +77,11 @@
             </td>
             <td class="fw-bold text-primary">
                 {% if obj.formaPago == 'CREDITO' or obj.formaPago == 'DESCUENTO NOMINA' %}
-                    ${{ obj.pendientePago|intcomma }}
+                    {% if obj.pendientePago >= 0 %}
+                        ${{ obj.pendientePago|intcomma }}
+                    {% else %}
+                        Saldo a favor ${{ obj.pendientePago_positivo|intcomma }}
+                    {% endif %}
                 {% endif %}
             </td>
             <td class="fw-bold">${{ obj.valorNeto|intcomma }}</td>
@@ -140,21 +140,57 @@
 {% block extrajs %}
 <script src="{% static 'js/tablaAmortizacion.js' %}"></script>
 
+<!-- CSS de Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<!-- JS de Select2 -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script type="text/javascript">
     var $ = jQuery.noConflict()
     
     function abrir_modal_creacion(url){
-        // Desactivar evento previo si existe para evitar duplicados
         $('#creacion').off('shown.bs.modal');
-
+        
         $('#creacion').load(url, function(){
             $('#creacion').modal('show');
-        
+
+            // Cuando el modal se haya mostrado
+            $('#creacion').on('shown.bs.modal', function () {
+                // Inicializar todos los select2 dentro del modal
+                inicializarSelect2EnModal();
+            });
+
             $('#creacion').off('hidden.bs.modal').on('hidden.bs.modal', function () {
                 $('#creacion').html('');
             });
         });
     }
+
+    // Función reutilizable para inicializar Select2
+    function inicializarSelect2EnModal() {
+        $('#creacion .select2-producto').each(function() {
+            if (!$(this).hasClass('select2-hidden-accessible')) {
+                $(this).select2({
+                    placeholder: "Buscar producto...",
+                    width: '100%',
+                    dropdownParent: $('#creacion'),
+                    dropdownAutoWidth: true,
+                    language: {
+                        noResults: function() {
+                            return "No se encontraron resultados";
+                        }
+                    }
+                });
+            }
+        });
+        
+        // Cerrar select2 al hacer scroll
+        $('#creacion .modal-body, #creacion .modal-dialog').on('scroll', function() {
+            $('.select2-producto').select2('close');
+        });
+    }
+
     function abrir_modal_ver(url){
         $('#ver').load(url, function(){
             $(this).modal('show');
@@ -175,10 +211,7 @@
             $(this).modal('show');
         });
     }
+
 </script>
 
 {% endblock extrajs %}  
-
-
-
-    

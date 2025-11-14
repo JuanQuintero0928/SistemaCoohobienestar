@@ -52,8 +52,8 @@
                     {{ form.medioPago }}
                   </div>
                   <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
-                    <label for="cuotas">Número de cuotas</label>
-                    <input name="cuotas" id="cuotas" type="number" class="form-control" min="0" value="6">
+                    {{ form.cuotas.label_tag }}
+                    {{ form.cuotas }}
                   </div>
                   <div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3">
                     {{ form.formaDesembolso.label_tag }}
@@ -174,8 +174,16 @@
       document.getElementById("fechaSolicitud").value = today;
     });
 
+    
+    // funcion para obtener fechaFinal del modelo mesTarifa
+    async function obtenerFechaPrimerPago(id_primerMes) {
+      const res = await fetch(`/parametro/utils/mes-tarifa-info/${id_primerMes}/`);
+      const data = await res.json();
+      return data.fechaInicio; // YYYY-MM-DD
+    }
+
     // Evento que calcula la tabla de amortizacion cuando se hace clic en el botón
-    document.getElementById("calcular").addEventListener("click", function () {
+    document.getElementById("calcular").addEventListener("click", async function () {
       const valor = parseFloat(document.getElementById("valor").value) || 0;
 
       const tasaInteres = document.getElementById('id_tasaInteres');
@@ -184,6 +192,7 @@
 
       const cuotas = parseInt(document.getElementById("cuotas").value) || 0;
       const fechaSolicitud = document.getElementById("fechaSolicitud").value;
+      const primerMesPago = document.getElementById("id_primerMes").value;
 
       if (!fechaSolicitud) {
         Swal.fire({
@@ -195,9 +204,20 @@
         });
         return;
       }
+      if (!primerMesPago) {
+        Swal.fire({
+          icon: 'info',
+          title: 'Falta seleccionar primer mes de cobro',
+          text: 'Por favor, seleccione un mes.',
+          confirmButtonText: 'Ok',
+          confirmButtonColor: '#3085d6'
+        });
+        return;
+      }
+      const fechaPrimerMes = await obtenerFechaPrimerPago(primerMesPago);
 
       if (valor > 0 && cuotas > 0) {
-        generarTablaAmortizacion(valor, tasa, cuotas, fechaSolicitud, 1);
+        generarTablaAmortizacion(valor, tasa, cuotas, fechaSolicitud, fechaPrimerMes, 1);
         let pkAsociado = document.getElementById("pkAsociado").value;
         calcularCapacidadEndeudamiento(pkAsociado);
         document.getElementById("btnGuardar").classList.remove("d-none");

@@ -266,10 +266,15 @@ class HistoricoCreditoForm(forms.ModelForm):
         ]
         self.fields["tasaInteres"].choices.insert(0, ("", "Seleccione una tasa"))
 
-        # === 3️⃣ Establecer valor inicial al editar ===
+        # === Establecer valor inicial al editar ===
         if self.instance.pk and self.instance.tasaInteres:
             tasa = self.instance.tasaInteres
             self.initial["tasaInteres"] = f"{tasa.porcentaje}|{tasa.concepto}"
+
+        # === Deshabilitar campos si el crédito ya fue otorgado ===
+        if self.instance and getattr(self.instance, "estado", "").upper() == "OTORGADO":
+            for field in self.fields.values():
+                field.disabled = True
 
 
 

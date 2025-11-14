@@ -1,63 +1,72 @@
 {% load humanize %}
 {{ meses|json_script:"meses-data" }}
 
-    <div class="modal-dialog modal-xl custom-modal" role="dialog" id="creacion">
-        <div class="modal-dialog custom-modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Detalle Consumo Chip Gasolina</h1>
-                    <hr>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" value="{{ pkConvenio }}" id="id-convenio">
-                    <button type="button" class="btn btn-primary btn-sm mb-3" id="btn-agregarMes">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
-                        </svg>
-                    </button>
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th class="fw-semibold">Número</th>
-                                <th class="fw-semibold">Mes</th>
-                                <th class="fw-semibold">Valor a Pagar</th>
-                                <th class="fw-semibold">Valor Pendiente a Pagar</th>
-                                <th class="fw-semibold">Opciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-meses-body">
-                            {% for obj in historico %}
-                                <tr id="fila-consumo-{{ obj.id }}">
-                                    <th>{{ forloop.counter }}</th>
-                                    <th class="fw-normal">{{ obj.mes_tarifa.concepto }}</th>
-                                    <th class="fw-normal"> ${{ obj.valor_pagar|intcomma }}</th>
-                                    <th class="fw-normal"> ${{ obj.pendiente_pago|intcomma }}</th>
-                                    <th>
-                                        <div class="btn-group" role="group" aria-label="Basic example">
-                                            {% comment %} <button class="btn btn-outline-primary btn-sm" onclick="toggleEliminar({{ obj.id }})" id="btn-{{ obj.id }}">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
-                                                    <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
-                                                </svg>
-                                            </button> {% endcomment %}
-                                            <button class="btn btn-outline-danger btn-sm" onclick="toggleEliminar({{ obj.pk }})" id="btn-eliminar-{{ obj.id }}" data-id-fila="fila-consumo-{{ obj.id }}">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                                                    <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </th>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    <button type="button" class="btn btn-success btn-sm mt-2" id="btn-guardarMeses">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16">
-                            <path d="M11 2H9v3h2z"></path>
-                            <path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"></path>
-                        </svg>
-                    </button>
+    <div class="modal-dialog modal-lg custom-modal" role="dialog" id="creacion">
+        <div class="modal-content">
+
+            <!-- ENCABEZADO -->
+            <div class="modal-header bg-primary text-white">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Detalle Consumo Chip Gasolina</h1>
+                <hr>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- CUERPO -->
+            <div class="modal-body">
+
+                <div class="card mb-4 shadow-sm border-0">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0 text-secondary">Resumen de Consumos</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <input type="hidden" value="{{ pkConvenio }}" id="id-convenio">
+                            <div class="text-end">
+                                <button type="button" class="btn btn-primary mb-3" id="btn-agregarMes">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                                    </svg> Agregar Mes
+                                </button>
+                            </div>
+                        
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th class="fw-semibold">Número</th>
+                                        <th class="fw-semibold">Mes</th>
+                                        <th class="fw-semibold">Valor a Pagar</th>
+                                        <th class="fw-semibold">Valor Pendiente a Pagar</th>
+                                        <th class="fw-semibold">Opciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-meses-body">
+                                    {% for obj in historico %}
+                                        <tr id="fila-consumo-{{ obj.id }}">
+                                            <th>{{ forloop.counter }}</th>
+                                            <th class="fw-normal">{{ obj.mes_tarifa.concepto }}</th>
+                                            <th class="fw-normal"> ${{ obj.valor_pagar|intcomma }}</th>
+                                            <th class="fw-normal"> ${{ obj.pendiente_pago|intcomma }}</th>
+                                            <th>
+                                                <div class="btn-group" role="group" aria-label="Basic example">
+                                                    <button class="btn btn-outline-danger btn-sm" onclick="toggleEliminar({{ obj.pk }})" id="btn-eliminar-{{ obj.id }}" data-id-fila="fila-consumo-{{ obj.id }}">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                                            <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <div class="text-end">
+                                <button type="button" class="btn btn-success mt-2" id="btn-guardarMeses">
+                                    Guardar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>

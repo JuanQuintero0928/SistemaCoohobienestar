@@ -80,6 +80,10 @@ class HistoricoVenta(models.Model):
     def __str__(self):
         return f"{self.fechaVenta} {self.asociado.numDocumento}"
     
+    @property
+    def pendientePago_positivo(self):
+        return abs(self.pendientePago or 0)
+    
 class DetalleVenta(models.Model):
     id = models.AutoField(primary_key=True)
     historicoVenta = models.ForeignKey(HistoricoVenta, on_delete=models.CASCADE, blank=False, null=False)

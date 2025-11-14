@@ -6,6 +6,7 @@ from asociado.models import (
     Asociado,
     ConveniosAsociado,
     RepatriacionTitular,
+    TarifaAsociado
 )
 from beneficiario.models import Beneficiario, Mascota, Coohoperativitos
 from historico.models import HistoricoSeguroVida
@@ -16,8 +17,7 @@ def generar_radicado(asociado_id, tipo):
     consecutivo, _ = ConsecutivoRadicado.objects.get_or_create(anio=anio, tipo=tipo)
     consecutivo.ultimo_numero += 1
     consecutivo.save()
-    print("llega a la funcion generar_radicado")
-    numero_radicado = f"{tipo}-{anio}-{consecutivo.ultimo_numero:04d}"
+    numero_radicado = f"{tipo}-{anio}-{consecutivo.ultimo_numero:03d}"
 
     # Obtener instancia de Asociado
     asociado = Asociado.objects.get(pk=asociado_id)
@@ -65,6 +65,21 @@ def inactivar_asociado(asociado_id):
         qs_repatriacion_titular = RepatriacionTitular.objects.filter(
             asociado=asociado_id, estadoRegistro=True
         ).update(estadoRegistro=False)
+
+        TarifaAsociado.objects.filter(asociado=asociado_id).update(
+            cuotaAporte=0,
+            cuotaBSocial=0,
+            cuotaMascota=0,
+            cuotaAdicionales=0,
+            cuotaRepatriacionBeneficiarios=0,
+            cuotaRepatriacionTitular=0,
+            cuotaSeguroVida=0,
+            cuotaCoohopAporte=0,
+            cuotaCoohopBsocial=0,
+            cuotaConvenio=0,
+            total=0,
+            estadoAdicional=False
+        )
 
         return {
             "mascotas": qs_mascota,

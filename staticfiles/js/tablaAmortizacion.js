@@ -1,8 +1,8 @@
-function generarTablaAmortizacion(saldoInicial, tasaMensual, numCuotas, fechaSolicitud, tipo) {
+function generarTablaAmortizacion(saldoInicial, tasaMensual, numCuotas, fechaSolicitud, fechaPrimerPago, tipo) {
     const tablaBody = document.querySelector("#tablaAmortizacion tbody");
     tablaBody.innerHTML = ""; // Limpiar tabla
 
-    const fechas = generarFechas(numCuotas, fechaSolicitud);
+    const fechas = generarFechas(numCuotas, fechaPrimerPago);
     let saldoRestante = saldoInicial;
 
     let cuotaFija;
@@ -23,7 +23,7 @@ function generarTablaAmortizacion(saldoInicial, tasaMensual, numCuotas, fechaSol
         if (i === 0) {
             fila.innerHTML = `
                 <td>${i}</td>
-                <td>${fechas[i]}</td>
+                <td>${formatearFecha(fechaSolicitud)}</td>
                 <td>${formatearMoneda(saldoRestante)}</td>
                 <td>${formatearMoneda(0)}</td>
                 <td>${formatearMoneda(0)}</td>
@@ -49,7 +49,7 @@ function generarTablaAmortizacion(saldoInicial, tasaMensual, numCuotas, fechaSol
 
             fila.innerHTML = `
                 <td>${i}</td>
-                <td>${fechas[i]}</td>
+                <td>${fechas[i-1]}</td>
                 <td>${formatearMoneda(parseFloat(saldoRestante) + parseFloat(abonoCapital))}</td>
                 <td>${formatearMoneda(abonoCapital)}</td>
                 <td>${formatearMoneda(intereses)}</td>
@@ -141,4 +141,10 @@ function calcularCapacidadEndeudamiento(pkAsociado) {
             }
         })
         .catch(error => { console.log("Error al obtener la tarifa", error); });
+}
+
+
+function formatearFecha(fecha) {
+    const [y, m, d] = fecha.split("-");
+    return `${d}/${m}/${y}`;
 }

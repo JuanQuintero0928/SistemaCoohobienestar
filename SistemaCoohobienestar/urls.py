@@ -51,6 +51,8 @@ urlpatterns = [
     # API
     path('api/', include('asociado.api.urls')),
     path('api/', include('usuarios.api.urls')),
+    # UTILS
+    path('parametro/utils/', include('parametro.utils.urls')),
 
 ]
 

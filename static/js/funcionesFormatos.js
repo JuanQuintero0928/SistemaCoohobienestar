@@ -73,10 +73,9 @@ function sumarMeses(fechaStr, meses) {
     return formatearFecha(fecha);
 }
 
-
 function convertirFecha(fechaStr) {
     let [año, mes, dia] = fechaStr.split("-").map(num => parseInt(num, 10));
-    return new Date(año, mes - 1, dia); // Meses van de 0 a 11
+    return new Date(año, mes - 1, dia);
 }
 
 
@@ -95,13 +94,32 @@ function formatearFecha(fecha) {
 
 
 function convertirMes(mes) {
-
+    if (mes > 12) {
+        mes -= 12
+    }
     let meses = [
         "enero", "febrero", "marzo", "abril", "mayo", "junio",
         "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
     ];
 
     return meses[mes-1];
+}
+
+
+function formatearFechaTexto(fechaStr, mesesASumar = 0) {
+    const [año, mes, dia] = fechaStr.split("-").map(Number);
+    
+    // Calcular nuevo mes y año
+    let nuevoMes = mes + mesesASumar;
+    let nuevoAño = año;
+    
+    // Ajustar año si es necesario
+    while (nuevoMes > 12) {
+        nuevoMes -= 12;
+        nuevoAño += 1;
+    }
+    
+    return `${dia} de ${convertirMes(nuevoMes)} del ${nuevoAño}`;
 }
 
 
@@ -181,4 +199,25 @@ function writeBoldText(pdf, text, x, y, size = 10) {
     // Restaurar configuración anterior
     pdf.setFont('verdana', 'normal');
     pdf.setFontSize(9);
+}
+
+
+function writeTextSize(pdf, value, x, y, size = 9) {
+    //  Guardamos tamaño actual
+    const currentSize = pdf.internal.getFontSize();
+
+    // Cambiar tamaño deseado
+    pdf.setFontSize(size);
+
+    // Escribir texto
+    pdf.text(String(value ?? ""), x, y);
+
+    // Restaurar el tamaño original
+    pdf.setFontSize(currentSize);
+}
+
+
+function formatearFecha(fecha) {
+    const [y, m, d] = fecha.split("-");
+    return `${d}/${m}/${y}`;
 }

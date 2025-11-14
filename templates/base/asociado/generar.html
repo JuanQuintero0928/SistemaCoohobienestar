@@ -1,64 +1,60 @@
+{% extends 'index.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="{% static 'img/icons/logo.png' %}" type="image/png" />
-    <title>Coohobienestar</title>
-    <style>
-        body, html {
-            height: 100%;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #f0f0f0;
-            font-family: Arial, sans-serif;
-        }
 
-        .loader {
-            border: 16px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 16px solid #3498db;
-            width: 120px;
-            height: 120px;
-            animation: spin 2s linear infinite;
-        }
+{% block extraHead %}
+<style>
+    /* Loader circular */
+    .loader {
+        border: 16px solid #f3f3f3;
+        border-top: 16px solid #3498db;
+        border-radius: 50%;
+        width: 120px;
+        height: 120px;
+        animation: spin 2s linear infinite;
+    }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+    /* Animación del giro */
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 
-        .loading-text {
-            margin-top: 20px;
-            font-size: 24px;
-            color: #555;
-        }
-    </style>
-</head>
-<body>
-    <div class="content">
+    /* Texto debajo */
+    .loading-text {
+        margin-top: 20px;
+        font-size: 24px;
+        color: #555;
+    }
+</style>
+{% endblock extraHead %}
+
+{% block title %}
+    Asociado
+{% endblock title %}
+
+{% block contenidoPagina %}
+
+    <div class="d-flex flex-column justify-content-center align-items-center" style="height: 50vh;">
         <div class="loader"></div>
         <div class="loading-text">Cargando...</div>
     </div>
     {{ context_json|json_script:"extracto-data" }}
 
-    {% block extrajs %}
-        <script src="{% static 'js/funcionesFormatos.js' %}"></script>
-        <script src="{% static 'js/formatos.js' %}"></script>
-        <script src="{% static 'lib/jspdf/1.3.4/jspdf.min.js' %}"></script>
+{% endblock contenidoPagina %}
 
-        <script>
-            document.addEventListener('DOMContentLoaded', async function() {
-                const extractoData = JSON.parse(document.getElementById('extracto-data').textContent);
-                const url = "{% static 'img/Formato_ExtractoPago_2025_page_0001.jpg' %}";
-                
-                await generarPDFExtractoIndividual(url, extractoData);
-                window.location.replace("{% url 'asociado:descargarFormatos' pkAsociado %}");
-            });
-        </script>
-    {% endblock extrajs %}
-</body>
-</html>
+{% block extrajs %}
+    <script src="{% static 'js/funcionesFormatos.js' %}"></script>
+    <script src="{% static 'js/formatos.js' %}"></script>
+    <script src="{% static 'lib/jspdf/1.3.4/jspdf.min.js' %}"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const extractoData = JSON.parse(document.getElementById('extracto-data').textContent);
+            const url = "{% static 'img/Formato_ExtractoPago_2025_page_0001.jpg' %}";
+            
+            await generarPDFExtractoIndividual(url, extractoData);
+            window.location.replace("{% url 'asociado:descargarFormatos' pkAsociado %}");
+        });
+    </script>
+{% endblock extrajs %}
+

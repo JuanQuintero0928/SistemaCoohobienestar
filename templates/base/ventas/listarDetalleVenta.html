@@ -80,6 +80,7 @@
                                 </div>
                                 <div class="col-12 col-md-4 mb-3">
                                     <label for="primerMes">Primer Mes Cobro:</label>
+                                    <input type="text" id="id_primerMes" value="{{ historicoVenta.primerMes.pk }}" class="form-control" readonly hidden>
                                     <input type="text" id="primerMes" value="{{ historicoVenta.primerMes }}" class="form-control" readonly>
                                 </div>
                                 <div class="col-12 col-md-4 mb-3 d-none">
@@ -181,21 +182,31 @@
 
 
 <script>
-    document.getElementById("calcular").addEventListener("click", function () {
+
+    // funcion para obtener fechaFinal del modelo mesTarifa
+    async function obtenerFechaPrimerPago(id_primerMes) {
+        const res = await fetch(`/parametro/utils/mes-tarifa-info/${id_primerMes}/`);
+        const data = await res.json();
+        return data.fechaInicio; // YYYY-MM-DD
+    }
+
+    document.getElementById("calcular").addEventListener("click", async function () {
         const valor = document.getElementById("id_valorBruto").value.replace(/\./g, '').replace(',', '.');
         const rawtasa = document.getElementById("id_tasaInteres").value.replace(',', '.');
         const tasa = parseFloat(rawtasa) || 0;
         const cuotas = parseInt(document.getElementById("numeroCuotas").value) || 0;
         const fechaSolicitud = document.getElementById("fechaVenta").value;
+        const primerMesPago = document.getElementById("id_primerMes").value;
 
         if (!fechaSolicitud) {
             alert("Por favor, ingresa una fecha válida.");
             return;
         }
 
+        const fechaPrimerMes = await obtenerFechaPrimerPago(primerMesPago);
 
         if (parseInt(valor) > 0 && cuotas > 0) {
-            generarTablaAmortizacion(parseInt(valor), tasa, cuotas, fechaSolicitud, 1);
+            generarTablaAmortizacion(parseInt(valor), tasa, cuotas, fechaSolicitud, fechaPrimerMes, 1);
         }else {
             alert("Por favor, ingresa valores válidos.");
         }

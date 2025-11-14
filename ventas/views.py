@@ -100,7 +100,7 @@ class ListarVentasAsociado(DetailView):
             asociado=asociado,
             estadoRegistro=True
         ).order_by('fechaVenta')
-
+        
         context.update({
             'ventas': ventas,
             'pkAsociado': asociado.pk,
@@ -108,10 +108,7 @@ class ListarVentasAsociado(DetailView):
             'vista': 11
         })
         return context
-    
-    def get(self, request, *args, **kwargs):
-        return super().get(self, request, *args, **kwargs)
-    
+
 
 @require_http_methods(["GET"])
 def verPagosVentas(request, pk):

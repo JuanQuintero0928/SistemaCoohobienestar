@@ -507,7 +507,11 @@ class ObtenerExtractosAPI(View):
             saldos = request.POST.get('saldos') == 'true'
             
             # Obtener asociados
-            objAsoc = Asociado.objects.exclude(estadoAsociado='ACTIVO').select_related('mpioResidencia')
+            objAsoc = (
+                Asociado.objects
+                .exclude(estadoAsociado = 'RETIRO')
+                .exclude(parametroasociado__primerMes__id=9989)
+                .select_related('mpioResidencia'))
             total = objAsoc.count()
             mes = MesTarifa.objects.get(pk=mesExtracto)
             
@@ -878,17 +882,17 @@ class DescargarAsociados(BaseReporteExcel):
 class DescargarTarifasAsociados(BaseReporteExcel):
     nombre_hoja = "Listado Tarifas Asociados"
     columnas = [
-        'ID Asociado', 'Número Documento', 'Nombre Completo', 'Tipo Asociado', 'Valor', 'Aporte', 'Bienestar Social', 'Mascota', 'Repatriación', 'Seguro Vida', 'Adicionales', 'Coohoperativitos Aporte', 'Coohoperativitos B Social', 'Convenio'
+        'ID Asociado', 'Número Documento', 'Nombre Completo', 'Tipo Asociado', 'Estado Asociado', 'Valor', 'Aporte', 'Bienestar Social', 'Mascota', 'Repatriación', 'Seguro Vida', 'Adicionales', 'Coohoperativitos Aporte', 'Coohoperativitos B Social', 'Convenio'
         ]
 
-    ancho_columnas = [11, 14, 36, 20, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14]
+    ancho_columnas = [11, 14, 36, 20, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14]
 
     def get_queryset(self, request, *args, **kwargs):
         
         self.titulo = "Listado Tarifas de Asociados"
 
         return TarifaAsociado.objects.values('asociado__id',
-                            'asociado__nombre','asociado__apellido','asociado__numDocumento','asociado__tAsociado__concepto', 'cuotaAporte', 'cuotaBSocial', 'cuotaMascota', 'cuotaRepatriacionBeneficiarios', 'cuotaRepatriacionTitular',
+                            'asociado__nombre','asociado__apellido','asociado__numDocumento','asociado__tAsociado__concepto','asociado__estadoAsociado','cuotaAporte','cuotaBSocial', 'cuotaMascota', 'cuotaRepatriacionBeneficiarios', 'cuotaRepatriacionTitular',
                             'cuotaSeguroVida', 'cuotaAdicionales', 'cuotaCoohopAporte', 'cuotaCoohopBsocial', 'cuotaConvenio', 'total'
                         )
 
@@ -898,6 +902,7 @@ class DescargarTarifasAsociados(BaseReporteExcel):
             int(obj['asociado__numDocumento']),
             f"{obj['asociado__nombre']} {obj['asociado__apellido']}",
             obj['asociado__tAsociado__concepto'],
+            obj['asociado__estadoAsociado'],
             obj['total'],
             obj['cuotaAporte'],
             obj['cuotaBSocial'],

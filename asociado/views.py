@@ -1671,6 +1671,7 @@ class CrearAdicionalAsociado(UpdateView):
         obj = form.save(commit=False)
         obj.estadoAdicional = True
         obj.conceptoAdicional = obj.conceptoAdicional.upper()
+        obj.fechaFinAdicional = None
 
         # Recuperar el valor anterior antes de guardar
         valor_anterior = TarifaAsociado.objects.get(pk=obj.pk).cuotaAdicionales or 0
