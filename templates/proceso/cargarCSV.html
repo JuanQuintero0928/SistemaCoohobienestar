@@ -24,6 +24,12 @@
             <p>asociado_id,mesPago_id,fechaPago,valorPago,aportePago,bSocialPago,mascotaPago,repatriacionPago,seguroVidaPago,adicionalesPago,coohopAporte,coohopBsocial,convenioPago,diferencia,formaPago_id</p>
         </div>
         {% for message in messages%}
+            {% if message.tags == 'success' %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert" id="alert-message">
+                    <strong>Exitoso!</strong> {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif%}
             {% if message.tags == 'error'%}
                 <div class="alert alert-warning" role="alert">
                     {{ message }}
