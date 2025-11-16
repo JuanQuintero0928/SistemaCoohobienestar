@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.safestring import mark_safe
 from django.urls import reverse
 from django.views.generic import ListView, DeleteView, TemplateView, DetailView, View
 from usuarios.models import UsuarioAsociado
@@ -975,19 +976,20 @@ class cargarCSV(ListView):
                 user_creacion_id = request.user.pk
                 registros = procesar_csv(archivo_csv, user_creacion_id)
                 HistorialPagos.objects.bulk_create(registros)
-                messages.info(
+                messages.success(
                     request,
-                    "Datos insertados correctamente:  Se ha registrado "
-                    + str(len(registros))
-                    + " registros.",
+                    f"✓ Datos insertados correctamente: Se han registrado {len(registros)} registro(s).",
                 )
             except ValueError as e:
-                messages.error(request, f"Error: {str(e)}")
+                # Los errores acumulados vendrán aquí con saltos de línea
+                mensaje_html = str(e).replace('\n', '<br>')
+                messages.error(request, mark_safe(mensaje_html))
             except Exception as e:
-                messages.error(request, f"Error: {str(e)}")
+                messages.error(request, f"Error inesperado: {str(e)}")
+        else:
+            messages.warning(request, "No se ha seleccionado ningún archivo CSV.")
 
         return redirect("proceso:cargarCSV")
-
 
 class ActualizarEstadoAsoc(TemplateView):
     template_name = "proceso/actualizarEstadoAsoc.html"
