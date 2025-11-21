@@ -1117,10 +1117,9 @@ class CrearAuxilio(CreateView):
             obj.tipoAuxilio = TipoAuxilio.objects.get(
                 nombre=formulario.cleaned_data["tipoAuxilio"]
             )
-            if obj.entidadBancaria is not None:
+            if formulario.cleaned_data["entidadBancaria"]:
                 obj.entidadBancaria = formulario.cleaned_data["entidadBancaria"].upper()
-            if obj.numCuenta is not None:
-                obj.numCuenta = formulario.cleaned_data["numCuenta"]
+            obj.numCuenta = formulario.cleaned_data["numCuenta"]
             obj.valor = obj.tipoAuxilio.valor
             obj.estado = formulario.cleaned_data["estado"]
             obj.estadoRegistro = True
@@ -2263,7 +2262,6 @@ class GenerarFormato(View):
             mes = MesTarifa.objects.get(pk=request.GET["mes"])
             formato = kwargs["formato"]
             context = obtenerValorExtracto(id_asociado, saldos, mes)
-            
             context["objAsoc"] = objAsoc
             context["formato"] = formato
             

@@ -83,7 +83,17 @@
             <td class="fw-bold">${{ obj.totalCredito|intcomma }}</td>
             <td>{{ obj.lineaCredito }}</td>
             <td>{{ obj.tasaInteres }}</td>
-            <td>{{ obj.estado }}</td>
+            <td>
+                <span {% if obj.estado == 'OTORGADO' %}
+                        class="badge bg-success text-white border ms-2"
+                        {% elif obj.estado == 'DENEGADO' %}
+                        class="badge bg-danger text-white border ms-2"
+                        {% else %}
+                        class="badge bg-primary text-white border ms-2"
+                        {% endif %}>
+                {{ obj.estado }}
+                </span>
+            </td>
             <td>
                 <center>
                 {% for codeudor in obj.codeudor_set.all %}

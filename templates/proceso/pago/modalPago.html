@@ -28,7 +28,20 @@
                             <td>{{query.asociado.numDocumento|intcomma}}</td>
                             <td>${{query.total|intcomma}}</td>
                             <td>{{query.asociado.tAsociado}}</td>
-                            <td>${{diferencia|intcomma}}</td>
+                            <td>
+                                <p class="
+                                        badge text-white border ms-2
+                                        {% if diferencia > 0 %}
+                                            bg-success
+                                        {% elif diferencia == 0 %}
+                                            bg-primary
+                                        {% else %}
+                                            bg-danger
+                                        {% endif %}
+                                    ">
+                                    ${{diferencia|intcomma}}
+                                </p>
+                            </td>
                             <td>
                                 <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
                                     <div class="accordion-body">

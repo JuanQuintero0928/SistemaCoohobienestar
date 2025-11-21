@@ -95,7 +95,7 @@
                 <input type="text" class="form-control" id="coohopBsocial" name="coohopBsocial" value="{{ query.coohopBsocial }}" type="number" disabled>
               </div>
             {% endif %}
-            {% if query.convenioPago != 0 %}
+            {% if query.convenioPago %}
               {% comment %} input completo {% endcomment %}
               <div class="input-group mb-3">
                 <span class="input-group-text" id="basic-addon3">Convenios</span>

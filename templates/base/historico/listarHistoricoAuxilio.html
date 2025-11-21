@@ -77,7 +77,17 @@
                     <span class="text-muted">No especificada</span>
                 {% endif %}    
             </td>
-            <td>{{ obj.estado }}</td>
+            <td>
+                <span {% if obj.estado == 'OTORGADO' %}
+                        class="badge bg-success text-white border ms-2"
+                        {% elif obj.estado == 'DENEGADO' %}
+                        class="badge bg-danger text-white border ms-2"
+                        {% else %}
+                        class="badge bg-primary text-white border ms-2"
+                        {% endif %}>
+                {{ obj.estado }}
+                </span>
+            </td>
             <td>
                 <center>
                 <div class="btn-group" role="group" aria-label="Basic example">
