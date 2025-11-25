@@ -15,41 +15,41 @@
             {% comment %} input completo {% endcomment %}
             <h2 class="modal-title fs-5" id="exampleModalLabel">Información Pago</h2>
             <hr>
-            <div class="input-group mb-3">
+            <div class="input-group mb-2">
                 <span class="input-group-text" id="basic-addon3">Asociado</span>
                 <input type="text" class="form-control" value="{{ query.asociado.nombre }} {{ query.asociado.apellido }}" type="text" disabled>      
             </div>
-            <div class="input-group mb-3">
+            <div class="input-group mb-2">
                 <span class="input-group-text" id="basic-addon3">Fecha Pago</span>
                 <input type="text" class="form-control" value="{{ query.fechaPago|date:"d/m/Y" }} " disabled >      
             </div>
-            <div class="input-group mb-3">
+            <div class="input-group mb-2">
                 <span class="input-group-text" id="basic-addon3">Concepto</span>
                 <input type="text" class="form-control" value="{{ query.mesPago.concepto}} " disabled >      
             </div>
-            <hr>
-            <h2 class="modal-title fs-5" id="exampleModalLabel">Valores</h2>
-            <hr>
-            <div class="input-group mb-3">
-              <span class="input-group-text" id="basic-addon3">Valor Total</span>
+            <div class="input-group mb-2">
+              <span class="input-group-text" id="basic-addon3">Valor Pago</span>
               <span class="input-group-text">$</span>
               <input type="text" class="form-control" id="valorPago" name="valorPago" value="{{ query.valorPago }}" type="number" disabled>      
             </div>
+            <hr>
+            <h2 class="modal-title fs-5" id="exampleModalLabel">Detalles</h2>
+            <hr>
             {% comment %} input completo 2 {% endcomment %}
-            <div class="input-group mb-3">
+            <div class="input-group mb-2">
               <span class="input-group-text" id="basic-addon3">Aporte</span>
               <span class="input-group-text">$</span>
               <input type="text" class="form-control" id="aportePago" name="aportePago" value="{{ query.aportePago }}" type="number" disabled>
             </div>
             {% comment %} input completo {% endcomment %}
-            <div class="input-group mb-3">
+            <div class="input-group mb-2">
               <span class="input-group-text" id="basic-addon3">Bienestar Social</span>
               <span class="input-group-text">$</span>
               <input type="text" class="form-control" id="bSocialPago" name="bSocialPago" value="{{ query.bSocialPago }}" type="number" disabled>
             </div>
             {% if query.mascotaPago != 0 %}
               {% comment %} input completo {% endcomment %}
-              <div class="input-group mb-3">
+              <div class="input-group mb-2">
                 <span class="input-group-text" id="basic-addon3">Mascota</span>
                 <span class="input-group-text">$</span>
                 <input type="text" class="form-control" id="mascotaPago" name="mascotaPago" value="{{ query.mascotaPago }}" type="number" disabled>
@@ -57,7 +57,7 @@
             {% endif %}
             {% if query.repatriacionPago != 0 %}
               {% comment %} input completo {% endcomment %}
-              <div class="input-group mb-3">
+              <div class="input-group mb-2">
                 <span class="input-group-text" id="basic-addon3">Repatriación</span>
                 <span class="input-group-text">$</span>
                 <input type="text" class="form-control" id="repatriacionPago" name="repatriacionPago" value="{{ query.repatriacionPago }}" type="number" disabled>
@@ -65,7 +65,7 @@
             {% endif %}
             {% if query.seguroVidaPago != 0 %}
               {% comment %} input completo {% endcomment %}
-              <div class="input-group mb-3">
+              <div class="input-group mb-2">
                 <span class="input-group-text" id="basic-addon3">Seguro Vida</span>
                 <span class="input-group-text">$</span>
                 <input type="text" class="form-control" id="seguroVidaPago" name="seguroVidaPago" value="{{ query.seguroVidaPago }}" type="number" disabled>
@@ -73,7 +73,7 @@
             {% endif %}
             {% if query.adicionalesPago != 0 %}
               {% comment %} input completo {% endcomment %}
-              <div class="input-group mb-3">
+              <div class="input-group mb-2">
                 <span class="input-group-text" id="basic-addon3">Adicionales</span>
                 <span class="input-group-text">$</span>
                 <input type="text" class="form-control" id="adicionalesPago" name="adicionalesPago" value="{{ query.adicionalesPago }}" type="number" disabled>
@@ -81,7 +81,7 @@
             {% endif %}
             {% if query.coohopAporte != 0 %}
               {% comment %} input completo {% endcomment %}
-              <div class="input-group mb-3">
+              <div class="input-group mb-2">
                 <span class="input-group-text" id="basic-addon3">Coohoperativitos</span>
                 <span class="input-group-text">$</span>
                 <input type="text" class="form-control" id="coohopAporte" name="coohopAporte" value="{{ query.coohopAporte }}" type="number" disabled>
@@ -89,7 +89,7 @@
             {% endif %}
             {% if query.coohopBsocial != 0 %}
               {% comment %} input completo {% endcomment %}
-              <div class="input-group mb-3">
+              <div class="input-group mb-2">
                 <span class="input-group-text" id="basic-addon3">Coohoperativitos B. Social</span>
                 <span class="input-group-text">$</span>
                 <input type="text" class="form-control" id="coohopBsocial" name="coohopBsocial" value="{{ query.coohopBsocial }}" type="number" disabled>
@@ -97,7 +97,7 @@
             {% endif %}
             {% if query.convenioPago %}
               {% comment %} input completo {% endcomment %}
-              <div class="input-group mb-3">
+              <div class="input-group mb-2">
                 <span class="input-group-text" id="basic-addon3">Convenios</span>
                 <span class="input-group-text">$</span>
                 <input type="text" class="form-control" id="coohopBsocial" name="coohopBsocial" value="{{ query.convenioPago }}" type="number" disabled>
@@ -108,7 +108,7 @@
               <hr>
               <h2 class="modal-title fs-5" id="exampleModalLabel">Saldos</h2>
               <hr>
-              <div class="input-group mb-3">
+              <div class="input-group mb-2">
                 <span class="input-group-text" id="basic-addon3" {% if query.diferencia < 0 %}  style="color:#DF5B68" {% else %} style="color:#198754" {% endif %} ><b>{% if diferencia > 0 %}Saldo a Favor{% else %}Saldo Pendiente{% endif %}</b></span>
                 <span class="input-group-text">$</span>
                 <input type="text" class="form-control" id="diferencia" value="{{query.diferencia}}" name="diferencia" type="number" disabled>

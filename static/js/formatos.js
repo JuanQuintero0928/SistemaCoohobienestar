@@ -865,7 +865,6 @@ async function generarPDFExtractoIndividual(url, extractoData) {
 
     // tabla valores a pagar
     pdf.setFontSize(9);
-    let count_detalle = true;
 
     extractoData.conceptos_detallados.forEach((concepto) => {
         // Si el texto supera los 24 caracteres, lo corta y agrega "..."
@@ -875,14 +874,13 @@ async function generarPDFExtractoIndividual(url, extractoData) {
         }
 
         pdf.text(textoConcepto, 17, y);
-        if (count_detalle == true) {
-            pdf.text(formatearNumero(extractoData.saldoDiferencia), 245, y);
-            count_detalle = false;
+        if (concepto.saldo < 0 || concepto.saldo > 0) {
+            pdf.text(formatearNumero(concepto.saldo), 245, y);
         }
         pdf.text(fechaFormateada, 166, y);
         writeText(pdf, concepto.cuotas_vencidas.toString(), 329, y);
         pdf.text(formatearNumero(concepto.cuota_mes), 385, y);
-        pdf.text(formatearNumero(concepto.total), 531, y);
+        pdf.text(formatearNumero(concepto.total_a_pagar), 531, y);
         y += 15;
     });
 

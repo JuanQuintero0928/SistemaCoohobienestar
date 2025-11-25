@@ -2073,7 +2073,7 @@ class ModalFormato(ListView):
             objParametroAsoc = ParametroAsociado.objects.get(
                 asociado=kwargs["pkAsociado"]
             )
-            objMes = MesTarifa.objects.filter(pk__gte=objParametroAsoc.primerMes.pk)
+            objMes = MesTarifa.objects.filter(pk__gte=objParametroAsoc.primerMes.pk, pk__lt=9000)
             return render(
                 request,
                 template_name,

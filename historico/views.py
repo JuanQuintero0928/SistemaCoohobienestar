@@ -768,7 +768,12 @@ def actualizar_pago(request, pk, tipo):
             if tipo == 1:
                 pago.fechaPago = fecha_pago
                 pago.formaPago = obj_forma_pago
-                pago.diferencia = valor_pago - pago.creditoHomeElements
+                
+                # Si es Anticipo no se deja diferencia
+                if pago.mesPago.pk != 9988: 
+                    pago.diferencia = valor_pago - pago.creditoHomeElements
+                else:
+                    pago.diferencia = 0
                 pago.userModificacion = request.user
                 pago.save()
                 venta_he = HistoricoVenta.objects.get(pk = pago.ventaHE.id)
@@ -809,7 +814,9 @@ def eliminar_pago(request, pk, tipo):
         pago = get_object_or_404(HistorialPagos, pk=pk)
         if tipo == 1:
             venta_he = get_object_or_404(HistoricoVenta, pk = pago.ventaHE.pk)
-            venta_he.cuotasPagas -= 1
+            # Si es diferente a Anticipo, se resta la cuota, de lo contrario no hace nada
+            if pago.mesPago.pk != 9988:
+                venta_he.cuotasPagas -= 1
             venta_he.pendientePago += pago.valorPago
             venta_he.save()
             pago.delete()
@@ -943,6 +950,14 @@ class EliminarPago(DeleteView):
             )
             convenio.pendiente_pago += obj.valorPago
             convenio.save()
+
+        # Si es anticipo, se elimina registro y se actualiza valor de credito productos
+        if obj.mesPago.pk == 9988:
+            venta = HistoricoVenta.objects.get(
+                id = obj.ventaHE_id
+            )
+            venta.pendientePago += obj.valorPago
+            venta.save()
 
         obj.delete()
         messages.info(request, "Pago Eliminado Correctamente")

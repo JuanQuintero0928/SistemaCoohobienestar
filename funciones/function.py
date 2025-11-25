@@ -21,26 +21,17 @@ def separarFecha(fecha, parametro):
     dia = fechaString.day
     mes = fechaString.month
     año = fechaString.year
-    fecha = [año, mes, dia]
-    fechaFormato = fechaUtc(año, mes, dia, parametro)
-    return fechaFormato
+    return fechaUtc(año, mes, dia, parametro)
 
 
 # funcion que pone en formato utc la fecha par evitar advertencias en la consulta
 def fechaUtc(año, mes, dia, parametro):
     if parametro == "inicial":
-        fecha = datetime.datetime(
-            año, mes, dia, 00, 00, 00, 000000, tzinfo=ZoneInfo("America/Guayaquil")
-        )
-        return fecha
+        return datetime(año, mes, dia, 0, 0, 0, 0, tzinfo=ZoneInfo("America/Guayaquil"))
     elif parametro == "final":
-        fecha = datetime.datetime(
-            año, mes, dia, 23, 59, 59, 999999, tzinfo=ZoneInfo("America/Guayaquil")
-        )
-        # fecha = datetime.datetime(año, mes, dia, 23, 59, 59, 999999,  tzinfo=datetime.timezone.utc)
+        return datetime(año, mes, dia, 23, 59, 59, 999999, tzinfo=ZoneInfo("America/Guayaquil"))
     else:
-        fecha = "00-00-0000"
-    return fecha
+        return None
 
 
 def convertir_fecha(fecha_str):

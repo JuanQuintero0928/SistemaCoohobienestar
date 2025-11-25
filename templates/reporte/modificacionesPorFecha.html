@@ -2,6 +2,28 @@
 {% load static %}
 {% load humanize %}
 
+{% block extraHead %}
+    <style>
+        /* Reduce padding en celdas */
+        .tabla-compacta td,
+        .tabla-compacta th {
+            padding: 4px 8px !important;
+            font-size: 13px !important;
+            line-height: 1.2 !important;
+        }
+
+        /* Reduce tamaño de encabezados */
+        .tabla-compacta thead th {
+            font-size: 13px !important;
+        }
+
+        /* Opcional: filas más delgadas */
+        .tabla-compacta tbody tr {
+            height: 28px !important;
+        }
+    </style>
+{% endblock extraHead %}
+
 {% block title %}
     Reporte Funeraria Por Fecha
 {% endblock title %}
@@ -56,13 +78,13 @@
     {% if post %}
         <div class="card-body">
             <hr>
-            <center><h3>REPORTE DE MODIFICACIONES POR FECHA {{fechaIncialF}} - {{fechaFinalF}}</h3></center>
+            <center><h5>REPORTE DE MODIFICACIONES POR FECHA {{fechaIncialF}} - {{fechaFinalF}}</h5></center>
             {% if queries.asociadoRetiro or queries.asociadoIngreso or queries.queryRepatriacionTitular %}
-                <table class="table table-hover table-bordered shadow-lg rounded">
+                <table class="table table-hover table-bordered shadow-lg rounded tabla-compacta">
                     <thead class="bg-dark text-white">
                         <tr>
                             <th colspan="5" class="text-center">
-                                <h3 class="mb-0">📌 NOVEDADES ASOCIADOS</h3>
+                                <h6 class="mb-0">NOVEDADES ASOCIADOS</h6>
                             </th>
                         </tr>   
                         <tr class="bg-secondary text-white">
@@ -113,11 +135,11 @@
             {% endif %}
             {% if queries.queryBeneficiario %}
                 <hr>
-                <table class="table table-hover table-bordered shadow-lg rounded">
+                <table class="table table-hover table-bordered shadow-lg rounded tabla-compacta">
                     <thead class="bg-dark text-white">
                         <tr>
                             <th colspan="10" class="text-center">
-                                <h3 class="mb-0">📌 NOVEDADES BENEFICIARIOS</h3>
+                                <h6 class="mb-0">NOVEDADES BENEFICIARIOS</h6>
                             </th>
                         </tr>    
                         <tr class="bg-secondary text-white">
@@ -182,11 +204,11 @@
             {% endif %}
             {% if queries.queryMascota %}
                 <hr>
-                <table class="table table-hover table-bordered shadow-lg rounded">
+                <table class="table table-hover table-bordered shadow-lg rounded tabla-compacta">
                     <thead class="bg-dark text-white">
                     <tr>
                         <th colspan="7" class="text-center">
-                            <h3 class="mb-0">🐾 NOVEDADES MASCOTAS</h3>
+                            <h6 class="mb-0">🐾 NOVEDADES MASCOTAS</h6>
                         </th>
                     </tr>
                         <tr class="bg-secondary text-white">

@@ -4,6 +4,22 @@
 {% block extraHead %}
     {% comment %} Estilos DataTables Simple {% endcomment %}
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
+
+    <style>
+        table.dataTable td, 
+        table.dataTable th {
+            padding: 3px 6px !important;
+            font-size: 14px !important;
+        }
+
+        table.dataTable tbody tr {
+            height: 22px !important;
+        }
+
+        table.dataTable {
+            border-collapse: collapse !important;
+        }
+    </style>
 {% endblock extraHead %}
 
 {% block contenidoPagina %}
@@ -52,6 +68,8 @@
             "searching": true,
             "ordering": true,
             "info": true,
+            "pageLength": 20,
+            "lengthMenu": [20, 40, 60, 100],
             "language": {
                     "lengthMenu": "Mostrar _MENU_ registros por página",
                     "zeroRecords": "No se encontraron resultados",

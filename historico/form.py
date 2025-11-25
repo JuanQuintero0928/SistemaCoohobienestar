@@ -272,10 +272,13 @@ class HistoricoCreditoForm(forms.ModelForm):
             self.initial["tasaInteres"] = f"{tasa.porcentaje}|{tasa.concepto}"
 
         # === Deshabilitar campos si el crédito ya fue otorgado ===
-        if self.instance and getattr(self.instance, "estado", "").upper() == "OTORGADO":
-            for field in self.fields.values():
-                field.disabled = True
+        NO_DESHABILITAR = ["estado", "primerMes"]
 
+        if self.instance and getattr(self.instance, "estado", "").upper() == "OTORGADO":
+            for name, field in self.fields.items():
+                if name in NO_DESHABILITAR:
+                    continue  # NO deshabilitar este campo
+                field.disabled = True
 
 
 class CargarArchivoForm(forms.Form):

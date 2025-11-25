@@ -164,6 +164,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+
     // Funcion que muestra la tabla de amortizacion cuando se carga el modal
     $('#creacion').on('shown.bs.modal', function () {
       const tablaBody = document.querySelector("#tablaAmortizacion tbody");
@@ -174,13 +175,14 @@
       document.getElementById("fechaSolicitud").value = today;
     });
 
-    
+
     // funcion para obtener fechaFinal del modelo mesTarifa
     async function obtenerFechaPrimerPago(id_primerMes) {
       const res = await fetch(`/parametro/utils/mes-tarifa-info/${id_primerMes}/`);
       const data = await res.json();
       return data.fechaInicio; // YYYY-MM-DD
     }
+
 
     // Evento que calcula la tabla de amortizacion cuando se hace clic en el botón
     document.getElementById("calcular").addEventListener("click", async function () {
@@ -232,4 +234,16 @@
         return;
       }
     });
+
+
+    // Evento que quita el disabled de los inputs antes de enviar
+    document.getElementById("form").addEventListener("submit", function() {
+      // Seleccionar TODOS los campos disabled
+      const disabledFields = this.querySelectorAll("[disabled]");
+
+      disabledFields.forEach(function(field) {
+        field.disabled = false;
+      });
+    });
+
 </script>
