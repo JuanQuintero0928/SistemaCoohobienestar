@@ -16,7 +16,7 @@ from parametro.models import FormaPago, MesTarifa, TipoAsociado
 from .queries import obtenerNovedades, obtenerDescuentoNomina
 
 #Funciones
-from funciones.function import separarFecha, convertirFecha
+from funciones.function import separarFecha, convertir_fecha
 
 #Libreria para generar el Excel
 from openpyxl import Workbook
@@ -156,8 +156,9 @@ class ReporteExcelFecha(TemplateView):
             return render(request, 'reporte/modificacionesPorFecha.html', {'post':'post', 'fechaIncialF':fechaInicialForm, 'fechaFinalF':fechaFinalForm})
 
         # Funcion para formatear la fecha en el formato d-m-Y
-        fecha_formateada1 = convertirFecha(fechaInicialForm)
-        fecha_formateada2 = convertirFecha(fechaFinalForm)
+        print(fechaInicialForm)
+        fecha_formateada1 = convertir_fecha(fechaInicialForm)
+        fecha_formateada2 = convertir_fecha(fechaFinalForm)
 
         # Obtenemos las queries de las novedades
         queries = obtenerNovedades(fechaInicial, fechaFinal)
