@@ -202,6 +202,7 @@ class CrearVentaAsociado(CreateView):
 
             # === Crear pago inmediato ===
             metodo_pago_pk = request.POST.get('metodoPago')
+            metodo_pago_anticipo_pk= request.POST.get('formaPagoAnticipo')
 
             if forma_pago == 'CONTADO':
                 crear_historico_pago(valor_neto, mes_pk=9992, metodo_pago_pk=metodo_pago_pk)
@@ -210,7 +211,7 @@ class CrearVentaAsociado(CreateView):
                 anticipo = int(request.POST['anticipo'].replace('.', ''))
                 objHistoricoVenta.pendientePago -= anticipo
                 objHistoricoVenta.save()
-                crear_historico_pago(anticipo, mes_pk=9988, metodo_pago_pk=metodo_pago_pk)
+                crear_historico_pago(anticipo, mes_pk=9988, metodo_pago_pk=metodo_pago_anticipo_pk)
 
             # === Procesar productos ===
             productos = []

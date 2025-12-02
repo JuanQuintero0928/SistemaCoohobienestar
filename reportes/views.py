@@ -584,23 +584,37 @@ class VerDescuentosNomina(ListView):
     template_name = 'reporte/dctosNomina.html'
     
     def get(self, request, *args, **kwargs):
-        empresas = TipoAsociado.objects.all()
-        return render(request, self.template_name, {'empresas':empresas})
+        empresas = TipoAsociado.objects.exclude(id__in=[1,9])
+        meses = MesTarifa.objects.filter(id__lte=9000)
+        return render(request, self.template_name, {'empresas':empresas, 'meses':meses})
     
     def post(self, request, *args, **kwargs):
-        empresas = TipoAsociado.objects.all()
+        empresas = TipoAsociado.objects.exclude(id__in=[1,9])
+        meses = MesTarifa.objects.filter(id__lte=9000)
+        mes_seleccionado = MesTarifa.objects.get(id = request.POST.get('mes_descuento_nomina'))
+
         array = []
         arrayEmp = []
         granTotalGeneral = 0
 
         for empresa in empresas:
             if len(request.POST.getlist('select'+str(empresa.pk))) == 1:
-                query = obtenerDescuentoNomina(empresa.pk)
+                query = obtenerDescuentoNomina(empresa.pk, mes_seleccionado.pk)
                 array.extend(query['query'])
                 arrayEmp.append(empresa.pk)
                 granTotalGeneral += query['granTotal']
 
-        return render(request, self.template_name,{'array':array, 'post':'yes', 'empresas':empresas, 'arrayEmp':arrayEmp, 'granTotalGeneral':granTotalGeneral})
+        context = {
+            'array':array,
+            'post':'yes',
+            'empresas':empresas,
+            'meses':meses,
+            'mes_seleccionado': mes_seleccionado.pk,
+            'arrayEmp':arrayEmp,
+            'granTotalGeneral':granTotalGeneral
+        }
+
+        return render(request, self.template_name, context)
 
 class ExcelDescuentosNomina(TemplateView):
     def get(self, request, *args, **kwargs):

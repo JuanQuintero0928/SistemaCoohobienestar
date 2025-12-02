@@ -10,17 +10,21 @@ from django.db.models import (
     F,
     Q,
     Sum,
+    Exists
 )
 
-from beneficiario.models import Asociado, Mascota, Beneficiario
-from historico.models import HistorialPagos, HistoricoCredito
+from beneficiario.models import Asociado, Mascota, Beneficiario, Coohoperativitos
+from historico.models import HistorialPagos, HistoricoCredito, HistoricoSeguroVida
 from ventas.models import HistoricoVenta
 from asociado.models import (
     Asociado,
     ParametroAsociado,
     RepatriacionTitular,
     ConvenioHistoricoGasolina,
+    ConveniosAsociado,
+    TarifaAsociado,
 )
+from parametro.models import Tarifas, MesTarifa
 from beneficiario.models import Beneficiario, Mascota
 from historico.models import HistoricoCredito, HistorialPagos
 from ventas.models import HistoricoVenta
@@ -68,7 +72,7 @@ def obtenerNovedades(fecha_inicial, fecha_final):
     }
 
 
-def obtenerDescuentoNomina(empresa_pk):
+def obtenerDescuentoNomina(empresa_pk, mes_seleccionado):
     # Pagos de vinculación (ya existente)
     pagos_vinculacion = (
         HistorialPagos.objects.filter(
@@ -129,21 +133,24 @@ def obtenerDescuentoNomina(empresa_pk):
     # Suma de convenios de gasolina pendientes
     convenios_gasolina = (
         ConvenioHistoricoGasolina.objects.filter(
-            asociado=OuterRef("asociado"), estado_registro=True, pendiente_pago__gt=0
+            asociado=OuterRef("asociado"),
+            estado_registro=True,
+            pendiente_pago__gt=0,
+            mes_tarifa__pk__lte = mes_seleccionado
         )
         .values("asociado")
         .annotate(total_pendiente_gasolina=Sum("pendiente_pago"))
         .values("total_pendiente_gasolina")
     )
 
-    # CORREGIDO: Calcular cuota individual para cada home element pendiente
+    # Calcular cuota individual para cada home element pendiente
     # usando CASE para determinar si usar cuota normal o pendiente
     home_elements_cuota_total = (
         HistoricoVenta.objects.filter(
             asociado=OuterRef("asociado"),
             formaPago="DESCUENTO NOMINA",
             estadoRegistro=True,
-            pendientePago__gt=0,
+            pendientePago__gt=0
         )
         .annotate(
             cuota_calculada=Case(
@@ -175,6 +182,90 @@ def obtenerDescuentoNomina(empresa_pk):
         .values("asociado")
         .annotate(total_cuota_home_calculada=Sum("cuota_calculada"))
         .values("total_cuota_home_calculada")
+    )
+
+    # Informacion convenios, obtener convenios que el pk mes seleccionado sea mayor al primerMes Cobro del convenio
+    convenios_vigentes_sum = (
+        ConveniosAsociado.objects.filter(
+            asociado = OuterRef("asociado"),
+            estadoRegistro = True,
+            primerMes__pk__lte=mes_seleccionado
+        ).values("asociado")
+        .annotate(total_cuota=Sum("convenio__valor"))
+        .values("total_cuota")
+    )
+
+    # Informacion mascotas
+    valor_mascota = Tarifas.objects.get(pk=3).valor
+
+    mascotas_vigentes_count = (
+        Mascota.objects.filter(
+            asociado = OuterRef("asociado"),
+            estadoRegistro = True,
+            primerMes__pk__lte = mes_seleccionado,
+        ).values("asociado")
+        .annotate(total=Count("id"))
+        .values("total")
+    )
+
+    # Informacion repatriaciones
+    valor_repatriacion = Tarifas.objects.get(pk=4).valor
+    
+    repatriaciones_vigentes_count = (
+        Beneficiario.objects.filter(
+            asociado = OuterRef("asociado"),
+            estadoRegistro = True,
+            primerMesRepatriacion__pk__lte = mes_seleccionado
+        ).values("asociado")
+        .annotate(total=Count("id"))
+        .values("total")
+    )
+
+    # Informacion seguro de vida
+    seguro_vida_vigente_sum = (
+        HistoricoSeguroVida.objects.filter(
+            asociado = OuterRef("asociado"),
+            estadoRegistro = True, 
+            primerMesSeguroVida__pk__lte = mes_seleccionado
+        ).values("asociado")
+        .annotate(total_cuota_seguro_vida=Sum("valorPago"))
+        .values("total_cuota_seguro_vida")
+    )
+
+    # Informacion repatriacion titular
+    repatriacion_titular_count = (
+        RepatriacionTitular.objects.filter(
+            asociado = OuterRef("asociado"),
+            estadoRegistro = True,
+            primerMes__pk__lte = mes_seleccionado
+        ).values("asociado")
+        .annotate(total=Count("id"))
+        .values("total")[:1]
+    )
+
+    # Informacion adicionales funeraria
+    adicional_funeraria_sum = (
+        TarifaAsociado.objects.filter(
+            asociado = OuterRef("asociado"),
+            estadoRegistro = True,
+            primerMesCuotaAdicional__pk__lte = mes_seleccionado
+        ).values("asociado")
+        .annotate(total=Sum("cuotaAdicionales"))
+        .values("total")[:1]
+    )
+
+    # Informacion Coohoperativitos
+    fecha_mes_seleccionado = MesTarifa.objects.get(pk = mes_seleccionado).fechaInicio
+    valor_coohoperativito = Tarifas.objects.filter(pk__in = [5,6]).annotate(total=Sum("valor")).values("total")
+
+    cuota_coohoperativitos_count = (
+        Coohoperativitos.objects.filter(
+            asociado = OuterRef("asociado"),
+            estadoRegistro = True,
+            fechaIngreso__lte = fecha_mes_seleccionado
+        ).values("asociado")
+        .annotate(total=Count("id"))
+        .values("total")
     )
 
     query = (
@@ -226,7 +317,7 @@ def obtenerDescuentoNomina(empresa_pk):
                 ),
                 Value(0),
             ),
-            # CORREGIDO: Usar la cuota total calculada individualmente para cada home element
+            # Usar la cuota total calculada individualmente para cada home element
             home_cuota_total_calculada=Coalesce(
                 Subquery(home_elements_cuota_total, output_field=IntegerField()),
                 Value(0),
@@ -243,7 +334,7 @@ def obtenerDescuentoNomina(empresa_pk):
                 default=F("vinculacionValor"),
                 output_field=IntegerField(),
             ),
-            # CORREGIDO: Cuota de crédito con manejo completo de pagos parciales
+            # Cuota de crédito con manejo completo de pagos parciales
             cuota_credito=Case(
                 # Si no hay pendiente de pago, la cuota es 0
                 When(Q(credito_pendiente_pago=0), then=Value(0)),
@@ -261,7 +352,7 @@ def obtenerDescuentoNomina(empresa_pk):
                     & Q(credito_pendiente_pago__gt=0),
                     then=F("credito_pendiente_pago"),
                 ),
-                # NUEVO: Si el pendiente es menor que la cuota original (pago parcial en cuota intermedia)
+                # Si el pendiente es menor que la cuota original (pago parcial en cuota intermedia)
                 # y aún quedan cuotas por pagar
                 When(
                     Q(credito_pendiente_pago__lt=F("credito_valor_cuota_original"))
@@ -273,13 +364,69 @@ def obtenerDescuentoNomina(empresa_pk):
                 default=F("credito_valor_cuota_original"),
                 output_field=IntegerField(),
             ),
-            # CORREGIDO: Cuota de home elements ya calculada individualmente
+
+            # Agregamos al annotate cuota correspondiente a los convenios
+            cuota_convenio_final = Coalesce(
+                Subquery(convenios_vigentes_sum, output_field=IntegerField()),
+                Value(0)
+            ),
+
+            # Agregar al annotate cuota de las mascotas
+            mascotas_vigentes=Coalesce(
+                Subquery(mascotas_vigentes_count, output_field=IntegerField()),
+                Value(0)
+            ),
+            cuota_mascotas=F("mascotas_vigentes") * Value(valor_mascota),
+
+            # Agregar al annotate cuota de las repatriaciones de beneficiarios
+            repatriaciones_vigentes=Coalesce(
+                Subquery(repatriaciones_vigentes_count, output_field=IntegerField()),
+                Value(0)
+            ),
+            cuota_repatriaciones=F("repatriaciones_vigentes") * Value(valor_repatriacion),
+
+            # Agregar al annotate cuota de seguro vida
+            cuota_seguro_vida=Coalesce(
+                Subquery(seguro_vida_vigente_sum, output_field=IntegerField()),
+                Value(0)
+            ),
+
+            # Agregar al annotate cuota de las repatriaciones de titular
+            repatriacion_titular_vigente=Coalesce(
+                Subquery(repatriacion_titular_count, output_field=IntegerField()),
+                Value(0)
+            ),
+            cuota_repatriacion_titular=F("repatriacion_titular_vigente") * Value(valor_repatriacion),
+
+            # Agregar al annotate cuota de adicionales
+            cuota_adicional_funeraria=Coalesce(
+                Subquery(adicional_funeraria_sum, output_field=IntegerField()),
+                Value(0)
+            ),
+
+            # Agregar al annotate cuota de coohoperativitos
+            cuota_coohoperativitos_vigentes = Coalesce(
+                Subquery(cuota_coohoperativitos_count, output_field=IntegerField()),
+                Value(0)
+            ),
+            cuota_coohoperativitos=F("cuota_coohoperativitos_vigentes") * Value(valor_coohoperativito),
+
+            # Cuota de home elements ya calculada individualmente
             cuota_credito_home_elements=F("home_cuota_total_calculada"),
-            total_final=F("tarifaAsociado__total")
+            total_final=F("tarifaAsociado__cuotaAporte")
+            + F("tarifaAsociado__cuotaBSocial")
+            + F("cuota_coohoperativitos")
             + Coalesce(F("cuota_vinculacion"), Value(0))
             + F("cuota_credito")
             + F("cuota_credito_home_elements")
-            + F("cuota_convenio_gasolina"),
+            + F("cuota_convenio_gasolina")
+            + F("cuota_convenio_final")
+            + F("cuota_mascotas")
+            + F("cuota_repatriaciones")
+            + F("cuota_seguro_vida")
+            + F("cuota_repatriacion_titular")
+            + F("cuota_adicional_funeraria")
+
         )
         .select_related("asociado__tAsociado")
     )

@@ -278,6 +278,19 @@ async function generarPDFRegistro(url, datos) {
         }
     }
 
+    const ingresosMap = [
+        { valor: datos.ingrSalario, texto: "Salario" },
+        { valor: datos.ingrHorasExtras, texto: "Horas extras" },
+        { valor: datos.ingrPension, texto: "Pensión" },
+        { valor: datos.ingrCompensacion, texto: "Compensación" },
+        { valor: datos.ingrHonorarios, texto: "Honorarios" },
+        { valor: datos.ingrVentas, texto: "Ventas" },
+        { valor: datos.ingrIntereses, texto: "Intereses" },
+        { valor: datos.ingrGiros, texto: "Giros" },
+        { valor: datos.ingrArrendamientos, texto: "Arrendamientos" },
+        { valor: datos.ingrOtros, texto: "Otros" },
+    ];
+
     var nombreCompleto = datos.nombre + ' ' + datos.apellido;
     var arrFechaHoy = datos.fechaFormateada.split("/")
     
@@ -557,7 +570,7 @@ async function generarPDFRegistro(url, datos) {
         pdf.text(nombreCompleto, 42.4, 750.6);
         pdf.text(datos.numDocumento, 23.7, 760.5);
         pdf.text(datos.mpioDoc, 183, 760.5);
-        pdf.text("2", 504.5, 806.5);
+        pdf.text("2.5", 502.5, 806.5);
     }
 
     // /////////////////////////////////////////////////////////////////////////////////////////
@@ -568,6 +581,27 @@ async function generarPDFRegistro(url, datos) {
 
     pdf.text(nombreCompleto, 150.4, 877.2);
     pdf.text(datos.numDocumento, 150.4, 903.2);
+
+    // /////////////////////////////////////////////////////////////////////////////////////////
+    // Se añade Pagina 4 al documento
+    pdf.addPage();
+    const image4 = await loadImage('/static/img/Registro_Asociados_2025_page_0004.jpg');
+    pdf.addImage(image4, 'PNG', 0, 0, 613, 1010);
+
+    const listaIngresos = ingresosMap
+        .filter(item => Number(item.valor) > 0)
+        .map(item => item.texto)
+        .join(", ");
+
+    writeText(pdf, listaIngresos ? `${listaIngresos}` : "Sin ingresos", 49.1, 569.4);
+
+    pdf.text(convertirDias(arrFechaHoy[0]), 299.1, 659.4);
+    pdf.text(convertirMes(arrFechaHoy[1]), 469, 659.4);
+    pdf.text(arrFechaHoy[2], 22.5, 670);
+    pdf.text("Armenia", 147.8,669.4);
+
+    pdf.text(nombreCompleto, 151.8, 742.7);
+    pdf.text(datos.numDocumento, 151.8, 766);
 
     pdf.save('Formato_Registro_'+datos.numDocumento+'.pdf');
 }

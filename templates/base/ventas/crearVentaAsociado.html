@@ -124,13 +124,26 @@
                                 {{ form.cuotas.label_tag }}
                                 {{ form.cuotas }}
                             </div>
-                            <div class="col-12 col-lg-4" id="contenedorValorCuotas">
-                                <label for="id_valorCuotas">Valor Cuotas</label>
-                                <input type="text" name="valorCuotas" id="id_valorCuotas" class="form-control" readonly>
-                            </div>
-                            <div class="col-12 col-lg-4 d-none" id="contenedorAnticipo">
-                                <label for="id_anticipo">Anticipo</label>
-                                <input type="number" name="anticipo" id="id_anticipo" min="0" class="form-control" placeholder="Mínimo 15%">
+
+                            <div class="row col-12 mt-3">
+                                <div class="col-12 col-lg-4" id="contenedorValorCuotas">
+                                    <label for="id_valorCuotas">Valor Cuotas</label>
+                                    <input type="text" name="valorCuotas" id="id_valorCuotas" class="form-control" readonly>
+                                </div>
+
+                                <div class="col-12 col-lg-4 d-none" id="contenedorAnticipo">
+                                    <label for="id_anticipo">Anticipo</label>
+                                    <input type="number" name="anticipo" id="id_anticipo" min="0" class="form-control" placeholder="Mínimo 15%">
+                                </div>
+
+                                <div class="col-12 col-lg-4 d-none" id="contenedorFormaPagoAnticipo">
+                                    <label for="id_forma_pago_anticipo">Forma Pago Anticipo</label>
+                                    <select name="formaPagoAnticipo" class="form-select" id="id_forma_pago_anticipo">
+                                        {% for metodo in metodoPago %}
+                                            <option value="{{ metodo.id }}">{{ metodo.formaPago }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -225,6 +238,8 @@ $('#creacion').on('shown.bs.modal', function () {
     const contenedorTasaInteres = document.getElementById('contenedorTasaInteres');
     const contenedorAmortizacion = document.getElementById('contenedorAmortizacion');
     const contenedorAnticipo = document.getElementById('contenedorAnticipo');
+    const contenedorFormaPagoAnticipo = document.getElementById('contenedorFormaPagoAnticipo');
+    
     const tasaInteres = document.getElementById('id_tasaInteres');
     const inputAnticipo = document.getElementById('id_anticipo');
     const encabezado = document.getElementById('encabezados-container');
@@ -347,9 +362,11 @@ $('#creacion').on('shown.bs.modal', function () {
 
         if (selectedText.includes("CREDITO PRODUCTO")) {
             contenedorAnticipo.classList.remove('d-none');
+            contenedorFormaPagoAnticipo.classList.remove('d-none')
             calcularAnticipo();
         } else {
             contenedorAnticipo.classList.add('d-none');
+            contenedorFormaPagoAnticipo.classList.add('d-none');
             inputAnticipo.value = 0;
         }
 

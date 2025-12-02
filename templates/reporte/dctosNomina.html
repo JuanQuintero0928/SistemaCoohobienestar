@@ -17,41 +17,49 @@
     <form action="{% url 'reportes:descuentosNomina' %}" method="post">
     {% csrf_token %}
         <div class="container-fluid">
-            <div class="row">
-                <div class="container mt-3">
+            <div class="row justify-content-center g-4 mt-2">
+                <div class="col-6">
                     <label class="fw-bold mb-2">Seleccione las opciones que desea descargar:</label>
-                    <div class="row row-cols-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-2">
+                    <div class="row row-cols-1 row-cols-xl-2 row-cols-xxl-3">
                         {% for empresa in empresas %}
-                            {% if empresa.pk != 1 %}
-                                <div class="form-check form-switch">
-                                    <input name="select{{ empresa.pk }}" class="form-check-input" type="checkbox" id="switch{{ empresa.pk }}" value="{{ empresa.pk }}"
-                                        {% for check in arrayEmp %}
-                                            {% if check == empresa.pk %} checked {% endif %}
-                                        {% endfor %}
-                                    >
-                                    <label class="form-check-label fw-semibold" for="switch{{ empresa.pk }}">
-                                        {{ empresa.concepto }}
-                                    </label>
-                                </div>
-                            {% endif %}
+                            <div class="form-check form-switch">
+                                <input name="select{{ empresa.pk }}" class="form-check-input" type="checkbox" id="switch{{ empresa.pk }}" value="{{ empresa.pk }}"
+                                    {% for check in arrayEmp %}
+                                        {% if check == empresa.pk %} checked {% endif %}
+                                    {% endfor %}
+                                >
+                                <label class="form-check-label fw-semibold" for="switch{{ empresa.pk }}">
+                                    {{ empresa.concepto }}
+                                </label>
+                            </div>
                         {% endfor %}
                     </div>
-                </div>                
-                <div class="col-12 mt-4 d-flex justify-content-center">
-                    <button type="submit" class="btn btn-primary mb-3 mx-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-display" viewBox="0 0 16 16">
-                            <path d="M0 4s0-2 2-2h12s2 0 2 2v6s0 2-2 2h-4q0 1 .25 1.5H11a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1h.75Q6 13 6 12H2s-2 0-2-2zm1.398-.855a.76.76 0 0 0-.254.302A1.5 1.5 0 0 0 1 4.01V10c0 .325.078.502.145.602q.105.156.302.254a1.5 1.5 0 0 0 .538.143L2.01 11H14c.325 0 .502-.078.602-.145a.76.76 0 0 0 .254-.302 1.5 1.5 0 0 0 .143-.538L15 9.99V4c0-.325-.078-.502-.145-.602a.76.76 0 0 0-.302-.254A1.5 1.5 0 0 0 13.99 3H2c-.325 0-.502.078-.602.145"/>
-                        </svg>
-                        Consultar
-                    </button>
-                    <button type="button" class="btn btn-success mb-3 mx-2" id="btnExcel">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-excel" viewBox="0 0 16 16">
-                            <path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/>
-                            <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
-                        </svg>
-                        Descargar
-                    </button>
                 </div>
+                <div class="col-6 alert alert-secondary">
+                    <div class="row g-2">
+                        <label for="id_mes_descuento_nomina" class="form-label">Mes Descuento Nomina</label>
+                        <select name="mes_descuento_nomina" class="form-select" id="id_mes_descuento_nomina" required>
+                            {% for mes in meses %}
+                                <option value="{{mes.pk}}" {% if mes_seleccionado == mes.pk %} selected {% endif %}>{{mes.concepto}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 mt-4 d-flex justify-content-center">
+                <button type="submit" class="btn btn-primary mb-3 mx-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-display" viewBox="0 0 16 16">
+                        <path d="M0 4s0-2 2-2h12s2 0 2 2v6s0 2-2 2h-4q0 1 .25 1.5H11a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1h.75Q6 13 6 12H2s-2 0-2-2zm1.398-.855a.76.76 0 0 0-.254.302A1.5 1.5 0 0 0 1 4.01V10c0 .325.078.502.145.602q.105.156.302.254a1.5 1.5 0 0 0 .538.143L2.01 11H14c.325 0 .502-.078.602-.145a.76.76 0 0 0 .254-.302 1.5 1.5 0 0 0 .143-.538L15 9.99V4c0-.325-.078-.502-.145-.602a.76.76 0 0 0-.302-.254A1.5 1.5 0 0 0 13.99 3H2c-.325 0-.502.078-.602.145"/>
+                    </svg>
+                    Consultar
+                </button>
+                <button type="button" class="btn btn-success mb-3 mx-2" id="btnExcel">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-excel" viewBox="0 0 16 16">
+                        <path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/>
+                        <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
+                    </svg>
+                    Descargar
+                </button>
             </div>
         </div>
     </form>

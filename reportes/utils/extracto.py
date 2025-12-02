@@ -1143,7 +1143,6 @@ CONVENIO_GASOLINA_ID = 4  # ID del convenio de gasolina
 # ============================================================================
 # 1. SERVICIOS DE CONSULTA (Queries reutilizables)
 # ============================================================================
-
 class ConsultaPagosService:
     """Servicio para consultas relacionadas con pagos"""
     
@@ -1253,7 +1252,6 @@ class ConsultaCreditosService:
 # ============================================================================
 # SERVICIO DE CONSULTA DE SALDOS DETALLADOS
 # ============================================================================
-
 class ConsultaSaldosDetalladosService:
     """
     Servicio para obtener saldos (diferencias) desglosados por concepto.
@@ -1564,7 +1562,6 @@ class ConsultaBeneficiariosService:
 # ============================================================================
 # 2. SERVICIOS DE CÁLCULO (Funciones puras)
 # ============================================================================
-
 class CalculadoraCuotasService:
     """Servicio para calcular cuotas y valores"""
     
@@ -1913,7 +1910,6 @@ class CalculadoraSaldosService:
 # ============================================================================
 # SERVICIO DE CONSTRUCCIÓN DE CONCEPTOS DETALLADOS
 # ============================================================================
-
 class ConstructorConceptosDetalladosService:
     """
     Servicio para construir la lista de conceptos detallados del extracto.
@@ -2057,8 +2053,8 @@ class ConstructorConceptosDetalladosService:
             
             conceptos.append({
                 'concepto': 'CONVENIO - CHIP GASOLINA',
-                'cuotas_vencidas': '1',
-                'cuota_mes': total_a_pagar,
+                'cuotas_vencidas': 'N/A',
+                'cuota_mes': 'N/A',
                 'total': valor_gasolina,
                 'saldo': saldo_gasolina,
                 'total_a_pagar': total_a_pagar
@@ -2066,10 +2062,28 @@ class ConstructorConceptosDetalladosService:
     
     @staticmethod
     def agregar_creditos(conceptos: list, creditos_info: list, desglose_saldos: dict):
-        """Agrega conceptos de créditos libre inversión con sus saldos individuales"""
+        """
+        Agrega conceptos de créditos libre inversión con sus saldos individuales.
+        
+        LÓGICA DE SALDOS:
+        - Última cuota: pendiente_pago YA tiene el saldo aplicado → NO restar saldo
+        - Cuotas intermedias: El saldo debe aplicarse a la cuota actual → SÍ restar saldo
+        """
         for credito in creditos_info:
             saldo_credito = desglose_saldos['creditos'].get(credito['id'], 0)
-            total_a_pagar = max(0, credito['cuota_actual'] - saldo_credito)
+            
+            # Verificar si es la última cuota
+            es_ultima_cuota = (
+                credito['cuotas_pagas'] == credito['cuotas_totales'] - 1 or
+                credito['pendiente_pago'] < credito['valor_cuota']
+            )
+            
+            if es_ultima_cuota:
+                # Última cuota: pendiente_pago ya viene ajustado
+                total_a_pagar = credito['cuota_actual']
+            else:
+                # Cuotas intermedias: aplicar el saldo a la cuota actual
+                total_a_pagar = max(0, credito['cuota_actual'] - saldo_credito)
             
             conceptos.append({
                 'concepto': credito['tipo'],
@@ -2082,10 +2096,28 @@ class ConstructorConceptosDetalladosService:
     
     @staticmethod
     def agregar_ventas_home(conceptos: list, ventas_home_info: list, desglose_saldos: dict):
-        """Agrega conceptos de ventas Home Elements con sus saldos individuales"""
+        """
+        Agrega conceptos de ventas Home Elements con sus saldos individuales.
+        
+        LÓGICA DE SALDOS:
+        - Última cuota: pendiente_pago YA tiene el saldo aplicado → NO restar saldo
+        - Cuotas intermedias: El saldo debe aplicarse a la cuota actual → SÍ restar saldo
+        """
         for venta in ventas_home_info:
             saldo_venta = desglose_saldos['ventas_home'].get(venta['id'], 0)
-            total_a_pagar = max(0, venta['cuota_actual'] - saldo_venta)
+            
+            # Verificar si es la última cuota
+            es_ultima_cuota = (
+                venta['cuotas_pagas'] == venta['cuotas_totales'] - 1 or
+                venta['pendiente_pago'] < venta['valor_cuota']
+            )
+            
+            if es_ultima_cuota:
+                # Última cuota: pendiente_pago ya viene ajustado
+                total_a_pagar = venta['cuota_actual']
+            else:
+                # Cuotas intermedias: aplicar el saldo a la cuota actual
+                total_a_pagar = max(0, venta['cuota_actual'] - saldo_venta)
             
             conceptos.append({
                 'concepto': venta['tipo'],
@@ -2598,9 +2630,6 @@ def obtenerValorExtracto(id_asociado: int, saldos: bool, mes):
     # ← CAMBIO: CALCULAR TOTALES DESDE CONCEPTOS DETALLADOS
     # ========================================================================
     
-    # Calcular pago total desde los conceptos (para consistencia)
-    pago_total_calculado = sum(concepto['total_a_pagar'] for concepto in conceptos_detallados)
-    
     # Consolidar valores vencidos (mantener compatibilidad con código existente)
     valores_vencidos_consolidados = {
         'mascota': valor_mascotas,
@@ -2613,7 +2642,6 @@ def obtenerValorExtracto(id_asociado: int, saldos: bool, mes):
     # Inicializar variables del context
     saldo = 0
     valor_vencido = 0
-    pago_total = pago_total_calculado  # ← CAMBIO: Usar el calculado desde conceptos
     mensaje = ""
     
     # CASO 1: Tiene cuotas vencidas
@@ -2624,24 +2652,33 @@ def obtenerValorExtracto(id_asociado: int, saldos: bool, mes):
             valores_vencidos_consolidados,
             valor_total_convenios
         )
-        # pago_total ya viene calculado desde conceptos_detallados
     
     # CASO 2: Está al día (sin cuotas vencidas ni adelantadas)
     elif cuotas_adelantadas == 0:
         saldo, valor_vencido, _, mensaje = CalculadoraSaldosService.calcular_estado_al_dia(
             tarifa_asociado, saldo_diferencia
         )
-        # pago_total ya viene calculado desde conceptos_detallados
     
     # CASO 3: Tiene pagos adelantados
     else:
         saldo_actual = ConsultaPagosService.obtener_saldo_adelantado(id_asociado, mes.pk)
         saldo = saldo_actual + saldo_diferencia
-        pago_total = 0  # No debe nada este mes
         
         ultimo_pago = ConsultaPagosService.obtener_ultimo_mes_pagado(id_asociado)
         if ultimo_pago:
             mensaje = f"Tiene pago hasta el mes de {ultimo_pago.mesPago.concepto}"
+    
+    # ========================================================================
+    # ← NUEVO: CALCULAR PAGO TOTAL DESDE CONCEPTOS DETALLADOS (SIEMPRE AL FINAL)
+    # ========================================================================
+    
+    # El pago total SIEMPRE debe ser la suma de total_a_pagar de cada concepto
+    # Esto asegura consistencia entre conceptos_detallados y pagoTotal
+    pago_total = sum(concepto['total_a_pagar'] for concepto in conceptos_detallados)
+    
+    # CASO ESPECIAL: Si tiene pagos adelantados, no debe nada este mes
+    if cuotas_adelantadas > 0:
+        pago_total = 0
     
     # ========================================================================
     # CONSTRUIR Y RETORNAR CONTEXT
@@ -2718,4 +2755,3 @@ def obtenerValorExtracto(id_asociado: int, saldos: bool, mes):
     }
     
     return context
-

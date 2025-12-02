@@ -45,14 +45,12 @@
                         </td>
                         <td>
                             <div class="btn-group" role="group" aria-label="Basic example">
-                                {% if obj.mesPago.pk != 9988 %}
-                                    <button class="btn btn-outline-primary btn-sm" onclick="toggleEditarGuardar({{ obj.id }})" id="btn-{{ obj.id }}">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
-                                            <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
-                                        </svg>
-                                    </button>
-                                {% endif %}
-                                <button class="btn btn-outline-primary btn-sm" onclick="toggleEliminar({{ obj.pk }})" id="btn-eliminar-{{ obj.id }}" data-id-fila="fila-pago-{{ obj.id }}">
+                                <button class="btn btn-outline-primary btn-sm" onclick="toggleEditarGuardar({{ obj.id }}, {{ obj.mesPago.pk }})" id="btn-{{ obj.id }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
+                                        <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                                    </svg>
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm" onclick="toggleEliminar({{ obj.pk }})" id="btn-eliminar-{{ obj.id }}" data-id-fila="fila-pago-{{ obj.id }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
                                         <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
                                     </svg>
@@ -79,23 +77,29 @@
 </div>
 
 <script>
-    function toggleEditarGuardar(id) {
+    function toggleEditarGuardar(id, id_mes_pago) {
         const input = document.getElementById(`input-${id}`);
         const inputDate = document.getElementById(`input-date-${id}`);
         const inputFormaPago = document.getElementById(`input-formaPago-${id}`);
         const btn = document.getElementById(`btn-${id}`);
 
-        if (input.disabled) {
-            // Activar el input para edición
-            input.disabled = false;
+        if (!btn.classList.contains("guardando")) {
+
+            // MODO EDITAR
+            if (id_mes_pago != 9988) {
+                input.disabled = false;
+            }
             input.focus();
             inputDate.disabled = false;
             inputFormaPago.disabled = false;
             btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16"><path d="M11 2H9v3h2z"/><path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/></svg>';
             btn.classList.remove("btn-outline-primary");
             btn.classList.add("btn-outline-success");
+
+            btn.classList.add("guardando");
         } else {
-            // Guardar el valor y desactivar el input
+
+            // MODO GUARDAR
             const nuevoValor = input.value;
             const nuevaFecha = inputDate.value;
             const nuevaFormaPago = inputFormaPago.value;
@@ -120,6 +124,7 @@
                 btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16"><path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/></svg>';
                 btn.classList.remove("btn-outline-success");
                 btn.classList.add("btn-outline-primary");
+                btn.classList.remove("guardando");
 
                 // Actualizar diferencia y total pagado en la tabla
                 const diferenciaTd = document.querySelector(`#diferencia-${id}`);
@@ -199,8 +204,8 @@
                 if (btn.dataset.confirmar === "true") {
                     btn.dataset.confirmar = "false";
                     btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16"><path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/></svg>';
-                    btn.classList.remove("btn-outline-danger");
-                    btn.classList.add("btn-outline-primary");
+                    btn.classList.remove("btn-outline-primary");
+                    btn.classList.add("btn-outline-danger");
                 }
             }, 5000);
         }
