@@ -103,18 +103,26 @@
 {% endblock contenidoPagina %}
 
 {% block extrajs %}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.getElementById("btnExcel").addEventListener("click", function () {
             let selected = [];
             document.querySelectorAll(".form-check-input:checked").forEach(function (checkedBox) {
                 selected.push(checkedBox.value);
             });
-        
+            const mes_seleccionado = document.getElementById("id_mes_descuento_nomina").value;
             if (selected.length > 0) {
-                let url = `{% url 'reportes:excelDescuentosNomina' %}?` + selected.map(id => `select${id}=${id}`).join("&");
+                let url = `{% url 'reportes:excelDescuentosNomina' %}?` + selected.map(id => `select${id}=${id}`).join("&") + `&mes_seleccionado=${mes_seleccionado}`;
                 window.location.href = url; // Redirige para descargar el archivo
             } else {
-                alert("Seleccione al menos una empresa para descargar.");
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Falta seleccionar empresa',
+                    text: 'Por favor, seleccione al menos una empresa para generar el excel.',
+                    confirmButtonText: 'Ok',
+                    confirmButtonColor: '#3085d6'
+                    });
+                return;
             }
         });
     </script>

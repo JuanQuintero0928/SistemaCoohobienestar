@@ -114,6 +114,7 @@ def obtenerDescuentoNomina(empresa_pk, mes_seleccionado):
             estadoRegistro=True,
             pendientePago__gt=0,
             estado="OTORGADO",
+            primerMes__pk__lte = mes_seleccionado
         )
         .values("asociado")
         .annotate(
@@ -150,7 +151,8 @@ def obtenerDescuentoNomina(empresa_pk, mes_seleccionado):
             asociado=OuterRef("asociado"),
             formaPago="DESCUENTO NOMINA",
             estadoRegistro=True,
-            pendientePago__gt=0
+            pendientePago__gt=0,
+            primerMes__pk__lte = mes_seleccionado
         )
         .annotate(
             cuota_calculada=Case(
@@ -255,8 +257,8 @@ def obtenerDescuentoNomina(empresa_pk, mes_seleccionado):
     )
 
     # Informacion Coohoperativitos
-    fecha_mes_seleccionado = MesTarifa.objects.get(pk = mes_seleccionado).fechaInicio
-    valor_coohoperativito = Tarifas.objects.filter(pk__in = [5,6]).annotate(total=Sum("valor")).values("total")
+    fecha_mes_seleccionado = MesTarifa.objects.get(pk = mes_seleccionado).fechaFinal
+    valor_coohoperativito = Tarifas.objects.filter(pk__in = [5,6]).aggregate(total=Sum("valor"))["total"]
 
     cuota_coohoperativitos_count = (
         Coohoperativitos.objects.filter(

@@ -9,7 +9,7 @@ from .utils.medicion import medir_rendimiento
 from .utils.extracto import obtenerValorExtracto
 
 from asociado.models import Asociado, ParametroAsociado, TarifaAsociado, ConveniosAsociado
-from beneficiario.models import Mascota, Beneficiario
+from beneficiario.models import Mascota, Beneficiario, Coohoperativitos
 from historico.models import HistorialPagos, HistoricoAuxilio, HistoricoCredito
 from ventas.models import DetalleVenta, HistoricoVenta, Producto
 from parametro.models import FormaPago, MesTarifa, TipoAsociado
@@ -619,13 +619,14 @@ class VerDescuentosNomina(ListView):
 class ExcelDescuentosNomina(TemplateView):
     def get(self, request, *args, **kwargs):
         empresas_ids = [key.replace("select", "") for key in request.GET.keys() if key.startswith("select")]
+        mes_seleccionado = MesTarifa.objects.get(id = request.GET.get('mes_seleccionado'))
         
         if not empresas_ids:
             return HttpResponse("No se seleccionaron empresas.", content_type="text/plain")
 
         array = []
         for empresa_id in empresas_ids:
-            query = obtenerDescuentoNomina(empresa_id)
+            query = obtenerDescuentoNomina(empresa_id, mes_seleccionado.pk)
             array.extend(query['query'])
 
         # Estilos
@@ -1020,6 +1021,45 @@ class DescargarMascotas(BaseReporteExcel):
             obj['nombre'],
             obj['tipo'],
             obj['raza'], 
+            obj['fechaNacimiento'].strftime("%d/%m/%Y"),
+        ]
+
+
+class DescargarCoohoperativitos(BaseReporteExcel):
+    nombre_hoja = "Listado Coohoperativitos"
+    columnas = [
+        'ID Titular', 'Número Documento Titular', 'Nombre Titular', 'Apellido Titular',  'ID Coohoperativito', 'Número Documento Coohoperativito', 'Nombre Coohoperativito', 'Apellido Coohoperativito', 'Fecha Nacimiento'
+        ]
+    
+    ancho_columnas = [11, 20, 24, 24, 11, 20, 20, 20, 15]
+
+    def get_queryset(self, request, *args, **kwargs):
+        
+        self.titulo = "Listado Coohoperativitos"
+
+        return Coohoperativitos.objects.filter(estadoRegistro = True).values(
+                                            'asociado__id',
+                                            'asociado__numDocumento',
+                                            'asociado__nombre',
+                                            'asociado__apellido',
+                                            'id',
+                                            'numDocumento',
+                                            'nombre',
+                                            'apellido',
+                                            'fechaNacimiento',
+                                        ).order_by('asociado')
+
+    def preparar_fila(self, obj):
+
+        return [
+            obj['asociado__id'],
+            int(obj['asociado__numDocumento']),
+            obj['asociado__nombre'],
+            obj['asociado__apellido'],
+            obj['id'],
+            int(obj['numDocumento']),
+            obj['nombre'],
+            obj['apellido'], 
             obj['fechaNacimiento'].strftime("%d/%m/%Y"),
         ]
 

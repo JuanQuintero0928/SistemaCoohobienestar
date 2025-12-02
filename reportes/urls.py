@@ -17,6 +17,7 @@ urlpatterns = [
     path('descargarAsociados/', login_required(DescargarAsociados.as_view()), name='descargarAsociados'),
     path('descargarTarifasAsociados/', login_required(DescargarTarifasAsociados.as_view()), name='descargarTarifasAsociados'),
     path('descargarBeneficiarios/', login_required(DescargarBeneficiarios.as_view()), name='descargarBeneficiarios'),
+    path('descargarCoohoperativitos/', login_required(DescargarCoohoperativitos.as_view()), name='descargarCoohoperativitos'),
     path('descargarAuxilio/', login_required(DescargarAuxilios.as_view()), name='descargarAuxilio'),
     path('descargarCredito/', login_required(DescargarCreditos.as_view()), name='descargarCredito'),
     path('descargarVentasHE/', login_required(DescargarVentasHE.as_view()), name='descargarVentasHE'),
