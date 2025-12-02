@@ -27,7 +27,13 @@ async function guardarFechaYGenerarPDF(asociadoId, urlImagen, tipoFormato) {
     const btnSpinner = document.getElementById('btnSpinner');
 
     if (!fecha) {
-        alert("Por favor selecciona una fecha antes de continuar.");
+        Swal.fire({
+            icon: 'info',
+            title: 'Información faltante',
+            text: 'Por favor, seleccione una fecha valida para continuar.',
+            confirmButtonText: 'Ok',
+            confirmButtonColor: '#3085d6'
+        });
         return;
     }
 
@@ -54,7 +60,13 @@ async function guardarFechaYGenerarPDF(asociadoId, urlImagen, tipoFormato) {
 
     } catch (error) {
         console.error("Error:", error);
-        alert("Ocurrió un error al guardar la fecha");
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Ocurrio un error al guardar la fecha.',
+            confirmButtonText: 'Ok',
+            confirmButtonColor: '#3085d6'
+        });
     }
 }
 
@@ -185,10 +197,20 @@ async function llamarPDF(formato, url, asociadoId, tipoFormato, opciones = {}, b
         }
     }
     catch (error) {
-        console.log(error);
-        alert("Ocurrió un problema al generar el formato. Recargue la página e intente nuevamente. Si el error persiste comunicarse con el administrador.")
+        const detalleTecnico = error instanceof Error ? error.stack : String(error);
+    
+        console.error("Error en la generación del PDF:", detalleTecnico);
+
+        Swal.fire({
+            icon: 'error',
+            title: 'Ha ocurrido un error',
+            text: 'Hubo un problema generando el PDF. Por favor intente nuevamente o contacte a soporte.',
+            confirmButtonText: 'Ok',
+            confirmButtonColor: '#3085d6'
+        });
+
+        return;
     } finally {
-        console.log("Finalizando proceso formato:", formato);
         if ([2, 3, 5, 6, 7, 8, 9].includes(formato)){
             ocultarSpinner(boton);
         }
