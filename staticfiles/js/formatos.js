@@ -1356,7 +1356,7 @@ async function generarPDFSolicitudCredito(url, datos) {
     // renglon 7
     pdf.text(datos.deptoResidencia, 21.7, 589.5);
     pdf.text(datos.email, 125.7, 589.5);
-    pdf.text(datos.numResidencia, 385, 589.5);
+    writeText(pdf, datos.numResidencia, 385, 589.5);
     pdf.text(datos.numCelular, 492.4, 589.5);
 
     // renglon 8

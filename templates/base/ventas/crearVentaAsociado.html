@@ -393,7 +393,7 @@ $('#creacion').on('shown.bs.modal', function () {
 
     observerValorBruto.observe(inputValorBruto, { attributes: true, attributeFilter: ['value'] });
 
-    // 🔹 VALIDACIÓN DEL ANTICIPO - Solo permite valores >= al mínimo
+    // VALIDACIÓN DEL ANTICIPO - Solo permite valores >= al mínimo
     inputAnticipo.addEventListener('input', () => {
         let valorIngresado = parseInt(inputAnticipo.value.replace(/\D/g, '')) || 0;
         
@@ -420,7 +420,7 @@ $('#creacion').on('shown.bs.modal', function () {
     // Función para calcular el 15% de anticipo
     function calcularAnticipo() {
         const valorBruto = parseInt(inputValorBruto.value.replace(/\D/g, '')) || 0;
-        anticipoMinimo = Math.floor(valorBruto * 0.15);
+        anticipoMinimo = Math.floor(valorBruto * 0.10); // 0.15 % 
         
         // Solo actualizar el valor si está vacío o es menor al mínimo
         const valorActual = parseInt(inputAnticipo.value.replace(/\D/g, '')) || 0;

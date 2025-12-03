@@ -8,6 +8,7 @@
             <h6 class="text-light mb-0">{{ asociado.nombre }} {{ asociado.apellido }}</h6>
           </div>
           <input type="hidden" id="pkAsociado" value="{{ asociado.pk }}">
+          <input type="hidden" id="estado" value="{{ create }}">
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
@@ -171,8 +172,13 @@
       tablaBody.innerHTML = "";
 
       // Obtiene la fecha actual en formato YYYY-MM-DD y la asigna al input de fecha
-      let today = new Date().toISOString().split('T')[0];  // Obtiene la fecha en formato YYYY-MM-DD
-      document.getElementById("fechaSolicitud").value = today;
+      const tipoEstado = document.getElementById("estado").value;
+
+      // Solo asigna fecha al input cuando es un create.
+      if (tipoEstado === 'True') {
+        let today = new Date().toISOString().split('T')[0];  // Obtiene la fecha en formato YYYY-MM-DD
+        document.getElementById("fechaSolicitud").value = today;
+      }
     });
 
 
