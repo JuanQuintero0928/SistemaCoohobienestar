@@ -51,7 +51,7 @@
                         <tbody>
                             <tr>
                                 <td>1</td>
-                                <td>{{ asociado.nombre }} {{ query.apellido }}</td>
+                                <td>{{ asociado.nombre }} {{ asociado.apellido }}</td>
                                 <td>{{ asociado.numDocumento|intcomma }}</td>
                                 <td>{{ asociado.tAsociado }}</td>
                             </tr>
@@ -125,7 +125,7 @@
                                 {{ form.cuotas }}
                             </div>
 
-                            <div class="row col-12 mt-3">
+
                                 <div class="col-12 col-lg-4" id="contenedorValorCuotas">
                                     <label for="id_valorCuotas">Valor Cuotas</label>
                                     <input type="text" name="valorCuotas" id="id_valorCuotas" class="form-control" readonly>
@@ -136,6 +136,15 @@
                                     <input type="number" name="anticipo" id="id_anticipo" min="0" class="form-control" placeholder="Mínimo 15%">
                                 </div>
 
+                                <div class="col-12 col-lg-4 d-none" id="contenedorPorcentajeAnticipo">
+                                    <label for="id_porcentaje_anticipo">Porcentaje Anticipo</label>
+                                    <select name="porcentajeAnticipo" class="form-select" id="id_porcentaje_anticipo">
+                                        {% for porcentaje in porcentajeDescuentoAnticipo %}
+                                            <option value="{{ porcentaje.porcentaje }}">{{ porcentaje.nombre }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
                                 <div class="col-12 col-lg-4 d-none" id="contenedorFormaPagoAnticipo">
                                     <label for="id_forma_pago_anticipo">Forma Pago Anticipo</label>
                                     <select name="formaPagoAnticipo" class="form-select" id="id_forma_pago_anticipo">
@@ -144,7 +153,7 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                            </div>
+                        
                         </div>
                     </div>
                 </div>
@@ -238,10 +247,12 @@ $('#creacion').on('shown.bs.modal', function () {
     const contenedorTasaInteres = document.getElementById('contenedorTasaInteres');
     const contenedorAmortizacion = document.getElementById('contenedorAmortizacion');
     const contenedorAnticipo = document.getElementById('contenedorAnticipo');
+    const contenedorPorcentajeAnticipo = document.getElementById('contenedorPorcentajeAnticipo');
     const contenedorFormaPagoAnticipo = document.getElementById('contenedorFormaPagoAnticipo');
     
     const tasaInteres = document.getElementById('id_tasaInteres');
     const inputAnticipo = document.getElementById('id_anticipo');
+    const inputPorcentajeAnticipo = document.getElementById('id_porcentaje_anticipo');
     const encabezado = document.getElementById('encabezados-container');
     const contenedor_totales = document.getElementById('total-general-container');
     const submit = document.getElementById('submit');
@@ -356,17 +367,26 @@ $('#creacion').on('shown.bs.modal', function () {
         toggleCuotas();
         actualizarTotalConInteresPorProducto();
     });
+
+    inputPorcentajeAnticipo.addEventListener('change', () => {
+        actualizarValorBruto();
+        actualizarTotalConInteresPorProducto();
+        actualizarValorCuotas();
+        actualizarValorNeto();
+    })
     
     tasaInteres.addEventListener('change', () => {
         const selectedText = tasaInteres.options[tasaInteres.selectedIndex].text;
 
         if (selectedText.includes("CREDITO PRODUCTO")) {
             contenedorAnticipo.classList.remove('d-none');
-            contenedorFormaPagoAnticipo.classList.remove('d-none')
+            contenedorFormaPagoAnticipo.classList.remove('d-none');
+            contenedorPorcentajeAnticipo.classList.remove('d-none');
             calcularAnticipo();
         } else {
             contenedorAnticipo.classList.add('d-none');
             contenedorFormaPagoAnticipo.classList.add('d-none');
+            contenedorPorcentajeAnticipo.classList.add('d-none');
             inputAnticipo.value = 0;
         }
 
@@ -403,7 +423,7 @@ $('#creacion').on('shown.bs.modal', function () {
         }
     });
 
-    // 🔹 CUANDO PIERDE EL FOCO, RECALCULA TODO
+    // CUANDO PIERDE EL FOCO, RECALCULA TODO
     inputAnticipo.addEventListener('blur', () => {
         let valorIngresado = parseInt(inputAnticipo.value.replace(/\D/g, '')) || 0;
         
@@ -417,20 +437,29 @@ $('#creacion').on('shown.bs.modal', function () {
         actualizarValorNeto();
     });
 
-    // Función para calcular el 15% de anticipo
+
+    // Función para calcular el porcentaje de anticipo
     function calcularAnticipo() {
+
+        let porcentajeAnticipo = document.getElementById('id_porcentaje_anticipo').value;
+
+        // convertir de "0,10" a 0.10
+        porcentajeAnticipo = parseFloat(porcentajeAnticipo.replace(",","."));
+
         const valorBruto = parseInt(inputValorBruto.value.replace(/\D/g, '')) || 0;
-        anticipoMinimo = Math.floor(valorBruto * 0.10); // 0.15 % 
+        anticipoMinimo = Math.floor(valorBruto * porcentajeAnticipo); // 0.15 % 
         
         // Solo actualizar el valor si está vacío o es menor al mínimo
         const valorActual = parseInt(inputAnticipo.value.replace(/\D/g, '')) || 0;
-        if (valorActual < anticipoMinimo || valorActual === 0) {
-            inputAnticipo.value = anticipoMinimo;
-        }
+        //if (valorActual < anticipoMinimo || valorActual === 0) {
+        //    inputAnticipo.value = anticipoMinimo;
+        //}
+        inputAnticipo.value = anticipoMinimo
 
         actualizarValorCuotas();
         actualizarValorNeto();
     }
+
 
     // Evento que agrega una nueva fila de producto
     addButton.addEventListener('click', () => {
@@ -483,7 +512,7 @@ $('#creacion').on('shown.bs.modal', function () {
             inicializarSelect2EnModal();
         }
 
-        // 🔥 IMPORTANTE: Agregar el evento select2:select para capturar el cambio
+        // Agregar el evento select2:select para capturar el cambio
         $nuevoSelect.on('select2:select', function(e) {
             const precioInput = $(this).closest('.producto-item').find('input[name^="precio"]');
             const precio = e.params.data.element.dataset.precio || 0;
@@ -510,6 +539,7 @@ $('#creacion').on('shown.bs.modal', function () {
         actualizarValorCuotas();
         actualizarValorNeto();
     });
+
 
     // Evento delegado SOLO para los inputs de cantidad
     container.addEventListener('input', (event) => {
@@ -614,7 +644,8 @@ $('#creacion').on('shown.bs.modal', function () {
             }
         });
     }
-    
+
+
     // Función para calcular el valor total de todos los productos
     function actualizarValorBruto() {
         let totalBruto = 0;
@@ -630,12 +661,13 @@ $('#creacion').on('shown.bs.modal', function () {
         valorBrutoInput.value = totalBruto.toLocaleString('es-ES');
         document.getElementById("id_totales_bruto").value = valorBrutoInput.value;
 
-        // 🔹 Si está seleccionado CREDITO PRODUCTO, recalcular anticipo automáticamente
+        // Si está seleccionado CREDITO PRODUCTO, recalcular anticipo automáticamente
         const selectedText = tasaInteres.options[tasaInteres.selectedIndex].text;
         if (selectedText.includes("CREDITO PRODUCTO") && totalBruto > 0) {
             calcularAnticipo();
         }
     }
+
 
     function actualizarValorCuotas() {
         const valorCuota = document.getElementById("id_valorCuotas");
@@ -678,7 +710,8 @@ $('#creacion').on('shown.bs.modal', function () {
         
         valorCuota.value = cuota.toLocaleString('es-ES');
     }
-    
+
+
     function actualizarValorNeto() {
         const formaPago = document.getElementById('id_formaPago').value;
         const selectedText = tasaInteres.options[tasaInteres.selectedIndex].text;
@@ -704,6 +737,7 @@ $('#creacion').on('shown.bs.modal', function () {
         }
     }
 
+
     // Función para eliminar una fila de producto
     window.eliminarProducto = function(button) {
         const row = button.closest('.row');
@@ -720,6 +754,7 @@ $('#creacion').on('shown.bs.modal', function () {
             encabezado.setAttribute('hidden', 'hidden');
         }
     }       
+
 
     function renombrarProductos() {
         const items = document.querySelectorAll('.producto-item');

@@ -858,10 +858,10 @@ class ExcelConciliacionBancaria(TemplateView):
 class DescargarAsociados(BaseReporteExcel):
     nombre_hoja = "Listado Asociados"
     columnas = [
-        'ID Asociado', 'Nombres', 'Apellidos', 'Número Documento', 'Genero', 'Estado Civil', 'Tipo Vivienda', 'Estrato', 'Dirección', 'Barrio', 'Departamento Residencia', 'Municipio Residencia', 'Fecha Nacimiento', 'Indicativo Celular', 'Número Celular', 'Email', 'Estado Asociado', 'Tipo Asociado', 'Fecha Ingreso', 'Fecha Primer Cobro', 'Funeraria', 'Fecha Retiro'
+        'ID Asociado', 'Nombres', 'Apellidos', 'Número Documento', 'Genero', 'Estado Civil', 'Tipo Vivienda', 'Estrato', 'Dirección', 'Barrio', 'Departamento Residencia', 'Municipio Residencia', 'Fecha Nacimiento', 'Indicativo Celular', 'Número Celular', 'Email', 'Estado Asociado', 'Tipo Asociado', 'Fecha Ingreso', 'Fecha Actualizacion Datos', 'Fecha Primer Cobro', 'Funeraria', 'Fecha Retiro'
         ]
 
-    ancho_columnas = [11, 20, 20, 20, 20, 20, 20, 10, 25, 25, 14, 20, 15, 12, 15, 20, 18, 20, 20, 20, 22, 20]
+    ancho_columnas = [11, 20, 20, 20, 20, 20, 20, 10, 25, 25, 14, 20, 15, 12, 15, 20, 18, 20, 20, 20, 20, 22, 20]
 
     def get_queryset(self, request, *args, **kwargs):
         
@@ -893,6 +893,7 @@ class DescargarAsociados(BaseReporteExcel):
             obj.estadoAsociado, 
             obj.tAsociado.concepto,
             obj.fechaIngreso.strftime("%d/%m/%Y") if obj.fechaIngreso else None,
+            obj.fechaActualizacionDatos.strftime("%d/%m/%Y") if obj.fechaActualizacionDatos else None,
             obj.primerMes,
             obj.funeraria,
             obj.fechaRetiro.strftime("%d/%m/%Y") if obj.fechaRetiro else None,

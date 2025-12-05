@@ -140,3 +140,10 @@ class ConsecutivoRadicado(models.Model):
 
     def __str__(self):
         return f"{self.tipo}-{self.anio}-{self.ultimo_numero:05d}"
+
+
+class PorcentajeAnticipo(models.Model):
+    nombre = models.CharField(max_length=30, blank=False, null=False)
+    porcentaje = models.DecimalField(
+        max_digits=6, decimal_places=5, blank=False, null=False
+    )

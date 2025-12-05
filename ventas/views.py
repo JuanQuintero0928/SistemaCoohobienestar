@@ -12,7 +12,7 @@ from .models import Producto, HistoricoVenta, DetalleVenta, PorcentajeDescuento
 from .form import ProductoForm, HistoricoVentaForm, DetalleVentaForm
 from asociado.models import Asociado, ParametroAsociado
 from historico.models import HistorialPagos
-from parametro.models import FormaPago, TasasInteresCredito, MesTarifa
+from parametro.models import FormaPago, TasasInteresCredito, MesTarifa, PorcentajeAnticipo
 
 # Create your views here.
 
@@ -132,6 +132,7 @@ class CrearVentaAsociado(CreateView):
             'pkAsociado': self.kwargs['pkAsociado'],
             'queryProducto': Producto.objects.all(),
             'descuento': PorcentajeDescuento.objects.filter(estado = True),
+            'porcentajeDescuentoAnticipo': PorcentajeAnticipo.objects.all(),
             'metodoPago': FormaPago.objects.all().exclude(id = 2),
             'meses': MesTarifa.objects.filter(id__lte= 9000, id__gte= obj_parametro_asociado.primerMes_id),
         })
