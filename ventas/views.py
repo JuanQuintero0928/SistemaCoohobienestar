@@ -133,7 +133,7 @@ class CrearVentaAsociado(CreateView):
             'queryProducto': Producto.objects.all(),
             'descuento': PorcentajeDescuento.objects.filter(estado = True),
             'porcentajeDescuentoAnticipo': PorcentajeAnticipo.objects.all(),
-            'metodoPago': FormaPago.objects.all().exclude(id = 2),
+            'metodoPago': FormaPago.objects.all(),
             'meses': MesTarifa.objects.filter(id__lte= 9000, id__gte= obj_parametro_asociado.primerMes_id),
         })
         return context
