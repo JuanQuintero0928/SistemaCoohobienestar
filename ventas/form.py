@@ -1,4 +1,3 @@
-from tkinter import Widget
 from django import forms
 from .models import Producto, HistoricoVenta, DetalleVenta
 from parametro.models import TasasInteresCredito
