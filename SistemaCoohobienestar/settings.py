@@ -86,6 +86,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'SistemaCoohobienestar.wsgi.application'
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://appcoohobienestar.com",
+]
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
