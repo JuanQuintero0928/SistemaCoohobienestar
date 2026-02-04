@@ -918,21 +918,16 @@ class EditarPago(ListView):
         objHistorico.valorPago = request.POST["valorPago"]
         objHistorico.aportePago = request.POST["aportePago"]
         objHistorico.bSocialPago = request.POST["bSocialPago"]
-        objHistorico.diferencia = request.POST["diferencia"]
-        if objHistorico.mascotaPago != 0:
-            objHistorico.mascotaPago = request.POST["mascotaPago"]
-        if objHistorico.repatriacionPago != 0:
-            objHistorico.repatriacionPago = request.POST["repatriacionPago"]
-        if objHistorico.seguroVidaPago != 0:
-            objHistorico.seguroVidaPago = request.POST["seguroVidaPago"]
-        if objHistorico.adicionalesPago != 0:
-            objHistorico.adicionalesPago = request.POST["adicionalesPago"]
-        if objHistorico.coohopAporte != 0:
-            objHistorico.coohopAporte = request.POST["coohopAporte"]
-        if objHistorico.coohopBsocial != 0:
-            objHistorico.coohopBsocial = request.POST["coohopBsocial"]
-        if objHistorico.convenioPago != 0:
-            objHistorico.convenioPago = request.POST["convenioPago"]
+        objHistorico.mascotaPago = request.POST["mascotaPago"] or 0
+        objHistorico.repatriacionPago = request.POST["repatriacionPago"] or 0
+        objHistorico.seguroVidaPago = request.POST["seguroVidaPago"] or 0
+        objHistorico.adicionalesPago = request.POST["adicionalesPago"] or 0
+        objHistorico.coohopAporte = request.POST["coohopAporte"] or 0
+        objHistorico.coohopBsocial = request.POST["coohopBsocial"] or 0
+        objHistorico.convenioPago = request.POST["convenioPago"] or 0
+
+        objHistorico.diferencia = request.POST["diferencia"] or 0
+        
         objHistorico.userModificacion = UsuarioAsociado.objects.get(pk=request.user.pk)
         objHistorico.save()
         messages.info(request, "Pago Modificado Correctamente")
