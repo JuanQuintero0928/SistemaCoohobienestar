@@ -13,6 +13,7 @@ from beneficiario.models import Mascota, Beneficiario, Coohoperativitos
 from historico.models import HistorialPagos, HistoricoAuxilio, HistoricoCredito
 from ventas.models import DetalleVenta, HistoricoVenta, Producto
 from parametro.models import FormaPago, MesTarifa, TipoAsociado
+from talento_humano.models import Empleados, HistorialLaboral
 from .queries import obtenerNovedades, obtenerDescuentoNomina
 
 #Funciones
@@ -1215,24 +1216,28 @@ class DescargarVentasHE(BaseReporteExcel):
         return self.exportar_excel(request, *args, **kwargs)
 
     def get_queryset(self, request, *args, **kwargs):
-        fechaInicialForm = request.POST.get('fechaInicial')
-        fechaFinalForm = request.POST.get('fechaFinal')
+        try:
+            fechaInicialForm = request.POST.get('fechaInicial')
+            fechaFinalForm = request.POST.get('fechaFinal')
 
-        if not fechaInicialForm or not fechaFinalForm:
-            raise ValueError("Fechas no enviadas en el formulario.")
-    
-        fechaInicial = datetime.strptime(fechaInicialForm, "%Y-%m-%d")
-        fechaFinal = datetime.strptime(fechaFinalForm, "%Y-%m-%d")
+            if not fechaInicialForm or not fechaFinalForm:
+                raise ValueError("Fechas no enviadas en el formulario.")
+        
+            fechaInicial = datetime.strptime(fechaInicialForm, "%Y-%m-%d")
+            fechaFinal = datetime.strptime(fechaFinalForm, "%Y-%m-%d")
 
-        self.titulo = f"Reporte de Pagos desde {fechaInicial.strftime('%d-%m-%Y')} hasta {fechaFinal.strftime('%d-%m-%Y')}"
+            self.titulo = f"Reporte de Pagos desde {fechaInicial.strftime('%d-%m-%Y')} hasta {fechaFinal.strftime('%d-%m-%Y')}"
 
-        return HistoricoVenta.objects.filter(
-                    fechaVenta__range=[fechaInicial, fechaFinal],
-                    estadoRegistro=True
-                ).select_related('asociado','tasaInteres'
-                ).prefetch_related(
-                    Prefetch('detalleventa_set', queryset=DetalleVenta.objects.select_related('producto'))
-                ).order_by('pk')
+            return HistoricoVenta.objects.filter(
+                        fechaVenta__range=[fechaInicial, fechaFinal],
+                        estadoRegistro=True
+                    ).select_related('asociado','tasaInteres'
+                    ).prefetch_related(
+                        Prefetch('detalleventa_set', queryset=DetalleVenta.objects.select_related('producto'))
+                    ).order_by('pk')
+
+        except (ValueError, TypeError) as e:
+            return HistorialLaboral.objects.none()  # Retorna un queryset vacío en caso de error
 
     def preparar_fila(self, obj):
         return [
@@ -1335,4 +1340,82 @@ class DescargarProductosHE(BaseReporteExcel):
             obj.categoria.nombre,
             obj.proveedor.razonSocial,
             obj.descripcion,
+        ]
+
+
+class DescargarEmpleados(BaseReporteExcel):
+    nombre_hoja = "Listado Empleados"
+    columnas = [
+        'ID Empleado', 'Nombre Completo', 'Tipo Documento', 'Número Documento', 'Fecha Nacimiento', 'Celular', 'Correo', 'Direccion', 'Departamento', 'Municipio'
+        ]
+    ancho_columnas = [11, 32, 14, 14, 14, 14, 32, 32, 18, 18]
+
+    def get_queryset(self, request, *args, **kwargs):
+        
+        self.titulo = "Listado de Empleados"
+
+        return Empleados.objects.all()
+
+    def preparar_fila(self, obj):
+        return [
+            obj.id,
+            f'{obj.nombre} {obj.apellido}',
+            obj.tipo_documento,
+            obj.numero_documento,
+            obj.fecha_nacimiento.strftime("%d/%m/%Y") if obj.fecha_nacimiento else '',
+            obj.celular,
+            obj.correo,
+            obj.direccion,
+            obj.departamento,
+            obj.municipio,
+        ]
+
+
+class DescargarHistorialLaboralEmpleado(BaseReporteExcel):
+    nombre_hoja = "Listado Laboral Empleados"
+    columnas = [
+        'ID Historial', 'Nombre Completo', 'Tipo Documento', 'Número Documento', 'Fecha Ingreso', 'Fecha Finalización', 'Area', 'Cargo', 'Tipo Contrato', 'Nombre Unidad', 'Salario'
+        ]
+    
+    ancho_columnas = [14, 32, 14, 14, 14, 14, 20, 24, 24, 14, 14]
+
+    def get(self, request, *args, **kwargs):
+        template = 'reporte/modalReporte.html'
+        return render(request, template, {'tipoReporte':'historialLaboral'})
+
+    def post(self, request, *args, **kwargs):
+        return self.exportar_excel(request, *args, **kwargs)
+
+    def get_queryset(self, request, *args, **kwargs):
+        try:
+            fechaInicialForm = request.POST.get('fechaInicial')
+            fechaFinalForm = request.POST.get('fechaFinal')
+
+            if not fechaInicialForm or not fechaFinalForm:
+                raise ValueError("Fechas no enviadas en el formulario.")
+        
+            fechaInicial = datetime.strptime(fechaInicialForm, "%Y-%m-%d")
+            fechaFinal = datetime.strptime(fechaFinalForm, "%Y-%m-%d")
+
+            self.titulo = f"Reporte Laboral desde {fechaInicial.strftime('%d-%m-%Y')} hasta {fechaFinal.strftime('%d-%m-%Y')}"
+
+            return HistorialLaboral.objects.filter(
+                fecha_inicio__range=[fechaInicialForm, fechaFinalForm]
+            ).select_related('area','cargo','tipo_contrato','nombre_unidad','empleado')
+        except (ValueError, TypeError) as e:
+            return HistorialLaboral.objects.none()  # Retorna un queryset vacío en caso de error
+
+    def preparar_fila(self, obj):
+        return [
+            obj.id,
+            f'{obj.empleado.nombre} {obj.empleado.apellido}',
+            obj.empleado.tipo_documento,
+            int(obj.empleado.numero_documento),
+            obj.fecha_inicio.strftime("%d/%m/%Y"),
+            obj.fecha_fin.strftime("%d/%m/%Y") if obj.fecha_fin else '',
+            obj.area.nombre,
+            obj.cargo.nombre,
+            obj.tipo_contrato.nombre,
+            obj.nombre_unidad.nombre,
+            obj.salario,
         ]

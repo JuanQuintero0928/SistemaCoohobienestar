@@ -10,6 +10,8 @@
                     Descargar Créditos por fecha
                 {% elif tipoReporte == 'ventasHE' %}
                     Descargar Ventas Home Elements
+                {% elif tipoReporte == 'historialLaboral' %}
+                    Descargar Historial Laboral Empleado
                 {% endif %}</h1>
             <hr>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -23,6 +25,8 @@
                 <form action="{% url 'reportes:descargarCredito' %}" method="post">
             {% elif tipoReporte == 'ventasHE' %}
                 <form action="{% url 'reportes:descargarVentasHE' %}" method="post">
+            {% elif tipoReporte == 'historialLaboral' %}
+                <form action="{% url 'reportes:descargarHistorialLaboralEmpleado' %}" method="post">
             {% endif %}
                 {% csrf_token %}
                 <div class="row">
@@ -30,14 +34,14 @@
                     <div class="col-6">
                         <div class="form-group">
                             <label for="fechaInicial">Fecha Inicial:</label>
-                            <input type="date" class="form-control" id="fechaInicial" name="fechaInicial" placeholder="Fecha Inicial">
+                            <input type="date" class="form-control" id="fechaInicial" name="fechaInicial" placeholder="Fecha Inicial" required>
                         </div>
                     </div>
                     <!-- Input para Fecha Final -->
                     <div class="col-6">
                         <div class="form-group">
                             <label for="fechaFinal">Fecha Final:</label>
-                            <input type="date" class="form-control" id="fechaFinal" name="fechaFinal" placeholder="Fecha Final">
+                            <input type="date" class="form-control" id="fechaFinal" name="fechaFinal" placeholder="Fecha Final" required>
                         </div>
                     </div>
                 </div>

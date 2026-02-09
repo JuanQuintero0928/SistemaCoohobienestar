@@ -1,0 +1,46 @@
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+
+        <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title">
+                Confirmar eliminación
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+            <p>
+                ¿Está seguro que desea eliminar este historial laboral?
+            </p>
+
+            <ul>
+                <li><strong>Área:</strong> {{ object.empleado.nombre }} {{ object.empleado.apellido }}</li>
+                <li><strong>Área:</strong> {{ object.area }}</li>
+                <li><strong>Cargo:</strong> {{ object.cargo }}</li>
+                <li><strong>Fecha inicio:</strong> {{ object.fecha_inicio }}</li>
+            </ul>
+
+            <p class="text-danger fw-bold">
+                Esta acción no se puede deshacer.
+            </p>
+        </div>
+
+        <div class="modal-footer">
+
+            <form method="post" action="{% url 'talento_humano:historial_eliminar' object.id %}">
+                {% csrf_token %}
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button type="submit"
+                        class="btn btn-danger">
+                    Eliminar
+                </button>
+            </form>
+
+        </div>
+    </div>
+</div>

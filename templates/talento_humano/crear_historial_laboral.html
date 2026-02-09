@@ -1,0 +1,77 @@
+{% load humanize %}
+
+<div class="modal-dialog modal-xl" role="document" id="modal1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">
+                    {% if operation == 'crear' %}
+                        Registrar Historial Laboral
+                    {% else %}
+                        Editar Historial Laboral
+                    {% endif %}
+                </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <form method="post" {% if operation == 'crear' %} action="{% url 'talento_humano:empleadocrearHistorialLaboral' empleado.id %}" {% else %} action="{% url 'talento_humano:empleadoeditarHistorialLaboral' object.id %}" {% endif %}>
+
+                    <!-- Mostrar errores generales del formulario -->
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <ul>
+                                {% for error in form.errors %}
+                                    <li>Error en el campo: {{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-12 col-md-6 mb-3">
+                            {{ form.empleado.label_tag }}
+                            {{ form.empleado }} 
+                        </div>
+                        
+                        <div class="col-12 col-md-6 mb-3">
+                            {{ form.area.label_tag }}
+                            {{ form.area }} 
+                        </div>
+                        <div class="col-12 col-md-6 mb-3">
+                            {{ form.cargo.label_tag }}
+                            {{ form.cargo }} 
+                        </div>
+
+                        <div class="col-12 col-md-6 mb-3">
+                            {{ form.tipo_contrato.label_tag }}
+                            {{ form.tipo_contrato }} 
+                        </div>
+                        <div class="col-12 col-md-6 mb-3">
+                            {{ form.nombre_unidad.label_tag }}
+                            {{ form.nombre_unidad }} 
+                        </div>
+                        <div class="col-12 col-md-6 mb-3">
+                            {{ form.fecha_inicio.label_tag }}
+                            {{ form.fecha_inicio }} 
+                        </div>
+                    
+                        <div class="col-12 col-md-6 mb-3">
+                            {{ form.fecha_fin.label_tag }}
+                            {{ form.fecha_fin }} 
+                        </div>
+                        <div class="col-12 col-md-6 mb-3">
+                            {{ form.salario.label_tag }}
+                            {{ form.salario }} 
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    
+                </form>
+        
+            </div>
+        </div>  
+    </div>
+</div>

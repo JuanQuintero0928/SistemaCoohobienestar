@@ -226,3 +226,12 @@
   background-color: #b30000;
   transform: scale(1.03);
 }
+
+.btn-icon svg {
+    color: #0d6efd;
+    transition: color 0.3s ease;
+}
+
+.btn-icon:hover svg {
+    color: #0a58ca;
+}

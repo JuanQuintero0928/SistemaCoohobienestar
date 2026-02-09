@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'historico.apps.HistoricoConfig',
     'ventas.apps.VentasConfig',
     'perfil.apps.PerfilConfig',
+    'talento_humano.apps.TalentoHumanoConfig',
     'usuarios',
     'SistemaCoohobienestar'
 ]

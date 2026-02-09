@@ -24,6 +24,7 @@ urlpatterns = [
     path('descargarProductosHE/', login_required(DescargarProductosHE.as_view()), name='descargarProductosHE'),
     path('descargarMascotas/', login_required(DescargarMascotas.as_view()), name='descargarMascotas'),
     path('descargarAdicionalesFuneraria/', login_required(DescargarAdicionalesFuneraria.as_view()), name='descargarAdicionalesFuneraria'),
-
+    path('descargarEmpleados/', login_required(DescargarEmpleados.as_view()), name='descargarEmpleados'),
+    path('descargarHistorialLaboralEmpleado/', login_required(DescargarHistorialLaboralEmpleado.as_view()), name='descargarHistorialLaboralEmpleado'),
 
 ]

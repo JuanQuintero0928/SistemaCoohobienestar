@@ -48,6 +48,7 @@ urlpatterns = [
     path('ventas/', include(('ventas.urls','ventas'))),
     path('accounts/', include(('usuarios.urls','usuarios'))),
     path('perfil/', include(('perfil.urls','perfil'))),
+    path('talento-humano/', include(('talento_humano.urls','talento_humano'))),
     # API
     path('api/', include('asociado.api.urls')),
     path('api/', include('usuarios.api.urls')),
