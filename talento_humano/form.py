@@ -16,6 +16,7 @@ class EmpleadoForm(forms.ModelForm):
             "direccion",
             "departamento",
             "municipio",
+            "asociado"
         ]
         widgets = {
             "nombre": forms.TextInput(
@@ -66,7 +67,18 @@ class EmpleadoForm(forms.ModelForm):
                     "style": "text-transform: uppercase;",
                 }
             ),
+            "asociado": forms.HiddenInput()
         }
+
+    def clean_numero_documento(self):
+        numero = self.cleaned_data["numero_documento"]
+
+        if Empleados.objects.filter(numero_documento=numero).exists():
+            raise forms.ValidationError(
+                "Ya existe un empleado con este número de documento"
+            )
+
+        return numero
 
 
 class AreaForm(forms.ModelForm):

@@ -29,4 +29,6 @@ urlpatterns = [
 
     path('utilidades-empleado/', login_required(UtilidadesProductos.as_view()), name='utilidadesEmpleado'),
 
+    path('ajax/buscar-documento/', login_required(buscar_persona_por_documento), name='validar_documento'),
+
 ]

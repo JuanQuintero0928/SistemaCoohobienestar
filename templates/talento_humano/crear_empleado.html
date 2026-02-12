@@ -48,6 +48,11 @@
             <li class="nav-item">
                 <a class="nav-link" aria-current="page" href="{% url 'talento_humano:empleadolistarHistorialLaboral' empleado.id %}">Historico</a>
             </li>
+            {% if empleado.asociado %}
+                <li class="nav-item">
+                    <a class="nav-link" aria-current="page" href="{% url 'asociado:verAsociado' empleado.asociado.id %}">Asociado Relacionado</a>
+                </li>
+            {% endif %}
         </ul>
     {% endif %}
 
@@ -58,9 +63,11 @@
                 <!-- Mostrar errores generales del formulario -->
                 {% if form.errors %}
                     <div class="alert alert-danger">
-                        <ul>
-                            {% for error in form.errors %}
-                                <li>Error en el campo: {{ error }}</li>
+                        <ul class="mb-0">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
                             {% endfor %}
                         </ul>
                     </div>
@@ -70,6 +77,14 @@
                 {% comment %} Primera Fila {% endcomment %}
                 <div class="row">
                     <div class="col-12 col-md-6 mb-3">
+                        {{ form.tipo_documento.label_tag }}
+                        {{ form.tipo_documento }} 
+                    </div>
+                    <div class="col-12 col-md-6 mb-3">
+                        {{ form.numero_documento.label_tag }}
+                        {{ form.numero_documento }} 
+                    </div>
+                    <div class="col-12 col-md-6 mb-3">
                         {{ form.nombre.label_tag }}
                         {{ form.nombre }} 
                     </div>
@@ -77,38 +92,21 @@
                         {{ form.apellido.label_tag }}
                         {{ form.apellido }} 
                     </div>
-                </div>
 
-                {% comment %} Segunda Fila {% endcomment %}
-                <div class="row">
-                    <div class="col-12 col-md-4 mb-3">
-                        {{ form.tipo_documento.label_tag }}
-                        {{ form.tipo_documento }} 
-                    </div>
-                    <div class="col-12 col-md-4 mb-3">
-                        {{ form.numero_documento.label_tag }}
-                        {{ form.numero_documento }} 
-                    </div>
-                    <div class="col-12 col-md-4 mb-3">
+                    <div class="col-12 col-md-6 col-lg-4 mb-3">
                         {{ form.fecha_nacimiento.label_tag }}
                         {{ form.fecha_nacimiento }} 
                     </div>
-                </div>
-
-                {% comment %} Tercera Fila {% endcomment %}
-                <div class="row">
-                    <div class="col-12 col-md-6 mb-3">
+                
+                    <div class="col-12 col-md-6 col-lg-4 mb-3">
                         {{ form.celular.label_tag }}
                         {{ form.celular }} 
                     </div>
-                    <div class="col-12 col-md-6 mb-3">
+                    <div class="col-12 col-lg-4 mb-3">
                         {{ form.correo.label_tag }}
                         {{ form.correo }} 
                     </div>
-                </div>
-
-                {% comment %} Cuarta Fila {% endcomment %}
-                <div class="row">
+                
                     <div class="col-12 mb-3">
                         {{ form.direccion.label_tag }}
                         {{ form.direccion }} 
@@ -121,6 +119,7 @@
                         {{ form.departamento.label_tag }}
                         {{ form.departamento }} 
                     </div>
+                    {{ form.asociado }}
                 </div>
 
                 {% if operation == 'crear' %}
@@ -132,3 +131,52 @@
         </div>
     </div>
 {% endblock contenidoPagina %}
+
+{% block extrajs %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const numeroDocumento = document.getElementById('id_numero_documento');
+
+            const limpiarCampos = () => {
+                document.getElementById('id_nombre').value = '';
+                document.getElementById('id_apellido').value = '';
+                document.getElementById('id_asociado').value = '';
+                document.getElementById('id_celular').value = '';
+                document.getElementById('id_correo').value = '';
+                document.getElementById('id_direccion').value = '';
+                document.getElementById('id_fecha_nacimiento').value = '';
+                document.getElementById('id_municipio').value = '';
+                document.getElementById('id_departamento').value = '';
+            };
+            
+            numeroDocumento.addEventListener('blur', function () {
+                const value = this.value;
+
+                if (!value) {
+                    limpiarCampos();
+                    return;
+                }
+
+                fetch(`{% url 'talento_humano:validar_documento' %}?numero_documento=${value}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.existe) {
+                            document.getElementById('id_nombre').value = data.nombre;
+                            document.getElementById('id_apellido').value = data.apellido;
+                            document.getElementById('id_asociado').value = data.id_asociado;
+                            document.getElementById('id_celular').value = data.celular;
+                            document.getElementById('id_correo').value = data.correo;
+                            document.getElementById('id_direccion').value = data.direccion;
+                            document.getElementById('id_fecha_nacimiento').value = data.fecha_nacimiento || '';
+                            document.getElementById('id_municipio').value = data.municipio || '';
+                            document.getElementById('id_departamento').value = data.departamento || '';
+                        } else {
+                            limpiarCampos();
+                        }
+                    })
+                    .catch(() => limpiarCampos());
+            });
+
+        });
+    </script>
+{% endblock extrajs %}

@@ -1,4 +1,5 @@
 from django.db import models
+from asociado.models import Asociado
 
 
 class tipo_documento_op(models.TextChoices):
@@ -18,13 +19,14 @@ class Empleados(models.Model):
         blank=False,
         null=False,
     )
-    numero_documento = models.CharField(max_length=20, blank=False, null=False)
+    numero_documento = models.CharField(max_length=20, blank=False, null=False, unique=True)
     fecha_nacimiento = models.DateField(blank=False, null=False)
     celular = models.CharField(max_length=20, blank=False, null=False)
     correo = models.EmailField(max_length=254, blank=False, null=False)
     direccion = models.CharField(max_length=100, blank=False, null=False)
     departamento = models.CharField(max_length=50, blank=False, null=False)
     municipio = models.CharField(max_length=50, blank=False, null=False)
+    asociado = models.ForeignKey(Asociado, on_delete=models.RESTRICT, blank=True, null=True)
     estado_registro = models.BooleanField(default=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_modificacion = models.DateTimeField(auto_now=True)
@@ -39,6 +41,8 @@ class Empleados(models.Model):
         self.direccion = self.direccion.upper()
         self.departamento = self.departamento.upper()
         self.municipio = self.municipio.upper()
+        # Convertir el correo a minúsculas antes de guardar
+        self.correo = self.correo.lower()
         super().save(*args, **kwargs)
 
 

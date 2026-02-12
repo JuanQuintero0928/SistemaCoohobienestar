@@ -32,6 +32,7 @@ from talento_humano.form import (
     NombreUnidadForm,
     HistorialLaboralForm,
 )
+from asociado.models import Asociado
 
 
 class EmpleadoListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
@@ -128,9 +129,16 @@ class EmpleadoCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        responde = super().form_valid(form)
+        response = super().form_valid(form)
         messages.success(self.request, "Empleado creado exitosamente.")
-        return responde
+        asociado = form.cleaned_data.get("asociado") or ''
+        if asociado:
+            messages.info(
+                self.request,
+                f"El empleado esta ahora relacionado con el asociado ID{asociado.id} - {asociado.nombre} {asociado.apellido}.",
+            )
+            
+        return response
 
 
 class EmpleadoUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
@@ -145,9 +153,9 @@ class EmpleadoUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        responde = super().form_valid(form)
+        response = super().form_valid(form)
         messages.success(self.request, "Empleado actualizado exitosamente.")
-        return responde
+        return response
     
     def get_success_url(self):
         return reverse_lazy(
@@ -174,9 +182,9 @@ class AreaCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        responde = super().form_valid(form)
+        response = super().form_valid(form)
         messages.success(self.request, "Área creada exitosamente.")
-        return responde
+        return response
 
 
 class AreaUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
@@ -191,9 +199,9 @@ class AreaUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        responde = super().form_valid(form)
+        response = super().form_valid(form)
         messages.success(self.request, "Área actualizada exitosamente.")
-        return responde
+        return response
 
 
 class CargoListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
@@ -214,9 +222,9 @@ class CargoCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        responde = super().form_valid(form)
+        response = super().form_valid(form)
         messages.success(self.request, "Cargo creado exitosamente.")
-        return responde
+        return response
 
 
 class CargoUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
@@ -231,9 +239,9 @@ class CargoUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        responde = super().form_valid(form)
+        response = super().form_valid(form)
         messages.success(self.request, "Cargo actualizado exitosamente.")
-        return responde
+        return response
 
 
 class NombreUnidadListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
@@ -254,9 +262,9 @@ class NombreUnidadCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView)
         return context
 
     def form_valid(self, form):
-        responde = super().form_valid(form)
+        response = super().form_valid(form)
         messages.success(self.request, "Nombre de unidad creado exitosamente.")
-        return responde
+        return response
 
 
 class NombreUnidadUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
@@ -271,9 +279,9 @@ class NombreUnidadUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView)
         return context
 
     def form_valid(self, form):
-        responde = super().form_valid(form)
+        response = super().form_valid(form)
         messages.success(self.request, "Nombre de unidad actualizado exitosamente.")
-        return responde
+        return response
 
 
 class TipoContratoListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
@@ -294,9 +302,9 @@ class TipoContratoCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView)
         return context
 
     def form_valid(self, form):
-        responde = super().form_valid(form)
+        response = super().form_valid(form)
         messages.success(self.request, "Tipo de contrato creado exitosamente.")
-        return responde
+        return response
 
 
 class TipoContratoUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
@@ -311,9 +319,9 @@ class TipoContratoUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView)
         return context
 
     def form_valid(self, form):
-        responde = super().form_valid(form)
+        response = super().form_valid(form)
         messages.success(self.request, "Tipo de contrato actualizado exitosamente.")
-        return responde
+        return response
 
 
 class HistorialLaboralListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
@@ -360,9 +368,9 @@ class HistorialLaboralCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateV
     def form_valid(self, form):
         empleado = get_object_or_404(Empleados, pk=self.kwargs["pk"])
         form.instance.empleado = empleado
-        responde = super().form_valid(form)
+        response = super().form_valid(form)
         messages.success(self.request, "Historial laboral creado exitosamente.")
-        return responde
+        return response
 
 
 class HistorialLaboralUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
@@ -388,9 +396,9 @@ class HistorialLaboralUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateV
         return context
 
     def form_valid(self, form):
-        responde = super().form_valid(form)
+        response = super().form_valid(form)
         messages.success(self.request, "Historial laboral actualizado exitosamente.")
-        return responde
+        return response
 
 
 class EliminarHistorialLaboral(DeleteView):
@@ -404,10 +412,31 @@ class EliminarHistorialLaboral(DeleteView):
         )
 
     def form_valid(self, form):
-        responde = super().form_valid(form)
+        response = super().form_valid(form)
         messages.success(self.request, "Historial laboral eliminado exitosamente.")
-        return responde
+        return response
 
 
 class UtilidadesProductos(TemplateView):
     template_name = "talento_humano/utilidades_empleado.html"
+
+
+def buscar_persona_por_documento(request):
+    numero = request.GET.get('numero_documento')
+
+    try:
+        persona = Asociado.objects.get(numDocumento=numero)
+        return JsonResponse({
+            'existe': True,
+            'id_asociado': persona.id,
+            'nombre': persona.nombre,
+            'apellido': persona.apellido,
+            'celular': persona.numCelular,
+            'correo': persona.email,
+            'direccion': persona.direccion,
+            'fecha_nacimiento': persona.fechaNacimiento.strftime('%Y-%m-%d') if persona.fechaNacimiento else '',
+            'municipio': persona.mpioResidencia.nombre if persona.mpioResidencia else '',
+            'departamento': persona.deptoResidencia.nombre if persona.deptoResidencia else '',
+        })
+    except Asociado.DoesNotExist:
+        return JsonResponse({'existe': False})
