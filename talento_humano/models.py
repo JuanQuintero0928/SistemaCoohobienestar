@@ -35,14 +35,14 @@ class Empleados(models.Model):
         return f"{self.nombre} {self.apellido}"
 
     def save(self, *args, **kwargs):
-        # Convertir campos a mayúsculas antes de guardar
-        self.nombre = self.nombre.upper()
-        self.apellido = self.apellido.upper()
-        self.direccion = self.direccion.upper()
-        self.departamento = self.departamento.upper()
-        self.municipio = self.municipio.upper()
-        # Convertir el correo a minúsculas antes de guardar
-        self.correo = self.correo.lower()
+        for campo in ["nombre", "apellido", "direccion", "departamento", "municipio"]:
+            valor = getattr(self, campo)
+            if valor:
+                setattr(self, campo, valor.strip().upper())
+
+        if self.correo:
+            self.correo = self.correo.strip().lower()
+
         super().save(*args, **kwargs)
 
 

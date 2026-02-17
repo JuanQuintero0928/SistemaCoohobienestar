@@ -109,7 +109,7 @@
               <h2 class="modal-title fs-5" id="exampleModalLabel">Saldos</h2>
               <hr>
               <div class="input-group mb-2">
-                <span class="input-group-text" id="basic-addon3" {% if query.diferencia < 0 %}  style="color:#DF5B68" {% else %} style="color:#198754" {% endif %} ><b>{% if diferencia > 0 %}Saldo a Favor{% else %}Saldo Pendiente{% endif %}</b></span>
+                <span class="input-group-text" id="basic-addon3" {% if query.diferencia < 0 %}  style="color:#DF5B68" {% else %} style="color:#198754" {% endif %} ><b>{% if query.diferencia > 0 %}Saldo a Favor{% else %}Saldo Pendiente{% endif %}</b></span>
                 <span class="input-group-text">$</span>
                 <input type="text" class="form-control" id="diferencia" value="{{query.diferencia}}" name="diferencia" type="number" disabled>
               </div>

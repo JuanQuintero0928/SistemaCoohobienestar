@@ -73,7 +73,12 @@ class EmpleadoForm(forms.ModelForm):
     def clean_numero_documento(self):
         numero = self.cleaned_data["numero_documento"]
 
-        if Empleados.objects.filter(numero_documento=numero).exists():
+        qs = Empleados.objects.filter(numero_documento=numero)
+
+        if self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+
+        if qs.exists():
             raise forms.ValidationError(
                 "Ya existe un empleado con este número de documento"
             )
