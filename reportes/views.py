@@ -473,6 +473,7 @@ class ReporteExcelPago(BaseReporteExcel):
             obj.formaPago.formaPago
         ]
 
+
 class FormatoExtracto(ListView):
     def get(self, request, *args, **kwargs):
         template_name = 'reporte/reporteExtracto.html'

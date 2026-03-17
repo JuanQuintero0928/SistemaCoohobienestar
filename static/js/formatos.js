@@ -1876,6 +1876,7 @@ async function generarPDFRetiroAsociado(url, datos) {
 async function generarTxtMasivo(extractosData) {
     // Encabezados del CSV
     const encabezados = [
+        "Id Asociado",
         "Cédula",
         "Nombre",
         "Municipio",
@@ -1892,6 +1893,7 @@ async function generarTxtMasivo(extractosData) {
     // Construir líneas de datos para TODOS los extractos
     const lineas = extractosData.map(extractoData => {
         return [
+            extractoData.pkAsociado || '',
             extractoData.numDocumento || '',
             `"${extractoData.nombre}"`,
             `"${extractoData.mpioResidencia}"`,
