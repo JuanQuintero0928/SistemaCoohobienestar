@@ -332,7 +332,7 @@ class HistorialLaboralListView(LoginRequiredMixin, StaffRequiredMixin, ListView)
     def get_queryset(self):
         self.empleado = get_object_or_404(Empleados, pk=self.kwargs["pk"])
         return HistorialLaboral.objects.filter(empleado=self.empleado).order_by(
-            "-fecha_inicio"
+            "fecha_inicio"
         )
 
     def get_context_data(self, **kwargs):

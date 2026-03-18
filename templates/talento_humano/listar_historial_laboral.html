@@ -63,10 +63,10 @@
 {% block tablaencabezado %}
     <tr>
         <th>N°</th>
-        <th>Area</th>
+        <th>Contrato</th>
         <th>Cargo</th>
         <th>Tipo Contrato</th>
-        <th>Nombre Unidad</th>
+        <th>Modalidad</th>
         <th>Salario</th>
         <th>Fecha Inicio</th>
         <th>Fecha Fin</th>
@@ -78,10 +78,10 @@
     {% for row in query %}
         <tr>
             <td>{{ forloop.counter }}</td>
-            <td>{{ row.area.nombre }}</td>
+            <td>{{ row.contrato.nombre }}</td>
             <td>{{ row.cargo.nombre }}</td>
             <td>{{ row.tipo_contrato.nombre }}</td>
-            <td>{{ row.nombre_unidad.nombre }}</td>
+            <td>{{ row.modalidad.nombre }}</td>
             <td>${{ row.salario|intcomma }}</td>
             <td>{{ row.fecha_inicio|date:"d/m/Y" }}</td>
             <td>{{ row.fecha_fin|date:"d/m/Y" }}</td>
