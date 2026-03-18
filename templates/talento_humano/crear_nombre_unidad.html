@@ -4,9 +4,9 @@
 
 {% block title %}
     {% if operation == 'crear' %}
-        Crear Nombre Unidad
+        Crear Modalidad
     {% else %}
-        Editar Nombre Unidad
+        Editar Modalidad
     {% endif %}
 {% endblock title %}
 
@@ -37,8 +37,8 @@
 {% block breadcrumb %}
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
     <li class="breadcrumb-item"><a href="{% url 'informacion:informacion' %}">Talento Humano</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'talento_humano:listarNombreUnidades' %}">Nombre Unidades</a></li>
-    <li class="breadcrumb-item active" aria-current="page">{% if operation == 'crear' %}Crear{% else %}Editar{% endif %} Nombre Unidad</li>
+    <li class="breadcrumb-item"><a href="{% url 'talento_humano:listarNombreUnidades' %}">Modalidades</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{% if operation == 'crear' %}Crear{% else %}Editar{% endif %} Modalidad</li>
 {% endblock breadcrumb %}
 
 {% block contenidoPagina %}

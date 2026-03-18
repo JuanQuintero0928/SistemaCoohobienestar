@@ -18,18 +18,18 @@ from django.http import JsonResponse
 from funciones.function import StaffRequiredMixin
 from talento_humano.models import (
     Empleados,
-    Area,
+    Contrato,
     Cargo,
     TipoContrato,
-    NombreUnidad,
+    Modalidad,
     HistorialLaboral,
 )
 from talento_humano.form import (
     EmpleadoForm,
-    AreaForm,
+    ContratoForm,
     CargoForm,
     TipoContratoForm,
-    NombreUnidadForm,
+    ModalidadForm,
     HistorialLaboralForm,
 )
 from asociado.models import Asociado
@@ -164,15 +164,15 @@ class EmpleadoUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
         )
 
 
-class AreaListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
-    model = Area
+class ContratoListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
+    model = Contrato
     template_name = "talento_humano/listar_areas.html"
     context_object_name = "query"
 
 
-class AreaCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
-    model = Area
-    form_class = AreaForm
+class ContratoCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
+    model = Contrato
+    form_class = ContratoForm
     template_name = "talento_humano/crear_area.html"
     success_url = reverse_lazy("talento_humano:listarAreas")
 
@@ -187,9 +187,9 @@ class AreaCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
         return response
 
 
-class AreaUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
-    model = Area
-    form_class = AreaForm
+class ContratoUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
+    model = Contrato
+    form_class = ContratoForm
     template_name = "talento_humano/crear_area.html"
     success_url = reverse_lazy("talento_humano:listarAreas")
 
@@ -244,15 +244,15 @@ class CargoUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
         return response
 
 
-class NombreUnidadListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
-    model = NombreUnidad
+class ModalidadListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
+    model = Modalidad
     template_name = "talento_humano/listar_nombre_unidad.html"
     context_object_name = "query"
 
 
-class NombreUnidadCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
-    model = NombreUnidad
-    form_class = NombreUnidadForm
+class ModalidadCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
+    model = Modalidad
+    form_class = ModalidadForm
     template_name = "talento_humano/crear_nombre_unidad.html"
     success_url = reverse_lazy("talento_humano:listarNombreUnidades")
 
@@ -267,9 +267,9 @@ class NombreUnidadCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView)
         return response
 
 
-class NombreUnidadUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
-    model = NombreUnidad
-    form_class = NombreUnidadForm
+class ModalidadUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
+    model = Modalidad
+    form_class = ModalidadForm
     template_name = "talento_humano/crear_nombre_unidad.html"
     success_url = reverse_lazy("talento_humano:listarNombreUnidades")
 

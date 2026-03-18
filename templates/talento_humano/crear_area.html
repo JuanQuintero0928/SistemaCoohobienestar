@@ -4,9 +4,9 @@
 
 {% block title %}
     {% if operation == 'crear' %}
-        Crear Area
+        Crear Contrato
     {% else %}
-        Editar Area
+        Editar Contrato
     {% endif %}
 {% endblock title %}
 
@@ -38,7 +38,7 @@
     <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
     <li class="breadcrumb-item"><a href="{% url 'informacion:informacion' %}">Talento Humano</a></li>
     <li class="breadcrumb-item"><a href="{% url 'talento_humano:listarAreas' %}">Area</a></li>
-    <li class="breadcrumb-item active" aria-current="page">{% if operation == 'crear' %}Crear{% else %}Editar{% endif %} Area</li>
+    <li class="breadcrumb-item active" aria-current="page">{% if operation == 'crear' %}Crear{% else %}Editar{% endif %} Contrato</li>
 {% endblock breadcrumb %}
 
 {% block contenidoPagina %}

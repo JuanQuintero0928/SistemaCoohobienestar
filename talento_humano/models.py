@@ -46,7 +46,7 @@ class Empleados(models.Model):
         super().save(*args, **kwargs)
 
 
-class Area(models.Model):
+class Contrato(models.Model):
     nombre = models.CharField(max_length=50, blank=False, null=False)
 
     def __str__(self):
@@ -82,7 +82,7 @@ class TipoContrato(models.Model):
         super().save(*args, **kwargs)
 
 
-class NombreUnidad(models.Model):
+class Modalidad(models.Model):
     nombre = models.CharField(max_length=50, blank=False, null=False)
 
     def __str__(self):
@@ -96,10 +96,10 @@ class NombreUnidad(models.Model):
 
 class HistorialLaboral(models.Model):
     empleado = models.ForeignKey(Empleados, on_delete=models.RESTRICT)
-    area = models.ForeignKey(Area, on_delete=models.RESTRICT)
+    contrato = models.ForeignKey(Contrato, on_delete=models.RESTRICT)
     cargo = models.ForeignKey(Cargo, on_delete=models.RESTRICT)
     tipo_contrato = models.ForeignKey(TipoContrato, on_delete=models.RESTRICT)
-    nombre_unidad = models.ForeignKey(NombreUnidad, on_delete=models.RESTRICT)
+    modalidad = models.ForeignKey(Modalidad, on_delete=models.RESTRICT)
     fecha_inicio = models.DateField(blank=False, null=False)
     fecha_fin = models.DateField(blank=True, null=True)
     salario = models.IntegerField(blank=False, null=False)

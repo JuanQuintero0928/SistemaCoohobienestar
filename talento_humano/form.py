@@ -1,5 +1,5 @@
 from django import forms
-from .models import Empleados, Area, Cargo, TipoContrato, NombreUnidad, HistorialLaboral
+from .models import Empleados, Contrato, Cargo, TipoContrato, Modalidad, HistorialLaboral
 
 
 class EmpleadoForm(forms.ModelForm):
@@ -86,9 +86,9 @@ class EmpleadoForm(forms.ModelForm):
         return numero
 
 
-class AreaForm(forms.ModelForm):
+class ContratoForm(forms.ModelForm):
     class Meta:
-        model = Area
+        model = Contrato
         fields = ["nombre"]
         widgets = {
             "nombre": forms.TextInput(
@@ -131,9 +131,9 @@ class TipoContratoForm(forms.ModelForm):
         }
 
 
-class NombreUnidadForm(forms.ModelForm):
+class ModalidadForm(forms.ModelForm):
     class Meta:
-        model = NombreUnidad
+        model = Modalidad
         fields = ["nombre"]
         widgets = {
             "nombre": forms.TextInput(
@@ -151,20 +151,20 @@ class HistorialLaboralForm(forms.ModelForm):
         model = HistorialLaboral
         fields = [
             "empleado",
-            "area",
+            "contrato",
             "cargo",
             "tipo_contrato",
-            "nombre_unidad",
+            "modalidad",
             "fecha_inicio",
             "fecha_fin",
             "salario",
         ]
         widgets = {
             "empleado": forms.Select(attrs={"class": "form-control"}),
-            "area": forms.Select(attrs={"class": "form-control"}),
+            "contrato": forms.Select(attrs={"class": "form-control"}),
             "cargo": forms.Select(attrs={"class": "form-control"}),
             "tipo_contrato": forms.Select(attrs={"class": "form-control"}),
-            "nombre_unidad": forms.Select(attrs={"class": "form-control"}),
+            "modalidad": forms.Select(attrs={"class": "form-control"}),
             "fecha_inicio": forms.DateInput(
                 attrs={"class": "form-control", "type": "date"}, format="%Y-%m-%d"
             ),
