@@ -94,7 +94,7 @@ class ContratoForm(forms.ModelForm):
             "nombre": forms.TextInput(
                 attrs={
                     "class": "form-control",
-                    "placeholder": "Nombre del área",
+                    "placeholder": "Nombre del contrato",
                     "style": "text-transform: uppercase;",
                 }
             ),
@@ -139,7 +139,7 @@ class ModalidadForm(forms.ModelForm):
             "nombre": forms.TextInput(
                 attrs={
                     "class": "form-control",
-                    "placeholder": "Nombre del la unidad de servicio",
+                    "placeholder": "Nombre del la modalidad",
                     "style": "text-transform: uppercase;",
                 }
             ),
