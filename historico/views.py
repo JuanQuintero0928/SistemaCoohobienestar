@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.views.generic import ListView, DeleteView, TemplateView, DetailView, View
 from usuarios.models import UsuarioAsociado
 from django.contrib import messages
-from django.db.models import Sum, F, Q, Subquery, Case, When, Value, IntegerField
+from django.db.models import Sum, F, Q, Subquery, Case, When, Value, IntegerField, OuterRef
 from django.db.models.functions import Coalesce
 from django.db import transaction
 from django.core.paginator import Paginator
@@ -21,7 +21,11 @@ from asociado.models import (
     ParametroAsociado,
     TarifaAsociado,
     ConvenioHistoricoGasolina,
+    RepatriacionTitular,
+    ConveniosAsociado
 )
+from beneficiario.models import Beneficiario, Mascota, Coohoperativitos
+from historico.models import HistoricoSeguroVida
 from .form import CargarArchivoForm
 from ventas.models import HistoricoVenta
 from funciones.function import procesar_csv
@@ -109,49 +113,136 @@ class ModalPago(ListView):
             asociado=kwargs["pkAsociado"]
         ).exists()
 
+        tarifas = Tarifas.objects.in_bulk(field_name="id")
+
+        VALOR_MASCOTA = tarifas[3].valor
+        VALOR_REPATRIACION = tarifas[4].valor
+        VALOR_COOHOP_APORTE = tarifas[6].valor
+        VALOR_COOHOP_BSOCIAL = tarifas[5].valor
+
+        meses_pagados = HistorialPagos.objects.filter(
+            asociado=kwargs["pkAsociado"],
+            mesPago_id__lt=9990
+        ).values("mesPago_id")
+
         # Obtener la suma de los adicionales del asociado, se suma todo menos el aporte y el bSocial
-        queryTarifa = TarifaAsociado.objects.filter(
-            asociado=kwargs["pkAsociado"]
-        ).aggregate(
-            total_tarifa_asociado=Sum(
-                Coalesce(F("cuotaMascota"), Value(0))
-                + Coalesce(F("cuotaRepatriacionBeneficiarios"), Value(0))
-                + Coalesce(F("cuotaRepatriacionTitular"), Value(0))
-                + Coalesce(F("cuotaSeguroVida"), Value(0))
-                + Coalesce(F("cuotaAdicionales"), Value(0))
-                + Coalesce(F("cuotaCoohopAporte"), Value(0))
-                + Coalesce(F("cuotaCoohopBsocial"), Value(0))
-                + Coalesce(F("cuotaConvenio"), Value(0))
-            )
-        )
+        # queryTarifa = TarifaAsociado.objects.filter(
+        #     asociado=kwargs["pkAsociado"]
+        # ).aggregate(
+        #     total_tarifa_asociado=Sum(
+        #         Coalesce(F("cuotaMascota"), Value(0)) ok
+        #         + Coalesce(F("cuotaRepatriacionBeneficiarios"), Value(0)) ok
+        #         + Coalesce(F("cuotaRepatriacionTitular"), Value(0)) ok
+        #         + Coalesce(F("cuotaSeguroVida"), Value(0)) ok
+        #         + Coalesce(F("cuotaAdicionales"), Value(0)) ok
+        #         + Coalesce(F("cuotaCoohopAporte"), Value(0)) ok
+        #         + Coalesce(F("cuotaCoohopBsocial"), Value(0)) ok
+        #         + Coalesce(F("cuotaConvenio"), Value(0)) 
+        #     )
+        # )
 
-        total_tarifa_asociado = queryTarifa["total_tarifa_asociado"] or 0
+        # total_tarifa_asociado = queryTarifa["total_tarifa_asociado"] or 0
 
-        if queryHistorial:
-            mesesPagados = HistorialPagos.objects.filter(
-                asociado=kwargs["pkAsociado"], mesPago_id__lt=9990
-            ).values("mesPago")
-            queryMes = (
-                MesTarifa.objects.exclude(pk__in=Subquery(mesesPagados))
-                .exclude(pk__range=(9992, 9993))
-                .filter(pk__gte=queryParamAsoc.primerMes.pk)
-                .annotate(
-                    total=Case(
-                        When(
-                            pk__gte=9990, then=Value(0)
-                        ),  # Se envia valor en 0 para mostrar en el template
-                        default=F("aporte")
-                        + F("bSocial")
-                        + total_tarifa_asociado,  # se suma al resto de pk el valor de aporte, bsocial y total tarifa
-                        output_field=IntegerField(),
-                    )
-                )
-            )
-        else:
-            queryMes = (
-                MesTarifa.objects.filter(pk__gte=queryParamAsoc.primerMes.pk)
-                .annotate(total=F("aporte") + F("bSocial") + total_tarifa_asociado)
-                .exclude(pk=9993)
+        repatriacion_subquery = Beneficiario.objects.filter(
+            asociado=kwargs["pkAsociado"],
+            repatriacion=True,
+            estadoRegistro=True,
+            primerMesRepatriacion__pk__lte=OuterRef("pk")
+        ).annotate(
+            valor=Value(VALOR_REPATRIACION)
+        ).values("asociado").annotate(
+            total=Sum("valor")
+        ).values("total")
+
+        mascota_subquery = Mascota.objects.filter(
+            asociado=kwargs["pkAsociado"],
+            estadoRegistro=True,
+            primerMes__pk__lte=OuterRef("pk")
+        ).annotate(
+            valor=Value(VALOR_MASCOTA)
+        ).values("asociado").annotate(
+            total=Sum("valor")
+        ).values("total")
+
+        repatriacion_titular_subquery = RepatriacionTitular.objects.filter(
+            asociado=kwargs["pkAsociado"],
+            estadoRegistro=True,
+            primerMes__pk__lte=OuterRef("pk")
+        ).annotate(
+            valor=Value(VALOR_REPATRIACION)
+        ).values("asociado").annotate(
+            total=Sum("valor")
+        ).values("total")
+
+        seguro_vida_subquery = HistoricoSeguroVida.objects.filter(
+            asociado=kwargs["pkAsociado"],
+            estadoRegistro=True,
+            primerMesSeguroVida__pk__lte=OuterRef("pk")
+        ).values("asociado").annotate(
+            total=Sum("valorPago")
+        ).values("total")
+
+        valor_adicional_subquery = TarifaAsociado.objects.filter(
+            asociado=kwargs["pkAsociado"],
+            estadoRegistro=True,
+            primerMesCuotaAdicional__pk__lte=OuterRef("pk")
+        ).values("asociado").annotate(
+            total=Sum("cuotaAdicionales")
+        ).values("total")
+
+        coohop_aporte_subquery = Coohoperativitos.objects.filter(
+            asociado=kwargs["pkAsociado"],
+            estadoRegistro=True,
+            primerMes__pk__lte=OuterRef("pk")
+        ).annotate(
+            valor=Value(VALOR_COOHOP_APORTE)
+        ).values("asociado").annotate(
+            total=Sum("valor")
+        ).values("total")
+
+        coohop_bsocial_subquery = Coohoperativitos.objects.filter(
+            asociado=kwargs["pkAsociado"],
+            estadoRegistro=True,
+            primerMes__pk__lte=OuterRef("pk")
+        ).annotate(
+            valor=Value(VALOR_COOHOP_BSOCIAL)
+        ).values("asociado").annotate(
+            total=Sum("valor")
+        ).values("total")
+
+        convenio_subquery = ConveniosAsociado.objects.filter(
+            asociado=kwargs["pkAsociado"],
+            estadoRegistro=True,
+            primerMes__pk__lte=OuterRef("pk")
+        ).values("asociado").annotate(
+            total=Sum("convenio__valor")
+        ).values("total")
+
+        queryMes = MesTarifa.objects.filter(
+                pk__gte=queryParamAsoc.primerMes.pk
+            ).exclude(
+                pk__in=Subquery(meses_pagados)
+            ).exclude(
+                pk__range=(9992, 9993)
+            ).annotate(
+                total_mascota=Coalesce(Subquery(mascota_subquery), Value(0)),
+                total_repatriacion=Coalesce(Subquery(repatriacion_subquery), Value(0)),
+                total_repatriacion_titular=Coalesce(Subquery(repatriacion_titular_subquery), Value(0)),
+                total_seguro_vida=Coalesce(Subquery(seguro_vida_subquery), Value(0)),
+                total_adicional=Coalesce(Subquery(valor_adicional_subquery), Value(0)),
+                total_coohop_aporte=Coalesce(Subquery(coohop_aporte_subquery), Value(0)),
+                total_coohop_bsocial=Coalesce(Subquery(coohop_bsocial_subquery), Value(0)),
+                total_convenio=Coalesce(Subquery(convenio_subquery), Value(0)),
+            ).annotate(
+                total=F("aporte") + F("bSocial") +
+                    F("total_mascota") +
+                    F("total_repatriacion") +
+                    F("total_repatriacion_titular") +
+                    F("total_seguro_vida") +
+                    F("total_adicional") +
+                    F("total_coohop_aporte") +
+                    F("total_coohop_bsocial") +
+                    F("total_convenio")
             )
 
         queryPago = FormaPago.objects.all()
@@ -250,7 +341,6 @@ class ModalPago(ListView):
             )
             .first()
         )
-
         context = {
             "pkAsociado": kwargs["pkAsociado"],
             "vista": kwargs["vista"],
@@ -274,6 +364,7 @@ class ModalPago(ListView):
         diferencia = request.POST["diferencia"]
         valorDiferencia = int(diferencia.replace(".", ""))
 
+        print(f"el valor vago es de {valorPago} y la diferencia fue de {valorDiferencia}" )
         # creamos un array para guardar los pagos que se marcaron como activos
         datos_pagos = []
 
@@ -366,45 +457,37 @@ class ModalPago(ListView):
                 # Aplica para pagos de mes normal, se crea un registro de pago con el valor del mes
                 else:
                     tarifa = MesTarifa.objects.get(pk=pk)
-                    valorMes = (
-                        (tarifa.aporte or 0)
-                        + (tarifa.bSocial or 0)
-                        + (tarifaAsociado.cuotaMascota or 0)
-                        + (tarifaAsociado.cuotaRepatriacionBeneficiarios or 0)
-                        + (tarifaAsociado.cuotaRepatriacionTitular or 0)
-                        + (tarifaAsociado.cuotaSeguroVida or 0)
-                        + (tarifaAsociado.cuotaAdicionales or 0)
-                        + (tarifaAsociado.cuotaCoohopAporte or 0)
-                        + (tarifaAsociado.cuotaCoohopBsocial or 0)
-                        + (tarifaAsociado.cuotaConvenio or 0)
-                    )
-                    valorPago = (
-                        valorMes
-                        if contador < cantidadSwitches
-                        else valorMes + valorDiferencia
-                    )
+                    
+                    aporte = int(request.POST.get(f"aporte_{pk}", 0))
+                    bsocial = int(request.POST.get(f"bsocial_{pk}", 0))
+                    mascota = int(request.POST.get(f"mascota_{pk}", 0))
+                    repatriacion = int(request.POST.get(f"repatriacion_{pk}", 0))
+                    seguro_vida = int(request.POST.get(f"seguro_{pk}", 0))
+                    adicional = int(request.POST.get(f"adicional_{pk}", 0))
+                    coohop_aporte = int(request.POST.get(f"coohop_aporte_{pk}", 0))
+                    coohop_bsocial = int(request.POST.get(f"coohop_bsocial_{pk}", 0))
+                    convenio = int(request.POST.get(f"convenio_{pk}", 0))
+
+                    valorMes = aporte + bsocial + mascota + repatriacion + seguro_vida + adicional + coohop_aporte + coohop_bsocial + convenio
+
+                    valorPago = valorMes if contador < cantidadSwitches else valorMes + valorDiferencia
 
                     pago = {
                         "asociado": Asociado.objects.get(pk=kwargs["pkAsociado"]),
                         "mesPago": tarifa,
                         "fechaPago": fechaPago,
                         "formaPago": FormaPago.objects.get(pk=formaPago),
-                        "aportePago": tarifa.aporte,
-                        "bSocialPago": tarifa.bSocial,
-                        "mascotaPago": tarifaAsociado.cuotaMascota,
-                        "repatriacionPago": (
-                            tarifaAsociado.cuotaRepatriacionBeneficiarios or 0
-                        )
-                        + (tarifaAsociado.cuotaRepatriacionTitular or 0),
-                        "seguroVidaPago": tarifaAsociado.cuotaSeguroVida,
-                        "adicionalesPago": tarifaAsociado.cuotaAdicionales,
-                        "coohopAporte": tarifaAsociado.cuotaCoohopAporte,
-                        "coohopBsocial": tarifaAsociado.cuotaCoohopBsocial,
-                        "convenioPago": tarifaAsociado.cuotaConvenio,
+                        "aportePago": aporte,
+                        "bSocialPago": bsocial,
+                        "mascotaPago": mascota,
+                        "repatriacionPago": repatriacion,
+                        "seguroVidaPago": seguro_vida,
+                        "adicionalesPago": adicional,
+                        "coohopAporte": coohop_aporte,
+                        "coohopBsocial": coohop_bsocial,
+                        "convenioPago": convenio,
                         "creditoHomeElements": 0,
-                        "diferencia": (
-                            valorDiferencia if cantidadSwitches == contador else 0
-                        ),
+                        "diferencia": valorDiferencia if cantidadSwitches == contador else 0,
                         "valorPago": valorPago,
                         "estadoRegistro": True,
                         "userCreacion": usuario,

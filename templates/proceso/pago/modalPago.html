@@ -128,11 +128,30 @@
                                                     name="switches"
                                                     value="{{ obj.pk }}"
                                                     id="flexSwitchCheckDefault{{obj.pk}}"
-                                                    data-costo="{{ obj.total }}" 
+                                                    data-costo="{{ obj.total }}"
+                                                    data-aporte="{{ obj.aporte }}"
+                                                    data-bsocial="{{ obj.bSocial }}"
+                                                    data-mascota="{{ obj.total_mascota }}"
+                                                    data-repatriacion="{{ obj.total_repatriacion|add:obj.total_repatriacion_titular }}"
+                                                    data-seguro="{{ obj.total_seguro_vida }}"
+                                                    data-adicional="{{ obj.total_adicional }}"
+                                                    data-coohop-aporte="{{ obj.total_coohop_aporte }}"
+                                                    data-coohop-bsocial="{{ obj.total_coohop_bsocial }}"
+                                                    data-convenio="{{ obj.total_convenio }}"
                                                     onchange="actualizarTotal()"
                                                 >
                                                 <label class="form-check-label" for="flexSwitchCheckDefault{{obj.pk}}"></label>
                                             </div>
+                                        {# Hidden inputs con los valores desglosados para el POST #}
+                                            <input type="hidden" name="aporte_{{ obj.pk }}"         value="{{ obj.aporte }}">
+                                            <input type="hidden" name="bsocial_{{ obj.pk }}"        value="{{ obj.bSocial }}">
+                                            <input type="hidden" name="mascota_{{ obj.pk }}"        value="{{ obj.total_mascota }}">
+                                            <input type="hidden" name="repatriacion_{{ obj.pk }}"   value="{{ obj.total_repatriacion|add:obj.total_repatriacion_titular }}">
+                                            <input type="hidden" name="seguro_{{ obj.pk }}"         value="{{ obj.total_seguro_vida }}">
+                                            <input type="hidden" name="adicional_{{ obj.pk }}"      value="{{ obj.total_adicional }}">
+                                            <input type="hidden" name="coohop_aporte_{{ obj.pk }}"  value="{{ obj.total_coohop_aporte }}">
+                                            <input type="hidden" name="coohop_bsocial_{{ obj.pk }}" value="{{ obj.total_coohop_bsocial }}">
+                                            <input type="hidden" name="convenio_{{ obj.pk }}"       value="{{ obj.total_convenio }}">
                                         </td>
                                         {% if obj.pk == 9997 %}
                                             <td class="d-flex justify-content-center">

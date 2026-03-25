@@ -46,7 +46,12 @@ class BeneficiarioForm(forms.ModelForm):
             "fechaIngreso": forms.DateInput(
                 attrs={"class": "form-control", "type": "date"}, format="%Y-%m-%d"
             ),
-            "primerMesRepatriacion": forms.Select(attrs={"class": "form-control"}),
+            "primerMesRepatriacion": forms.Select(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Primer Mes Repatriación",
+                }
+            ),
             "fechaRepatriacion": forms.DateInput(
                 attrs={
                     "class": "form-control",
@@ -153,6 +158,7 @@ class CoohoperativitoForm(forms.ModelForm):
             "numDocumento",
             "fechaNacimiento",
             "fechaIngreso",
+            "primerMes"
         ]
         widgets = {
             "nombre": forms.TextInput(
@@ -174,6 +180,9 @@ class CoohoperativitoForm(forms.ModelForm):
             "fechaIngreso": forms.DateInput(
                 attrs={"class": "form-control", "type": "date"},
                 format="%Y-%m-%d",
+            ),
+            "primerMes": forms.Select(
+                attrs={"class": "form-control", "required": "required"}
             ),
         }
 

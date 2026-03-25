@@ -84,7 +84,7 @@
         {% if item.diferencia > 0 %}
           Saldo a favor: ${{ item.diferencia|floatformat:0 }}<br>
         {% elif item.diferencia < 0 %}
-          Saldo a contra: ${{ item.diferencia|floatformat:0 }}<br>
+          Saldo en contra: ${{ item.diferencia|floatformat:0 }}<br>
         {% endif %}
         
         <strong>Subtotal: ${{ item.valorPago|floatformat:0 }}</strong><br>
