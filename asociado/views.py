@@ -58,18 +58,20 @@ from .form import (
     ConvenioAsociadoForm,
     RepatriacionTitularForm,
     TarifaAsociadoAdicionalForm,
+    RetiroRepatriacionTitularForm,
+    RetiroAdicionalForm,
+    RetiroConvenioForm,
 )
-from beneficiario.form import BeneficiarioForm, MascotaForm, CoohoperativitoForm
+from beneficiario.form import BeneficiarioForm, MascotaForm, CoohoperativitoForm, RetiroMascotaForm, RetiroCoohoperativitoForm
 from credito.form import CodeudorForm
 from historico.form import (
     HistoricoSeguroVidaForm,
     HistoricoAuxilioForm,
     HistoricoCreditoForm,
+    RetiroHistoricoSeguroVidaForm
 )
 from reportes.utils.medicion import medir_rendimiento
 from reportes.utils.extracto import obtenerValorExtracto
-
-# Create your views here.
 
 
 class Asociados(LoginRequiredMixin, StaffRequiredMixin, ListView):
@@ -735,8 +737,8 @@ class Beneficiarios(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         beneficiarios = Beneficiario.objects.filter(
-            asociado=self.object.pk, estadoRegistro=True
-        ).select_related("parentesco", "paisRepatriacion")
+            asociado=self.object.pk
+        ).select_related("parentesco", "paisRepatriacion").order_by("-estadoRegistro")
         context.update(
             {
                 "query": beneficiarios,
@@ -749,10 +751,17 @@ class Beneficiarios(DetailView):
         return context
 
 
+class VerBeneficiario(DetailView):
+    model = Beneficiario
+    template_name = "base/beneficiario/verBeneficiario.html"
+    context_object_name = "objBeneficiario"
+    pk_url_kwarg = "pk"
+
+
 class CrearBeneficiario(CreateView):
     model = Beneficiario
     form_class = BeneficiarioForm
-    template_name = "base/beneficiario/crearBeneficiario.html"
+    template_name = "base/beneficiario/form_beneficiario.html"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -764,7 +773,6 @@ class CrearBeneficiario(CreateView):
         pk_asociado = self.kwargs.get("pkAsociado")
         context["pkAsociado"] = pk_asociado
         context["query"] = get_object_or_404(Asociado, pk=pk_asociado)
-        context["create"] = "yes"
         return context
 
     def form_valid(self, form):
@@ -805,7 +813,7 @@ class CrearBeneficiario(CreateView):
 class EditarBeneficiario(UpdateView):
     model = Beneficiario
     form_class = BeneficiarioForm
-    template_name = "base/beneficiario/editarBeneficiario.html"
+    template_name = "base/beneficiario/form_beneficiario.html"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -820,15 +828,16 @@ class EditarBeneficiario(UpdateView):
         context["pkAsociado"] = pk_asociado
         context["pk"] = id_beneficiario
         context["query"] = asociado
-        context["paisRepatriacion"] = (
-            self.object.paisRepatriacion.id if self.object.paisRepatriacion else None
-        )
+        # context["paisRepatriacion"] = (
+        #     self.object.paisRepatriacion.id if self.object.paisRepatriacion else None
+        # )
 
         return context
 
     def form_valid(self, form):
         obj_original = self.get_object()
         pais_repatriacion_anterior = obj_original.paisRepatriacion
+        estado_repatriacion_anterior = obj_original.repatriacion
 
         obj = form.save(commit=False)
         obj.nombre = obj.nombre.upper()
@@ -840,7 +849,9 @@ class EditarBeneficiario(UpdateView):
         tarifa_repatriacion = Tarifas.objects.get(pk=4)
         tarifa_asociado = TarifaAsociado.objects.get(asociado=asociado)
 
+        repatriacion_activa = form.cleaned_data.get("repatriacion")
         paisRepatriacion = form.cleaned_data["paisRepatriacion"]
+
         num_repatriaciones = (
             Beneficiario.objects.filter(asociado=asociado, repatriacion=True)
             .exclude(pk=obj.pk)
@@ -850,20 +861,36 @@ class EditarBeneficiario(UpdateView):
         commit = False  # bandera
 
         # --- CASO 1: quitar repatriación ---
-        if pais_repatriacion_anterior and paisRepatriacion is None:
+        if pais_repatriacion_anterior and not repatriacion_activa:
+            print("case 1")
+
             obj.repatriacion = False
-            obj.paisRepatriacion = None
-            obj.fechaRepatriacion = None
-            obj.ciudadRepatriacion = None
-            obj.primerMesRepatriacion = None
+            obj.anulado = bool(self.request.POST.get("anular"))
+
+            # mantener histórico
+            obj.paisRepatriacion = obj_original.paisRepatriacion
+            obj.fechaRepatriacion = obj_original.fechaRepatriacion
+            obj.ciudadRepatriacion = obj_original.ciudadRepatriacion
+            obj.primerMesRepatriacion = obj_original.primerMesRepatriacion
+
+            # NUEVO
+            obj.fechaRetiroRepatriacion = form.cleaned_data["fechaRetiroRepatriacion"]
+            obj.ultimoMesRepatriacion = form.cleaned_data["ultimoMesRepatriacion"]
+
             tarifa_asociado.cuotaRepatriacionBeneficiarios -= tarifa_repatriacion.valor
             tarifa_asociado.total -= tarifa_repatriacion.valor
             tarifa_asociado.save()
-            messages.success(self.request, "Repatriación eliminada correctamente")
+
+            if obj.anulado:
+                messages.success(self.request, "Repatriación anulada correctamente (sin cobro)")
+            else:
+                messages.success(self.request, "Repatriación eliminada correctamente")
             commit = True
 
         # --- CASO 2: agregar nueva repatriación ---
-        elif not pais_repatriacion_anterior and paisRepatriacion:
+        elif not estado_repatriacion_anterior and repatriacion_activa:
+            print("case 2")
+
             obj.repatriacion = True
             obj.paisRepatriacion = paisRepatriacion
             obj.fechaRepatriacion = form.cleaned_data["fechaRepatriacion"]
@@ -884,9 +911,11 @@ class EditarBeneficiario(UpdateView):
         # --- CASO 3: cambiar país ---
         elif (
             pais_repatriacion_anterior
-            and paisRepatriacion
+            and repatriacion_activa
             and pais_repatriacion_anterior != paisRepatriacion
         ):
+            print("case 3")
+            
             obj.repatriacion = True
             obj.paisRepatriacion = paisRepatriacion
             obj.fechaRepatriacion = form.cleaned_data["fechaRepatriacion"]
@@ -900,9 +929,9 @@ class EditarBeneficiario(UpdateView):
             messages.success(self.request, "Beneficiario actualizado correctamente")
 
         if commit:
-            obj.save()
-
-        return super().form_valid(form)
+            self.object = obj
+            self.object.save()
+            return super().form_valid(form)
 
     def get_success_url(self):
         """Redirigir al listado de beneficiarios del asociado"""
@@ -918,11 +947,11 @@ class EliminarBeneficiario(UpdateView):
         return render(
             request,
             self.template_name,
-            {
+            context = {
                 "pkAsociado": kwargs["pkAsociado"],
                 "pk": kwargs["pk"],
                 "queryBeneficiario": query,
-            },
+            }
         )
 
     def post(self, request, *args, **kwargs):
@@ -954,18 +983,25 @@ class Mascotas(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         queryMascotas = Mascota.objects.filter(
-            asociado=self.object.pk, estadoRegistro=True
-        )
+            asociado=self.object.pk
+        ).order_by("-estadoRegistro")
         context.update(
             {"query": queryMascotas, "pkAsociado": self.object.pk, "vista": 3}
         )
         return context
 
 
+class VerMascota(DetailView):
+    model = Mascota
+    template_name = "base/beneficiario/verMascota.html"
+    context_object_name = "objMascota"
+    pk_url_kwarg = "pk"
+
+
 class CrearMascota(CreateView):
     model = Mascota
     form_class = MascotaForm
-    template_name = "base/beneficiario/crearMascota.html"
+    template_name = "base/beneficiario/form_mascota.html"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -1008,7 +1044,7 @@ class CrearMascota(CreateView):
 class EditarMascota(UpdateView):
     model = Mascota
     form_class = MascotaForm
-    template_name = "base/beneficiario/editarMascota.html"
+    template_name = "base/beneficiario/form_mascota.html"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -1036,37 +1072,50 @@ class EditarMascota(UpdateView):
         return reverse_lazy("asociado:mascota", args=[self.kwargs["pkAsociado"]])
 
 
-class EliminarMascota(View):
+class EliminarMascota(UpdateView):
+    model = Mascota
+    form_class = RetiroMascotaForm
     template_name = "base/beneficiario/eliminar.html"
+    pk_url_kwarg = "pk"
 
-    def get(self, request, *args, **kwargs):
-        mascota = get_object_or_404(Mascota, pk=kwargs["pk"])
-        return render(
-            request,
-            self.template_name,
-            {
-                "pkAsociado": kwargs["pkAsociado"],
-                "queryMascota": mascota,
-                "pk": kwargs["pk"],
-            },
-        )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["pkAsociado"] = self.kwargs["pkAsociado"]
+        context["queryMascota"] = self.object
+        return context
 
-    def post(self, request, *args, **kwargs):
-        mascota = get_object_or_404(Mascota, pk=kwargs["pk"])
-        asociado_id = kwargs["pkAsociado"]
+    def get_success_url(self):
+        return reverse_lazy("asociado:mascota", args=[self.kwargs["pkAsociado"]])
 
+    @transaction.atomic
+    def form_valid(self, form):
+        mascota = form.save(commit=False)
+        asociado_id = self.kwargs["pkAsociado"]
+
+        # lógica de "eliminación lógica"
         mascota.estadoRegistro = False
-        mascota.fechaRetiro = date.today()
+        mascota.anulado = bool(self.request.POST.get("anular"))
         mascota.save()
 
+        # recalcular tarifa correctamente
         tarifa_mascota = Tarifas.objects.get(pk=3)
+
+        mascotas_activas = Mascota.objects.filter(
+            asociado=asociado_id,
+            estadoRegistro=True
+        ).count()
+
         tarifa_asociado = TarifaAsociado.objects.get(asociado=asociado_id)
-        tarifa_asociado.cuotaMascota -= tarifa_mascota.valor
+        tarifa_asociado.cuotaMascota = mascotas_activas * tarifa_mascota.valor
         tarifa_asociado.total -= tarifa_mascota.valor
         tarifa_asociado.save()
 
-        messages.success(request, "Mascota eliminada correctamente.")
-        return redirect(reverse_lazy("asociado:mascota", args=[asociado_id]))
+        if mascota.anulado:
+            messages.success(self.request, "Mascota anulada correctamente (sin cobro).")
+        else:
+            messages.success(self.request, "Mascota eliminada correctamente.")
+            
+        return super().form_valid(form)
 
 
 class VerHistoricoAuxilio(DetailView):
@@ -1411,8 +1460,8 @@ class VerTarifaAsociado(ListView):
 
     def get_repatriacion_data(self, asociado):
         repatriacion_titular = RepatriacionTitular.objects.filter(
-            asociado=asociado, estadoRegistro=True
-        ).first()
+            asociado=asociado
+        ).last()
 
         return repatriacion_titular
 
@@ -1426,6 +1475,13 @@ class VerTarifaAsociado(ListView):
         ).count()
 
         return count_repatriacion_beneficiario, count_mascotas
+    
+    def get_coohoperativitos_count_data(self, asociado):
+        count_coohoperativitos = Coohoperativitos.objects.filter(
+            asociado=asociado, estadoRegistro=True
+        ).count()
+
+        return count_coohoperativitos
 
     def get_credito_productos_data(self, asociado):
         queryset = HistoricoVenta.objects.filter(
@@ -1522,12 +1578,12 @@ class VerTarifaAsociado(ListView):
         )
 
         convenios = ConveniosAsociado.objects.filter(
-            asociado=asociado, estadoRegistro=True
+            asociado=asociado
         )
 
         valor_convenio_gasolina = self.get_valor_convenio_gasolina(asociado)
 
-        adicional = tarifa_asociado.cuotaAdicionales > 0
+        # adicional = tarifa_asociado.cuotaAdicionales > 0
 
         repatriacion_titular = self.get_repatriacion_data(asociado)
 
@@ -1544,6 +1600,8 @@ class VerTarifaAsociado(ListView):
         vinculacion_param, cuota_vinculacion, vinculacion_cuotas_pte = (
             self.get_vinculacion_data(asociado)
         )
+
+        count_coohoperativitos = self.get_coohoperativitos_count_data(asociado)
 
         qs_seguro_vida = HistoricoSeguroVida.objects.filter(
             asociado_id=asociado, estadoRegistro=True
@@ -1567,11 +1625,15 @@ class VerTarifaAsociado(ListView):
             + (valor_convenio_gasolina or 0)
         )
 
+        tiene_conv_inactivo = any(
+            not c.estadoRegistro for c in convenios
+        )
+
         context = {
             "updateAsociado": "yes",
             "pkAsociado": asociado.pk,
             "query": tarifa_asociado,
-            "adicional": adicional,
+            # "adicional": adicional,
             "queryRepatriacionTitular": repatriacion_titular,
             "count_repatriacion_beneficiario": count_repatriacion_beneficiario,
             "count_mascota": count_mascotas,
@@ -1584,6 +1646,8 @@ class VerTarifaAsociado(ListView):
             "cuotaGasolina": valor_convenio_gasolina,
             "qs_seguro_vida": qs_seguro_vida,
             "totalTarifaAsociado": total_tarifa,
+            "tiene_conv_inactivo": tiene_conv_inactivo,
+            "count_coohoperativitos": count_coohoperativitos,
         }
         return render(request, self.template_name, context)
 
@@ -1672,6 +1736,8 @@ class CrearAdicionalAsociado(UpdateView):
         obj.estadoAdicional = True
         obj.conceptoAdicional = obj.conceptoAdicional.upper()
         obj.fechaFinAdicional = None
+        obj.anulado = False
+        obj.ultimoMesCuotaAdicional = None
 
         # Recuperar el valor anterior antes de guardar
         valor_anterior = TarifaAsociado.objects.get(pk=obj.pk).cuotaAdicionales or 0
@@ -1689,29 +1755,73 @@ class CrearAdicionalAsociado(UpdateView):
 
 
 class EliminarAdicionalAsociado(UpdateView):
-    def get(self, request, *args, **kwargs):
-        template_name = "base/asociado/eliminarAdicional.html"
-        query = TarifaAsociado.objects.only(
-            "cuotaAdicionales", "id", "fechaInicioAdicional"
-        ).get(pk=kwargs["pk"])
-        context = {
-            "query": query,
-            "pk": kwargs["pk"],
-            "pkAsociado": kwargs["pkAsociado"],
-        }
-        return render(request, template_name, context)
+    model = TarifaAsociado
+    form_class = RetiroAdicionalForm
+    template_name = "base/asociado/eliminarAdicional.html"
+    pk_url_kwarg = "pk"
 
-    def post(self, request, *args, **kwargs):
-        obj = TarifaAsociado.objects.get(pk=kwargs["pk"])
-        obj.total = obj.total - obj.cuotaAdicionales
-        obj.cuotaAdicionales = 0
-        obj.fechaFinAdicional = date.today()
-        obj.estadoAdicional = False
-        obj.save()
-        messages.info(request, "Registro Eliminado Correctamente")
-        return HttpResponseRedirect(
-            reverse_lazy("asociado:tarifaAsociado", args=[kwargs["pkAsociado"]])
-        )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["pkAsociado"] = self.kwargs["pkAsociado"]
+        context["queryValorAdicional"] = self.object
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy("asociado:tarifaAsociado", args=[self.kwargs["pkAsociado"]])
+
+    @transaction.atomic
+    def form_valid(self, form):
+        valor_adicional = form.save(commit=False)
+        asociado_id = self.kwargs["pkAsociado"]
+
+        # lógica de "eliminación lógica"
+        valor_adicional.estadoAdicional = False
+        valor_adicional.anulado = bool(self.request.POST.get("anular"))
+
+        # recalcular tarifa correctamente
+        valor_adicional.total -= valor_adicional.cuotaAdicionales
+        # valor_adicional.cuotaAdicionales = 0
+        valor_adicional.save()
+
+        if valor_adicional.anulado:
+            messages.success(self.request, "Adicional anulado correctamente (sin cobro).")
+        else:
+            messages.success(self.request, "Adicional eliminado correctamente.")
+            
+        return super().form_valid(form)
+
+
+class VerAdicionalAsociadoInactivo(DetailView):
+    model = TarifaAsociado
+    template_name = "base/asociado/detalleAdicionalInactivo.html"
+    context_object_name = "queryValorAdicional"
+    pk_url_kwarg = "pk"
+
+
+# class EliminarAdicionalAsociado(UpdateView):
+#     def get(self, request, *args, **kwargs):
+#         template_name = "base/asociado/eliminarAdicional.html"
+#         query = TarifaAsociado.objects.only(
+#             "cuotaAdicionales", "id", "fechaInicioAdicional"
+#         ).get(pk=kwargs["pk"])
+#         context = {
+#             "query": query,
+#             "pk": kwargs["pk"],
+#             "pkAsociado": kwargs["pkAsociado"],
+#         }
+#         return render(request, template_name, context)
+
+#     def post(self, request, *args, **kwargs):
+#         obj = TarifaAsociado.objects.get(pk=kwargs["pk"])
+#         obj.total = obj.total - obj.cuotaAdicionales
+#         obj.cuotaAdicionales = 0
+#         obj.fechaFinAdicional = date.today()
+#         obj.estadoAdicional = False
+#         obj.save()
+#         messages.info(request, "Registro Eliminado Correctamente")
+#         return HttpResponseRedirect(
+#             reverse_lazy("asociado:tarifaAsociado", args=[kwargs["pkAsociado"]])
+#         )
 
 
 class VerSeguroVida(DetailView):
@@ -1722,7 +1832,7 @@ class VerSeguroVida(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        querySeguroVida = HistoricoSeguroVida.objects.filter(asociado=self.object.pk)
+        querySeguroVida = HistoricoSeguroVida.objects.filter(asociado=self.object.pk).order_by("-estadoRegistro")
         context.update(
             {
                 "pkAsociado": self.object.pk,
@@ -1799,17 +1909,6 @@ class EditarSeguroVida(UpdateView):
 
         obj_tarifa_asociado = TarifaAsociado.objects.get(asociado=asociado_id)
 
-        fecha_retiro = form.cleaned_data.get("fechaRetiro")
-
-        if fecha_retiro:
-            obj.fecha_retiro = fecha_retiro
-            obj.estadoRegistro = False
-            obj_tarifa_asociado.cuotaSeguroVida = 0
-            obj_tarifa_asociado.total -= valor_actual
-            obj_tarifa_asociado.save()
-            messages.info(self.request, "Seguro de vida Eliminado Correctamente")
-            return super().form_valid(form)
-
         obj.save()
         obj_tarifa_asociado.cuotaSeguroVida = obj.valorPago
 
@@ -1824,6 +1923,46 @@ class EditarSeguroVida(UpdateView):
         return reverse_lazy("asociado:seguroVida", args=[self.kwargs["pkAsociado"]])
 
 
+class EliminarSeguroVida(UpdateView):
+    model = HistoricoSeguroVida
+    form_class = RetiroHistoricoSeguroVidaForm
+    template_name = "base/beneficiario/eliminar.html"
+    pk_url_kwarg = "pk"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["pkAsociado"] = self.kwargs["pkAsociado"]
+        context["querySeguroVida"] = self.object
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy("asociado:seguroVida", args=[self.kwargs["pkAsociado"]])
+
+    @transaction.atomic
+    def form_valid(self, form):
+        seguro_vida = form.save(commit=False)
+        asociado_id = self.kwargs["pkAsociado"]
+
+        seguro_vida.estadoRegistro = False
+        seguro_vida.anulado = bool(self.request.POST.get("anular"))
+        seguro_vida.save()
+
+        tarifa_asociado = TarifaAsociado.objects.get(asociado=asociado_id)
+        tarifa_asociado.total -= tarifa_asociado.cuotaSeguroVida
+        tarifa_asociado.cuotaSeguroVida = 0
+        tarifa_asociado.save()
+
+        messages.success(self.request, "Seguro de Vida eliminado correctamente.")
+        return super().form_valid(form)
+
+
+class VerSeguroVidaInactivo(DetailView):
+    model = HistoricoSeguroVida
+    template_name = "base/historico/verSeguroVida.html"
+    context_object_name = "objSeguroVida"
+    pk_url_kwarg = "pk"
+
+
 class VerCoohoperativitos(DetailView):
     model = Asociado
     template_name = "base/beneficiario/listarCoohoperativitos.html"
@@ -1833,8 +1972,8 @@ class VerCoohoperativitos(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         queryCoohoperativitos = Coohoperativitos.objects.filter(
-            asociado=self.object.pk, estadoRegistro=True
-        )
+            asociado=self.object.pk
+        ).order_by("-estadoRegistro")
         context.update(
             {
                 "updateAsociado": "yes",
@@ -1874,20 +2013,21 @@ class CrearCoohoperativito(CreateView):
         num = Coohoperativitos.objects.filter(
             asociado=asociado, estadoRegistro=True
         ).count()
+        
+
+        tarifas = Tarifas.objects.filter(pk__in=[5, 6])
+
+        tarifas_dict = {t.pk: t.valor for t in tarifas}
+
+        COOHO_APORTE = tarifas_dict.get(6)
+        COOHO_BSOCIAL = tarifas_dict.get(5)
 
         tarifa_asociado = TarifaAsociado.objects.get(asociado=asociado)
+        tarifa_asociado.cuotaCoohopAporte = COOHO_APORTE * num
+        tarifa_asociado.cuotaCoohopBsocial = COOHO_BSOCIAL * num
 
-        tarifa_aporte = Tarifas.objects.get(pk=6)
-        tarifa_bsocial = Tarifas.objects.get(pk=5)
-
-        tarifa_asociado.cuotaCoohopAporte = tarifa_aporte.valor * num
-        tarifa_asociado.cuotaCoohopBsocial = tarifa_bsocial.valor * num
-
-        # evita acumular mal el total
-        tarifa_asociado.total = (
-            tarifa_asociado.total
-            + tarifa_asociado.cuotaCoohopAporte
-            + tarifa_asociado.cuotaCoohopBsocial
+        tarifa_asociado.total += (
+            COOHO_APORTE + COOHO_BSOCIAL
         )
 
         tarifa_asociado.save()
@@ -1935,48 +2075,97 @@ class EditarCoohoperativito(UpdateView):
 
 class EliminarCoohoperativito(UpdateView):
     model = Coohoperativitos
+    form_class = RetiroCoohoperativitoForm
     template_name = "base/beneficiario/eliminar.html"
+    pk_url_kwarg = "pk"
 
-    def get(self, request, *args, **kwargs):
-        queryCoohop = Coohoperativitos.objects.get(pk=kwargs["pk"])
-        tarifaCooh = Tarifas.objects.filter(id__in=[5, 6]).aggregate(
-            total_valor=Sum("valor")
-        )
-        return render(
-            request,
-            self.template_name,
-            {
-                "pkAsociado": kwargs["pkAsociado"],
-                "pk": kwargs["pk"],
-                "queryCoohop": queryCoohop,
-                "tarifaCooh": tarifaCooh,
-            },
-        )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        tarifa_coohop = Tarifas.objects.filter(id__in=[5, 6]).aggregate(total_valor=Sum("valor"))
+        context["pkAsociado"] = self.kwargs["pkAsociado"]
+        context["queryCoohop"] = self.object
+        context["tarifaCooh"] = tarifa_coohop
+        return context
 
-    def post(self, request, *args, **kwargs):
-        obj = Coohoperativitos.objects.get(pk=kwargs["pk"])
-        obj.estadoRegistro = False
-        obj.fechaRetiro = date.today()
-        obj.save()
-        # Valor quemado de la b social coohoperativios, pk = 5
-        objTarifaBsocial = Tarifas.objects.get(pk=5)
-        # Valor quemado del aporte coohoperativios, pk = 6
-        objTarifaAporte = Tarifas.objects.get(pk=6)
-        objTarifaAsoc = TarifaAsociado.objects.get(asociado=kwargs["pkAsociado"])
-        objTarifaAsoc.cuotaCoohopAporte = (
-            objTarifaAsoc.cuotaCoohopAporte - objTarifaAporte.valor
-        )
-        objTarifaAsoc.cuotaCoohopBsocial = (
-            objTarifaAsoc.cuotaCoohopBsocial - objTarifaBsocial.valor
-        )
-        objTarifaAsoc.total = (
-            objTarifaAsoc.total - objTarifaBsocial.valor - objTarifaAporte.valor
-        )
-        objTarifaAsoc.save()
-        messages.info(request, "Registro Eliminado Correctamente")
-        return HttpResponseRedirect(
-            reverse_lazy("asociado:coohoperativitos", args=[kwargs["pkAsociado"]])
-        )
+    def get_success_url(self):
+        return reverse_lazy("asociado:coohoperativitos", args=[self.kwargs["pkAsociado"]])
+
+    @transaction.atomic
+    def form_valid(self, form):
+        coohop = form.save(commit=False)
+        asociado_id = self.kwargs["pkAsociado"]
+
+        # lógica de "eliminación lógica"
+        coohop.estadoRegistro = False
+        coohop.anulado = bool(self.request.POST.get("anular"))
+        coohop.save()
+
+        # recalcular tarifa correctamente
+        tarifas = Tarifas.objects.filter(pk__in=[5, 6])
+
+        tarifas_dict = {t.pk: t.valor for t in tarifas}
+
+        COOHO_APORTE = tarifas_dict.get(6)
+        COOHO_BSOCIAL = tarifas_dict.get(5)
+
+        tarifa_asociado = TarifaAsociado.objects.get(asociado=asociado_id)
+        tarifa_asociado.cuotaCoohopAporte -= COOHO_APORTE
+        tarifa_asociado.cuotaCoohopBsocial -= COOHO_BSOCIAL
+        tarifa_asociado.total -= (COOHO_APORTE + COOHO_BSOCIAL)
+        tarifa_asociado.save()
+
+        if coohop.anulado:
+            messages.success(self.request, "Coohoperativito anulado correctamente (sin cobro).")
+        else:
+            messages.success(self.request, "Coohoperativito eliminado correctamente.")
+            
+        return super().form_valid(form)
+
+
+# class EliminarCoohoperativito(UpdateView):
+#     model = Coohoperativitos
+#     template_name = "base/beneficiario/eliminar.html"
+
+#     def get(self, request, *args, **kwargs):
+#         queryCoohop = Coohoperativitos.objects.get(pk=kwargs["pk"])
+#         tarifaCooh = Tarifas.objects.filter(id__in=[5, 6]).aggregate(
+#             total_valor=Sum("valor")
+#         )
+#         return render(
+#             request,
+#             self.template_name,
+#             {
+#                 "pkAsociado": kwargs["pkAsociado"],
+#                 "pk": kwargs["pk"],
+#                 "queryCoohop": queryCoohop,
+#                 "tarifaCooh": tarifaCooh,
+#             },
+#         )
+
+#     def post(self, request, *args, **kwargs):
+#         obj = Coohoperativitos.objects.get(pk=kwargs["pk"])
+#         obj.estadoRegistro = False
+#         obj.fechaRetiro = date.today()
+#         obj.save()
+#         # Valor quemado de la b social coohoperativios, pk = 5
+#         objTarifaBsocial = Tarifas.objects.get(pk=5)
+#         # Valor quemado del aporte coohoperativios, pk = 6
+#         objTarifaAporte = Tarifas.objects.get(pk=6)
+#         objTarifaAsoc = TarifaAsociado.objects.get(asociado=kwargs["pkAsociado"])
+#         objTarifaAsoc.cuotaCoohopAporte = (
+#             objTarifaAsoc.cuotaCoohopAporte - objTarifaAporte.valor
+#         )
+#         objTarifaAsoc.cuotaCoohopBsocial = (
+#             objTarifaAsoc.cuotaCoohopBsocial - objTarifaBsocial.valor
+#         )
+#         objTarifaAsoc.total = (
+#             objTarifaAsoc.total - objTarifaBsocial.valor - objTarifaAporte.valor
+#         )
+#         objTarifaAsoc.save()
+#         messages.info(request, "Registro Eliminado Correctamente")
+#         return HttpResponseRedirect(
+#             reverse_lazy("asociado:coohoperativitos", args=[kwargs["pkAsociado"]])
+#         )
 
 
 class VerHistorialPagos(DetailView):
@@ -2464,6 +2653,13 @@ class CrearRepatriacionTitular(CreateView):
         return reverse_lazy("asociado:tarifaAsociado", args=[self.kwargs["pkAsociado"]])
 
 
+class VerRepatriacionTitularInactivo(DetailView):
+    model = RepatriacionTitular
+    template_name = "base/beneficiario/verRepatriacionTitular.html"
+    context_object_name = "objRepatriacionTitular"
+    pk_url_kwarg = "pk"
+
+
 class VerRepatriacionTitular(UpdateView):
     model = RepatriacionTitular
     form_class = RepatriacionTitularForm
@@ -2496,39 +2692,45 @@ class VerRepatriacionTitular(UpdateView):
         return reverse_lazy("asociado:tarifaAsociado", args=[self.kwargs["pkAsociado"]])
 
 
-class EliminarRepatriacionTitular(DeleteView):
+class EliminarRepatriacionTitular(UpdateView):
     model = RepatriacionTitular
+    form_class = RetiroRepatriacionTitularForm
     template_name = "base/beneficiario/eliminar.html"
+    pk_url_kwarg = "pk"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        asociado_id = self.kwargs.get("pkAsociado")
-        obj_repatriacion = get_object_or_404(
-            RepatriacionTitular, pk=self.kwargs.get("pk")
-        )
-        context["pkAsociado"] = asociado_id
-        context["queryRepatriacionTitular"] = obj_repatriacion
+        context["pkAsociado"] = self.kwargs["pkAsociado"]
+        context["queryRepatriacionTitular"] = self.object
         return context
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        asociado_id = self.kwargs.get("pkAsociado")
-
-        obj_tarifa_asociado = get_object_or_404(TarifaAsociado, asociado=asociado_id)
-
-        self.object.estadoRegistro = False
-        self.object.fechaRetiro = date.today()
-        self.object.save()
-
-        obj_tarifa_asociado.total -= obj_tarifa_asociado.cuotaRepatriacionTitular
-        obj_tarifa_asociado.cuotaRepatriacionTitular = 0
-        obj_tarifa_asociado.save()
-
-        messages.info(self.request, "Repatriación eliminada correctamente.")
-        return redirect(self.get_success_url())
 
     def get_success_url(self):
         return reverse_lazy("asociado:tarifaAsociado", args=[self.kwargs["pkAsociado"]])
+
+    @transaction.atomic
+    def form_valid(self, form):
+        repatriacion = form.save(commit=False)
+        asociado_id = self.kwargs["pkAsociado"]
+
+        # lógica de "eliminación lógica"
+        repatriacion.estadoRegistro = False
+        repatriacion.anulado = bool(self.request.POST.get("anular"))
+
+        repatriacion.save()
+
+        # calcular tarifa correctamente
+        tarifa_asociado = TarifaAsociado.objects.get(asociado=asociado_id)
+
+        tarifa_asociado.total -= tarifa_asociado.cuotaRepatriacionTitular
+        tarifa_asociado.cuotaRepatriacionTitular = 0
+        tarifa_asociado.save()
+
+        messages.success(self.request, "Repatriacion del Titular eliminada correctamente.")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print("Form errors:", form.errors)  # Agrega esta línea para imprimir los errores del formulario
+        return super().form_invalid(form)
 
 
 class CrearConvenio(CreateView):
@@ -2572,6 +2774,13 @@ class CrearConvenio(CreateView):
         return reverse_lazy("asociado:tarifaAsociado", args=[self.kwargs["pkAsociado"]])
 
 
+class VerConvenioAsociadoInactivo(DetailView):
+    model = ConveniosAsociado
+    template_name = "base/asociado/detalleConvenio.html"
+    context_object_name = "query"
+    pk_url_kwarg = "pk"
+
+
 class EditarConvenioAsociado(UpdateView):
     template_name = "base/asociado/crearConvenio.html"
 
@@ -2598,44 +2807,83 @@ class EditarConvenioAsociado(UpdateView):
 
 
 class EliminarConvenioAsociado(UpdateView):
-    def get(self, request, *args, **kwargs):
-        template_name = "base/asociado/eliminarConvenio.html"
-        query = (
+    model = ConveniosAsociado
+    form_class = RetiroConvenioForm
+    template_name = "base/asociado/eliminarConvenio.html"
+    pk_url_kwarg = "pk"
+
+    def get_queryset(self):
+        return (
             ConveniosAsociado.objects.select_related("convenio")
             .only("fechaIngreso", "id", "convenio__concepto", "convenio__valor")
-            .get(pk=kwargs["pk"])
         )
 
-        context = {
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        query = self.object
+
+        context.update({
             "query": query,
-            "pk": kwargs["pk"],
-            "pkAsociado": kwargs["pkAsociado"],
-        }
+            "pk": self.kwargs["pk"],
+            "pkAsociado": self.kwargs["pkAsociado"],
+        })
 
+        # lógica adicional intacta
         if query.convenio.pk == 4:
-            valor = 0
-            query = ConvenioHistoricoGasolina.objects.filter(
-                asociado=kwargs["pkAsociado"], estado_registro=True
+            valor = (
+                ConvenioHistoricoGasolina.objects.filter(
+                    asociado=self.kwargs["pkAsociado"],
+                    estado_registro=True
+                ).aggregate(total=Sum("pendiente_pago"))["total"] or 0
             )
-            for obj in query:
-                valor += obj.pendiente_pago
-            context.update({"valor": valor})
 
-        return render(request, template_name, context)
+            context["valor"] = valor
 
-    def post(self, request, *args, **kwargs):
-        obj = ConveniosAsociado.objects.get(pk=kwargs["pk"])
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy("asociado:tarifaAsociado", args=[self.kwargs["pkAsociado"]])
+
+    @transaction.atomic
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+
+        valor_convenio = obj.convenio.valor
+
+        asociado_id = self.kwargs["pkAsociado"]
+
+        # eliminación lógica
         obj.estadoRegistro = False
-        obj.fechaRetiro = date.today()
+        obj.fechaRetiro = form.cleaned_data.get("fechaRetiro")
+        obj.anulado = bool(form.cleaned_data.get("anular"))
         obj.save()
-        objTarifa = TarifaAsociado.objects.get(asociado=kwargs["pkAsociado"])
-        objTarifa.cuotaConvenio = objTarifa.cuotaConvenio - int(request.POST["valor"])
-        objTarifa.total = objTarifa.total - int(request.POST["valor"])
-        objTarifa.save()
-        messages.info(request, "Registro Eliminado Correctamente")
-        return HttpResponseRedirect(
-            reverse_lazy("asociado:tarifaAsociado", args=[kwargs["pkAsociado"]])
-        )
+
+        # recalcular tarifa correctamente
+        tarifa = TarifaAsociado.objects.get(asociado=asociado_id)
+
+        tarifa.cuotaConvenio = tarifa.cuotaConvenio - valor_convenio
+        tarifa.total = tarifa.total - valor_convenio
+
+        tarifa.save()
+
+        messages.success(self.request, "Registro eliminado correctamente.")
+
+        return super().form_valid(form)
+
+    # def post(self, request, *args, **kwargs):
+    #     obj = ConveniosAsociado.objects.get(pk=kwargs["pk"])
+    #     obj.estadoRegistro = False
+    #     obj.fechaRetiro = date.today()
+    #     obj.save()
+    #     objTarifa = TarifaAsociado.objects.get(asociado=kwargs["pkAsociado"])
+    #     objTarifa.cuotaConvenio = objTarifa.cuotaConvenio - int(request.POST["valor"])
+    #     objTarifa.total = objTarifa.total - int(request.POST["valor"])
+    #     objTarifa.save()
+    #     messages.info(request, "Registro Eliminado Correctamente")
+    #     return HttpResponseRedirect(
+    #         reverse_lazy("asociado:tarifaAsociado", args=[kwargs["pkAsociado"]])
+    #     )
 
 
 class CrearCodeudor(CreateView):
@@ -2701,7 +2949,7 @@ class EditarCodeudor(UpdateView):
     def form_valid(self, form):
         # Verifica que el formulario sea válido antes de guardar
         if form.is_valid():
-            form.save()  # Asegúrate de que el formulario esté guardando correctamente el objeto
+            form.save()
             messages.info(self.request, "Codeudor modificado correctamente.")
             return HttpResponseRedirect(
                 reverse_lazy(

@@ -1,5 +1,5 @@
 {% load humanize %}
-<div class="modal-dialog modal-md" role="document">
+<div class="modal-dialog modal-lg" role="document">
   <div class="modal-content">
 
     <!-- ENCABEZADO -->
@@ -11,27 +11,81 @@
     </div>
 
     <!-- CUERPO -->
-    <div class="modal-body">
-      
+    <form action="{% url 'asociado:eliminarAdicional' pkAsociado object.pk %}" method="post">
+      {% csrf_token %}
+
+      <div class="modal-body">
+        
         <table class="table table-sm">
             <tr>
                 <th>Fecha Inicio Adicional</th>
                 <th>Valor</th>
+                <th>Primer Mes Cobro</th>
             </tr>
             <tr>
-                <td>{{query.fechaInicioAdicional|date:'d/m/Y'}}</td>
-                <td>${{query.cuotaAdicionales|intcomma}}</td>
+                <td>{{queryValorAdicional.fechaInicioAdicional|date:'d/m/Y'}}</td>
+                <td>${{queryValorAdicional.cuotaAdicionales|intcomma}}</td>
+                <td>{{queryValorAdicional.primerMesCuotaAdicional}}</td>
             </tr>
         </table>
-    
-    </div>
-    <div class="modal-footer">
-      <form action="{% url 'asociado:eliminarAdicional' pkAsociado pk %}" method="post">
-      {% csrf_token %}
-    
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-        <button  type="submit" class="btn btn-danger">Eliminar</a>
-      </form>
-    </div>
+      
+
+        <div class="col-12 mb-3">
+          {{ form.fechaFinAdicional.label_tag }}
+          {{ form.fechaFinAdicional }}
+        </div>
+
+        <div class="bloque-anulacion">
+
+          <div class="col-12 mb-3">
+            {{ form.ultimoMesCuotaAdicional.label_tag }}
+            {{ form.ultimoMesCuotaAdicional }}
+          </div>
+
+          <input type="hidden" class="primerMes" value="{{ form.instance.primerMesCuotaAdicional.pk }}">
+
+          <div class="form-check d-none anularContainer">
+            <input type="checkbox" name="anular" class="form-check-input">
+            <label class="form-check-label">
+                ¿Desea anular completamente este registro (sin cobro)?
+            </label>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button  type="submit" class="btn btn-danger">Eliminar</a>
+        </div>
+      </div>
+
+    </form>
   </div>
 </div>
+
+<script>
+    $(document).on('shown.bs.modal', '#eliminacion', function () {
+    console.log("holaa");
+
+    document.querySelectorAll(".bloque-anulacion").forEach(bloque => {
+        
+        const select = bloque.querySelector(".js-ultimo-mes");
+
+        const primerMes = bloque.querySelector(".primerMes");
+        const container = bloque.querySelector(".anularContainer");
+
+        if (!select || !primerMes || !container) return;
+
+        function validar() {
+            if (select.value === primerMes.value) {
+                container.classList.remove("d-none");
+            } else {
+                container.classList.add("d-none");
+            }
+        }
+
+        select.addEventListener("change", validar);
+        validar();
+    });
+});
+  </script>

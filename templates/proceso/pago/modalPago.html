@@ -1,12 +1,11 @@
 {% load humanize %}
 
 <div class="modal-dialog modal-xl" role="document" id="modal1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Registrar Pago:</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+    <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Registrar Pago:</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
         <div class="modal-body">
             <div class="table-responsive">
                 <table class="table table-hover">
@@ -45,7 +44,7 @@
                             <td>
                                 <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
                                     <div class="accordion-body">
-                                        Cuota Periodica: ${{ query.cuotaAporte|add:query.cuotaBSocial|intcomma }}<br>
+                                        Cuota Periódica: ${{ query.cuotaAporte|add:query.cuotaBSocial|intcomma }}<br>
                                         {% if query.cuotaMascota %}
                                             Mascota: ${{ query.cuotaMascota|intcomma }}<br>
                                         {% endif %}
@@ -58,7 +57,7 @@
                                         {% if query.cuotaSeguroVida %}
                                             Seguro Vida: ${{ query.cuotaSeguroVida|intcomma }}<br>
                                         {% endif %}
-                                        {% if query.cuotaAdicionales %}
+                                        {% if query.estadoAdicionales %}
                                             Adicionales: ${{ query.cuotaAdicionales|intcomma }}<br>
                                         {% endif %}
                                         {% if query.cuotaCoohopAporte %}
@@ -141,6 +140,7 @@
                                                     onchange="actualizarTotal()"
                                                 >
                                                 <label class="form-check-label" for="flexSwitchCheckDefault{{obj.pk}}"></label>
+                                                
                                             </div>
                                         {# Hidden inputs con los valores desglosados para el POST #}
                                             <input type="hidden" name="aporte_{{ obj.pk }}"         value="{{ obj.aporte }}">
@@ -166,7 +166,34 @@
                                                 <input type="number" data-costo="" name="valorViaje" id="valorViaje" class="form-control form-control-sm w-auto justify-content-center" style="text-align:center" min="0" disabled>
                                             </th>
                                         {% else %}
-                                            <td>${{ obj.total|intcomma }}</th>
+                                            <td>
+                                                <div class="d-flex justify-content-center align-items-center gap-2">
+                                                    <span>${{ obj.total|intcomma }}</span>
+                                                    <button 
+                                                        type="button"
+                                                        class="btn btn-sm btn-info ms-2 rounded-circle d-flex align-items-center justify-content-center p-0"
+                                                        style="width: 24px; height: 24px;"
+                                                        data-bs-toggle="popover"
+                                                        data-bs-container="body"
+                                                        data-bs-html="true"
+                                                        data-bs-trigger="focus"
+                                                        title="Detalle"
+                                                        data-bs-content="
+                                                            Cuota Periódica: ${{ obj.aporte|add:obj.bSocial }} <br>
+                                                            Mascota: ${{ obj.total_mascota }} <br>
+                                                            Repatriación: ${{ obj.total_repatriacion|add:obj.total_repatriacion_titular }} <br>
+                                                            Seguro Vida: ${{ obj.total_seguro_vida }} <br>
+                                                            Adicional: ${{ obj.total_adicional }} <br>
+                                                            Convenio: ${{ obj.total_convenio }} <br>
+                                                            Coohoperativitos: ${{ obj.total_coohop_aporte|add:obj.total_coohop_bsocial }}
+                                                        "
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info" viewBox="0 0 16 16">
+                                                            <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </td>
                                         {% endif %}
                                     </tr>
                                 {% endif %}

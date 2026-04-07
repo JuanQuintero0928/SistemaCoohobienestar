@@ -118,12 +118,22 @@
             $(this).modal('show');
         });
     }
-    var $ = jQuery.noConflict()
+
     function abrir_modal_edicion(url){
         $('#creacion').load(url, function(){
             $(this).modal('show');
         });
     }
+    
+    $(document).on('shown.bs.modal', '#creacion', function () {
+        const popoverTriggerList = [].slice.call(
+            this.querySelectorAll('[data-bs-toggle="popover"]')
+        );
+        popoverTriggerList.map(function (el) {
+            return new bootstrap.Popover(el);
+        });
+
+    });
 </script>
 
 <script src="{% static 'js/botonesAsociado.js' %}"></script>

@@ -18,10 +18,109 @@
 
     {% include 'estructura/asociado/navbar.html' %}
 
+    <style>
+        /* ── Tabla de servicios activos ── */
+        .servicios-table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+            border: 1px solid #dee2e6;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,.07);
+            margin-bottom: 1.5rem;
+        }
+        .servicios-table thead th {
+            background-color: #f1f3f5;
+            color: #495057;
+            font-size: .75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            padding: .65rem 1rem;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .servicios-table tbody tr {
+            transition: background-color .15s ease;
+        }
+        .servicios-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        .servicios-table tbody tr + tr {
+            border-top: 1px solid #e9ecef;
+        }
+        .servicios-table td, .servicios-table th {
+            padding: .6rem 1rem;
+            vertical-align: middle;
+        }
+        .servicios-table td.td-servicio {
+            font-weight: 600;
+            color: #343a40;
+            font-size: .875rem;
+        }
+        .servicios-table td.td-valor {
+            color: #495057;
+            font-size: .875rem;
+        }
+        .servicios-table td.td-opciones {
+            width: 110px;
+            text-align: center;
+        }
+        /* Fila de total */
+        .servicios-table tr.fila-total td {
+            background-color: #e9ecef;
+            font-weight: 700;
+            color: #212529;
+            font-size: .9rem;
+            border-top: 2px solid #adb5bd;
+        }
+        .servicios-table tr.fila-total td.td-valor {
+            color: #0d6efd;
+            font-size: 1rem;
+        }
+
+        /* ── Botones de acción ── */
+        .btn-accion {
+            padding: .25rem .45rem;
+            font-size: .8rem;
+            line-height: 1;
+            border-radius: .35rem;
+        }
+
+        /* ── Accordion inactivos ── */
+        .accordion-inactivos .accordion-button {
+            font-weight: 600;
+            font-size: .875rem;
+            color: #6c757d;
+        }
+        .accordion-inactivos .accordion-button:not(.collapsed) {
+            color: #495057;
+            background-color: #f8f9fa;
+            box-shadow: none;
+        }
+        .table-inactivos {
+            font-size: .85rem;
+            margin-bottom: 0;
+        }
+        .table-inactivos th {
+            font-size: .72rem;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: #6c757d;
+            background-color: #f8f9fa;
+        }
+        .badge-inactivo {
+            font-size: .7rem;
+            font-weight: 500;
+        }
+    </style>
+
     <div class="container-fluid">
+
+
         <div class="row">
-            <div class="col-12 d-flex justify-content-end mt-4 mb-4">
-                <div class="btn-group" role="group" aria-label="Basic example">
+            <div class="col-12 d-flex justify-content-end mt-4 mb-3">
+                <div class="btn-group" role="group">
                     <a href="{% url 'asociado:asociado' %}" class="btn btn-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
                             <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/>
@@ -33,223 +132,412 @@
                         </svg>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        {% if adicional == False %}
-                        <li><a class="btn btn-primary dropdown-item" onclick="abrir_modal_creacion('{% url 'asociado:crearAdicional' query.pk %}')">Crear Valor Adicional Funcionaria</a></li>
+                        {% if not query.estadoAdicional %}
+                        <li><a class="dropdown-item" onclick="abrir_modal_creacion('{% url 'asociado:crearAdicional' query.pk %}')">Crear Valor Adicional Funcionaria</a></li>
                         {% endif %}
-                        {% if not queryRepatriacionTitular %}
-                            <li><a class="btn btn-primary dropdown-item" onclick="abrir_modal_creacion('{% url 'asociado:repatriacionTitular' pkAsociado %}')">Crear Repatriación Titular</a></li>
+                        {% if not queryRepatriacionTitular.estadoRegistro %}
+                            <li><a class="dropdown-item" onclick="abrir_modal_creacion('{% url 'asociado:repatriacionTitular' pkAsociado %}')">Crear Repatriación Titular</a></li>
                         {% endif %}
-                        <li><a class="btn btn-primary dropdown-item" onclick="abrir_modal_creacion('{% url 'asociado:crearConvenio' pkAsociado %}')">Crear Convenio</a></li>
+                        <li><a class="dropdown-item" onclick="abrir_modal_creacion('{% url 'asociado:crearConvenio' pkAsociado %}')">Crear Convenio</a></li>
                     </ul>
                 </div>
             </div>
-        </div> 
-        {% comment %} contenido {% endcomment %}
-    </div>
-    <style>
-        .custom-header {
-            background-color: #F8F9FA;
-            color: black;
-        }
-        .total-row {
-            background-color: #F8F9FA; /* Fondo gris claro */
-            font-weight: bold;
-            color:rgb(74, 79, 83); /* Texto oscuro */
-        }
-    </style>
-    <table class="table table-hover shadow-sm border rounded-4">
-        <thead class="custom-header text-center">
-            <tr>
-                <th style="width: 40%;" scope="col">Servicios</th>
-                <th style="width: 40%;" scope="col">Valores</th>
-                <th style="width: 20%;" scope="col">Opciones</th>
-            </tr>
-        </thead>
-        <tbody class="table-group-divider text-center">
-            <tr>
-                <th class="fw-bold text-start">Nombre Asociado</th>
-                <th class="text-muted text-start">{{ query.asociado.nombre }} {{query.asociado.apellido}}</th>
-                <th></th>
-            </tr>
-            <tr>
-                <th class="fw-bold text-start">Aporte</th>
-                <th class="text-muted text-start">${{ query.cuotaAporte|intcomma }}</th>
-                <th></th>
-            </tr>
-            <tr>
-                <th class="fw-bold text-start">Bienestar Social</th>
-                <th class="text-muted text-start">${{ query.cuotaBSocial|intcomma }}</th>
-                <th></th>
-            </tr>
-            {% if query.cuotaMascota != 0 %}
+        </div>
+
+
+        <table class="servicios-table">
+            <thead>
                 <tr>
-                    <th class="fw-bold text-start">Mascota | <span class="badge bg-primary text-white border ms-2"> {{count_mascota}}</th>
-                    <th class="text-muted text-start">${{ query.cuotaMascota|intcomma }}</th>
-                    <th></th>
+                    <th style="width:45%">Servicio</th>
+                    <th style="width:35%">Valor</th>
+                    <th style="width:20%" class="text-center">Opciones</th>
                 </tr>
-            {% endif %}
-            {% if queryRepatriacionTitular %}
+            </thead>
+            <tbody>
+
+            
                 <tr>
-                    <th class="fw-bold text-start">Repatriación Titular - {{ queryRepatriacionTitular.paisRepatriacion|lower|capfirst }} | <span class="badge bg-success text-white border ms-2"> Inicio: {{ queryRepatriacionTitular.primerMes.concepto}} </span></th>
-                    <th class="text-muted text-start">${{ query.cuotaRepatriacionTitular|intcomma }}</th>
-                    <th>
-                        <div class="btn-group" role="group" aria-label="Basic example">
-                            <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_creacion('{% url 'asociado:verRepatriacionTitular' queryRepatriacionTitular.pk pkAsociado %}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
+                    <td class="td-servicio text-muted fw-normal">Nombre Asociado</td>
+                    <td class="td-valor">{{ query.asociado.nombre }} {{ query.asociado.apellido }}</td>
+                    <td class="td-opciones"></td>
+                </tr>
+
+                
+                <tr>
+                    <td class="td-servicio">Aporte</td>
+                    <td class="td-valor">${{ query.cuotaAporte|intcomma }}</td>
+                    <td class="td-opciones"></td>
+                </tr>
+
+                
+                <tr>
+                    <td class="td-servicio">Bienestar Social</td>
+                    <td class="td-valor">${{ query.cuotaBSocial|intcomma }}</td>
+                    <td class="td-opciones"></td>
+                </tr>
+
+                {% if query.cuotaMascota != 0 %}
+                <tr>
+                    <td class="td-servicio">
+                        Mascota
+                        <span class="badge bg-primary ms-2">{{ count_mascota }}</span>
+                    </td>
+                    <td class="td-valor">${{ query.cuotaMascota|intcomma }}</td>
+                    <td class="td-opciones"></td>
+                </tr>
+                {% endif %}
+
+            
+                {% if queryRepatriacionTitular and queryRepatriacionTitular.estadoRegistro %}
+                <tr>
+                    <td class="td-servicio">
+                        Repatriación Titular — {{ queryRepatriacionTitular.paisRepatriacion|lower|capfirst }}
+                        <span class="badge bg-success ms-2">Inicio: {{ queryRepatriacionTitular.primerMes.concepto }}</span>
+                    </td>
+                    <td class="td-valor">${{ query.cuotaRepatriacionTitular|intcomma }}</td>
+                    <td class="td-opciones">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button class="btn btn-outline-primary btn-accion" title="Editar"
+                                onclick="abrir_modal_creacion('{% url 'asociado:verRepatriacionTitular' queryRepatriacionTitular.pk pkAsociado %}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
                                     <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
                                 </svg>
                             </button>
-                            <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_creacion('{% url 'asociado:eliminarRepatriacionTitular' queryRepatriacionTitular.pk pkAsociado %}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                                    <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
+                            <button class="btn btn-outline-danger btn-accion" title="Eliminar"
+                                onclick="abrir_modal_eliminacion('{% url 'asociado:eliminarRepatriacionTitular' queryRepatriacionTitular.pk pkAsociado %}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                    <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
                                 </svg>
                             </button>
                         </div>
-                    </th>
+                    </td>
                 </tr>
-            {% endif %}
-            {% if query.cuotaRepatriacionBeneficiarios %}
+                {% endif %}
+
+                {% if query.cuotaRepatriacionBeneficiarios %}
                 <tr>
-                    <th class="fw-bold text-start">Repatriación Beneficiarios | <span class="badge bg-primary text-white border ms-2"> {{count_repatriacion_beneficiario}} </span></th>
-                    <th class="text-muted text-start">${{ query.cuotaRepatriacionBeneficiarios|intcomma }}</th>
-                    <th></th>
+                    <td class="td-servicio">
+                        Repatriación Beneficiarios
+                        <span class="badge bg-primary ms-2">{{ count_repatriacion_beneficiario }}</span>
+                    </td>
+                    <td class="td-valor">${{ query.cuotaRepatriacionBeneficiarios|intcomma }}</td>
+                    <td class="td-opciones"></td>
                 </tr>
-            {% endif %}
-            {% if query.cuotaSeguroVida != 0 %}
+                {% endif %}
+
+                {% if query.cuotaSeguroVida != 0 %}
                 <tr>
-                    <th class="fw-bold text-start">Seguro Vida | <span class="badge bg-success text-white border ms-2"> Inicio: {{ qs_seguro_vida.primerMesSeguroVida.concepto}} </span></th>
-                    <th class="text-muted text-start">${{ query.cuotaSeguroVida|intcomma }}</th>
-                    <th></th>
+                    <td class="td-servicio">
+                        Seguro Vida
+                        <span class="badge bg-success ms-2">Inicio: {{ qs_seguro_vida.primerMesSeguroVida.concepto }}</span>
+                    </td>
+                    <td class="td-valor">${{ query.cuotaSeguroVida|intcomma }}</td>
+                    <td class="td-opciones"></td>
                 </tr>
-            {% endif %}
-            {% if query.cuotaCoohopAporte != 0 %}
+                {% endif %}
+
+                {% if query.cuotaCoohopAporte != 0 %}
                 <tr>
-                    <th class="fw-bold text-start">Coohoperativitos Aporte</th>
-                    <th class="text-muted text-start">${{ query.cuotaCoohopAporte|intcomma }}</th>
-                    <th></th>
+                    <td class="td-servicio">
+                        Coohoperativitos
+                        <span class="badge bg-primary ms-2">{{ count_coohoperativitos }}</span>
+                    </td>
+                    <td class="td-valor">${{ query.cuotaCoohopAporte|add:query.cuotaCoohopBsocial|intcomma }}</td>
+                    <td class="td-opciones"></td>
                 </tr>
-            {% endif %}
-            {% if query.cuotaCoohopAporte != 0 %}
+                {% endif %}
+
+                {% if query.cuotaAdicionales > 0 and query.estadoAdicional %}
                 <tr>
-                    <th class="fw-bold text-start">Coohoperativitos Bienestar Social</th>
-                    <th class="text-muted text-start">${{ query.cuotaCoohopBsocial|intcomma }}</th>
-                    <th></th>
-                </tr>
-            {% endif %}
-            {% if query.cuotaAdicionales != 0 %}
-                <tr>
-                    <th class="fw-bold text-start">Adicionales Funeraria | <span class="badge bg-success text-white border ms-2"> Inicio: {{ query.primerMesCuotaAdicional.concepto}} </span></th>
-                    <th class="text-muted text-start">${{ query.cuotaAdicionales|intcomma }}</th>
-                    <th>
-                        <div class="btn-group" role="group" aria-label="Basic example">
-                            <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_creacion('{% url 'asociado:crearAdicional' query.pk %}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
+                    <td class="td-servicio">
+                        Adicionales Funeraria
+                        <span class="badge bg-success ms-2">Inicio: {{ query.primerMesCuotaAdicional.concepto }}</span>
+                    </td>
+                    <td class="td-valor">${{ query.cuotaAdicionales|intcomma }}</td>
+                    <td class="td-opciones">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button class="btn btn-outline-primary btn-accion" title="Editar"
+                                onclick="abrir_modal_creacion('{% url 'asociado:crearAdicional' query.pk %}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
                                     <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
                                 </svg>
                             </button>
-                            <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_creacion('{% url 'asociado:eliminarAdicional' pkAsociado query.pk %}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                                    <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
+                            <button class="btn btn-outline-danger btn-accion" title="Eliminar"
+                                onclick="abrir_modal_eliminacion('{% url 'asociado:eliminarAdicional' pkAsociado query.pk %}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                    <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
                                 </svg>
                             </button>
                         </div>
-                    </th>
+                    </td>
                 </tr>
-            {% endif %}
-            {% if queryConvenio %}
-                {% for convenio in queryConvenio %}
-                    <tr>
-                        <th class="fw-bold text-start">Convenio - {{ convenio.convenio.concepto|lower|capfirst }} | <span class="badge bg-success text-white border ms-2"> Inicio: {{ convenio.primerMes.concepto }} </span></th>
-                        {% if convenio.convenio.pk == 4 %}
-                            <th class="text-muted text-start">${{ cuotaGasolina|intcomma }}</th>
-                        {% else %}
-                            <th class="text-muted text-start">${{ convenio.convenio.valor|intcomma }}</th>
-                        {% endif %}
-                        <th>
-                            <div class="btn-group" role="group" aria-label="Basic example">
-                                <button class="btn btn-outline-primary custom-btn" {% if convenio.convenio.pk != 4 %} onclick="abrir_modal_creacion('{% url 'asociado:editarConvenio' pkAsociado convenio.pk %}')" {% else %} onclick="abrir_modal_creacion('{% url 'asociado:verConvenioGasolina' convenio.pk %}')" {% endif %}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
-                                        <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
-                                    </svg>
-                                </button>
+                {% endif %}
+
+                {% if queryConvenio %}
+                    {% for convenio in queryConvenio %}
+                        {% if convenio.estadoRegistro %}
+                        <tr>
+                            <td class="td-servicio">
+                                Convenio — {{ convenio.convenio.concepto|lower|capfirst }}
+                                <span class="badge bg-success ms-2">Inicio: {{ convenio.primerMes.concepto }}</span>
+                            </td>
+                            <td class="td-valor">
                                 {% if convenio.convenio.pk == 4 %}
-                                <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_creacion('{% url 'proceso:modalPagoVenta' convenio.pk pkAsociado 'GASOLINA' %}')" title="Añadir pago a convenio de gasolina">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-plus-fill" viewBox="0 0 16 16">
-                                        <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5z"/>
-                                        <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5zm4.5 6V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5a.5.5 0 0 1 1 0"/>
-                                    </svg>
-                                </button>
+                                    ${{ cuotaGasolina|intcomma }}
+                                {% else %}
+                                    ${{ convenio.convenio.valor|intcomma }}
                                 {% endif %}
-                                <button class="btn btn-outline-primary custom-btn" onclick="abrir_modal_creacion('{% url 'asociado:eliminarConvenio' pkAsociado convenio.pk %}')">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                                        <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </th>
-                    </tr>
-                {% endfor %}
-            {% endif %}
-            {% if query_credito_prod %}
-                {% for homeElements in query_credito_prod %}
-                    <tr>
-                        <th class="fw-bold text-start">Crédito - Home Elements {{homeElements.cuotasPagas}}/{{homeElements.cuotas}} | <span class="badge bg-success text-white border ms-2"> Inicio: {{ homeElements.primerMes.concepto }} </span></th>
-                        <th class="text-muted text-start">${{ homeElements.valorCuotas|intcomma }}</th>
-                        <th></th>
-                    </tr>
-                {% endfor %}
-            {% endif %}
-            {% if queryCredito %}
-                {% for credito in queryCredito %}
-                    <tr>
-                        <th class="fw-bold text-start">Crédito - {{credito.lineaCredito|lower|capfirst}} {{credito.cuotasPagas}}/{{credito.cuotas}} | <span class="badge bg-success text-white border ms-2"> Inicio: {{ credito.primerMes.concepto }} </span></th>
-                        <th class="text-muted text-start">${{ credito.valorCuota|intcomma }}</th>
-                        <th></th>
-                    </tr>
-                {% endfor %}
-            {% endif %}
-            {% if queryVinculacion %}    
-                <tr>
-                    <th class="fw-bold text-start">Vinculación - Cuota {{vinculacionCuotasPte}}/{{queryVinculacion.vinculacionCuotas}} | <span class="badge bg-success text-white border ms-2"> Inicio: {{ queryVinculacion.primerMes.concepto }} </span></th>
-                    <th class="text-muted text-start">${{ queryVinculacion.vinculacionValor|intcomma }}</th>
-                    <th></th>
-                </tr>
-            {% endif %}
-            <tr class="total-row">
-                <th class="text-start">Total</th>
-                <th class="text-primary text-start">${{ totalTarifaAsociado|intcomma }}</th>
-                <th></th>
-            </tr>
-        <tbody>   
-    </table>
+                            </td>
+                            <td class="td-opciones">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button class="btn btn-outline-primary btn-accion" title="Editar"
+                                        {% if convenio.convenio.pk != 4 %}
+                                            onclick="abrir_modal_creacion('{% url 'asociado:editarConvenio' pkAsociado convenio.pk %}')"
+                                        {% else %}
+                                            onclick="abrir_modal_creacion('{% url 'asociado:verConvenioGasolina' convenio.pk %}')"
+                                        {% endif %}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-pen-fill" viewBox="0 0 16 16">
+                                            <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001"/>
+                                        </svg>
+                                    </button>
+                                    {% if convenio.convenio.pk == 4 %}
+                                    <button class="btn btn-outline-secondary btn-accion" title="Añadir pago gasolina"
+                                        onclick="abrir_modal_creacion('{% url 'proceso:modalPagoVenta' convenio.pk pkAsociado 'GASOLINA' %}')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-clipboard-plus-fill" viewBox="0 0 16 16">
+                                            <path d="M6.5 0A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0zm3 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5z"/>
+                                            <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1A2.5 2.5 0 0 1 9.5 5h-3A2.5 2.5 0 0 1 4 2.5zm4.5 6V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5a.5.5 0 0 1 1 0"/>
+                                        </svg>
+                                    </button>
+                                    {% endif %}
+                                    <button class="btn btn-outline-danger btn-accion" title="Eliminar"
+                                        onclick="abrir_modal_eliminacion('{% url 'asociado:eliminarConvenio' pkAsociado convenio.pk %}')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                            <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
 
-    <div class="modal fade" id="creacion" role="dialog">
-    <!-- En este div se visualiza la informacion para la creacion de un nuevo registro de entrada -->
+                {% if query_credito_prod %}
+                    {% for homeElements in query_credito_prod %}
+                    <tr>
+                        <td class="td-servicio">
+                            Crédito — Home Elements
+                            <span class="badge bg-secondary ms-2">{{ homeElements.cuotasPagas }}/{{ homeElements.cuotas }}</span>
+                            <span class="badge bg-success ms-2">Inicio: {{ homeElements.primerMes.concepto }}</span>
+                        </td>
+                        <td class="td-valor">${{ homeElements.valorCuotas|intcomma }}</td>
+                        <td class="td-opciones"></td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+
+                {% if queryCredito %}
+                    {% for credito in queryCredito %}
+                    <tr>
+                        <td class="td-servicio">
+                            Crédito — {{ credito.lineaCredito|lower|capfirst }}
+                            <span class="badge bg-secondary ms-2">{{ credito.cuotasPagas }}/{{ credito.cuotas }}</span>
+                            <span class="badge bg-success ms-2">Inicio: {{ credito.primerMes.concepto }}</span>
+                        </td>
+                        <td class="td-valor">${{ credito.valorCuota|intcomma }}</td>
+                        <td class="td-opciones"></td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+
+                {% if queryVinculacion %}
+                <tr>
+                    <td class="td-servicio">
+                        Vinculación
+                        <span class="badge bg-secondary ms-2">Cuota {{ vinculacionCuotasPte }}/{{ queryVinculacion.vinculacionCuotas }}</span>
+                        <span class="badge bg-success ms-2">Inicio: {{ queryVinculacion.primerMes.concepto }}</span>
+                    </td>
+                    <td class="td-valor">${{ queryVinculacion.vinculacionValor|intcomma }}</td>
+                    <td class="td-opciones"></td>
+                </tr>
+                {% endif %}
+
+                <tr class="fila-total">
+                    <td class="td-servicio">Total</td>
+                    <td class="td-valor">${{ totalTarifaAsociado|intcomma }}</td>
+                    <td class="td-opciones"></td>
+                </tr>
+
+            </tbody>
+        </table>
+
+
+        {# Calcular si hay al menos un servicio inactivo para mostrar el accordion #}
+        {% with tiene_inactivos=False %}
+        {% if queryRepatriacionTitular and not queryRepatriacionTitular.estadoRegistro %}{% with tiene_inactivos=True %}{% endwith %}{% endif %}
+        {% if query.cuotaAdicionales > 0 and not query.estadoAdicional %}{% with tiene_inactivos=True %}{% endwith %}{% endif %}
+        {% endwith %}
+
+        <div class="accordion accordion-inactivos accordion-flush mb-5" id="accordionInactivos">
+            <div class="accordion-item border rounded">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed rounded" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#panelInactivos"
+                        aria-expanded="false" aria-controls="panelInactivos">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" class="bi bi-archive me-2 text-muted" viewBox="0 0 16 16">
+                            <path d="M0 2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v7.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 1 12.5V5a1 1 0 0 1-1-1zm2 3v7.5A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5V5zm13-3H1v2h14zM5 7.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5"/>
+                        </svg>
+                        Servicios Inactivos
+                    </button>
+                </h2>
+                <div id="panelInactivos" class="accordion-collapse collapse" data-bs-parent="#accordionInactivos">
+                    <div class="accordion-body p-0">
+
+                        {% comment %} ─ Verificar si hay contenido inactivo ─ {% endcomment %}
+                        {% with hay_rep_inactiva=False hay_adic_inactivo=False hay_conv_inactivo=False %}
+
+                        {% if queryRepatriacionTitular and not queryRepatriacionTitular.estadoRegistro %}
+                            {% with hay_rep_inactiva=True %}{% endwith %}
+                        {% endif %}
+                        {% if query.cuotaAdicionales > 0 and not query.estadoAdicional %}
+                            {% with hay_adic_inactivo=True %}{% endwith %}
+                        {% endif %}
+                        {% if queryConvenio %}
+                            {% for convenio in queryConvenio %}
+                                {% if not convenio.estadoRegistro %}
+                                    {% with hay_conv_inactivo=True %}{% endwith %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+
+                        {% endwith %}
+
+                        <table class="table table-inactivos table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width:45%" class="ps-3">Servicio</th>
+                                    <th style="width:35%">Estado</th>
+                                    <th style="width:20%" class="text-center">Ver</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                {% if queryRepatriacionTitular and not queryRepatriacionTitular.estadoRegistro %}
+                                <tr>
+                                    <td class="ps-3 fw-semibold">
+                                        Repatriación Titular — {{ queryRepatriacionTitular.paisRepatriacion|lower|capfirst }}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-danger badge-inactivo">
+                                            Inactivo{% if queryRepatriacionTitular.anulado %} (Anulado){% endif %}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-outline-secondary btn-accion" title="Ver detalle"
+                                            onclick="abrir_modal_eliminacion('{% url 'asociado:verRepatriacionTitularInactivo' queryRepatriacionTitular.pk pkAsociado %}')">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+                                                <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>
+                                                <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endif %}
+
+                                {% if query.cuotaAdicionales > 0 and not query.estadoAdicional %}
+                                <tr>
+                                    <td class="ps-3 fw-semibold">Adicionales Funeraria</td>
+                                    <td>
+                                        <span class="badge bg-danger badge-inactivo">
+                                            Inactivo{% if query.anulado %} (Anulado){% endif %}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-outline-secondary btn-accion" title="Ver detalle"
+                                            onclick="abrir_modal_eliminacion('{% url 'asociado:verAdicionalInactivo' query.pk %}')">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+                                                <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>
+                                                <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endif %}
+
+                                {% if queryConvenio %}
+                                    {% for convenio in queryConvenio %}
+                                        {% if not convenio.estadoRegistro %}
+                                        <tr>
+                                            <td class="ps-3 fw-semibold">
+                                                Convenio — {{ convenio.convenio.concepto|lower|capfirst }}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-danger badge-inactivo">
+                                                    Inactivo{% if convenio.anulado %} (Anulado){% endif %}
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <button class="btn btn-outline-secondary btn-accion" title="Ver detalle"
+                                                    onclick="abrir_modal_eliminacion('{% url 'asociado:verConvenioAsociadoInactivo' convenio.pk pkAsociado %}')">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+                                                        <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>
+                                                        <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
+                                                    </svg>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+
+                                {% if not tiene_conv_inactivo %}
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted py-3 ps-3">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle me-1" viewBox="0 0 16 16">
+                                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                                <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05"/>
+                                            </svg>
+                                            No hay servicios inactivos
+                                        </td>
+                                    </tr>
+                                {% endif %}
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
+    <div class="modal fade" id="creacion" role="dialog"></div>
+    <div class="modal fade" id="eliminacion" role="dialog"></div>
 
 {% endblock contenidoPagina %}
 
 {% block extrajs %}
-
 <script type="text/javascript">
     var $ = jQuery.noConflict()
-    function abrir_modal_creacion(url){
-        // Desactivar evento previo si existe para evitar duplicados
-        $('#creacion').off('shown.bs.modal');
 
+    function abrir_modal_creacion(url){
+        $('#creacion').off('shown.bs.modal');
         $('#creacion').load(url, function(){
             $('#creacion').modal('show');
-        
             $('#creacion').off('hidden.bs.modal').on('hidden.bs.modal', function () {
                 $('#creacion').html('');
             });
         });
     }
+
+    function abrir_modal_eliminacion(url){
+        $('#eliminacion').off('shown.bs.modal');
+        $('#eliminacion').load(url, function(){
+            $('#eliminacion').modal('show');
+            $('#eliminacion').off('hidden.bs.modal').on('hidden.bs.modal', function () {
+                $('#eliminacion').html('');
+            });
+        });
+    }
 </script>
-
-{% endblock extrajs %} 
-
-
-
-    
+{% endblock extrajs %}

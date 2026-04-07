@@ -125,29 +125,15 @@ class ModalPago(ListView):
             mesPago_id__lt=9990
         ).values("mesPago_id")
 
-        # Obtener la suma de los adicionales del asociado, se suma todo menos el aporte y el bSocial
-        # queryTarifa = TarifaAsociado.objects.filter(
-        #     asociado=kwargs["pkAsociado"]
-        # ).aggregate(
-        #     total_tarifa_asociado=Sum(
-        #         Coalesce(F("cuotaMascota"), Value(0)) ok
-        #         + Coalesce(F("cuotaRepatriacionBeneficiarios"), Value(0)) ok
-        #         + Coalesce(F("cuotaRepatriacionTitular"), Value(0)) ok
-        #         + Coalesce(F("cuotaSeguroVida"), Value(0)) ok
-        #         + Coalesce(F("cuotaAdicionales"), Value(0)) ok
-        #         + Coalesce(F("cuotaCoohopAporte"), Value(0)) ok
-        #         + Coalesce(F("cuotaCoohopBsocial"), Value(0)) ok
-        #         + Coalesce(F("cuotaConvenio"), Value(0)) 
-        #     )
-        # )
-
-        # total_tarifa_asociado = queryTarifa["total_tarifa_asociado"] or 0
-
         repatriacion_subquery = Beneficiario.objects.filter(
             asociado=kwargs["pkAsociado"],
-            repatriacion=True,
-            estadoRegistro=True,
+            anulado=False,
             primerMesRepatriacion__pk__lte=OuterRef("pk")
+        ).filter(
+            Q(ultimoMesRepatriacion__pk__gte=OuterRef("pk")) |
+            Q(ultimoMesRepatriacion__isnull=True)
+        ).filter(
+            Q(estadoRegistro=True) | Q(ultimoMesRepatriacion__isnull=False)
         ).annotate(
             valor=Value(VALOR_REPATRIACION)
         ).values("asociado").annotate(
@@ -156,64 +142,95 @@ class ModalPago(ListView):
 
         mascota_subquery = Mascota.objects.filter(
             asociado=kwargs["pkAsociado"],
-            estadoRegistro=True,
+            anulado=False,
             primerMes__pk__lte=OuterRef("pk")
+        ).filter(
+            Q(ultimoMes__pk__gte=OuterRef("pk")) |
+            Q(ultimoMes__isnull=True)
+        ).filter(
+            Q(estadoRegistro=True) | Q(ultimoMes__isnull=False)
         ).annotate(
             valor=Value(VALOR_MASCOTA)
         ).values("asociado").annotate(
             total=Sum("valor")
         ).values("total")
 
+        seguro_vida_subquery = HistoricoSeguroVida.objects.filter(
+            asociado=kwargs["pkAsociado"],
+            anulado=False,
+            primerMesSeguroVida__pk__lte=OuterRef("pk")
+        ).filter(
+            Q(ultimoMesSeguroVida__pk__gte=OuterRef("pk")) |
+            Q(ultimoMesSeguroVida__isnull=True)
+        ).filter(
+            Q(estadoRegistro=True) | Q(ultimoMesSeguroVida__isnull=False)
+        ).values("asociado").annotate(
+            total=Sum("valorPago")
+        ).values("total")
+
         repatriacion_titular_subquery = RepatriacionTitular.objects.filter(
             asociado=kwargs["pkAsociado"],
-            estadoRegistro=True,
+            anulado=False,
             primerMes__pk__lte=OuterRef("pk")
+        ).filter(
+            Q(ultimoMes__pk__gte=OuterRef("pk")) |
+            Q(ultimoMes__isnull=True)
+        ).filter(
+            Q(estadoRegistro=True) | Q(ultimoMes__isnull=False)
         ).annotate(
             valor=Value(VALOR_REPATRIACION)
         ).values("asociado").annotate(
             total=Sum("valor")
         ).values("total")
 
-        seguro_vida_subquery = HistoricoSeguroVida.objects.filter(
-            asociado=kwargs["pkAsociado"],
-            estadoRegistro=True,
-            primerMesSeguroVida__pk__lte=OuterRef("pk")
-        ).values("asociado").annotate(
-            total=Sum("valorPago")
-        ).values("total")
-
         valor_adicional_subquery = TarifaAsociado.objects.filter(
             asociado=kwargs["pkAsociado"],
-            estadoRegistro=True,
+            anulado=False,
             primerMesCuotaAdicional__pk__lte=OuterRef("pk")
-        ).values("asociado").annotate(
-            total=Sum("cuotaAdicionales")
-        ).values("total")
+        ).filter(
+            Q(ultimoMesCuotaAdicional__pk__gte=OuterRef("pk")) |
+            Q(ultimoMesCuotaAdicional__isnull=True)
+        ).values("cuotaAdicionales")[:1]
 
         coohop_aporte_subquery = Coohoperativitos.objects.filter(
             asociado=kwargs["pkAsociado"],
-            estadoRegistro=True,
+            anulado=False,
             primerMes__pk__lte=OuterRef("pk")
+        ).filter(
+            Q(ultimoMes__pk__gte=OuterRef("pk")) |
+            Q(ultimoMes__isnull=True)
+        ).filter(
+            Q(estadoRegistro=True) | Q(ultimoMes__isnull=False)
         ).annotate(
             valor=Value(VALOR_COOHOP_APORTE)
         ).values("asociado").annotate(
             total=Sum("valor")
-        ).values("total")
+        ).values("total")[:1]
 
         coohop_bsocial_subquery = Coohoperativitos.objects.filter(
             asociado=kwargs["pkAsociado"],
-            estadoRegistro=True,
+            anulado=False,
             primerMes__pk__lte=OuterRef("pk")
+        ).filter(
+            Q(ultimoMes__pk__gte=OuterRef("pk")) |
+            Q(ultimoMes__isnull=True)
+        ).filter(
+            Q(estadoRegistro=True) | Q(ultimoMes__isnull=False)
         ).annotate(
             valor=Value(VALOR_COOHOP_BSOCIAL)
         ).values("asociado").annotate(
             total=Sum("valor")
-        ).values("total")
+        ).values("total")[:1]
 
         convenio_subquery = ConveniosAsociado.objects.filter(
             asociado=kwargs["pkAsociado"],
-            estadoRegistro=True,
+            anulado=False,
             primerMes__pk__lte=OuterRef("pk")
+        ).filter(
+            Q(ultimoMes__pk__gte=OuterRef("pk")) |
+            Q(ultimoMes__isnull=True)
+        ).filter(
+            Q(estadoRegistro=True) | Q(ultimoMes__isnull=False)
         ).values("asociado").annotate(
             total=Sum("convenio__valor")
         ).values("total")
@@ -244,6 +261,19 @@ class ModalPago(ListView):
                     F("total_coohop_bsocial") +
                     F("total_convenio")
             )
+
+        for mes in queryMes:
+            print("Mes:", mes.pk)
+            print("Mascota:", mes.total_mascota)
+            print("Repatriación:", mes.total_repatriacion)
+            print("Repatriación Titular:", mes.total_repatriacion_titular)
+            print("Seguro vida:", mes.total_seguro_vida)
+            print("Adicional:", mes.total_adicional)
+            print("Aporte:", mes.total_coohop_aporte)
+            print("BSocial:", mes.total_coohop_bsocial)
+            print("Convenio:", mes.total_convenio)
+            print("TOTAL:", mes.total)
+            print("-----")
 
         queryPago = FormaPago.objects.all()
 

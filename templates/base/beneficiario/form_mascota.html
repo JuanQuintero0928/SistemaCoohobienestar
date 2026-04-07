@@ -4,7 +4,7 @@
         <!-- ENCABEZADO -->
         <div class="modal-header bg-primary text-white">
             <div>
-                <h5 class="modal-title mb-0">{% if object %} Editar {% else %} Crear {% endif %}Coohoperativito</h5>
+                <h5 class="modal-title mb-0">{% if object %} Editar {% else %} Crear {% endif %}Mascota</h5>
                 <h6 class="text-light mb-0">Titular - {{ query.nombre }} {{ query.apellido }}</h6>
             </div>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -12,12 +12,12 @@
 
         <!-- CUERPO -->
         <div class="modal-body">
-            <form {% if object %} action="{% url 'asociado:editarCoohoperativito' pkAsociado pk %}" {% else %} action="{% url 'asociado:crearCoohoperativito' pkAsociado %}" {% endif %} method="post">
+            <form {% if object %} action="{% url 'asociado:editarMascota' pkAsociado pk %}" {% else %} action="{% url 'asociado:crearMascota' pkAsociado %}" {% endif %} method="post">
                 {% csrf_token %}
 
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-header bg-light">
-                        <h6 class="mb-0 text-secondary">Información del Coohoperativito</h6>
+                        <h6 class="mb-0 text-secondary">Información de la Mascota</h6>
                     </div>
 
                     <div class="card-body">
@@ -28,18 +28,13 @@
                             </div>
 
                             <div class="col-md-6">
-                                {{ form.apellido.label_tag }}
-                                {{ form.apellido }}
+                                {{ form.tipo.label_tag }}
+                                {{ form.tipo }}
                             </div>
 
                             <div class="col-md-6">
-                                {{ form.tipoDocumento.label_tag }}
-                                {{ form.tipoDocumento }}
-                            </div>
-
-                            <div class="col-md-6">
-                                {{ form.numDocumento.label_tag }}
-                                {{ form.numDocumento }}
+                                {{ form.raza.label_tag }}
+                                {{ form.raza }}
                             </div>
 
                             <div class="col-md-6">
@@ -55,6 +50,16 @@
                             <div class="col-md-6">
                                 {{ form.primerMes.label_tag }}
                                 {{ form.primerMes }}
+                            </div>
+
+                            <!-- SWITCH VACUNAS COMPLETAS ACTIVO/INACTIVO -->
+                            <div class="col-md-6 d-flex align-items-center">
+                                <div class="form-check form-switch mt-3">
+                                    {{ form.vacunasCompletas }}
+                                    <label class="form-check-label ms-2" for="id_vacunasCompletas">
+                                        ¿Tiene Vacunas Completas?
+                                    </label>
+                                </div>
                             </div>
 
                         </div>

@@ -1,0 +1,123 @@
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content shadow-lg border-0">
+
+        <!-- ENCABEZADO -->
+        <div class="modal-header bg-primary text-white">
+            <div>
+                <h5 class="modal-title mb-0">Ver Beneficiario Inactivo</h5>
+                <h6 class="text-light mb-0">Titular - {{ objBeneficiario.asociado.nombre }} {{ objBeneficiario.asociado.apellido }}</h6>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <!-- CUERPO -->
+        <div class="modal-body">
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 text-secondary">Información del Beneficiario</h6>
+                </div>
+
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre:</label>
+                            <input type="text" class="form-control" value="{{ objBeneficiario.nombre }}" readonly>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Apellido:</label>
+                            <input type="text" class="form-control" value="{{ objBeneficiario.apellido }}" readonly>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Tipo Documento:</label>
+                            <input type="text" class="form-control" value="{{ objBeneficiario.tipoDocumento }}" readonly>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Número Documento:</label>
+                            <input type="text" class="form-control" value="{{ objBeneficiario.numDocumento }}" readonly>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha Nacimiento:</label>
+                            <input type="text" class="form-control" value="{{ objBeneficiario.fechaNacimiento|date:'d/m/Y' }}" readonly>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Parentesco:</label>
+                            <input type="text" class="form-control" value="{{ objBeneficiario.parentesco }}" readonly>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha Ingreso:</label>
+                            <input type="text" class="form-control" value="{{ objBeneficiario.fechaIngreso|date:'d/m/Y' }}" readonly>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            
+            {% if objBeneficiario.ultimoMesRepatriacion %}
+                <div id="card-repatriacion" class="card shadow-sm border-0 mb-4">
+                
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0 text-secondary">Información Repatriación</h6>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row g-3">
+
+                            <!-- SECCIÓN REPATRIACIÓN ACTIVO-->
+                            <div id="contenedor-repatriacion-activa" class="mt-4">
+                                <div class="row g-3">
+
+                                    <div class="col-md-6">
+                                        <label class="form-label">Pais Repatriación:</label>
+                                        <input type="text" class="form-control" value="{{ objBeneficiario.paisRepatriacion }}" readonly>
+                                    </div>
+
+                                    <div class="col-md-6 campo-activa">
+                                        <label class="form-label">Fecha Repatriación:</label>
+                                        <input type="date" class="form-control" value="{{ objBeneficiario.fechaRepatriacion|date:'Y-m-d' }}" readonly>
+                                    </div>
+
+                                    <div class="col-md-6 campo-activa">
+                                        <label class="form-label">Ciudad Repatriación:</label>
+                                        <input type="text" class="form-control" value="{{ objBeneficiario.ciudadRepatriacion }}" readonly>
+                                    </div>
+
+                                    <div class="col-md-6 campo-activa">
+                                        <label class="form-label">Primer Mes Repatriación:</label>
+                                        <input type="text" class="form-control" value="{{ objBeneficiario.primerMesRepatriacion }}" readonly>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <!-- SECCIÓN REPATRIACIÓN RETIRO-->
+                            <div id="contenedor-repatriacion-retiro" class="mt-4">
+                                <div class="row g-3">
+
+                                    <div class="col-md-6">
+                                        <label class="form-label">Fecha Retiro Repatriación:</label>
+                                        <input type="date" class="form-control" value="{{ objBeneficiario.fechaRetiroRepatriacion|date:'Y-m-d' }}" readonly>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label">Último Mes Repatriación:</label>
+                                        <input type="text" class="form-control" value="{{ objBeneficiario.ultimoMesRepatriacion }}" readonly>
+                                    </div>
+
+                                </div>
+                            </div>
+                        
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            
+        </div>
+    </div>
+</div>

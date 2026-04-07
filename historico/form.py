@@ -71,7 +71,7 @@ class HistorialPagoForm(forms.ModelForm):
 class HistoricoSeguroVidaForm(forms.ModelForm):
     class Meta:
         model = HistoricoSeguroVida
-        fields = ["valorPago", "fechaIngreso", "primerMesSeguroVida", "fechaRetiro"]
+        fields = ["valorPago", "fechaIngreso", "primerMesSeguroVida"]
         labels = {
             "primerMesSeguroVida": "Primer mes de seguro de vida",
         }
@@ -91,9 +91,6 @@ class HistoricoSeguroVidaForm(forms.ModelForm):
                     "style": "text-transform: uppercase;",
                     "required": "required",
                 }
-            ),
-            "fechaRetiro": forms.DateInput(
-                attrs={"class": "form-control", "type": "date"}
             ),
         }
 
@@ -117,6 +114,36 @@ class HistoricoSeguroVidaForm(forms.ModelForm):
                 queryset = queryset.filter(id__gte=parametro.primerMes.id)
 
         self.fields["primerMesSeguroVida"].queryset = queryset
+
+
+class RetiroHistoricoSeguroVidaForm(forms.ModelForm):
+    class Meta:
+        model = HistoricoSeguroVida
+        fields = ["fechaRetiro", "ultimoMesSeguroVida"]
+        labels = {
+            "ultimoMesSeguroVida": "Último mes de seguro de vida",
+        }
+        widgets = {
+            "fechaRetiro": forms.DateInput(
+                attrs={"type": "date", "class": "form-control"}, format="%Y-%m-%d"
+            ),
+            "ultimoMesSeguroVida": forms.Select(
+                attrs={"class": "form-control js-ultimo-mes"}
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # obligatorios
+        self.fields["fechaRetiro"].required = True
+        self.fields["ultimoMesSeguroVida"].required = True
+
+        # limitar meses según primerMes
+        if self.instance and self.instance.primerMesSeguroVida:
+            self.fields["ultimoMesSeguroVida"].queryset = MesTarifa.objects.filter(
+                pk__gte=self.instance.primerMesSeguroVida.pk
+            ).exclude(pk__gt=9000)
 
 
 class HistoricoAuxilioForm(forms.ModelForm):
@@ -158,7 +185,7 @@ class HistoricoCreditoForm(forms.ModelForm):
     tasaInteres = forms.ChoiceField(
         label="Tasa de interés mensual (%)",
         choices=[],
-        widget=forms.Select(attrs={"class": "form-select", "id": "id_tasaInteres"})
+        widget=forms.Select(attrs={"class": "form-select", "id": "id_tasaInteres"}),
     )
 
     class Meta:
@@ -253,7 +280,10 @@ class HistoricoCreditoForm(forms.ModelForm):
         queryset = MesTarifa.objects.filter(id__lt=9000)
         if asociado_id:
             from asociado.models import ParametroAsociado
-            parametro = ParametroAsociado.objects.filter(asociado_id=asociado_id).first()
+
+            parametro = ParametroAsociado.objects.filter(
+                asociado_id=asociado_id
+            ).first()
             if parametro and parametro.primerMes:
                 queryset = queryset.filter(id__gte=parametro.primerMes.id)
         self.fields["primerMes"].queryset = queryset
@@ -261,8 +291,7 @@ class HistoricoCreditoForm(forms.ModelForm):
         # === Construcción del select de tasas ===
         tasas = TasasInteresCredito.objects.all()
         self.fields["tasaInteres"].choices = [
-            (f"{t.porcentaje}|{t.concepto}", t.concepto)
-            for t in tasas
+            (f"{t.porcentaje}|{t.concepto}", t.concepto) for t in tasas
         ]
         self.fields["tasaInteres"].choices.insert(0, ("", "Seleccione una tasa"))
 

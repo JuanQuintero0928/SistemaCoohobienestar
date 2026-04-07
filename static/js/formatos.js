@@ -1898,7 +1898,7 @@ async function generarTxtMasivo(extractosData) {
             `"${extractoData.nombre}"`,
             `"${extractoData.mpioResidencia}"`,
             `"${extractoData.direccion}"`,
-            extractoData.numCelular || '',
+            `${extractoData.indicativoCelular || ''}${extractoData.numCelular || ''}`,
             `"${extractoData.mes}"`,
             extractoData.cuotaPeriodica || 0,
             extractoData.cuotaCoohop || 0,

@@ -512,9 +512,9 @@ class ObtenerExtractosAPI(View):
             # Obtener asociados
             objAsoc = (
                 Asociado.objects
-                .exclude(estadoAsociado = 'RETIRO')
+                .exclude(estadoAsociado__in = ['RETIRO', 'ACTIVO'])
                 .exclude(parametroasociado__primerMes__id=9989)
-                .select_related('mpioResidencia'))
+                .select_related('mpioResidencia', 'indicativoCelular'))
             total = objAsoc.count()
             mes = MesTarifa.objects.get(pk=mesExtracto)
             
@@ -532,6 +532,7 @@ class ObtenerExtractosAPI(View):
                         "numDocumento": asociado.numDocumento,
                         "mpioResidencia": str(asociado.mpioResidencia),
                         "direccion": asociado.direccion,
+                        "indicativoCelular": asociado.indicativoCelular.indicativo,
                         "numCelular": asociado.numCelular,
                         "fechaCorte": context["fechaCorte"].strftime("%Y-%m-%d"),
                         "mes": context["mes"].concepto,
@@ -706,15 +707,15 @@ class ExcelDescuentosNomina(TemplateView):
             ws.cell(row = cont, column = 4).value = f'{obj.asociado.nombre}' + ' ' + f'{obj.asociado.apellido}'
             ws.cell(row = cont, column = 5).value = obj.asociado.tAsociado.concepto
             ws.cell(row = cont, column = 6).value = obj.total_final
-            ws.cell(row = cont, column = 7).value = obj.tarifaAsociado.cuotaAporte
-            ws.cell(row = cont, column = 8).value = obj.tarifaAsociado.cuotaBSocial
-            ws.cell(row = cont, column = 9).value = obj.tarifaAsociado.cuotaMascota
-            ws.cell(row = cont, column = 10).value = (obj.tarifaAsociado.cuotaRepatriacionBeneficiarios or 0) + (obj.tarifaAsociado.cuotaRepatriacionTitular or 0)
-            ws.cell(row = cont, column = 11).value = obj.tarifaAsociado.cuotaSeguroVida
-            ws.cell(row = cont, column = 12).value = obj.tarifaAsociado.cuotaAdicionales
-            ws.cell(row = cont, column = 13).value = obj.tarifaAsociado.cuotaCoohopAporte
-            ws.cell(row = cont, column = 14).value = obj.tarifaAsociado.cuotaCoohopBsocial
-            ws.cell(row = cont, column = 15).value = obj.tarifaAsociado.cuotaConvenio
+            ws.cell(row=cont, column=7).value = mes_seleccionado.aporte
+            ws.cell(row=cont, column=8).value = mes_seleccionado.bSocial
+            ws.cell(row=cont, column=9).value = obj.cuota_mascotas
+            ws.cell(row=cont, column=10).value = obj.cuota_repatriaciones + obj.cuota_repatriacion_titular
+            ws.cell(row=cont, column=11).value = obj.cuota_seguro_vida
+            ws.cell(row=cont, column=12).value = obj.cuota_adicional_funeraria
+            ws.cell(row=cont, column=13).value = obj.cuota_coohop_aporte
+            ws.cell(row=cont, column=14).value = obj.cuota_coohop_bsocial
+            ws.cell(row=cont, column=15).value = obj.cuota_convenio_final
             ws.cell(row = cont, column = 16).value = obj.cuota_convenio_gasolina
             ws.cell(row = cont, column = 17).value = obj.cuota_vinculacion if obj.cuota_vinculacion else 0
             ws.cell(row = cont, column = 18).value = obj.cuota_credito if obj.cuota_credito else 0
@@ -916,7 +917,7 @@ class DescargarTarifasAsociados(BaseReporteExcel):
 
         return TarifaAsociado.objects.values('asociado__id',
                             'asociado__nombre','asociado__apellido','asociado__numDocumento','asociado__tAsociado__concepto','asociado__estadoAsociado','cuotaAporte','cuotaBSocial', 'cuotaMascota', 'cuotaRepatriacionBeneficiarios', 'cuotaRepatriacionTitular',
-                            'cuotaSeguroVida', 'cuotaAdicionales', 'cuotaCoohopAporte', 'cuotaCoohopBsocial', 'cuotaConvenio', 'total'
+                            'cuotaSeguroVida', 'cuotaAdicionales', 'cuotaCoohopAporte', 'cuotaCoohopBsocial', 'cuotaConvenio', 'total', 'estadoAdicional'
                         )
 
     def preparar_fila(self, obj):
@@ -932,7 +933,7 @@ class DescargarTarifasAsociados(BaseReporteExcel):
             obj['cuotaMascota'],
             (obj['cuotaRepatriacionBeneficiarios'] or 0) + (obj['cuotaRepatriacionTitular'] or 0),
             obj['cuotaSeguroVida'],
-            obj['cuotaAdicionales'],
+            obj['cuotaAdicionales'] if obj['estadoAdicional'] else 0,
             obj['cuotaCoohopAporte'],
             obj['cuotaCoohopBsocial'],
             obj['cuotaConvenio'],

@@ -171,6 +171,14 @@ class HistoricoSeguroVida(models.Model):
         null=True,
         related_name='historico_seguro_vida'
     )
+    ultimoMesSeguroVida = models.ForeignKey(
+        MesTarifa,
+        on_delete=models.RESTRICT,
+        blank=True,
+        null=True,
+        related_name='historico_seguro_vida_retiro'
+    )
+    anulado = models.BooleanField(default=False)
     fechaRetiro = models.DateField('Fecha Retiro', blank=True, null=True)
     fechaCreacion = models.DateTimeField(auto_now_add=True)
     fechaModificacion = models.DateTimeField(auto_now=True)

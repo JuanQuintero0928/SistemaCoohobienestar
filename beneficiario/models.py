@@ -45,6 +45,15 @@ class Beneficiario(models.Model):
     fechaRepatriacion = models.DateField('Fecha Repatriacion', blank=True, null=True)
     ciudadRepatriacion = models.CharField('Ciudad Repatriación', max_length=50, blank=True, null=True)
     estadoRegistro = models.BooleanField('Estado')
+    fechaRetiroRepatriacion = models.DateTimeField(null=True, blank=True)
+    ultimoMesRepatriacion = models.ForeignKey(
+        MesTarifa,
+        on_delete=models.RESTRICT,
+        blank=True,
+        null=True,
+        related_name='beneficiarios_retiro_repatriacion'
+    )
+    anulado = models.BooleanField(default=False)
     fechaIngreso = models.DateField('Fecha Ingreso', blank=False, null=False)
     fechaRetiro = models.DateField('Fecha Retiro', blank=True, null=True)
     fechaCreacion = models.DateTimeField(auto_now_add=True)
@@ -79,6 +88,14 @@ class Mascota(models.Model):
         null=True,
         related_name='mascotas'
     )
+    ultimoMes = models.ForeignKey(
+        MesTarifa,
+        on_delete=models.RESTRICT,
+        blank=True,
+        null=True,
+        related_name='mascotas_retiro'
+    )
+    anulado = models.BooleanField(default=False)
     fechaRetiro = models.DateField('Fecha Retiro', blank=True, null=True)
     fechaCreacion = models.DateTimeField(auto_now_add=True)
     fechaModificacion = models.DateTimeField(auto_now=True)
@@ -105,6 +122,14 @@ class Coohoperativitos(models.Model):
         null=True,
         related_name='coohoperativitos'
     )
+    ultimoMes = models.ForeignKey(
+        MesTarifa,
+        on_delete=models.RESTRICT,
+        blank=True,
+        null=True,
+        related_name='coohoperativitos_retiro'
+    )
+    anulado = models.BooleanField(default=False)
     fechaNacimiento = models.DateField('Fecha Nacimiento', blank=True, null=True)
     fechaIngreso = models.DateField('Fecha Ingreso', blank=False, null=False)
     fechaRetiro = models.DateField('Fecha Retiro', blank=True, null=True)

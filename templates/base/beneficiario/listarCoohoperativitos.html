@@ -51,6 +51,7 @@
         <th>Tipo Documento</th>
         <th>N° Documento</th>
         <th>Fecha Nacimiento</th>
+        <th>Estado</th>
         <th>Opciones</th>
     </tr>
 {% endblock tablaencabezado %}
@@ -64,6 +65,12 @@
             <td>{{ obj.tipoDocumento }}</td>
             <td>{{ obj.numDocumento }}</td>
             <td>{{ obj.fechaNacimiento|date:"d/m/Y" }}</td>
+            <td>
+                {% if obj.estadoRegistro %}
+                    <span class="badge bg-success">Activo</span>
+                {% else %}
+                    <span class="badge bg-danger">Inactivo {% if obj.anulado %}(Anulado){% endif %}</span>
+                {% endif %}
             <td>
                 <center>
                 <div class="btn-group" role="group" aria-label="Basic example">
@@ -82,10 +89,8 @@
         </tr>
     {% endfor %}
 
-    <div class="modal fade" id="creacion" role="dialog">
-        <!-- En este div se visualiza la informacion para la creacion de un nuevo registro de entrada -->
-    </div>
-  
+    <div class="modal fade" id="creacion" role="dialog"></div>
+    <div class="modal fade" id="eliminacion" role="dialog"></div>
 
 {% endblock tablafilas %}
 
@@ -98,14 +103,14 @@
             $(this).modal('show');
         });
     }
-    var $ = jQuery.noConflict()
+    
     function abrir_modal_edicion(url){
         $('#creacion').load(url, function(){
             $(this).modal('show');
         });
     }
     function abrir_modal_eliminacion(url){
-        $('#creacion').load(url, function(){
+        $('#eliminacion').load(url, function(){
             $(this).modal('show');
         });
     }

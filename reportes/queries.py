@@ -73,6 +73,15 @@ def obtenerNovedades(fecha_inicial, fecha_final):
 
 
 def obtenerDescuentoNomina(empresa_pk, mes_seleccionado):
+
+    mes = MesTarifa.objects.get(pk=mes_seleccionado)
+
+    VALOR_APORTE = mes.aporte
+    VALOR_BSOCIAL = mes.bSocial
+
+    valor_coohop_aporte = Tarifas.objects.get(pk=6).valor
+    valor_coohop_bsocial = Tarifas.objects.get(pk=5).valor
+
     # Pagos de vinculación (ya existente)
     pagos_vinculacion = (
         HistorialPagos.objects.filter(
@@ -189,9 +198,14 @@ def obtenerDescuentoNomina(empresa_pk, mes_seleccionado):
     # Informacion convenios, obtener convenios que el pk mes seleccionado sea mayor al primerMes Cobro del convenio
     convenios_vigentes_sum = (
         ConveniosAsociado.objects.filter(
-            asociado = OuterRef("asociado"),
-            estadoRegistro = True,
+            asociado=OuterRef("asociado"),
+            anulado=False,
             primerMes__pk__lte=mes_seleccionado
+        ).filter(
+            Q(ultimoMes__pk__gte=mes_seleccionado) |
+            Q(ultimoMes__isnull=True)
+        ).filter(
+            Q(estadoRegistro=True) | Q(ultimoMes__isnull=False)
         ).values("asociado")
         .annotate(total_cuota=Sum("convenio__valor"))
         .values("total_cuota")
@@ -202,9 +216,14 @@ def obtenerDescuentoNomina(empresa_pk, mes_seleccionado):
 
     mascotas_vigentes_count = (
         Mascota.objects.filter(
-            asociado = OuterRef("asociado"),
-            estadoRegistro = True,
-            primerMes__pk__lte = mes_seleccionado,
+            asociado=OuterRef("asociado"),
+            anulado=False,
+            primerMes__pk__lte=mes_seleccionado
+        ).filter(
+            Q(ultimoMes__pk__gte=mes_seleccionado) |
+            Q(ultimoMes__isnull=True)
+        ).filter(
+            Q(estadoRegistro=True) | Q(ultimoMes__isnull=False)
         ).values("asociado")
         .annotate(total=Count("id"))
         .values("total")
@@ -215,9 +234,14 @@ def obtenerDescuentoNomina(empresa_pk, mes_seleccionado):
     
     repatriaciones_vigentes_count = (
         Beneficiario.objects.filter(
-            asociado = OuterRef("asociado"),
-            estadoRegistro = True,
-            primerMesRepatriacion__pk__lte = mes_seleccionado
+            asociado=OuterRef("asociado"),
+            anulado=False,
+            primerMesRepatriacion__pk__lte=mes_seleccionado
+        ).filter(
+            Q(ultimoMesRepatriacion__pk__gte=mes_seleccionado) |
+            Q(ultimoMesRepatriacion__isnull=True)
+        ).filter(
+            Q(estadoRegistro=True) | Q(ultimoMesRepatriacion__isnull=False)
         ).values("asociado")
         .annotate(total=Count("id"))
         .values("total")
@@ -226,9 +250,14 @@ def obtenerDescuentoNomina(empresa_pk, mes_seleccionado):
     # Informacion seguro de vida
     seguro_vida_vigente_sum = (
         HistoricoSeguroVida.objects.filter(
-            asociado = OuterRef("asociado"),
-            estadoRegistro = True, 
-            primerMesSeguroVida__pk__lte = mes_seleccionado
+            asociado=OuterRef("asociado"),
+            anulado=False,
+            primerMesSeguroVida__pk__lte=mes_seleccionado
+        ).filter(
+            Q(ultimoMesSeguroVida__pk__gte=mes_seleccionado) |
+            Q(ultimoMesSeguroVida__isnull=True)
+        ).filter(
+            Q(estadoRegistro=True) | Q(ultimoMesSeguroVida__isnull=False)
         ).values("asociado")
         .annotate(total_cuota_seguro_vida=Sum("valorPago"))
         .values("total_cuota_seguro_vida")
@@ -237,9 +266,14 @@ def obtenerDescuentoNomina(empresa_pk, mes_seleccionado):
     # Informacion repatriacion titular
     repatriacion_titular_count = (
         RepatriacionTitular.objects.filter(
-            asociado = OuterRef("asociado"),
-            estadoRegistro = True,
-            primerMes__pk__lte = mes_seleccionado
+            asociado=OuterRef("asociado"),
+            anulado=False,
+            primerMes__pk__lte=mes_seleccionado
+        ).filter(
+            Q(ultimoMes__pk__gte=mes_seleccionado) |
+            Q(ultimoMes__isnull=True)
+        ).filter(
+            Q(estadoRegistro=True) | Q(ultimoMes__isnull=False)
         ).values("asociado")
         .annotate(total=Count("id"))
         .values("total")[:1]
@@ -248,23 +282,32 @@ def obtenerDescuentoNomina(empresa_pk, mes_seleccionado):
     # Informacion adicionales funeraria
     adicional_funeraria_sum = (
         TarifaAsociado.objects.filter(
-            asociado = OuterRef("asociado"),
-            estadoRegistro = True,
-            primerMesCuotaAdicional__pk__lte = mes_seleccionado
+            asociado=OuterRef("asociado"),
+            anulado=False,
+            primerMesCuotaAdicional__pk__lte=mes_seleccionado
+        ).filter(
+            Q(ultimoMesCuotaAdicional__pk__gte=mes_seleccionado) |
+            Q(ultimoMesCuotaAdicional__isnull=True)
+        ).filter(
+            Q(estadoRegistro=True) | Q(ultimoMesCuotaAdicional__isnull=False)
         ).values("asociado")
         .annotate(total=Sum("cuotaAdicionales"))
         .values("total")[:1]
     )
 
     # Informacion Coohoperativitos
-    fecha_mes_seleccionado = MesTarifa.objects.get(pk = mes_seleccionado).fechaFinal
     valor_coohoperativito = Tarifas.objects.filter(pk__in = [5,6]).aggregate(total=Sum("valor"))["total"]
 
     cuota_coohoperativitos_count = (
         Coohoperativitos.objects.filter(
-            asociado = OuterRef("asociado"),
-            estadoRegistro = True,
-            fechaIngreso__lte = fecha_mes_seleccionado
+            asociado=OuterRef("asociado"),
+            anulado=False,
+            primerMes__pk__lte=mes_seleccionado
+        ).filter(
+            Q(ultimoMes__pk__gte=mes_seleccionado) |
+            Q(ultimoMes__isnull=True)
+        ).filter(
+            Q(estadoRegistro=True) | Q(ultimoMes__isnull=False)
         ).values("asociado")
         .annotate(total=Count("id"))
         .values("total")
@@ -413,10 +456,14 @@ def obtenerDescuentoNomina(empresa_pk, mes_seleccionado):
             ),
             cuota_coohoperativitos=F("cuota_coohoperativitos_vigentes") * Value(valor_coohoperativito),
 
+            cuota_coohop_aporte = F("cuota_coohoperativitos_vigentes") * Value(valor_coohop_aporte),
+            cuota_coohop_bsocial = F("cuota_coohoperativitos_vigentes") * Value(valor_coohop_bsocial),
+
             # Cuota de home elements ya calculada individualmente
             cuota_credito_home_elements=F("home_cuota_total_calculada"),
-            total_final=F("tarifaAsociado__cuotaAporte")
-            + F("tarifaAsociado__cuotaBSocial")
+            total_final=
+            Value(VALOR_APORTE)
+            + Value(VALOR_BSOCIAL)
             + F("cuota_coohoperativitos")
             + Coalesce(F("cuota_vinculacion"), Value(0))
             + F("cuota_credito")

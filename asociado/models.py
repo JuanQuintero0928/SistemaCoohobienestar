@@ -525,6 +525,14 @@ class TarifaAsociado(models.Model):
         null=True,
         related_name="tarifa_asociado",
     )
+    ultimoMesCuotaAdicional = models.ForeignKey(
+        MesTarifa,
+        on_delete=models.RESTRICT,
+        blank=True,
+        null=True,
+        related_name='valor_adicional_retiro'
+    )
+    anulado = models.BooleanField(default=False)
     conceptoAdicional = models.CharField(
         "Concepto Adicional", max_length=100, blank=True, null=True
     )
@@ -605,6 +613,14 @@ class RepatriacionTitular(models.Model):
         null=True,
         related_name="repatriaciones_titular",
     )
+    ultimoMes = models.ForeignKey(
+        MesTarifa,
+        on_delete=models.RESTRICT,
+        blank=True,
+        null=True,
+        related_name='repatriacion_titular_retiro'
+    )
+    anulado = models.BooleanField(default=False)
     fechaRetiro = models.DateField(blank=True, null=True)
     estadoRegistro = models.BooleanField("Estado")
     fechaCreacion = models.DateTimeField(auto_now_add=True)
@@ -626,6 +642,14 @@ class ConveniosAsociado(models.Model):
     primerMes = models.ForeignKey(
         MesTarifa, on_delete=models.RESTRICT, blank=False, null=False
     )
+    ultimoMes = models.ForeignKey(
+        MesTarifa,
+        on_delete=models.RESTRICT,
+        blank=True,
+        null=True,
+        related_name='convenio_retiro'
+    )
+    anulado = models.BooleanField(default=False)
     fechaIngreso = models.DateField("Fecha Ingreso", blank=False, null=False)
     fechaRetiro = models.DateField("Fecha Retiro", blank=True, null=True)
     estadoRegistro = models.BooleanField("Estado")

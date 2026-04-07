@@ -283,3 +283,89 @@ class TarifaAsociadoAdicionalForm(forms.ModelForm):
         self.fields["fechaInicioAdicional"].required = True
         self.fields["primerMesCuotaAdicional"].required = True
 
+
+class RetiroRepatriacionTitularForm(forms.ModelForm):
+    class Meta:
+        model = RepatriacionTitular
+        fields = ["fechaRetiro", "ultimoMes"]
+        labels = {
+            "fechaRetiro": "Fecha Retiro",
+            "ultimoMes": "Último Mes Cobro",
+        }
+        widgets = {
+            "fechaRetiro": forms.DateInput(
+                attrs={"type": "date", "class": "form-control"}, format="%Y-%m-%d"
+            ),
+            "ultimoMes": forms.Select(attrs={"class": "form-control js-ultimo-mes"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # obligatorios
+        self.fields["fechaRetiro"].required = True
+        self.fields["ultimoMes"].required = True
+
+        # limitar meses según primerMes
+        if self.instance and self.instance.primerMes:
+            self.fields["ultimoMes"].queryset = MesTarifa.objects.filter(
+                pk__gte=self.instance.primerMes.pk
+            ).exclude(pk__gt=9000)
+
+
+class RetiroAdicionalForm(forms.ModelForm):
+    class Meta:
+        model = TarifaAsociado
+        fields = ["fechaFinAdicional", "ultimoMesCuotaAdicional"]
+        labels = {
+            "fechaFinAdicional": "Fecha Fin Adicional",
+            "ultimoMesCuotaAdicional": "Último Mes Cobro",
+        }
+        widgets = {
+            "fechaFinAdicional": forms.DateInput(
+                attrs={"type": "date", "class": "form-control"}, format="%Y-%m-%d"
+            ),
+            "ultimoMesCuotaAdicional": forms.Select(attrs={"class": "form-control js-ultimo-mes"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # obligatorios
+        self.fields["fechaFinAdicional"].required = True
+        self.fields["ultimoMesCuotaAdicional"].required = True
+
+        # limitar meses según primerMes
+        if self.instance and self.instance.primerMesCuotaAdicional:
+            self.fields["ultimoMesCuotaAdicional"].queryset = MesTarifa.objects.filter(
+                pk__gte=self.instance.primerMesCuotaAdicional.pk
+            ).exclude(pk__gt=9000)
+
+
+class RetiroConvenioForm(forms.ModelForm):
+    class Meta:
+        model = ConveniosAsociado
+        fields = ["fechaRetiro", "ultimoMes"]
+        labels = {
+            "fechaRetiro": "Fecha Retiro Convenio",
+            "ultimoMes": "Último Mes Cobro",
+        }
+        widgets = {
+            "fechaRetiro": forms.DateInput(
+                attrs={"type": "date", "class": "form-control"}, format="%Y-%m-%d"
+            ),
+            "ultimoMes": forms.Select(attrs={"class": "form-control js-ultimo-mes"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # obligatorios
+        self.fields["fechaRetiro"].required = True
+        self.fields["ultimoMes"].required = True
+
+        # limitar meses según primerMes
+        if self.instance and self.instance.primerMes:
+            self.fields["ultimoMes"].queryset = MesTarifa.objects.filter(
+                pk__gte=self.instance.primerMes.pk
+            ).exclude(pk__gt=9000)

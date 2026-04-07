@@ -1,18 +1,18 @@
 {% load humanize %}
-{% if queryMascota %}
-  <div class="modal-dialog modal-md" role="document">
-{% endif %}
-{% if queryBeneficiario %}
-  <div class="modal-dialog modal-md" role="document">
-{% endif %}
-{% if queryCoohop %}
+
+{% if queryCoohop or queryRepatriacionTitular or querySeguroVida or queryMascota %}
   <div class="modal-dialog modal-lg" role="document">
+{% elif queryBeneficiario %}
+  <div class="modal-dialog modal-md" role="document">
+{% else %}
+  <div class="modal-dialog modal-sm" role="document">
 {% endif %}
-{% if queryRepatriacionTitular %}
-  <div class="modal-dialog modal-lg" role="document">
-{% endif %}
+
+
     <div class="modal-dialog">
       <div class="modal-content">
+
+        <!-- Encabezado -->
         <div class="modal-header bg-danger text-white">
           {% if queryMascota %}
             <h1 class="modal-title fs-5" id="exampleModalLabel">Eliminar Mascota</h1>
@@ -26,24 +26,41 @@
           {% if queryRepatriacionTitular %}
             <h1 class="modal-title fs-5" id="exampleModalLabel">Eliminar Repatriación Titular</h1>
           {% endif %}
+          {% if querySeguroVida %}
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Eliminar Seguro de Vida</h1>
+          {% endif %}
             <hr>
           <h2 class="modal-title fs-5" id="exampleModalLabel"></h2>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
+
+        <!-- Cuerpo -->
         <div class="modal-body">
+
+          <!-- INFORMACION DE MASCOTA -->
           {% if queryMascota %}
             <table class="table table-sm">
                 <tr>
                     <th>Nombre</th>
                     <th>Tipo</th>
+                    <th>Fecha Ingreso</th>
+                    <th>Primer Mes Cobro</th>
                 </tr>
                 <tr>
                     <td>{{queryMascota.nombre}}</td>
                     <td>{{queryMascota.tipo}}</td>
+                    <td>{{queryMascota.fechaIngreso|date:'d/m/Y'}}</td>
+                    <td>{{queryMascota.primerMes}}</td>
                 </tr>
             </table>
           {% endif %}
-          {% if queryBeneficiario %}
+
+          <!-- INFORMACION DE REPATRIACION DE BENEFICIARIOS -->
+          {% if queryBeneficiario.repatriacion %}
+            <div class="alert alert-warning" role="alert">
+              Antes de eliminar el beneficiario, es necesario retirar la repatriación asociada.
+            </div>
+          {% elif queryBeneficiario %}
             <table class="table table-sm">
                 <tr>
                     <th>Nombre</th>
@@ -61,56 +78,220 @@
                 </tr>
             </table>
           {% endif %}
+
+          <!-- INFORMACION DE COOHOPERATIVITOS -->
           {% if queryCoohop %}
             <table class="table table-xl">
                 <tr>
                     <th>Nombre</th>
                     <th>Número Documento</th>
                     <th>Valor</th>
+                    <th>Primer Mes Cobro</th>
                 </tr>
                 <tr>
                     <td>{{queryCoohop.nombre}} {{queryCoohop.apellido}}</td>
                     <td>{{queryCoohop.numDocumento|intcomma}}</td>
                     <td>${{tarifaCooh.total_valor|intcomma}}</td>
+                    <td>{{queryCoohop.primerMes}}</td>
                 </tr>
             </table>
           {% endif %}
+
+          <!-- INFORMACION DE REPATRIACION TITULAR -->
           {% if queryRepatriacionTitular %}
             <table class="table table-sm">
                 <tr>
                     <th>Fecha Ingreso</th>
                     <th>Pais Repatriación</th>
                     <th>Ciudad Repatriación</th>
+                    <th>Primer Mes Cobro</th>
                 </tr>
                 <tr>
                     <td>{{queryRepatriacionTitular.fechaRepatriacion|date:'d/m/Y'}}</td>
                     <td>{{queryRepatriacionTitular.paisRepatriacion}}</td>
                     <td>{{queryRepatriacionTitular.ciudadRepatriacion}}</td>
+                    <td>{{queryRepatriacionTitular.primerMes}}</td>
                 </tr>
             </table>
           {% endif %}
-        </div>
-        <div class="modal-footer">
-          {% if queryMascota %}
-            <form action="{% url 'asociado:eliminarMascota' pkAsociado pk %}" method="post">
-            {% csrf_token %}
+
+          <!-- INFORMACION DE SEGURO DE VIDA -->
+          {% if querySeguroVida %}
+            <table class="table table-sm">
+                <tr>
+                    <th>Fecha Ingreso</th>
+                    <th>Valor Seguro Vida</th>
+                    <th>Primer Cobro</th>
+                </tr>
+                <tr>
+                    <td>{{querySeguroVida.fechaIngreso|date:'d/m/Y'}}</td>
+                    <td>${{querySeguroVida.valorPago|intcomma}}</td>
+                    <td>{{querySeguroVida.primerMesSeguroVida.concepto}}</td>
+                </tr>
+            </table>
           {% endif %}
-          {% if queryBeneficiario %}
-            <form action="{% url 'asociado:eliminarBeneficiario' pkAsociado pk %}" method="post">
+          
+          <form 
+              method="post"
+              action="
+              {% if queryMascota %}
+                  {% url 'asociado:eliminarMascota' pkAsociado object.pk %}
+              {% elif queryBeneficiario %}
+                  {% url 'asociado:eliminarBeneficiario' pkAsociado pk %}
+              {% elif queryCoohop %}
+                  {% url 'asociado:eliminarCoohoperativito' pkAsociado queryCoohop.pk %}
+              {% elif queryRepatriacionTitular %}
+                  {% url 'asociado:eliminarRepatriacionTitular' queryRepatriacionTitular.pk pkAsociado %}
+              {% elif querySeguroVida %}
+                  {% url 'asociado:eliminarSeguroVida' pkAsociado querySeguroVida.pk %}
+              {% endif %}
+              "
+          >
             {% csrf_token %}
-          {% endif %}
-          {% if queryCoohop %}
-            <form action="{% url 'asociado:eliminarCoohoperativito' pkAsociado pk %}" method="post">
-            {% csrf_token %}
-          {% endif %}
-          {% if queryRepatriacionTitular %}
-            <form action="{% url 'asociado:eliminarRepatriacionTitular' queryRepatriacionTitular.pk pkAsociado %}" method="post">
-            {% csrf_token %}
-          {% endif %}
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            <button  type="submit" class="btn btn-danger">Eliminar</button>
-          </form>
-          </div>
+
+            {% if queryMascota %}
+                <div class="col-12 mb-3">
+                    {{ form.fechaRetiro.label_tag }}
+                    {{ form.fechaRetiro }}
+                </div>
+                
+                <div class="bloque-anulacion">
+
+                    <div class="col-12 mb-3">
+                        {{ form.ultimoMes.label_tag }}
+                        {{ form.ultimoMes }}
+                    </div>
+
+                    <input type="hidden" class="primerMes" value="{{ form.instance.primerMes.pk }}">
+
+                    <div class="form-check d-none anularContainer">
+                        <input type="checkbox" name="anular" class="form-check-input">
+                        <label class="form-check-label">
+                            ¿Desea anular completamente este registro (sin cobro)?
+                        </label>
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+            {% if querySeguroVida %}
+                <div class="col-12 mb-3">
+                    {{ form.fechaRetiro.label_tag }}
+                    {{ form.fechaRetiro }}
+                </div>
+
+                <div class="bloque-anulacion">
+
+                    <div class="col-12 mb-3">
+                        {{ form.ultimoMesSeguroVida.label_tag }}
+                        {{ form.ultimoMesSeguroVida }}
+                    </div>
+
+                    <input type="hidden" class="primerMes" value="{{ form.instance.primerMesSeguroVida.pk }}">
+
+                    <div class="form-check d-none anularContainer">
+                        <input type="checkbox" name="anular" class="form-check-input">
+                        <label class="form-check-label">
+                            ¿Desea anular completamente este registro (sin cobro)?
+                        </label>
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+            {% if queryCoohop %}
+                <div class="col-12 mb-3">
+                    {{ form.fechaRetiro.label_tag }}
+                    {{ form.fechaRetiro }}
+                </div>
+
+                <div class="bloque-anulacion">
+
+                    <div class="col-12 mb-3">
+                        {{ form.ultimoMes.label_tag }}
+                        {{ form.ultimoMes }}
+                    </div>
+
+                    <input type="hidden" class="primerMes" value="{{ form.instance.primerMes.pk }}">
+
+                    <div class="form-check d-none anularContainer">
+                        <input type="checkbox" name="anular" class="form-check-input">
+                        <label class="form-check-label">
+                            ¿Desea anular completamente este registro (sin cobro)?
+                        </label>
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+            {% if queryRepatriacionTitular %}
+                <div class="col-12 mb-3">
+                    {{ form.fechaRetiro.label_tag }}
+                    {{ form.fechaRetiro }}
+                </div>
+                
+                <div class="bloque-anulacion">
+
+                    <div class="col-12 mb-3">
+                        {{ form.ultimoMes.label_tag }}
+                        {{ form.ultimoMes }}
+                    </div>
+
+                    <input type="hidden" class="primerMes" value="{{ form.instance.primerMes.pk }}">
+
+                    <div class="form-check d-none anularContainer">
+                        <input type="checkbox" name="anular" class="form-check-input">
+                        <label class="form-check-label">
+                            ¿Desea anular completamente este registro (sin cobro)?
+                        </label>
+                    </div>
+
+                </div>
+            {% endif %}
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cerrar
+                </button>
+
+                {% if queryMascota or not queryBeneficiario.repatriacion or queryCoohop or queryRepatriacionTitular %}
+                    <button type="submit" class="btn btn-danger">
+                        Eliminar
+                    </button>
+                {% endif %}
+            </div>
+        </form>
+
       </div>
     </div>
   </div>
+
+  <script>
+    $(document).on('shown.bs.modal', '#eliminacion', function () {
+    console.log("holaa");
+
+    document.querySelectorAll(".bloque-anulacion").forEach(bloque => {
+        
+        const select = bloque.querySelector(".js-ultimo-mes");
+
+        const primerMes = bloque.querySelector(".primerMes");
+        const container = bloque.querySelector(".anularContainer");
+
+        if (!select || !primerMes || !container) return;
+
+        function validar() {
+            if (select.value === primerMes.value) {
+                container.classList.remove("d-none");
+            } else {
+                container.classList.add("d-none");
+            }
+        }
+
+        select.addEventListener("change", validar);
+        validar();
+    });
+});
+  </script>

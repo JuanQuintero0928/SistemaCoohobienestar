@@ -7,13 +7,16 @@
       <h2 class="modal-title fs-5" id="exampleModalLabel"></h2>
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
-    <div class="modal-body">
-      
+    <form action="{% url 'asociado:eliminarConvenio' pkAsociado pk %}" method="post">
+      {% csrf_token %}
+      <div class="modal-body">
+        
         <table class="table table-sm">
             <tr>
                 <th>Fecha Inicio</th>
                 <th>Convenio</th>
                 <th>Valor</th>
+                <th>Primer Cobro</th>
             </tr>
             <tr>
                 <td>{{query.fechaIngreso|date:'d/m/Y'}}</td>
@@ -23,28 +26,78 @@
                 {% else %}
                   <td>${{query.convenio.valor|intcomma}}</td>
                 {% endif %}
+                <td>{{query.primerMes}}</td>
             </tr>
         </table>
+        
+        <div class="col-12 mb-3">
+          {{ form.fechaRetiro.label_tag }}
+          {{ form.fechaRetiro }}
+        </div>
+
+        <div class="bloque-anulacion">
+
+          <div class="col-12 mb-3">
+            {{ form.ultimoMes.label_tag }}
+            {{ form.ultimoMes }}
+          </div>
+
+          <input type="hidden" class="primerMes" value="{{ form.instance.primerMes.pk }}">
+
+          <div class="form-check d-none anularContainer">
+            <input type="checkbox" name="anular" class="form-check-input">
+            <label class="form-check-label">
+                ¿Desea anular completamente este registro (sin cobro)?
+            </label>
+          </div>
+
+          </div>
+        </div>
+            
+        <div class="modal-footer">
       
-    </div>
-    <div class="modal-footer">
-      <form action="{% url 'asociado:eliminarConvenio' pkAsociado pk %}" method="post">
-      {% csrf_token %}
-        <input type="hidden" type="number" name="valor" value="{{query.convenio.valor}}">
-        {% if query.convenio.pk == 4 %}
-          {% if valor == 0 %}
-            <button  type="submit" class="btn btn-danger">Eliminar</a>
+          <input type="hidden" type="number" name="valor" value="{{query.convenio.valor}}">
+          {% if query.convenio.pk == 4 %}
+            {% if valor == 0 %}
+            
+              <button  type="submit" class="btn btn-danger">Eliminar</a>
+            {% else %}
+              <div class="alert alert-warning" role="alert">
+                <strong>Alerta: </strong>
+                <p>No se puede eliminar este convenio, no puede tener valores pendiente por pagar.</p>  
+              </div>            
+            {% endif %}
           {% else %}
-            <div class="alert alert-warning" role="alert">
-              <strong>Alerta: </strong>
-              <p>No se puede eliminar este convenio, no puede tener valores pendiente por pagar.</p>  
-            </div>            
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button  type="submit" class="btn btn-danger">Eliminar</a>
           {% endif %}
-        {% else %}
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-          <button  type="submit" class="btn btn-danger">Eliminar</a>
-        {% endif %}
+        </div>
       </form>
-    </div>
   </div>
 </div>
+
+<script>
+    $(document).on('shown.bs.modal', '#eliminacion', function () {
+
+    document.querySelectorAll(".bloque-anulacion").forEach(bloque => {
+        
+        const select = bloque.querySelector(".js-ultimo-mes");
+
+        const primerMes = bloque.querySelector(".primerMes");
+        const container = bloque.querySelector(".anularContainer");
+
+        if (!select || !primerMes || !container) return;
+
+        function validar() {
+            if (select.value === primerMes.value) {
+                container.classList.remove("d-none");
+            } else {
+                container.classList.add("d-none");
+            }
+        }
+
+        select.addEventListener("change", validar);
+        validar();
+    });
+});
+  </script>
