@@ -9,6 +9,11 @@ class tipo_documento_op(models.TextChoices):
     ppt = "PPT", "PPT"
 
 
+class generoOp(models.TextChoices):
+    masculino = "MASCULINO", "MASCULINO"
+    femenino = "FEMENINO", "FEMENINO"
+
+
 class Empleados(models.Model):
     nombre = models.CharField(max_length=30, blank=False, null=False)
     apellido = models.CharField(max_length=30, blank=False, null=False)
@@ -19,14 +24,25 @@ class Empleados(models.Model):
         blank=False,
         null=False,
     )
-    numero_documento = models.CharField(max_length=20, blank=False, null=False, unique=True)
+    numero_documento = models.CharField(
+        max_length=20, blank=False, null=False, unique=True
+    )
     fecha_nacimiento = models.DateField(blank=False, null=False)
     celular = models.CharField(max_length=20, blank=False, null=False)
     correo = models.EmailField(max_length=254, blank=False, null=False)
     direccion = models.CharField(max_length=100, blank=False, null=False)
     departamento = models.CharField(max_length=50, blank=False, null=False)
     municipio = models.CharField(max_length=50, blank=False, null=False)
-    asociado = models.ForeignKey(Asociado, on_delete=models.RESTRICT, blank=True, null=True)
+    asociado = models.ForeignKey(
+        Asociado, on_delete=models.RESTRICT, blank=True, null=True
+    )
+    genero = models.CharField(
+        "Genero",
+        choices=generoOp.choices,
+        default=generoOp.masculino,
+        blank=False,
+        null=False,
+    )
     estado_registro = models.BooleanField(default=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_modificacion = models.DateTimeField(auto_now=True)

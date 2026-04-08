@@ -1,0 +1,108 @@
+{% extends 'index.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+    Empleado
+{% endblock title %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Inicio</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'informacion:informacion' %}">Talento Humano</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'talento_humano:listarEmpleados' %}">Empleados</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Detalle Empleado</li>
+    <li class="breadcrumb-item active" aria-current="page">{{ empleado.nombre }} {{ empleado.apellido }} - {{ empleado.numero_documento }}</li>
+    
+{% endblock breadcrumb %}
+
+{% block contenidoPagina %}
+
+    <div class="modal fade" id="creacion" role="dialog"></div>
+
+    <!-- Scripts de funciones para realizar documentos PDF -->
+    <script src="{% static 'js/formatos.js' %}"></script>       
+    <script src="{% static 'lib/jspdf/1.3.4/jspdf.min.js' %}"></script>
+
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="{% url 'talento_humano:editarEmpleado' empleado.id %}">Información</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="{% url 'talento_humano:empleadolistarHistorialLaboral' empleado.id %}">Historico</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% url 'talento_humano:empleadolistarHistorialLaboral' empleado.id %}">Formatos</a>
+        </li>
+        {% if empleado.asociado %}
+            <li class="nav-item">
+                <a class="nav-link" aria-current="page" href="{% url 'asociado:verAsociado' empleado.asociado.id %}">Asociado Relacionado</a>
+            </li>
+        {% endif %}
+    </ul>
+
+    <div class="container-fluid">
+        <div class="row justify-content-center g-4 mt-3">
+
+            <!-- Card 1 -->
+            <div class="col-12 col-md-6 col-xl-4 col-xxl-3 mb-3">
+                <div class="card card-modern text-center shadow-sm border-0 h-100">
+                    <div class="card-body p-4 d-flex flex-column align-items-center justify-content-between">
+                    <div>
+                        <div class="icon-wrapper bg-danger bg-opacity-10 text-danger mb-3">
+                            CL
+                        </div>
+                        <h5 class="card-title fw-semibold text-dark mb-3">
+                            Certificado Laboral Actual
+                        </h5>
+                    </div>
+                    <button 
+                        class="btn btn-danger rounded-3 px-4 py-2 shadow-sm fw-semibold d-flex align-items-center gap-2" 
+                        onclick="llamarPDF(10,'{% static 'img/Hoja_Membreteada.jpg'%}', {{empleado.pk}}, 'CL', {}, this)">
+                        <i class="bi bi-filetype-pdf fs-5"></i>
+                        Descargar
+                    </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="col-12 col-md-6 col-xl-4 col-xxl-3 mb-3">
+                <div class="card card-modern text-center shadow-sm border-0 h-100">
+                    <div class="card-body p-4 d-flex flex-column align-items-center justify-content-between">
+                    <div>
+                        <div class="icon-wrapper bg-danger bg-opacity-10 text-danger mb-3">
+                            CLH
+                        </div>
+                        <h5 class="card-title fw-semibold text-dark mb-3">
+                            Certificado Laboral Historico
+                        </h5>
+                    </div>
+                    <button 
+                        class="btn btn-danger rounded-3 px-4 py-2 shadow-sm fw-semibold d-flex align-items-center gap-2" 
+                        onclick="llamarPDF(10,'{% static 'img/Hoja_Membreteada.jpg'%}', {{empleado.pk}}, 'CLH', {}, this)">
+                        <i class="bi bi-filetype-pdf fs-5"></i>
+                        Descargar
+                    </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock contenidoPagina %}
+
+{% block extrajs %}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{% static 'js/funcionesFormatos.js' %}"></script>
+
+    <script type="text/javascript">
+
+        var $ = jQuery.noConflict()
+        function abrir_modal_creacion(url){
+            $('#creacion').load(url, function(){
+                $(this).modal('show');
+            });
+        }
+    </script>
+    
+{% endblock extrajs %}

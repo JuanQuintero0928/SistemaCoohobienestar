@@ -143,6 +143,13 @@ async function cargarDatosFormatoCredito(asociadoId, tipoFormato, creditoId) {
     return datos;
 }
 
+// Funcion para obtener la informacion del formato de certificado laboral
+async function cargarDatosCertificadoLaboral(empleadoId, tipoFormato) {
+    const response = await fetch(`/api/obtener_datos_certificado_laboral/${empleadoId}/${tipoFormato}/`);
+    const datos = await response.json();
+    return datos;
+}
+
 
 // Funcion global de los formatos
 async function llamarPDF(formato, url, asociadoId, tipoFormato, opciones = {}, boton = null) {
@@ -194,6 +201,15 @@ async function llamarPDF(formato, url, asociadoId, tipoFormato, opciones = {}, b
         else if (formato == 9) {
             const datos = await cargarDatosFormatoRegistro(asociadoId, tipoFormato);
             await generarPDFRetiroAsociado(url, datos)
+        }
+
+        else if (formato == 10) {
+            const datos = await cargarDatosCertificadoLaboral(asociadoId, tipoFormato);
+            if (tipoFormato == 'CL') {
+                await generarPDFCertificadoLaboral(url, datos)
+            } else {
+                await generarPDFCertificadoLaboralHistorico(url, datos)
+            }
         }
     }
     catch (error) {
@@ -1869,6 +1885,324 @@ async function generarPDFRetiroAsociado(url, datos) {
     pdf.text(datos.email, 195.1, 752);
 
     pdf.save('Formato_Retiro_Asociado.pdf');
+}
+
+
+// Formato 10
+// Formato Certificado Laboral - TIPO FORMATO "CL"
+async function generarPDFCertificadoLaboral(url, datos) {
+    const image = await loadImage(url);
+    const pdf = new jsPDF('p', 'pt', 'letter');
+
+    const pageWidth = pdf.internal.pageSize.width;
+    const pageHeight = pdf.internal.pageSize.height;
+
+    pdf.addImage(image, 'PNG', 0, 0, pageWidth, pageHeight);
+
+    const margenIzq = 70;
+    const margenDer = 70;
+    const anchoTexto = pageWidth - margenIzq - margenDer;
+    const lineHeight = 18;
+
+    // ─── DATOS ─────────────────────────────────────────
+    const nombreCompleto = `${datos.empleado.nombre} ${datos.empleado.apellido}`;
+    const cedula = datos.empleado.documento;
+    const cargo = datos.historial_laboral.cargo__nombre;
+    const tipoContrato = datos.historial_laboral.tipo_contrato__nombre;
+    const modalidad = datos.historial_laboral.modalidad__nombre;
+    const salario1 = formatearMoneda(datos.historial_laboral.salario);
+    const genero = datos.empleado.genero;
+    const fechaInicio = datos.historial_laboral.fecha_inicio;
+    const fechaFin = datos.historial_laboral.fecha_fin;
+
+    const arrFecha = datos.fechaFormateada.split('/');
+    const dia = arrFecha[0];
+    const mes = convertirMes(arrFecha[1]);
+    const año = arrFecha[2];
+
+    // ─── ENCABEZADO ─────────────────────────────────────
+    const titulo_1 = "COOPERATIVA MULTIACTIVA DE HOGARES DE BIENESTAR";
+    const titulo_2 = "COOHOBIENESTAR";
+    const titulo_3 = "NIT. 801.000.102-9";
+    const titulo_4 = "ENTIDAD ADMINISTRADORA DEL RECURSO DEL INSTITUTO COLOMBIANO";
+    const titulo_5 = "DE BIENESTAR FAMILIAR";
+    const titulo_6 = "NIT. 899.999.239-2";
+    const certifica = "CERTIFICA";
+
+    let posY = 121;
+    
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(14);
+
+    // Información Coohobienestar
+    centrarTexto(pdf, titulo_1, posY, pageWidth);
+    centrarTexto(pdf, titulo_2, (posY + lineHeight), pageWidth);
+    centrarTexto(pdf, titulo_3, (posY + (lineHeight * 2)), pageWidth);
+
+    // Información ICBF
+    centrarTexto(pdf, titulo_4, (posY + (lineHeight * 5)), pageWidth);
+    centrarTexto(pdf, titulo_5, (posY + (lineHeight * 6)), pageWidth);
+    centrarTexto(pdf, titulo_6, (posY + (lineHeight * 7)), pageWidth);
+
+    // Título del certificado
+    centrarTexto(pdf, certifica, (posY + (lineHeight * 10)), pageWidth);
+
+    // ─── PÁRRAFO ────────────────────────────────────────
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(12);
+
+    posY = posY + (lineHeight * 13);
+
+    const generoTexto = genero === "MASCULINO" ? "identificado" : "identificada";
+
+    const parrafo =
+        `${nombreCompleto}, ${generoTexto} con C.C No. ${cedula}, pertenece al programa nacional del ICBF ` +
+        `en la Modalidad ${modalidad}, en la estrategia Cero a Siempre ` +
+        `a través de Coohobienestar, desempeñándose en el cargo de ${cargo}, bajo contratación formal por ${tipoContrato}, ` +
+        `devengando un salario de $ ${salario1}, en el periodo:`;
+
+    const lineas = pdf.splitTextToSize(parrafo, anchoTexto);
+
+    lineas.forEach(linea => {
+        pdf.text(linea, margenIzq, posY, { maxWidth: anchoTexto });
+        posY += lineHeight;
+    });
+
+    // ─── FECHAS ─────────────────────────────────────────
+    posY += lineHeight * 2;
+
+    const fechaTexto = fechaFin
+        ? `Desde el ${fechaInicio} hasta el ${fechaFin}.`
+        : `Desde el ${fechaInicio} hasta la fecha.`;
+
+    pdf.text("•  " +fechaTexto, (margenIzq + 20), posY);
+
+    // ─── PIE ────────────────────────────────────────────
+    posY = pageHeight - (lineHeight * 10);
+
+    const pie = `La presente se expide en Armenia (Q), a los ${dia} días del mes de ${mes} de ${año}.`;
+
+    const lineasPie = pdf.splitTextToSize(pie, anchoTexto);
+
+    lineasPie.forEach(linea => {
+        pdf.text(linea, margenIzq, posY);
+        posY += lineHeight;
+    });
+
+    // ─── FIRMA ─────────────────────────────────────────
+    const firmaY = pageHeight - (lineHeight * 6);
+
+    const firmaImg = await loadImage('/static/img/firma_th.png');
+    const firmaWidth = 120;
+    const firmaHeight = 50;
+
+    const firmaX = margenIzq;
+    
+    pdf.addImage(firmaImg, 'PNG', firmaX, firmaY - firmaHeight, firmaWidth, firmaHeight);
+    
+
+    pdf.setFont("helvetica", "bold");
+
+    pdf.text("Estefania Calderon Quintero", margenIzq, firmaY);
+
+    pdf.setFont("helvetica", "normal");
+    pdf.text("Área de Talento Humano", margenIzq, firmaY + 16);
+    pdf.text("Coohobienestar", margenIzq, firmaY + 32);
+
+    pdf.save("certificado_laboral.pdf");
+
+}
+
+
+// Formato 10
+// Formato Certificado Laboral Historial - TIPO FORMATO "CLH"
+async function generarPDFCertificadoLaboralHistorico(url, datos) {
+    const image = await loadImage(url);
+    const pdf = new jsPDF('p', 'pt', 'letter');
+
+    const pageWidth = pdf.internal.pageSize.width;
+    const pageHeight = pdf.internal.pageSize.height;
+
+    pdf.addImage(image, 'PNG', 0, 0, pageWidth, pageHeight);
+
+    const margenIzq = 70;
+    const margenDer = 70;
+    const anchoTexto = pageWidth - margenIzq - margenDer;
+    const lineHeight = 18;
+    const lineHeightTabla = 14;
+
+    // ─── DATOS ─────────────────────────────────────────
+    const nombreCompleto = `${datos.empleado.nombre} ${datos.empleado.apellido}`;
+    const cedula = datos.empleado.documento;
+    const genero = datos.empleado.genero;
+    const historial = datos.historial_laboral;
+
+    const arrFecha = datos.fechaFormateada.split('/');
+    const dia = arrFecha[0];
+    const mes = convertirMes(arrFecha[1]);
+    const año = arrFecha[2];
+
+    // Mapeo de género para tratamiento e identificación
+    const generoMap = {
+        "MASCULINO": {
+            tratamiento: "El señor",
+            identificado: "identificado"
+        },
+        "FEMENINO": {
+            tratamiento: "La señora",
+            identificado: "identificada"
+        }
+    };
+
+    // ─── ENCABEZADO ─────────────────────────────────────
+    const titulo_1 = "COOPERATIVA MULTIACTIVA DE HOGARES DE BIENESTAR";
+    const titulo_2 = "COOHOBIENESTAR";
+    const titulo_3 = "NIT. 801.000.102-9";
+    const certifica = "CERTIFICA";
+
+    let posY = 121;
+    
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(14);
+
+    // Información Coohobienestar
+    centrarTexto(pdf, titulo_1, posY, pageWidth);
+    centrarTexto(pdf, titulo_2, (posY + lineHeight), pageWidth);
+    centrarTexto(pdf, titulo_3, (posY + (lineHeight * 2)), pageWidth);
+
+    // Título del certificado
+    centrarTexto(pdf, certifica, (posY + (lineHeight * 5)), pageWidth);
+
+    // ─── PÁRRAFO ────────────────────────────────────────
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(12);
+
+    posY = posY + (lineHeight * 7);
+
+    const generoData = generoMap[genero] || genero["MASCULINO"]; // fallback
+
+    const parrafo =
+        `${generoData.tratamiento} ${nombreCompleto}, ${generoData.identificado} con C.C No. ${cedula}, laboró con la empresa con el siguiente historial ` +
+        `de contratos: `;
+
+    const lineas = pdf.splitTextToSize(parrafo, anchoTexto);
+
+    lineas.forEach(linea => {
+        pdf.text(linea, margenIzq, posY, { maxWidth: anchoTexto });
+        posY += lineHeight;
+    });
+
+    // ─── HISTORIAL LABORAL ─────────────────────────────────────────
+    posY += lineHeight * 2;
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(9);
+
+    // ENCABEZADOS DE TABLA
+    pdf.text("Fecha Ingreso", 50, posY);
+    pdf.text("Fecha Salida", 120, posY);
+    pdf.text("Cargo", 190, posY);
+    pdf.text("Salario", 310, posY);
+    pdf.text("Tipo Contrato", 370, posY);
+    pdf.text("Modalidad", 460, posY);
+
+    posY += lineHeight;
+
+    pdf.setFont("helvetica", "normal");
+
+    const num_registros_historial = historial.length || [];
+    let registrosProcesados = 0;
+
+    // FILAS DE HISTORIAL
+    historial.forEach(item => {
+        const cargoLineas = pdf.splitTextToSize(item.cargo__nombre || "", 110);
+        const tipoContratoLineas = pdf.splitTextToSize(item.tipo_contrato__nombre || "", 120);
+        const modalidadLineas = pdf.splitTextToSize(item.modalidad__nombre || "", 120);
+
+        const maxLineas = Math.max(cargoLineas.length, tipoContratoLineas.length);
+
+        for (let i = 0; i < maxLineas; i++) {
+
+            // SOLO en la primera línea
+            if (i === 0) {
+                pdf.text(item.fecha_inicio || "", 50, posY);
+                pdf.text(item.fecha_fin || "", 120, posY);
+                pdf.text(formatearMoneda(item.salario), 310, posY);
+            }
+
+            if (cargoLineas[i]) {
+                pdf.text(cargoLineas[i], 190, posY);
+            }
+
+            if (tipoContratoLineas[i]) {
+                pdf.text(tipoContratoLineas[i], 370, posY);
+            }
+
+            if (modalidadLineas[i]) {
+                pdf.text(modalidadLineas[i], 460, posY);
+            }
+
+            posY += lineHeightTabla;
+        }
+        
+        registrosProcesados++;
+        // espacio entre registros
+        posY += 4;
+
+        // salto de página
+        if (posY > 600) {
+            pdf.addPage();
+            pdf.addImage(image, 'PNG', 0, 0, pageWidth, pageHeight);
+            posY = 121; // reiniciar posición Y para nueva página
+            if (registrosProcesados < num_registros_historial) {
+
+                pdf.setFont("helvetica", "bold");
+
+                // ENCABEZADOS DE TABLA
+                pdf.text("Fecha Ingreso", 60, posY);
+                pdf.text("Fecha Salida", 140, posY);
+                pdf.text("Cargo", 210, posY);
+                pdf.text("Salario", 330, posY);
+                pdf.text("Tipo Contrato", 390, posY);
+                pdf.text("Modalidad", 460, posY);
+                
+                posY += lineHeight;
+                pdf.setFont("helvetica", "normal");
+            }
+        }
+    });
+
+    // ─── PIE ────────────────────────────────────────────
+    pdf.setFontSize(12);
+    posY = pageHeight - (lineHeight * 10);
+
+    const pie = `La presente se expide en Armenia (Q), a los ${dia} días del mes de ${mes} de ${año}.`;
+
+    const lineasPie = pdf.splitTextToSize(pie, anchoTexto);
+
+    lineasPie.forEach(linea => {
+        pdf.text(linea, margenIzq, posY);
+        posY += lineHeight;
+    });
+
+    // ─── FIRMA ─────────────────────────────────────────
+    const firmaY = pageHeight - (lineHeight * 6);
+    
+    const firmaImg = await loadImage('/static/img/firma_th.png');
+    const firmaWidth = 120;
+    const firmaHeight = 50;
+
+    const firmaX = margenIzq;
+    
+    pdf.addImage(firmaImg, 'PNG', firmaX, firmaY - firmaHeight, firmaWidth, firmaHeight);
+
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Estefania Calderon Quintero", margenIzq, firmaY);
+
+    pdf.setFont("helvetica", "normal");
+    pdf.text("Área de Talento Humano", margenIzq, firmaY + 16);
+    pdf.text("Coohobienestar", margenIzq, firmaY + 32);
+
+    pdf.save("certificado_laboral_historico.pdf");
 }
 
 

@@ -48,6 +48,9 @@
             <li class="nav-item">
                 <a class="nav-link" aria-current="page" href="{% url 'talento_humano:empleadolistarHistorialLaboral' empleado.id %}">Historico</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" aria-current="page" href="{% url 'talento_humano:formatosEmpleado' empleado.id %}">Formatos</a>
+            </li>
             {% if empleado.asociado %}
                 <li class="nav-item">
                     <a class="nav-link" aria-current="page" href="{% url 'asociado:verAsociado' empleado.asociado.id %}">Asociado Relacionado</a>
@@ -97,17 +100,22 @@
                         {{ form.fecha_nacimiento.label_tag }}
                         {{ form.fecha_nacimiento }} 
                     </div>
-                
+
+                    <div class="col-12 col-md-6 col-lg-4 mb-3">
+                        {{ form.genero.label_tag }}
+                        {{ form.genero }} 
+                    </div>
+
                     <div class="col-12 col-md-6 col-lg-4 mb-3">
                         {{ form.celular.label_tag }}
                         {{ form.celular }} 
                     </div>
-                    <div class="col-12 col-lg-4 mb-3">
+                    <div class="col-12 col-md-6 mb-3">
                         {{ form.correo.label_tag }}
                         {{ form.correo }} 
                     </div>
                 
-                    <div class="col-12 mb-3">
+                    <div class="col-12 col-lg-6 mb-3">
                         {{ form.direccion.label_tag }}
                         {{ form.direccion }} 
                     </div>
@@ -167,6 +175,7 @@
                             document.getElementById('id_celular').value = data.celular;
                             document.getElementById('id_correo').value = data.correo;
                             document.getElementById('id_direccion').value = data.direccion;
+                            document.getElementById('id_genero').value = data.genero || '';
                             document.getElementById('id_fecha_nacimiento').value = data.fecha_nacimiento || '';
                             document.getElementById('id_municipio').value = data.municipio || '';
                             document.getElementById('id_departamento').value = data.departamento || '';

@@ -221,3 +221,10 @@ function formatearFecha(fecha) {
     const [y, m, d] = fecha.split("-");
     return `${d}/${m}/${y}`;
 }
+
+
+function centrarTexto(pdf, texto, y, pageWidth) {
+    const textWidth = pdf.getTextWidth(texto);
+    const x = (pageWidth - textWidth) / 2;
+    pdf.text(texto, x, y);
+}

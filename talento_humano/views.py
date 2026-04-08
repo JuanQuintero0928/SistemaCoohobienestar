@@ -12,6 +12,7 @@ from django.views.generic import (
     ListView,
     DeleteView,
     TemplateView,
+    DetailView,
 )
 from django.http import JsonResponse
 
@@ -434,9 +435,17 @@ def buscar_persona_por_documento(request):
             'celular': persona.numCelular,
             'correo': persona.email,
             'direccion': persona.direccion,
+            'genero': persona.genero,
             'fecha_nacimiento': persona.fechaNacimiento.strftime('%Y-%m-%d') if persona.fechaNacimiento else '',
             'municipio': persona.mpioResidencia.nombre if persona.mpioResidencia else '',
             'departamento': persona.deptoResidencia.nombre if persona.deptoResidencia else '',
         })
     except Asociado.DoesNotExist:
         return JsonResponse({'existe': False})
+
+
+class FormatosEmpleadoDetailView(LoginRequiredMixin, StaffRequiredMixin, DetailView):
+    model = Empleados
+    template_name = "talento_humano/formatos_empleado.html"
+    context_object_name = "empleado"
+    pk_url_kwarg = "pk"

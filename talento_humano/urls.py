@@ -31,4 +31,6 @@ urlpatterns = [
 
     path('ajax/buscar-documento/', login_required(buscar_persona_por_documento), name='validar_documento'),
 
+    path('formatos-empleado/<int:pk>/', login_required(FormatosEmpleadoDetailView.as_view()), name='formatosEmpleado'),
+
 ]

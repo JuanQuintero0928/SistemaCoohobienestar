@@ -16,6 +16,7 @@ class EmpleadoForm(forms.ModelForm):
             "direccion",
             "departamento",
             "municipio",
+            "genero",
             "asociado"
         ]
         widgets = {
@@ -67,6 +68,7 @@ class EmpleadoForm(forms.ModelForm):
                     "style": "text-transform: uppercase;",
                 }
             ),
+            "genero": forms.Select(attrs={"class": "form-control"}),
             "asociado": forms.HiddenInput()
         }
 
