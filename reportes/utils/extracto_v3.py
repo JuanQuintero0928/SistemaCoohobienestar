@@ -1,8 +1,8 @@
 from datetime import timedelta
 from django.db.models import Subquery, Sum, Max, Count, Q
 from typing import Dict, List, Tuple, Optional
-from beneficiario.models import Beneficiario, Mascota, Coohoperativitos
-from historico.models import HistorialPagos, HistoricoCredito, HistoricoSeguroVida
+from beneficiario.models import Mascota, Beneficiario
+from historico.models import HistorialPagos
 from asociado.models import (
     ConveniosAsociado,
     ParametroAsociado,
@@ -10,14 +10,15 @@ from asociado.models import (
     ConvenioHistoricoGasolina,
     RepatriacionTitular,
 )
-from parametro.models import MesTarifa, Tarifas
+from beneficiario.models import Beneficiario, Mascota
+from historico.models import HistorialPagos, HistoricoCredito, HistoricoSeguroVida
+from parametro.models import MesTarifa
 from ventas.models import HistoricoVenta
 
 
 """
 Refactorización del sistema de extractos financieros
-Versión 2.1 - Con soporte para anulado y ultimoMes en mascotas, repatriaciones,
-              seguro de vida y convenios. Corrección de pago_total con cuotas adelantadas.
+Versión 2.0 - Con soporte para primerMes en mascotas, repatriaciones y convenio gasolina
 """
 from django.db.models import Sum, Count, Q, Max
 from datetime import timedelta
@@ -377,70 +378,35 @@ class ConsultaConveniosService:
     @staticmethod
     def obtener_convenios_activos_separados(id_asociado: int, mes_pk: int) -> Tuple[List, bool]:
         """
-        Obtiene convenios activos en el mes indicado (para mostrar en extracto).
-        Respeta los campos anulado y ultimoMes.
-
+        Obtiene convenios activos separando gasolina de los demás
+        
         Returns:
             Tuple[convenios_normales, tiene_gasolina]
         """
         convenios_todos = ConveniosAsociado.objects.select_related("convenio").filter(
             asociado=id_asociado,
-            anulado=False,
-            primerMes__pk__lte=mes_pk
-        ).filter(
-            Q(ultimoMes__pk__gte=mes_pk) | Q(ultimoMes__isnull=True)
-        ).filter(
-            Q(estadoRegistro=True) | Q(ultimoMes__isnull=False)
+            estadoRegistro=True,
+            primerMes__lte=mes_pk
         )
-
+        
         convenios_normales = []
         tiene_gasolina = False
-
+        
         for conv in convenios_todos:
             if conv.convenio.id == CONVENIO_GASOLINA_ID:
                 tiene_gasolina = True
             else:
                 convenios_normales.append(conv)
-
+        
         return convenios_normales, tiene_gasolina
-
-    @staticmethod
-    def obtener_todos_convenios_para_calculo(id_asociado: int) -> Tuple[List, bool]:
-        """
-        Obtiene TODOS los convenios no anulados (para cálculo histórico).
-        Incluye los ya retirados para acumular deuda de meses anteriores.
-        """
-        convenios_todos = ConveniosAsociado.objects.select_related("convenio").filter(
-            asociado=id_asociado,
-            anulado=False,
-            primerMes__isnull=False
-        ).filter(
-            Q(estadoRegistro=True) | Q(ultimoMes__isnull=False)
-        )
-
-        convenios_normales = []
-        tiene_gasolina = False
-
-        for conv in convenios_todos:
-            if conv.convenio.id == CONVENIO_GASOLINA_ID:
-                tiene_gasolina = True
-            else:
-                convenios_normales.append(conv)
-
-        return convenios_normales, tiene_gasolina
-
+    
     @staticmethod
     def calcular_meses_pendientes_convenio(convenio, mes_fin_pk: int, meses_pagados: List[int]) -> int:
-        """Calcula cuántos meses debe un convenio específico, respetando ultimoMes"""
-        fin_convenio_pk = (
-            min(convenio.ultimoMes.pk, mes_fin_pk)
-            if convenio.ultimoMes
-            else mes_fin_pk
-        )
+        """Calcula cuántos meses debe un convenio específico"""
         meses_faltantes = (
             MesTarifa.objects.exclude(pk__in=meses_pagados)
             .exclude(pk__in=CODIGOS_ESPECIALES)
-            .filter(pk__gte=convenio.primerMes.pk, pk__lte=fin_convenio_pk)
+            .filter(pk__gte=convenio.primerMes.pk, pk__lte=mes_fin_pk)
         )
         return meses_faltantes.count()
     
@@ -459,170 +425,35 @@ class ConsultaBeneficiariosService:
     
     @staticmethod
     def obtener_beneficiarios_activos(id_asociado: int):
-        """
-        Obtiene beneficiarios activos del asociado.
-        estadoRegistro=True indica que el beneficiario está activo.
-        El cobro de repatriación se controla por separado con anulado/ultimoMes.
-        """
+        """Obtiene beneficiarios activos con información de repatriación"""
         return Beneficiario.objects.filter(
+            asociado=id_asociado, 
+            estadoRegistro=True
+        ).select_related("parentesco", "paisRepatriacion", "primerMesRepatriacion")
+    
+    @staticmethod
+    def obtener_mascotas_activas(id_asociado: int):
+        """Obtiene mascotas activas"""
+        return Mascota.objects.filter(
+            asociado=id_asociado, 
+            estadoRegistro=True
+        ).select_related("primerMes")
+    
+    @staticmethod
+    def obtener_repatriacion_titular(id_asociado: int):
+        """Obtiene la repatriación del titular si existe"""
+        return RepatriacionTitular.objects.filter(
             asociado=id_asociado,
             estadoRegistro=True
-        ).select_related(
-            "parentesco", "paisRepatriacion",
-            "primerMesRepatriacion", "ultimoMesRepatriacion"
-        )
-
-    @staticmethod
-    def obtener_beneficiarios_con_repatriacion_activa(id_asociado: int, mes_pk: int):
-        """
-        Obtiene beneficiarios con repatriación activa en el mes indicado (para mostrar).
-        """
-        return Beneficiario.objects.filter(
-            asociado=id_asociado,
-            anulado=False,
-            primerMesRepatriacion__pk__lte=mes_pk
-        ).filter(
-            Q(ultimoMesRepatriacion__pk__gte=mes_pk) | Q(ultimoMesRepatriacion__isnull=True)
-        ).filter(
-            Q(repatriacion=True) | Q(ultimoMesRepatriacion__isnull=False)
-        ).select_related(
-            "parentesco", "paisRepatriacion",
-            "primerMesRepatriacion", "ultimoMesRepatriacion"
-        )
-
-    @staticmethod
-    def obtener_todos_beneficiarios_repatriacion_para_calculo(id_asociado: int):
-        """
-        Obtiene TODOS los beneficiarios que alguna vez tuvieron repatriación (para cálculo histórico).
-        Incluye los ya retirados para calcular lo adeudado en meses anteriores.
-        """
-        return Beneficiario.objects.filter(
-            asociado=id_asociado,
-            anulado=False,
-            primerMesRepatriacion__isnull=False
-        ).filter(
-            Q(repatriacion=True) | Q(ultimoMesRepatriacion__isnull=False)
-        ).select_related(
-            "parentesco", "paisRepatriacion",
-            "primerMesRepatriacion", "ultimoMesRepatriacion"
-        )
+        ).select_related("primerMes", "paisRepatriacion").first()
     
     @staticmethod
-    def obtener_mascotas_activas(id_asociado: int, mes_pk: int):
-        """
-        Obtiene mascotas activas en el mes indicado (para mostrar en extracto).
-        Solo retorna las vigentes en ese mes específico.
-        """
-        return Mascota.objects.filter(
-            asociado=id_asociado,
-            anulado=False,
-            primerMes__pk__lte=mes_pk
-        ).filter(
-            Q(ultimoMes__pk__gte=mes_pk) | Q(ultimoMes__isnull=True)
-        ).filter(
-            Q(estadoRegistro=True) | Q(ultimoMes__isnull=False)
-        ).select_related("primerMes", "ultimoMes")
-
-    @staticmethod
-    def obtener_todas_mascotas_para_calculo(id_asociado: int):
-        """
-        Obtiene TODAS las mascotas no anuladas del asociado (para cálculo de saldos históricos).
-        Incluye las ya retiradas (ultimoMes definido) para poder calcular
-        lo que se debe de meses anteriores aunque ya no estén activas.
-        """
-        return Mascota.objects.filter(
-            asociado=id_asociado,
-            anulado=False,
-            primerMes__isnull=False
-        ).filter(
-            Q(estadoRegistro=True) | Q(ultimoMes__isnull=False)
-        ).select_related("primerMes", "ultimoMes")
-    
-    @staticmethod
-    def obtener_repatriacion_titular(id_asociado: int, mes_pk: int):
-        """
-        Obtiene la repatriación del titular activa en el mes indicado (para mostrar).
-        """
-        return RepatriacionTitular.objects.filter(
-            asociado=id_asociado,
-            anulado=False,
-            primerMes__pk__lte=mes_pk
-        ).filter(
-            Q(ultimoMes__pk__gte=mes_pk) | Q(ultimoMes__isnull=True)
-        ).filter(
-            Q(estadoRegistro=True) | Q(ultimoMes__isnull=False)
-        ).select_related("primerMes", "ultimoMes", "paisRepatriacion").first()
-
-    @staticmethod
-    def obtener_repatriacion_titular_para_calculo(id_asociado: int):
-        """
-        Obtiene la repatriación titular más reciente no anulada (para cálculo histórico).
-        Incluye la ya retirada para calcular meses adeudados anteriores.
-        """
-        return RepatriacionTitular.objects.filter(
-            asociado=id_asociado,
-            anulado=False,
-            primerMes__isnull=False
-        ).filter(
-            Q(estadoRegistro=True) | Q(ultimoMes__isnull=False)
-        ).select_related("primerMes", "ultimoMes", "paisRepatriacion").first()
-
-    @staticmethod
-    def obtener_seguro_vida_activo(id_asociado: int, mes_pk: int):
-        """
-        Obtiene el seguro de vida activo en el mes indicado (para mostrar).
-        """
+    def obtener_seguro_vida_activo(id_asociado: int):
+        """Obtiene el seguro de vida activo del asociado si existe"""
         return HistoricoSeguroVida.objects.filter(
             asociado=id_asociado,
-            anulado=False,
-            primerMesSeguroVida__pk__lte=mes_pk
-        ).filter(
-            Q(ultimoMesSeguroVida__pk__gte=mes_pk) | Q(ultimoMesSeguroVida__isnull=True)
-        ).filter(
-            Q(estadoRegistro=True) | Q(ultimoMesSeguroVida__isnull=False)
-        ).select_related("primerMesSeguroVida", "ultimoMesSeguroVida").first()
-
-    @staticmethod
-    def obtener_seguro_vida_para_calculo(id_asociado: int):
-        """
-        Obtiene el seguro de vida más reciente no anulado (para cálculo histórico).
-        Incluye el ya retirado para calcular meses adeudados anteriores.
-        """
-        return HistoricoSeguroVida.objects.filter(
-            asociado=id_asociado,
-            anulado=False,
-            primerMesSeguroVida__isnull=False
-        ).filter(
-            Q(estadoRegistro=True) | Q(ultimoMesSeguroVida__isnull=False)
-        ).select_related("primerMesSeguroVida", "ultimoMesSeguroVida").first()
-
-    @staticmethod
-    def obtener_coohop_activo(id_asociado: int, mes_pk: int):
-        """
-        Obtiene registros de Coohoperativitos activos en el mes indicado (para mostrar).
-        """
-        return Coohoperativitos.objects.filter(
-            asociado=id_asociado,
-            anulado=False,
-            primerMes__pk__lte=mes_pk
-        ).filter(
-            Q(ultimoMes__pk__gte=mes_pk) | Q(ultimoMes__isnull=True)
-        ).filter(
-            Q(estadoRegistro=True) | Q(ultimoMes__isnull=False)
-        ).select_related("primerMes", "ultimoMes")
-
-    @staticmethod
-    def obtener_coohop_para_calculo(id_asociado: int):
-        """
-        Obtiene TODOS los registros Coohoperativitos no anulados (para cálculo histórico).
-        """
-        return Coohoperativitos.objects.filter(
-            asociado=id_asociado,
-            anulado=False,
-            primerMes__isnull=False
-        ).filter(
-            Q(estadoRegistro=True) | Q(ultimoMes__isnull=False)
-        ).select_related("primerMes", "ultimoMes")
+            estadoRegistro=True
+        ).select_related("primerMesSeguroVida").first()
 
 
 # ============================================================================
@@ -638,15 +469,11 @@ class CalculadoraCuotasService:
     
     @staticmethod
     def calcular_cuota_coohop(tarifa_asociado) -> int:
-        """Calcula la cuota mensual de Coohoperativitos usando valores globales de Tarifas"""
-        try:
-            tarifas_bulk = Tarifas.objects.in_bulk(field_name="id")
-            return tarifas_bulk[6].valor + tarifas_bulk[5].valor
-        except Exception:
-            return (
-                (tarifa_asociado.cuotaCoohopAporte or 0) +
-                (tarifa_asociado.cuotaCoohopBsocial or 0)
-            )
+        """Calcula la cuota de Coohoperativitos"""
+        return (
+            (tarifa_asociado.cuotaCoohopAporte or 0) + 
+            (tarifa_asociado.cuotaCoohopBsocial or 0)
+        )
     
     @staticmethod
     def calcular_cuotas_vencidas_y_total(meses_faltantes, incluir_saldos: bool) -> Tuple[int, int]:
@@ -700,9 +527,8 @@ class CalculadoraCuotasService:
             Tuple[valor_vencido_mascotas, cantidad_cuotas_totales]
         """
         if not incluir_saldos:
-            # Sin saldos: las mascotas ya vienen filtradas por mes_pk desde la consulta
-            cantidad = mascotas.count() if hasattr(mascotas, 'count') else len(mascotas)
-            return cantidad * valor_unitario, cantidad
+            # Sin saldos: solo cuenta las mascotas activas en el mes actual
+            return len(mascotas) * valor_unitario, len(mascotas) if mascotas else 0
         
         # Obtener todos los meses pendientes
         meses_pendientes = MesTarifa.objects.exclude(pk__in=meses_pagados).exclude(
@@ -723,12 +549,11 @@ class CalculadoraCuotasService:
             mascotas_activas_este_mes = 0
             
             for mascota in mascotas:
-                # Verificar si la mascota estaba activa en este mes (primerMes <= mes <= ultimoMes)
+                # Verificar si la mascota ya estaba activa en este mes
                 primer_mes_pk = mascota.primerMes.pk if mascota.primerMes else mes_actual_pk
-                ultimo_mes_pk = mascota.ultimoMes.pk if mascota.ultimoMes else float('inf')
                 primer_mes_nombre = mascota.primerMes.concepto if mascota.primerMes else "N/A"
                 
-                if primer_mes_pk <= mes.pk <= ultimo_mes_pk:
+                if mes.pk >= primer_mes_pk:
                     mascotas_activas_este_mes += 1
                     print(f"  {mascota.nombre}: activa desde {primer_mes_nombre} (pk={primer_mes_pk})")
             
@@ -756,8 +581,8 @@ class CalculadoraCuotasService:
             Tuple[valor_beneficiarios, valor_titular, cuotas_totales]
         """
         if not incluir_saldos:
-            # Sin saldos: beneficiarios ya viene filtrado con repatriación activa para el mes_pk
-            count_benef = beneficiarios.count() if hasattr(beneficiarios, 'count') else len(beneficiarios)
+            # Sin saldos: contar solo las activas
+            count_benef = sum(1 for b in beneficiarios if b.repatriacion)
             count_titular = 1 if repatriacion_titular else 0
             return count_benef * valor_unitario, count_titular * valor_unitario, count_benef + count_titular
         
@@ -774,50 +599,43 @@ class CalculadoraCuotasService:
         # Calcular mes por mes
         for mes in meses_pendientes:
             # Contar beneficiarios con repatriación activa en este mes
-            # (beneficiarios ya viene filtrado con repatriacion=True, anulado=False y rango de meses)
             benef_activos_este_mes = 0
             for beneficiario in beneficiarios:
-                primer_mes_pk = (beneficiario.primerMesRepatriacion.pk
-                               if beneficiario.primerMesRepatriacion
+                if not beneficiario.repatriacion:
+                    continue
+                
+                primer_mes_pk = (beneficiario.primerMesRepatriacion.pk 
+                               if beneficiario.primerMesRepatriacion 
                                else mes_actual_pk)
-                ultimo_mes_pk = (beneficiario.ultimoMesRepatriacion.pk
-                               if beneficiario.ultimoMesRepatriacion
-                               else float('inf'))
-
-                if primer_mes_pk <= mes.pk <= ultimo_mes_pk:
+                
+                if mes.pk >= primer_mes_pk:
                     benef_activos_este_mes += 1
-
+            
+            # Sumar el costo de beneficiarios activos en este mes
             if benef_activos_este_mes > 0:
                 valor_beneficiarios += benef_activos_este_mes * valor_unitario
                 cuotas_benef += benef_activos_este_mes
-
+            
             # Verificar si repatriación titular estaba activa en este mes
             if repatriacion_titular:
-                primer_mes_pk = (repatriacion_titular.primerMes.pk
-                               if repatriacion_titular.primerMes
+                primer_mes_pk = (repatriacion_titular.primerMes.pk 
+                               if repatriacion_titular.primerMes 
                                else mes_actual_pk)
-                ultimo_mes_pk = (repatriacion_titular.ultimoMes.pk
-                               if repatriacion_titular.ultimoMes
-                               else float('inf'))
-
-                if primer_mes_pk <= mes.pk <= ultimo_mes_pk:
+                
+                if mes.pk >= primer_mes_pk:
                     valor_titular += valor_unitario
                     cuotas_titular += 1
         
         return valor_beneficiarios, valor_titular, cuotas_benef + cuotas_titular
     
     @staticmethod
-    def calcular_valores_adicionales(cuotas_vencidas: int, tarifa_asociado,
+    def calcular_valores_adicionales(cuotas_vencidas: int, tarifa_asociado, 
                                      mes_actual_pk: int, meses_pagados: List[int],
-                                     incluir_saldos: bool, seguro_vida_obj=None,
-                                     coohop_registros=None) -> Dict[str, int]:
+                                     incluir_saldos: bool, seguro_vida_obj=None) -> Dict[str, int]:
         """
-        Calcula valores vencidos de seguros, servicios adicionales y coohop.
-        - Seguro de vida: usa HistoricoSeguroVida con primerMes/ultimoMes. Si cuotaSeguroVida
-          está en 0 en tarifa, toma el valor de Tarifas (id según configuración).
-        - Coohop: usa registros de Coohoperativitos con primerMes/ultimoMes y valores
-          globales de Tarifas (id=6 aporte, id=5 bsocial).
-        - Adicionales: usa primerMesCuotaAdicional desde TarifaAsociado.
+        Calcula valores vencidos de seguros, servicios adicionales y coohop
+        - Para cuotaAdicionales considera primerMesCuotaAdicional si existe
+        - Para seguroVida considera primerMesSeguroVida desde HistoricoSeguroVida
         """
         if cuotas_vencidas == 0:
             return {
@@ -825,98 +643,56 @@ class CalculadoraCuotasService:
                 'adicionales': 0,
                 'coohop': 0,
             }
-
-        # ── SEGURO DE VIDA ──────────────────────────────────────────────────
+        
+        # Coohop se calcula normal (por cuotas vencidas)
+        valor_coohop = cuotas_vencidas * (
+            (tarifa_asociado.cuotaCoohopAporte or 0) +
+            (tarifa_asociado.cuotaCoohopBsocial or 0)
+        )
+        
+        # Seguro de vida: calcular considerando primerMesSeguroVida
         valor_seguro_vida = 0
-
-        if seguro_vida_obj:
-            # El valor del seguro viene del propio registro HistoricoSeguroVida.valorPago
-            valor_cuota_seguro = seguro_vida_obj.valorPago or 0
-
+        
+        if tarifa_asociado.cuotaSeguroVida and seguro_vida_obj:
             if not incluir_saldos:
-                valor_seguro_vida = valor_cuota_seguro
+                # Sin saldos: solo el mes actual
+                valor_seguro_vida = tarifa_asociado.cuotaSeguroVida
             elif seguro_vida_obj.primerMesSeguroVida:
-                fin_seguro_pk = (
-                    min(seguro_vida_obj.ultimoMesSeguroVida.pk, mes_actual_pk)
-                    if seguro_vida_obj.ultimoMesSeguroVida
-                    else mes_actual_pk
-                )
+                # Con saldos y primerMes definido: calcular meses desde primerMes
                 meses_seguro = MesTarifa.objects.exclude(pk__in=meses_pagados).exclude(
                     pk__in=CODIGOS_ESPECIALES
                 ).filter(
                     pk__gte=seguro_vida_obj.primerMesSeguroVida.pk,
-                    pk__lte=fin_seguro_pk
+                    pk__lte=mes_actual_pk
                 ).count()
-                valor_seguro_vida = meses_seguro * valor_cuota_seguro
+                valor_seguro_vida = meses_seguro * tarifa_asociado.cuotaSeguroVida
             else:
-                valor_seguro_vida = cuotas_vencidas * valor_cuota_seguro
-
-        # ── COOHOPERATIVITOS ─────────────────────────────────────────────────
-        valor_coohop = 0
-
-        try:
-            tarifas_bulk = Tarifas.objects.in_bulk(field_name="id")
-            VALOR_COOHOP_APORTE = tarifas_bulk[6].valor
-            VALOR_COOHOP_BSOCIAL = tarifas_bulk[5].valor
-            VALOR_COOHOP_UNITARIO = VALOR_COOHOP_APORTE + VALOR_COOHOP_BSOCIAL
-        except Exception:
-            VALOR_COOHOP_UNITARIO = (
-                (tarifa_asociado.cuotaCoohopAporte or 0) +
-                (tarifa_asociado.cuotaCoohopBsocial or 0)
-            )
-
-        if coohop_registros is not None and VALOR_COOHOP_UNITARIO > 0:
-            if not incluir_saldos:
-                # Sin saldos: contar registros activos en el mes (ya filtrados)
-                cantidad = coohop_registros.count() if hasattr(coohop_registros, 'count') else len(coohop_registros)
-                valor_coohop = cantidad * VALOR_COOHOP_UNITARIO
-            else:
-                # Con saldos: calcular mes a mes respetando primerMes/ultimoMes de cada registro
-                meses_pendientes_coohop = MesTarifa.objects.exclude(
-                    pk__in=meses_pagados
-                ).exclude(
-                    pk__in=CODIGOS_ESPECIALES
-                ).filter(pk__lte=mes_actual_pk).order_by('pk')
-
-                for mes in meses_pendientes_coohop:
-                    for coohop in coohop_registros:
-                        primer_pk = coohop.primerMes.pk if coohop.primerMes else mes_actual_pk
-                        ultimo_pk = coohop.ultimoMes.pk if coohop.ultimoMes else float('inf')
-                        if primer_pk <= mes.pk <= ultimo_pk:
-                            valor_coohop += VALOR_COOHOP_UNITARIO
-        elif VALOR_COOHOP_UNITARIO > 0:
-            # Sin registros Coohoperativitos: usar lógica antigua por cuotas vencidas
-            valor_coohop = cuotas_vencidas * VALOR_COOHOP_UNITARIO
-
-        # ── CUOTA ADICIONAL ──────────────────────────────────────────────────
+                # Con saldos pero sin primerMes: usar cuotas vencidas normal
+                valor_seguro_vida = cuotas_vencidas * tarifa_asociado.cuotaSeguroVida
+        elif tarifa_asociado.cuotaSeguroVida:
+            # Si no hay registro en HistoricoSeguroVida, usar lógica antigua
+            valor_seguro_vida = cuotas_vencidas * tarifa_asociado.cuotaSeguroVida
+        
+        # Cuota adicional: calcular considerando primerMesCuotaAdicional
         valor_adicionales = 0
-
-        # Tiene adicional si: hay primerMesCuotaAdicional definido Y no está anulado
-        tiene_adicional = (
-            tarifa_asociado.primerMesCuotaAdicional and
-            not getattr(tarifa_asociado, 'anulado', False) and
-            tarifa_asociado.cuotaAdicionales
-        )
-
-        if tiene_adicional:
-            fin_adicional_pk = (
-                min(tarifa_asociado.ultimoMesCuotaAdicional.pk, mes_actual_pk)
-                if getattr(tarifa_asociado, 'ultimoMesCuotaAdicional', None)
-                else mes_actual_pk
-            )
+        
+        if tarifa_asociado.cuotaAdicionales and tarifa_asociado.estadoAdicional:
             if not incluir_saldos:
-                # Sin saldos: adicional activo si el mes actual está en el rango
-                if tarifa_asociado.primerMesCuotaAdicional.pk <= mes_actual_pk <= fin_adicional_pk:
-                    valor_adicionales = tarifa_asociado.cuotaAdicionales
-            else:
+                # Sin saldos: solo el mes actual
+                valor_adicionales = tarifa_asociado.cuotaAdicionales
+            elif tarifa_asociado.primerMesCuotaAdicional:
+                # Con saldos y primerMes definido: calcular meses desde primerMes
                 meses_adicional = MesTarifa.objects.exclude(pk__in=meses_pagados).exclude(
                     pk__in=CODIGOS_ESPECIALES
                 ).filter(
                     pk__gte=tarifa_asociado.primerMesCuotaAdicional.pk,
-                    pk__lte=fin_adicional_pk
+                    pk__lte=mes_actual_pk
                 ).count()
                 valor_adicionales = meses_adicional * tarifa_asociado.cuotaAdicionales
-
+            else:
+                # Con saldos pero sin primerMes: usar cuotas vencidas normal
+                valor_adicionales = cuotas_vencidas * tarifa_asociado.cuotaAdicionales
+        
         return {
             'seguro_vida': valor_seguro_vida,
             'adicionales': valor_adicionales,
@@ -1066,23 +842,18 @@ class ConstructorConceptosDetalladosService:
         """Agrega conceptos de mascotas (individuales)"""
         for mascota in mascotas:
             primer_mes_pk = mascota.primerMes.pk if mascota.primerMes else mes_pk
-            # Respetar ultimoMes: el cobro no va más allá del mes de retiro
-            fin_mascota_pk = (
-                min(mascota.ultimoMes.pk, mes_pk)
-                if mascota.ultimoMes
-                else mes_pk
-            )
-
+            
             # Calcular cuotas vencidas individuales
             if saldos:
                 meses_vencidos_mascota = MesTarifa.objects.exclude(pk__in=meses_pagados).exclude(
                     pk__in=CODIGOS_ESPECIALES
-                ).filter(pk__gte=primer_mes_pk, pk__lte=fin_mascota_pk).count()
+                ).filter(pk__gte=primer_mes_pk, pk__lte=mes_pk).count()
             else:
-                meses_vencidos_mascota = 1  # Sin saldos: solo el mes actual (mascota ya filtrada por mes_pk)
-
+                meses_vencidos_mascota = 0
+            
             total = meses_vencidos_mascota * valor_unitario if meses_vencidos_mascota > 0 else 0
-
+            
+            # Las mascotas no tienen saldo individual, se incluyen en cuota periódica
             conceptos.append({
                 'concepto': f'MASCOTA - {mascota.nombre}',
                 'cuotas_vencidas': meses_vencidos_mascota,
@@ -1096,30 +867,26 @@ class ConstructorConceptosDetalladosService:
     def agregar_repatriaciones_beneficiarios(conceptos: list, beneficiarios, mes_pk: int,
                                              meses_pagados: list, saldos: bool,
                                              valor_unitario: int):
-        """
-        Agrega conceptos de repatriaciones de beneficiarios (individuales).
-        beneficiarios ya viene filtrado con repatriacion activa para el mes_pk.
-        """
+        """Agrega conceptos de repatriaciones de beneficiarios (individuales)"""
         for beneficiario in beneficiarios:
-            primer_mes_pk = (beneficiario.primerMesRepatriacion.pk
-                            if beneficiario.primerMesRepatriacion
+            if not beneficiario.repatriacion:
+                continue
+            
+            primer_mes_pk = (beneficiario.primerMesRepatriacion.pk 
+                            if beneficiario.primerMesRepatriacion 
                             else mes_pk)
-            # Respetar ultimoMesRepatriacion
-            fin_rep_pk = (
-                min(beneficiario.ultimoMesRepatriacion.pk, mes_pk)
-                if beneficiario.ultimoMesRepatriacion
-                else mes_pk
-            )
-
+            
+            # Calcular cuotas vencidas individuales
             if saldos:
                 meses_vencidos_benef = MesTarifa.objects.exclude(pk__in=meses_pagados).exclude(
                     pk__in=CODIGOS_ESPECIALES
-                ).filter(pk__gte=primer_mes_pk, pk__lte=fin_rep_pk).count()
+                ).filter(pk__gte=primer_mes_pk, pk__lte=mes_pk).count()
             else:
-                meses_vencidos_benef = 1  # Sin saldos: solo el mes actual (beneficiario ya filtrado)
-
+                meses_vencidos_benef = 0
+            
             total = meses_vencidos_benef * valor_unitario if meses_vencidos_benef > 0 else 0
-
+            
+            # Las repatriaciones no tienen saldo individual, se incluyen en cuota periódica
             conceptos.append({
                 'concepto': f'REPATRIACION - {beneficiario.nombre} {beneficiario.apellido}',
                 'cuotas_vencidas': meses_vencidos_benef,
@@ -1135,26 +902,22 @@ class ConstructorConceptosDetalladosService:
         """Agrega concepto de repatriación del titular"""
         if not repatriacion_titular:
             return
-
-        primer_mes_pk = (repatriacion_titular.primerMes.pk
-                        if repatriacion_titular.primerMes
+        
+        primer_mes_pk = (repatriacion_titular.primerMes.pk 
+                        if repatriacion_titular.primerMes 
                         else mes_pk)
-        # Respetar ultimoMes
-        fin_rep_pk = (
-            min(repatriacion_titular.ultimoMes.pk, mes_pk)
-            if repatriacion_titular.ultimoMes
-            else mes_pk
-        )
-
+        
+        # Calcular cuotas vencidas titular
         if saldos:
             meses_vencidos_titular = MesTarifa.objects.exclude(pk__in=meses_pagados).exclude(
                 pk__in=CODIGOS_ESPECIALES
-            ).filter(pk__gte=primer_mes_pk, pk__lte=fin_rep_pk).count()
+            ).filter(pk__gte=primer_mes_pk, pk__lte=mes_pk).count()
         else:
-            meses_vencidos_titular = 1  # Sin saldos: solo el mes actual (titular ya filtrado por mes_pk)
-
+            meses_vencidos_titular = 0
+        
         total = meses_vencidos_titular * valor_unitario if meses_vencidos_titular > 0 else 0
-
+        
+        # La repatriación titular no tiene saldo individual
         conceptos.append({
             'concepto': 'REPATRIACION - TITULAR',
             'cuotas_vencidas': meses_vencidos_titular,
@@ -1308,32 +1071,25 @@ class ConstructorConceptosDetalladosService:
         """Agrega concepto de seguro de vida si está activo"""
         if not seguro_vida:
             return
-
-        # El valor de la cuota viene del propio registro, no de la tarifa del asociado
-        valor_cuota = seguro_vida.valorPago or 0
-
-        # Calcular cuotas vencidas de seguro respetando primerMes y ultimoMes
+        
+        # Calcular cuotas vencidas de seguro
         if saldos and seguro_vida.primerMesSeguroVida and cuotas_vencidas > 0:
-            fin_seguro_pk = (
-                min(seguro_vida.ultimoMesSeguroVida.pk, mes_pk)
-                if seguro_vida.ultimoMesSeguroVida
-                else mes_pk
-            )
             meses_vencidos_seguro = MesTarifa.objects.exclude(pk__in=meses_pagados).exclude(
                 pk__in=CODIGOS_ESPECIALES
             ).filter(
                 pk__gte=seguro_vida.primerMesSeguroVida.pk,
-                pk__lte=fin_seguro_pk
+                pk__lte=mes_pk
             ).count()
         else:
-            meses_vencidos_seguro = 1 if cuotas_vencidas > 0 else 0
-
+            meses_vencidos_seguro = 0
+        
         total = valor_seguro_vida if cuotas_vencidas > 0 else 0
-
+        
+        # El seguro no tiene saldo individual
         conceptos.append({
             'concepto': 'SEGURO VIDA',
             'cuotas_vencidas': meses_vencidos_seguro,
-            'cuota_mes': valor_cuota,
+            'cuota_mes': tarifa_asociado.cuotaSeguroVida or 0,
             'total': total,
             'saldo': 0,
             'total_a_pagar': total
@@ -1343,29 +1099,24 @@ class ConstructorConceptosDetalladosService:
     def agregar_adicionales(conceptos: list, tarifa_asociado, mes_pk: int,
                            meses_pagados: list, saldos: bool, cuotas_vencidas: int,
                            valor_adicionales: int):
-        """Agrega concepto de adicionales si estuvo activo en el mes"""
-        # Mostrar si hay valor calculado (cubre retirados con primerMes/ultimoMes)
-        if not valor_adicionales:
+        """Agrega concepto de adicionales si está activo"""
+        if not (tarifa_asociado.estadoAdicional and tarifa_asociado.cuotaAdicionales):
             return
-
-        fin_adicional_pk = (
-            min(tarifa_asociado.ultimoMesCuotaAdicional.pk, mes_pk)
-            if getattr(tarifa_asociado, 'ultimoMesCuotaAdicional', None)
-            else mes_pk
-        )
-
+        
+        # Calcular cuotas vencidas adicionales
         if saldos and tarifa_asociado.primerMesCuotaAdicional and cuotas_vencidas > 0:
             meses_vencidos_adicional = MesTarifa.objects.exclude(pk__in=meses_pagados).exclude(
                 pk__in=CODIGOS_ESPECIALES
             ).filter(
                 pk__gte=tarifa_asociado.primerMesCuotaAdicional.pk,
-                pk__lte=fin_adicional_pk
+                pk__lte=mes_pk
             ).count()
         else:
-            meses_vencidos_adicional = 1 if cuotas_vencidas > 0 else 0
-
+            meses_vencidos_adicional = 0
+        
         total = valor_adicionales if cuotas_vencidas > 0 else 0
-
+        
+        # Los adicionales no tienen saldo individual
         conceptos.append({
             'concepto': f'ADICIONALES - {tarifa_asociado.conceptoAdicional or ""}',
             'cuotas_vencidas': meses_vencidos_adicional,
@@ -1377,48 +1128,20 @@ class ConstructorConceptosDetalladosService:
     
     @staticmethod
     def agregar_coohop(conceptos: list, cuota_coohop: int, cuotas_vencidas: int,
-                      valor_coohop: int, coohop_registros=None, meses_pagados=None,
-                      mes_pk: int = 0, saldos: bool = False):
-        """Agrega concepto de Coohoperativitos si hay valor a cobrar"""
-        if not (cuota_coohop > 0 or valor_coohop > 0):
-            return
-
-        # cuota_mes siempre desde Tarifas para mostrar el valor real,
-        # aunque cuota_coohop sea 0 (cuando no hay registro activo en el mes actual)
-        try:
-            tarifas_bulk = Tarifas.objects.in_bulk(field_name="id")
-            cuota_mes_display = tarifas_bulk[6].valor + tarifas_bulk[5].valor
-        except Exception:
-            cuota_mes_display = cuota_coohop
-
-        # Calcular cuotas_vencidas propias del coohop respetando primerMes/ultimoMes
-        if saldos and coohop_registros is not None and meses_pagados is not None and mes_pk:
-            cuotas_coohop = 0
-            meses_pendientes = MesTarifa.objects.exclude(
-                pk__in=meses_pagados
-            ).exclude(
-                pk__in=CODIGOS_ESPECIALES
-            ).filter(pk__lte=mes_pk).order_by('pk')
-
-            for mes in meses_pendientes:
-                for coohop in coohop_registros:
-                    primer_pk = coohop.primerMes.pk if coohop.primerMes else mes_pk
-                    ultimo_pk = coohop.ultimoMes.pk if coohop.ultimoMes else float('inf')
-                    if primer_pk <= mes.pk <= ultimo_pk:
-                        cuotas_coohop += 1
-                        break  # un coohop activo en este mes es suficiente para contar el mes
-        else:
-            cuotas_coohop = 1 if valor_coohop > 0 else cuotas_vencidas
-
-        total = valor_coohop if valor_coohop > 0 else 0
-        conceptos.append({
-            'concepto': 'COOHOPERATIVITOS',
-            'cuotas_vencidas': cuotas_coohop,
-            'cuota_mes': cuota_mes_display,
-            'total': total,
-            'saldo': 0,
-            'total_a_pagar': total
-        })
+                      valor_coohop: int):
+        """Agrega concepto de Coohoperativitos si tiene"""
+        if cuota_coohop > 0:
+            total = valor_coohop if cuotas_vencidas > 0 else 0
+            
+            # Coohop no tiene saldo individual
+            conceptos.append({
+                'concepto': 'COOHOPERATIVITOS',
+                'cuotas_vencidas': cuotas_vencidas if cuotas_vencidas > 0 else 0,
+                'cuota_mes': cuota_coohop,
+                'total': total,
+                'saldo': 0,
+                'total_a_pagar': total
+            })
     
     @staticmethod
     def agregar_saldos_finalizados(conceptos: list, desglose_saldos: dict):
@@ -1464,9 +1187,7 @@ class ConstructorConceptosDetalladosService:
         # Estados y configuraciones
         meses_pagados, saldos,
         # Desglose de saldos
-        desglose_saldos,
-        # Registros coohop para calcular cuotas propias
-        coohop_registros=None,
+        desglose_saldos
     ) -> list:
         """
         Construye la lista completa de conceptos detallados en el orden correcto.
@@ -1536,9 +1257,7 @@ class ConstructorConceptosDetalladosService:
         
         # 12. COOHOPERATIVITOS
         ConstructorConceptosDetalladosService.agregar_coohop(
-            conceptos, cuota_coohop, cuotas_vencidas, valores_adicionales['coohop'],
-            coohop_registros=coohop_registros, meses_pagados=meses_pagados,
-            mes_pk=mes.pk, saldos=saldos
+            conceptos, cuota_coohop, cuotas_vencidas, valores_adicionales['coohop']
         )
         
         # 13. SALDOS DE CRÉDITOS/VENTAS FINALIZADOS (si existen)
@@ -1619,61 +1338,47 @@ def obtenerValorExtracto(id_asociado: int, saldos: bool, mes):
         saldo_diferencia = ConsultaPagosService.calcular_saldo_diferencia(id_asociado)
     
     # ========================================================================
-    # OBTENER BENEFICIARIOS, MASCOTAS, REPATRIACIONES Y SEGURO DE VIDA
+    # OBTENER BENEFICIARIOS, MASCOTAS, REPATRIACIONES Y SEGURO DE VIDA (sin cambios)
     # ========================================================================
-
-    # Para MOSTRAR en el extracto: solo activos en el mes actual
+    
     beneficiarios = ConsultaBeneficiariosService.obtener_beneficiarios_activos(id_asociado)
-    beneficiarios_con_repatriacion = ConsultaBeneficiariosService.obtener_beneficiarios_con_repatriacion_activa(id_asociado, mes.pk)
-    mascotas = ConsultaBeneficiariosService.obtener_mascotas_activas(id_asociado, mes.pk)
-    repatriacion_titular = ConsultaBeneficiariosService.obtener_repatriacion_titular(id_asociado, mes.pk)
-    seguro_vida = ConsultaBeneficiariosService.obtener_seguro_vida_activo(id_asociado, mes.pk)
-    coohop_registros = ConsultaBeneficiariosService.obtener_coohop_activo(id_asociado, mes.pk)
-
-    # Para CALCULAR saldos históricos: todos los registros (incluye retirados)
-    # Necesarios para acumular deuda de meses anteriores aunque el servicio ya no esté activo
-    if saldos:
-        mascotas_calculo = ConsultaBeneficiariosService.obtener_todas_mascotas_para_calculo(id_asociado)
-        benef_repatriacion_calculo = ConsultaBeneficiariosService.obtener_todos_beneficiarios_repatriacion_para_calculo(id_asociado)
-        repatriacion_titular_calculo = ConsultaBeneficiariosService.obtener_repatriacion_titular_para_calculo(id_asociado)
-        seguro_vida_calculo = ConsultaBeneficiariosService.obtener_seguro_vida_para_calculo(id_asociado)
-        coohop_calculo = ConsultaBeneficiariosService.obtener_coohop_para_calculo(id_asociado)
-    else:
-        # Sin saldos: solo importa el mes actual
-        mascotas_calculo = mascotas
-        benef_repatriacion_calculo = beneficiarios_con_repatriacion
-        repatriacion_titular_calculo = repatriacion_titular
-        seguro_vida_calculo = seguro_vida
-        coohop_calculo = coohop_registros
+    mascotas = ConsultaBeneficiariosService.obtener_mascotas_activas(id_asociado)
+    repatriacion_titular = ConsultaBeneficiariosService.obtener_repatriacion_titular(id_asociado)
+    seguro_vida = ConsultaBeneficiariosService.obtener_seguro_vida_activo(id_asociado)
     
     # ========================================================================
-    # CALCULAR VALORES DE MASCOTAS Y REPATRIACIONES
+    # CALCULAR VALORES DE MASCOTAS Y REPATRIACIONES (sin cambios)
     # ========================================================================
-
+    
     cantidad_mascotas_actuales = mascotas.count()
-    try:
-        valor_unitario_mascota = Tarifas.objects.get(id=3).valor
-    except Exception:
-        valor_unitario_mascota = tarifa_asociado.cuotaMascota or 5500
-
-    # Calcular con mascotas_calculo (incluye retiradas para acumular deuda histórica)
-    valor_mascotas, cuotas_mascotas = CalculadoraCuotasService.calcular_valores_mascotas(
-        mascotas_calculo, mes.pk, meses_pagados, saldos, valor_unitario_mascota
+    valor_unitario_mascota = (
+        (tarifa_asociado.cuotaMascota or 0) // cantidad_mascotas_actuales 
+        if cantidad_mascotas_actuales > 0 
+        else 5500
     )
-
-    cantidad_repatriaciones_benef_actuales = beneficiarios_con_repatriacion.count()
+    
+    valor_mascotas, cuotas_mascotas = CalculadoraCuotasService.calcular_valores_mascotas(
+        mascotas, mes.pk, meses_pagados, saldos, valor_unitario_mascota
+    )
+    
+    cantidad_repatriaciones_benef_actuales = sum(1 for b in beneficiarios if b.repatriacion)
     cantidad_rep_titular_actual = 1 if repatriacion_titular else 0
     cantidad_total_repatriaciones = cantidad_repatriaciones_benef_actuales + cantidad_rep_titular_actual
-
-    try:
-        valor_unitario_repatriacion = Tarifas.objects.get(id=4).valor
-    except Exception:
-        valor_unitario_repatriacion = 10500
-
-    # Calcular con registros históricos
+    
+    total_repatriaciones_tarifa = (
+        (tarifa_asociado.cuotaRepatriacionBeneficiarios or 0) +
+        (tarifa_asociado.cuotaRepatriacionTitular or 0)
+    )
+    
+    valor_unitario_repatriacion = (
+        total_repatriaciones_tarifa // cantidad_total_repatriaciones 
+        if cantidad_total_repatriaciones > 0 
+        else 10500
+    )
+    
     valor_rep_benef, valor_rep_titular, cuotas_repatriaciones = (
         CalculadoraCuotasService.calcular_valores_repatriaciones(
-            benef_repatriacion_calculo, repatriacion_titular_calculo, mes.pk, meses_pagados,
+            beneficiarios, repatriacion_titular, mes.pk, meses_pagados, 
             saldos, valor_unitario_repatriacion
         )
     )
@@ -1685,56 +1390,30 @@ def obtenerValorExtracto(id_asociado: int, saldos: bool, mes):
     # ========================================================================
     
     valores_adicionales = CalculadoraCuotasService.calcular_valores_adicionales(
-        cuotas_vencidas, tarifa_asociado, mes.pk, meses_pagados, saldos,
-        seguro_vida_obj=seguro_vida_calculo,
-        coohop_registros=coohop_calculo
+        cuotas_vencidas, tarifa_asociado, mes.pk, meses_pagados, saldos, seguro_vida
     )
-
-    # cuota_coohop para mostrar: solo si hay registros activos en el mes actual
-    # (evita que aparezca en extractos donde nunca hubo coohop)
-    if not coohop_registros.exists():
-        cuota_coohop = 0
     
     # ========================================================================
     # PROCESAR CONVENIOS (sin cambios)
     # ========================================================================
     
-    # Para MOSTRAR: convenios activos en el mes actual
     convenios_normales, tiene_gasolina = ConsultaConveniosService.obtener_convenios_activos_separados(
         id_asociado, mes.pk
     )
-
-    # Para CALCULAR: todos los convenios (incluye retirados para acumular deuda histórica)
-    if saldos:
-        convenios_calculo, tiene_gasolina_calculo = ConsultaConveniosService.obtener_todos_convenios_para_calculo(id_asociado)
-        tiene_gasolina = tiene_gasolina or tiene_gasolina_calculo
-    else:
-        convenios_calculo = convenios_normales
-
+    
     valor_convenios_normales = 0
-
-    for convenio in convenios_calculo:
+    
+    for convenio in convenios_normales:
         if saldos:
             meses_pendientes_convenio = ConsultaConveniosService.calcular_meses_pendientes_convenio(
                 convenio, mes.pk, meses_pagados
             )
         else:
             meses_pendientes_convenio = 1 if cuotas_vencidas > 0 else 0
-
+        
         convenio.cantidad_meses = meses_pendientes_convenio
         convenio.valor_vencido_convenio = convenio.convenio.valor * meses_pendientes_convenio
         valor_convenios_normales += convenio.valor_vencido_convenio
-
-    # Sincronizar cantidad_meses en convenios_normales (para mostrar en extracto)
-    for convenio in convenios_normales:
-        if not hasattr(convenio, 'cantidad_meses'):
-            if saldos:
-                convenio.cantidad_meses = ConsultaConveniosService.calcular_meses_pendientes_convenio(
-                    convenio, mes.pk, meses_pagados
-                )
-            else:
-                convenio.cantidad_meses = 1 if cuotas_vencidas > 0 else 0
-            convenio.valor_vencido_convenio = convenio.convenio.valor * convenio.cantidad_meses
     
     valor_gasolina = 0
     convenio_gasolina_info = None
@@ -1814,30 +1493,34 @@ def obtenerValorExtracto(id_asociado: int, saldos: bool, mes):
     # ========================================================================
     
     conceptos_detallados = ConstructorConceptosDetalladosService.construir_conceptos_completos(
+        # Datos básicos
         mes=mes,
         parametro=parametro,
         tarifa_asociado=tarifa_asociado,
         id_asociado=id_asociado,
+        # Cuotas y valores
         cuota_periodica=cuota_periodica,
         cuota_coohop=cuota_coohop,
         cuotas_vencidas=cuotas_vencidas,
         cuota_periodica_total=cuota_periodica_total,
-        # Para conceptos individuales se usan los históricos (acumula deuda de meses anteriores)
-        mascotas=mascotas_calculo,
-        beneficiarios=benef_repatriacion_calculo,
-        repatriacion_titular=repatriacion_titular_calculo,
-        convenios_normales=convenios_calculo,
+        # Listas de objetos
+        mascotas=mascotas,
+        beneficiarios=beneficiarios,
+        repatriacion_titular=repatriacion_titular,
+        convenios_normales=convenios_normales,
         creditos_info=creditos_info,
         ventas_home_info=ventas_home_info,
-        seguro_vida=seguro_vida_calculo,
+        seguro_vida=seguro_vida,
+        # Valores calculados
         valor_unitario_mascota=valor_unitario_mascota,
         valor_unitario_repatriacion=valor_unitario_repatriacion,
         valor_gasolina=valor_gasolina,
         valores_adicionales=valores_adicionales,
+        # Estados y configuraciones
         meses_pagados=meses_pagados,
         saldos=saldos,
-        desglose_saldos=desglose_saldos,
-        coohop_registros=coohop_calculo,
+        # ← NUEVO: Desglose de saldos
+        desglose_saldos=desglose_saldos
     )
     
     # ========================================================================
@@ -1883,32 +1566,32 @@ def obtenerValorExtracto(id_asociado: int, saldos: bool, mes):
             mensaje = f"Tiene pago hasta el mes de {ultimo_pago.mesPago.concepto}"
     
     # ========================================================================
-    # CALCULAR PAGO TOTAL DESDE CONCEPTOS DETALLADOS (SIEMPRE AL FINAL)
+    # ← NUEVO: CALCULAR PAGO TOTAL DESDE CONCEPTOS DETALLADOS (SIEMPRE AL FINAL)
     # ========================================================================
-
-    # El pago total SIEMPRE es la suma de total_a_pagar de cada concepto.
-    # Solo se fuerza a 0 si está adelantado Y no tiene deudas ni créditos pendientes,
-    # evitando el bug donde cuotas_adelantadas > 0 pisaba valores reales.
+    
+    # El pago total SIEMPRE debe ser la suma de total_a_pagar de cada concepto
+    # Esto asegura consistencia entre conceptos_detallados y pagoTotal
+    # El pago total SIEMPRE viene de los conceptos detallados
     pago_total = sum(concepto['total_a_pagar'] for concepto in conceptos_detallados)
 
-    if cuotas_adelantadas > 0 and cuotas_vencidas == 0 and valor_total_creditos == 0:
-        pago_total = 0
-
+    # Si está adelantado Y los conceptos dicen 0, ya quedará en 0 naturalmente
+    # No se necesita sobrescribir manualmente
+    
     # ========================================================================
     # CONSTRUIR Y RETORNAR CONTEXT
     # ========================================================================
-
+    
     context = {
         # Información básica
         "pkAsociado": id_asociado,
         "fechaCorte": fecha_corte,
         "mes": mes,
-
+        
         # Tarifa del asociado
         "objTarifaAsociado": tarifa_asociado,
         "cuotaPeriodica": cuota_periodica,
         "cuotaCoohop": cuota_coohop,
-
+        
         # Cuotas y valores vencidos
         "cuotaVencida": cuotas_vencidas,
         "valorVencido": valor_vencido,
@@ -1922,50 +1605,48 @@ def obtenerValorExtracto(id_asociado: int, saldos: bool, mes):
         "valorVencidoConvenio": valor_total_convenios,
         "valorVencidoConveniosNormales": valor_convenios_normales,
         "valorVencidoGasolina": valor_gasolina,
-
+        
         # Créditos
         "creditos": creditos_info,
         "ventasHomeElements": ventas_home_info,
         "valorTotalCreditos": valor_total_creditos,
-
+        
         # Vinculación
         "vinculacion": {
-            "activa": (parametro.vinculacionFormaPago and
-                      parametro.vinculacionFormaPago.pk == 2 and
-                      parametro.vinculacionPendientePago and
+            "activa": (parametro.vinculacionFormaPago and 
+                      parametro.vinculacionFormaPago.pk == 2 and 
+                      parametro.vinculacionPendientePago and 
                       parametro.vinculacionPendientePago > 0),
             "cuotas_totales": parametro.vinculacionCuotas or 0,
             "valor_cuota": parametro.vinculacionValor or 0,
             "pendiente_pago": parametro.vinculacionPendientePago or 0,
         },
-
+        
         # Totales y saldos
-        "pagoTotal": pago_total,
+        "pagoTotal": pago_total,  # ← CAMBIO: Ahora viene desde conceptos_detallados
         "saldo": saldo,
         "saldoDiferencia": saldo_diferencia,
         "mensaje": mensaje,
-
-        # Desglose de saldos detallado
+        
+        # ← NUEVO: Desglose de saldos detallado
         "desgloseSaldos": desglose_saldos,
-
+        
         # Beneficiarios y mascotas
-        # objBeneficiario tiene TODOS los beneficiarios activos (para mostrar en extracto)
         "objBeneficiario": beneficiarios,
         "cuentaBeneficiario": beneficiarios.count(),
-        # cuentaBeneficiarioConRepatriacion usa solo los que tienen repatriación activa en este mes
-        "cuentaBeneficiarioConRepatriacion": beneficiarios_con_repatriacion.count(),
+        "cuentaBeneficiarioConRepatriacion": sum(1 for b in beneficiarios if b.repatriacion),
         "objMascota": mascotas,
         "cuentaMascota": mascotas.count(),
         "objRepatriacionTitular": repatriacion_titular,
         "objSeguroVida": seguro_vida,
-
+        
         # Convenios
         "objConvenio": convenios_normales,
         "convenioGasolina": convenio_gasolina_info,
-
-        # Conceptos detallados con saldos y total_a_pagar
+        
+        # ← CAMBIO: Conceptos detallados ahora incluyen saldos y total_a_pagar
         "conceptos_detallados": conceptos_detallados,
-
+        
         # Vista
         "vista": 0,
     }
