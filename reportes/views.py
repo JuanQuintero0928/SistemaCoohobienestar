@@ -1348,9 +1348,9 @@ class DescargarProductosHE(BaseReporteExcel):
 class DescargarEmpleados(BaseReporteExcel):
     nombre_hoja = "Listado Empleados"
     columnas = [
-        'ID Empleado', 'Nombre Completo', 'Tipo Documento', 'Número Documento', 'Fecha Nacimiento', 'Celular', 'Correo', 'Direccion', 'Departamento', 'Municipio'
+        'ID Empleado', 'Nombre Completo', 'Tipo Documento', 'Número Documento', 'Género', 'Fecha Nacimiento', 'Celular', 'Correo', 'Direccion', 'Departamento', 'Municipio'
         ]
-    ancho_columnas = [11, 32, 14, 14, 14, 14, 32, 32, 18, 18]
+    ancho_columnas = [11, 32, 14, 14, 14, 14, 14, 32, 32, 18, 18]
 
     def get_queryset(self, request, *args, **kwargs):
         
@@ -1364,6 +1364,7 @@ class DescargarEmpleados(BaseReporteExcel):
             f'{obj.nombre} {obj.apellido}',
             obj.tipo_documento,
             obj.numero_documento,
+            obj.genero,
             obj.fecha_nacimiento.strftime("%d/%m/%Y") if obj.fecha_nacimiento else '',
             obj.celular,
             obj.correo,

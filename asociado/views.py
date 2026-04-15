@@ -1740,7 +1740,11 @@ class CrearAdicionalAsociado(UpdateView):
         obj.ultimoMesCuotaAdicional = None
 
         # Recuperar el valor anterior antes de guardar
-        valor_anterior = TarifaAsociado.objects.get(pk=obj.pk).cuotaAdicionales or 0
+        valor_anterior = TarifaAsociado.objects.get(pk=obj.pk)
+        if valor_anterior.estadoAdicional:
+            valor_anterior = valor_anterior.cuotaAdicionales or 0
+        else:
+            valor_anterior = 0
         valor_nuevo = obj.cuotaAdicionales or 0
 
         diferencia = valor_nuevo - valor_anterior

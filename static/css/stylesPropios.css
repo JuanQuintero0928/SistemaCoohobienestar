@@ -1,8 +1,403 @@
-/* :root {
-    --bs-body-font-family: Verdana, Geneva, sans-serif;
-    --bs-body-font-size: 0.875rem;
+/* ============================================================
+   stylesPropios.css — Coohobienestar
+   Layout propio: sin dependencias de SB Admin.
+   Todo el color usa variables de Bootstrap 5.3 para que
+   el dark mode (data-bs-theme="dark") funcione automáticamente.
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   1. VARIABLES PROPIAS
+   ---------------------------------------------------------- */
+  :root {
+    --sidebar-width: 260px;
+    --sidebar-collapsed-width: 0px;
+    --navbar-height: 56px;
+
+    /* Sidebar */
+    --sidebar-bg: var(--bs-dark);
+    --sidebar-color: rgba(255, 255, 255, 0.75);
+    --sidebar-color-hover: #fff;
+    --sidebar-section-color: rgba(255, 255, 255, 0.4);
+    --sidebar-active-bg: rgba(255, 255, 255, 0.1);
+    --sidebar-active-color: #fff;
+    --sidebar-sublink-indent: 2.75rem;
+    --sidebar-transition: width 0.25s ease, opacity 0.2s ease;
+
+    /* UI general */
+    --coho-input-bg: var(--bs-body-bg);
+    --coho-input-color: var(--bs-body-color);
+    --coho-input-border: var(--bs-border-color);
+    --coho-input-disabled-bg: var(--bs-secondary-bg);
+
+    --card-hover-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+[data-bs-theme="dark"] {
+    --card-hover-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+
+    --coho-input-bg: #212529;
+    --coho-input-color: #dee2e6;
+    --coho-input-border: #495057;
+    --coho-input-disabled-bg: #343a40;
+
+    --bs-form-control-bg: #ea6900;
+    --bs-form-control-color: #dee2e6;
+    --bs-border-color: #495057;
+}
+
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+    background-color: #2b3035 !important;
+    color: #dee2e6 !important;
+    border-color: #495057 !important;
+}
+
+[data-bs-theme="dark"] .form-control:disabled,
+[data-bs-theme="dark"] .form-select:disabled {
+    background-color: #2b3035 !important;
+    color: #adb5bd !important;
+    border-color: #495057 !important;
+    opacity: 1 !important;
+}
+
+[data-bs-theme="dark"] .select2-results__option--highlighted {
+    background-color: var(--bs-primary) !important;
+    color: #fff !important;
+}
+
+[data-bs-theme="dark"] .select2-results__option {
+    background-color: transparent !important;
+    color: var(--coho-input-color) !important;
+}
+
+/* Dark mode */
+[data-bs-theme="dark"] .coho-table-head th {
+    background-color: #343a40 !important;
+    color: #dee2e6 !important;
+}
+
+[data-bs-theme="dark"] .swal2-popup {
+    background: #2b3035 !important;
+    color: #dee2e6 !important;
+}
+
+[data-bs-theme="dark"] .swal2-title,
+[data-bs-theme="dark"] .swal2-content {
+    color: #dee2e6 !important;
+}
+
+/* ----------------------------------------------------------
+   2. BODY — oculto hasta que JS corra (evita flash)
+   ---------------------------------------------------------- */
+body.d-none {
+    visibility: hidden;
+}
+
+
+/* ----------------------------------------------------------
+   3. LAYOUT PRINCIPAL
+   Navbar fija arriba. Debajo: sidebar izquierda + contenido.
+   ---------------------------------------------------------- */
+.layout-navbar {
+    height: var(--navbar-height);
+    z-index: 1030;
+}
+
+.layout-wrapper {
+    display: flex;
+    min-height: calc(100vh - var(--navbar-height));
+    /* El wrapper no necesita margin-top porque el navbar es sticky */
+}
+
+.layout-sidebar {
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    background-color: var(--sidebar-bg);
+    min-height: 100%;
+    position: sticky;
+    top: var(--navbar-height);          /* se pega debajo de la navbar */
+    height: calc(100vh - var(--navbar-height));
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: var(--sidebar-transition);
+    z-index: 1020;
+    flex-shrink: 0;
+}
+
+/* Estado colapsado en desktop */
+.layout-sidebar.collapsed {
+    width: 0;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.layout-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bs-tertiary-bg);
+}
+
+
+/* ----------------------------------------------------------
+   4. BREADCRUMB
+   ---------------------------------------------------------- */
+.layout-breadcrumb {
+    background-color: var(--bs-body-bg);
+    border-bottom: 1px solid var(--bs-border-color);
+    padding: 8px 16px;
+}
+
+.layout-breadcrumb .breadcrumb {
+    margin-bottom: 0;
+    font-size: 0.85rem;
+}
+
+
+/* ----------------------------------------------------------
+   5. MAIN
+   ---------------------------------------------------------- */
+.layout-main {
+    padding-top: 24px;
+    padding-bottom: 24px;
+    flex: 1;
+}
+
+
+/* ----------------------------------------------------------
+   6. SIDEBAR — contenido interno
+   ---------------------------------------------------------- */
+.sidebar-inner {
+    height: 100%;
+}
+
+/* Etiquetas de sección */
+.sidebar-section-label {
+    list-style: none;
+    padding: 1.25rem 1rem 0.35rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--sidebar-section-color);
+}
+
+/* Links principales */
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 1rem;
+    color: var(--sidebar-color);
+    border-radius: 0;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    white-space: nowrap;
+}
+
+.sidebar-link:hover,
+.sidebar-link:focus {
+    color: var(--sidebar-color-hover);
+    background-color: var(--sidebar-active-bg);
+}
+
+.sidebar-link.active {
+    color: var(--sidebar-active-color);
+    background-color: var(--sidebar-active-bg);
+    font-weight: 600;
+}
+
+/* Ícono del link */
+.sidebar-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+    width: 1.25rem;
+    text-align: center;
+}
+
+/* Chevron del collapse */
+.sidebar-chevron {
+    font-size: 0.7rem;
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.sidebar-link-collapse:not(.collapsed) .sidebar-chevron {
+    transform: rotate(180deg);
+}
+
+/* Submenú */
+.sidebar-submenu {
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-sublink {
+    display: block;
+    padding: 0.45rem 1rem 0.45rem var(--sidebar-sublink-indent);
+    color: var(--sidebar-color);
+    font-size: 0.875rem;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.sidebar-sublink:hover,
+.sidebar-sublink:focus {
+    color: var(--sidebar-color-hover);
+    background-color: var(--sidebar-active-bg);
+}
+
+.sidebar-sublink.active {
+    color: var(--sidebar-active-color);
+    font-weight: 600;
+}
+
+/* Footer del sidebar */
+.sidebar-footer {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.sidebar-footer .text-body-secondary {
+    color: var(--sidebar-section-color) !important;
+}
+
+.sidebar-footer .text-body-emphasis {
+    color: var(--sidebar-color-hover) !important;
+}
+
+
+/* ----------------------------------------------------------
+   7. OFFCANVAS SIDEBAR (móvil) — mismos colores que desktop
+   ---------------------------------------------------------- */
+#sidebarOffcanvas {
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-color);
+    width: var(--sidebar-width) !important;
+}
+
+#sidebarOffcanvas .offcanvas-header {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #fff;
+}
+
+#sidebarOffcanvas .btn-close {
+    filter: invert(1);
+}
+
+
+/* ----------------------------------------------------------
+   8. CARD HEADER — borde inferior suave
+   ---------------------------------------------------------- */
+.card-header {
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.card-header h1,
+.card-header .h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--bs-emphasis-color);
+    margin-bottom: 0;
+}
+
+
+/* ----------------------------------------------------------
+   9. UTILIDADES
+   ---------------------------------------------------------- */
+
+/* Scroll interno sin scrollbar visible (webkit) */
+.layout-sidebar::-webkit-scrollbar,
+.sidebar-inner::-webkit-scrollbar {
+    width: 4px;
+}
+.layout-sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.layout-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+}
+
+/* Tabla responsiva dentro de cards */
+.card-body .table-responsive {
+    margin: -1px;
+}
+
+/* ----------------------------------------------------------
+  10. ESTILOS VARIOS (no relacionados con el layout)
+    Se pueden mover a otro CSS si se quiere, pero como son pocos y específicos los dejo aquí.
+   ---------------------------------------------------------- */
+
+  html {
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  body, .card, .form-control, .table {
+      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  }
+
+  /* ── Animación toggle de tema y estilos ── */
+  @keyframes spin-once {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  .theme-icon-spin {
+      animation: spin-once 0.4s ease-out;
+      display: inline-flex; /* 👈 clave */
+  }
+
+
+    #themeIcon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      color: #f1f3f5;
+    }
+
+    #themeIcon svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
     
-} */
+
+  /* ── Fin Animación toggle de tema y estilos ── */
+  
+
+
+/* ── Estilos de breadcrumb ── */
+.coho-breadcrumb .breadcrumb-item a {
+    color: var(--bs-secondary-color);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.coho-breadcrumb .breadcrumb-item a:hover {
+    color: var(--bs-primary);
+}
+
+.coho-breadcrumb .breadcrumb-item.active {
+    color: var(--bs-body-color);
+    font-weight: 500;
+}
+
+.coho-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    content: "›"; /* más moderno */
+    color: var(--bs-secondary-color);
+}
+
+.layout-breadcrumb {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    background-color: var(--bs-tertiary-bg);
+}
+
+/* ── Fin Estilos de breadcrumb ── */
+
+
+
 
 .input-form{
   text-transform: uppercase;
@@ -63,22 +458,42 @@
   fill: white; /* Ícono blanco al pasar el mouse */
 }
 
+/* Base (light por defecto) */
 .select2-selection {
-  border: 1px solid #ced4da !important; /* Borde igual a Bootstrap */
-  border-radius: 0.375rem !important; /* Bordes redondeados */
-  padding: 0.375rem 0.75rem !important; /* Espaciado interno */
-  height: calc(2.25rem + 2px) !important; /* Misma altura que los inputs */
+  border: 1px solid var(--coho-input-border) !important;
+  border-radius: 0.375rem !important;
+  padding: 0.375rem 0.75rem !important;
+  height: calc(2.25rem + 2px) !important;
   display: flex !important;
   align-items: center !important;
+
+  background-color: var(--coho-input-bg) !important;
+  color: var(--coho-input-color) !important;
 }
 
-/* Estilos para el span cuando está deshabilitado */
-.select2-container--disabled {
-  background-color: #E9ECEF !important;
-  border-color: #ced4da !important;
-  border-radius: 0.375rem !important; /* Bordes redondeados */
-
+.select2-container--disabled .select2-selection {
+  background-color: var(--coho-input-disabled-bg) !important;
 }
+
+.select2-dropdown {
+  background-color: var(--coho-input-bg) !important;
+  color: var(--coho-input-color) !important;
+  border-color: var(--coho-input-border) !important;
+}
+
+.select2-results__option--highlighted {
+  background-color: var(--bs-primary) !important;
+  color: #fff !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: var(--coho-input-color) !important;
+}
+
+.select2-container--disabled .select2-selection__rendered {
+    color: var(--bs-secondary-color) !important;
+}
+
 
 /* Estilo para la tabla */
 #datatablesSimple {
@@ -94,8 +509,8 @@
 
 /* Estilos para las celdas */
 #datatablesSimple th, #datatablesSimple td {
-    padding: 12px;
-    text-align: left;
+    padding: 6px 8px;
+    font-size: 13px;
 }
 
 /* Encabezado de la tabla */
@@ -115,6 +530,26 @@
     background-color: #e9ecef;
     transition: 0.3s;
 }
+
+.dataTables_length select {
+    background-color: var(--coho-input-bg);
+    color: var(--coho-input-color);
+    border: 1px solid var(--coho-input-border);
+
+    padding: 0.375rem 2rem 0.375rem 0.75rem !important;
+}
+
+/* Light mode */
+.coho-table-head th {
+    background-color: #f8f8f8;
+    color: #495057;
+}
+
+.coho-table-head th {
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+
 
 /* Botón de acción */
 .custom-btn {
@@ -141,72 +576,16 @@
     margin-left: 5px;
 }
 
-/* 🔹 Mejorar la paginación */
-.dataTables_paginate {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 10px;
-}
-
-.dataTables_wrapper .dataTables_paginate .paginate_button {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  color: #007bff;
-  padding: 6px 10px;
-  border-radius: 6px;
-  margin: 2px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-/* Cambio de color al pasar el cursor */
-.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-  background-color: #007bff;
-  color: white;
-}
-
-/* Estilo del botón activo (página actual) */
-.dataTables_wrapper .dataTables_paginate .paginate_button.current {
-  background-color: #007bff;
-  color: white;
-  font-weight: bold;
-}
-
-/* Ocultar los bordes de Bootstrap */
-.dataTables_wrapper .dataTables_paginate .paginate_button:active {
-  box-shadow: none !important;
-  outline: none !important;
-}
-
-/* Mejorar input de búsqueda */
-.dataTables_filter input {
-  border: 1px solid #dee2e6;
-  padding: 6px;
-  border-radius: 6px;
-  outline: none;
-  margin-bottom: 30px;
-}
-
-/* Mejorar selector de registros */
-.dataTables_length select {
-  border: 1px solid #dee2e6;
-  padding: 6px;
-  border-radius: 6px;
-  outline: none;
-}
-
-
 /* Mejorar estilos de las tarjetas de formatos, utilidades */
 .card-modern {
   transition: all 0.3s ease;
-  background: #fff;
+  background-color: var(--bs-body-bg);
   border-radius: 1rem;
 }
 
 .card-modern:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--card-hover-shadow);
 }
 
 .icon-wrapper {

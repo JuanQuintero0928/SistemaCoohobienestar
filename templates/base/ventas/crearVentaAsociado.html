@@ -35,12 +35,12 @@
         <div class="modal-body">
             <!-- Datos del asociado -->
             <div class="card mb-4 shadow-sm border-0">
-                <div class="card-header bg-light">
-                    <h6 class="mb-0 text-secondary">Información del Asociado</h6>
+                <div class="card-header">
+                    <h6 class="mb-0">Información del Asociado</h6>
                 </div>
                 <div class="card-body">
                     <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
+                        <thead class="table-dark">
                             <tr>
                                 <th>N°</th>
                                 <th>Asociado</th>
@@ -65,8 +65,8 @@
 
                 <!-- Información de la venta -->
                 <div class="card mb-4 shadow-sm border-0">
-                    <div class="card-header bg-light">
-                        <h6 class="mb-0 text-secondary">Información de la Venta</h6>
+                    <div class="card-header">
+                        <h6 class="mb-0">Información de la Venta</h6>
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
@@ -103,8 +103,8 @@
 
                 <!-- Información del crédito -->
                 <div id="contenedorCredito" class="card mb-4 shadow-sm border-0">
-                    <div class="card-header bg-light">
-                        <h6 class="mb-0 text-secondary">Detalles del Crédito</h6>
+                    <div class="card-header">
+                        <h6 class="mb-0">Detalles del Crédito</h6>
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
@@ -160,8 +160,8 @@
 
                 <!-- Tabla de amortización -->
                 <div id="contenedorAmortizacion" class="card mb-4 shadow-sm border-0">
-                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0 text-secondary">Tabla de Amortización</h6>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">Tabla de Amortización</h6>
                         <a type="button" id="calcular" class="btn btn-sm btn-primary">Calcular</a>
                     </div>
                     <div class="card-body">
@@ -169,7 +169,7 @@
                         <input id="id_totalCredito" type="hidden" name="totalCredito">
                         <div class="table-responsive">
                             <table class="table table-hover align-middle" id="tablaAmortizacion">
-                                <thead class="table-light">
+                                <thead class="table-dark">
                                     <tr>
                                         <th>N° Cuota</th>
                                         <th>Fecha</th>
@@ -188,8 +188,8 @@
 
                 <!-- Lista de productos -->
                 <div class="card mb-4 shadow-sm border-0">
-                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0 text-secondary">Lista de Productos</h6>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">Lista de Productos</h6>
                         <button id="add-product" type="button" class="btn btn-sm btn-primary">
                             <i class="bi bi-plus-circle"></i> Agregar Producto
                         </button>
@@ -467,7 +467,7 @@ $('#creacion').on('shown.bs.modal', function () {
         newRow.classList.add('row', 'producto-item');
         newRow.innerHTML = `
             <div class="col-12 col-xl-1 mb-3 producto-numero">
-                <span class="form-control text-center bg-light border-0 fw-bold" readonly></span>
+                <span class="form-control text-center border-0 fw-bold" readonly></span>
             </div>
             <div class="col-12 col-xl-4 mb-3">
                 <select name="producto_${productCount}" class="form-select select2-producto" id="id_producto_${productCount}" required>

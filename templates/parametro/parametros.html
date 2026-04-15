@@ -1,6 +1,55 @@
 {% extends 'index.html' %}
 {% load static %}
 
+{% block extraHead %}
+    {% comment %} DataTables con tema Bootstrap 5 — respeta data-bs-theme automáticamente {% endcomment %}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+
+    <style>
+        /* Compactar filas */
+        table.dataTable td,
+        table.dataTable th {
+            padding: 4px 8px !important;
+            font-size: 14px !important;
+        }
+        table.dataTable tbody tr {
+            height: 26px !important;
+        }
+        table.dataTable {
+            border-collapse: collapse !important;
+        }
+
+        /* Forzar que el wrapper herede los colores del tema */
+        .dataTables_wrapper {
+            color: var(--bs-body-color);
+        }
+
+        /* Input de búsqueda y select de longitud */
+        .dataTables_wrapper .dataTables_filter input,
+        .dataTables_wrapper .dataTables_length select {
+            background-color: var(--bs-body-bg);
+            color: var(--bs-body-color);
+            border: 1px solid var(--bs-border-color);
+            border-radius: var(--bs-border-radius-sm);
+            padding: 2px 6px;
+        }
+
+        /* Paginación activa */
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+            background: var(--bs-primary) !important;
+            border-color: var(--bs-primary) !important;
+            color: #fff !important;
+            border-radius: var(--bs-border-radius-sm);
+        }
+
+        /* Hover filas */
+        table.dataTable tbody tr:hover > * {
+            background-color: var(--bs-tertiary-bg) !important;
+        }
+    </style>
+{% endblock extraHead %}
+
 {% block title %}
     Configuración de parametros
 {% endblock title %}
@@ -32,9 +81,11 @@
                 </div>
 
                 <div class="card-body">
-                    {% block contenidoParametros %}
+                    <div class="table-responsive">
+                        {% block contenidoParametros %}
 
-                    {% endblock contenidoParametros %}
+                        {% endblock contenidoParametros %}
+                    </div>        
                 </div>        
             </div>
         </div>
@@ -48,11 +99,9 @@
 {% endblock contenidoPagina %}
 
 {% block extrajsTable %}
-    <!-- DataTables JS -->
+    {% comment %} DataTables JS con integración Bootstrap 5 {% endcomment %}
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
-    <!-- DataTables CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
     <script>
 
@@ -65,35 +114,30 @@
 
         $(document).ready(function() {
             $('#datatablesSimple').DataTable({
-                "responsive": true,
-                "autoWidth": false,
-                "paging": true,
-                "searching": true,
-                "ordering": true,
-                "info": true,
-                "language": {
-                        "lengthMenu": "Mostrar _MENU_ registros por página",
-                        "zeroRecords": "No se encontraron resultados",
-                        "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
-                        "infoEmpty": "Mostrando 0 a 0 de 0 registros",
-                        "infoFiltered": "(filtrado de _MAX_ registros totales)",
-                        "search": "Buscar:",
-                        "paginate": {
-                            "first": "Primero",
-                            "last": "Último",
-                            "next": "Siguiente",
-                            "previous": "Anterior"
-                        },
-                        "loadingRecords": "Cargando...",
-                        "processing": "Procesando...",
+                responsive: true,
+                autoWidth: false,
+                paging: true,
+                searching: true,
+                ordering: true,
+                info: true,
+                language: {
+                    lengthMenu:   "Mostrar _MENU_ registros por página",
+                    zeroRecords:  "No se encontraron resultados",
+                    info:         "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                    infoEmpty:    "Mostrando 0 a 0 de 0 registros",
+                    infoFiltered: "(filtrado de _MAX_ registros totales)",
+                    search:       "Buscar:",
+                    paginate: {
+                        first:    "Primero",
+                        last:     "Último",
+                        next:     "Siguiente",
+                        previous: "Anterior"
                     },
+                    loadingRecords: "Cargando...",
+                    processing:     "Procesando...",
+                },
             });
         });
     </script>
 
 {% endblock extrajsTable %}
-
-
-
-
-    

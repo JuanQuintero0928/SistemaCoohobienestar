@@ -1,16 +1,16 @@
 {% load static %}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 
-{% comment %} Script para desplegar el slider {% endcomment %}
-<script src="{% static 'lib/startbootstrap-sb-admin-gh-pages/js/scripts.js' %} "></script>
+{% comment %} Bootstrap 5.3 JS {% endcomment %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 
-{% comment %} Jquery V3.6.0{% endcomment %}
+{% comment %} jQuery (si lo sigues necesitando para DataTables u otros plugins) {% endcomment %}
 <script src="{% static 'lib/bootstrap-5.2.3-dist/jquery/jquery.min.js' %}"></script>
 
-{% comment %} Se guarda la variable de tiempo de sesión para que el js pueda acceder a ella {% endcomment %}
+{% comment %} Timeout de sesión {% endcomment %}
 <script>
     const sessionTimeouDjango = {{ session_timeout }};
 </script>
 <script src="{% static 'js/sesion.js' %}"></script>
 
-
+{% comment %} Layout: sidebar desktop toggle + dark/light mode {% endcomment %}
+<script src="{% static 'js/layout.js' %}"></script>
