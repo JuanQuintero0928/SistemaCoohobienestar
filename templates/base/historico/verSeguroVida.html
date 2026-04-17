@@ -45,6 +45,13 @@
                             <input type="text" class="form-control" value="{{ objSeguroVida.ultimoMesSeguroVida }}" readonly>
                         </div>
 
+                        {% if objSeguroVida.anulado %}
+                            <div class="col-md-6">
+                                <label class="form-label">Estado:</label>
+                                <input type="text" class="form-control" value="Anulado (Sin Cobro)" readonly>
+                            </div>
+                        {% endif %}
+
                     </div>
                 </div>
             </div>

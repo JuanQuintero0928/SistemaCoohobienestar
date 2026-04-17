@@ -2126,6 +2126,13 @@ class EliminarCoohoperativito(UpdateView):
         return super().form_valid(form)
 
 
+class VerCoohoperativitoInactivo(DetailView):
+    model = Coohoperativitos
+    template_name = "base/historico/verCoohoperativito.html"
+    context_object_name = "objCoohoperativito"
+    pk_url_kwarg = "pk"
+
+
 # class EliminarCoohoperativito(UpdateView):
 #     model = Coohoperativitos
 #     template_name = "base/beneficiario/eliminar.html"
