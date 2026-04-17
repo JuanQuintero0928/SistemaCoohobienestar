@@ -25,10 +25,6 @@
                             <input type="text" class="form-control" value="{{ objCoohoperativito.fechaIngreso|date:'d/m/Y' }}" readonly>
                         </div>
 
-                        <div class="col-md-6">
-                            <label class="form-label">Primer Mes Cobro:</label>
-                            <input type="text" class="form-control" value="{{ objCoohoperativito.primerMes }}" readonly>
-                        </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Nombre:</label>
@@ -54,6 +50,11 @@
                             <label class="form-label">Fecha Nacimiento:</label>
                             <input type="text" class="form-control" value="{{ objCoohoperativito.fechaNacimiento|date:'d/m/Y' }}" readonly>
                         </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label">Último Mes Cobro:</label>
+                            <input type="text" class="form-control" value="{{ objCoohoperativito.ultimoMes }}" readonly>
+                        </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Fecha Retiro:</label>
@@ -61,8 +62,8 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Último Mes Cobro:</label>
-                            <input type="text" class="form-control" value="{{ objCoohoperativito.ultimoMesSeguroVida }}" readonly>
+                            <label class="form-label">Primer Mes Cobro:</label>
+                            <input type="text" class="form-control" value="{{ objCoohoperativito.primerMes }}" readonly>
                         </div>
 
                         {% if objCoohoperativito.anulado %}
