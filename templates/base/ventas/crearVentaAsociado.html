@@ -351,10 +351,21 @@ $('#creacion').on('shown.bs.modal', function () {
         const fechaPrimerMes = await obtenerFechaPrimerPago(primerMesPago);
 
         const selectedText = tasaInteres.options[tasaInteres.selectedIndex].text;
+
+        // Nuevo para obtener el valor y descripcion de la tasa de interes
+        const selectedValue = tasaInteres.value;
+        const [valor, descripcion] = selectedValue.split('|');
+
         let saldoInicial = valorBruto;
 
         // Si es CREDITO PRODUCTO, se descuenta el anticipo
-        if (selectedText.includes("CREDITO PRODUCTO")) {
+        if (
+            descripcion &&
+            (
+                descripcion.includes("CREDITO -") ||
+                descripcion.includes("CREDITO PRODUCTO")
+            )
+        ) {
             const anticipo = parseInt(inputAnticipo.value.replace(/\D/g, '')) || 0;
             saldoInicial = valorBruto - anticipo;
         }
@@ -413,7 +424,13 @@ $('#creacion').on('shown.bs.modal', function () {
     // Si cambia el valor bruto, se recalcula el anticipo automáticamente
     const observerValorBruto = new MutationObserver(() => {
         const selectedText = tasaInteres.options[tasaInteres.selectedIndex].text;
-        if (selectedText.includes("CREDITO PRODUCTO")) {
+        if (
+            descripcion &&
+            (
+                descripcion.includes("CREDITO -") ||
+                descripcion.includes("CREDITO PRODUCTO")
+            )
+        ) {
             calcularAnticipo();
         }
     });
@@ -670,7 +687,17 @@ $('#creacion').on('shown.bs.modal', function () {
 
         // Si está seleccionado CREDITO PRODUCTO, recalcular anticipo automáticamente
         const selectedText = tasaInteres.options[tasaInteres.selectedIndex].text;
-        if (selectedText.includes("CREDITO PRODUCTO") && totalBruto > 0) {
+        const selectedValue = tasaInteres.value;
+        const [valor, descripcion] = selectedValue.split('|');
+
+        if (
+            descripcion &&
+            (
+                descripcion.includes("CREDITO -") ||
+                descripcion.includes("CREDITO PRODUCTO")
+            )
+            && totalBruto > 0
+        ) {
             calcularAnticipo();
         }
     }
@@ -684,6 +711,10 @@ $('#creacion').on('shown.bs.modal', function () {
 
         const numCuotas = parseInt(document.getElementById("id_cuotas").value, 10);
         const selectedText = tasaInteres.options[tasaInteres.selectedIndex].text;
+
+        const selectedValue = tasaInteres.value;
+        const [valor, descripcion] = selectedValue.split('|');
+
         const valorBruto = parseInt(inputValorBruto.value.replace(/\D/g, '')) || 0;
 
         if (isNaN(tasaMensual) || isNaN(numCuotas) || numCuotas <= 0) {
@@ -695,7 +726,13 @@ $('#creacion').on('shown.bs.modal', function () {
         let montoBase = valorBruto;
         
         // Si es CREDITO PRODUCTO, restar el anticipo del monto base
-        if (selectedText.includes("CREDITO PRODUCTO")) {
+        if (
+            descripcion &&
+            (
+                descripcion.includes("CREDITO -") ||
+                descripcion.includes("CREDITO PRODUCTO")
+            )
+        ) {
             const anticipo = parseInt(inputAnticipo.value.replace(/\D/g, '')) || 0;
             montoBase = valorBruto - anticipo;
         }
@@ -722,6 +759,9 @@ $('#creacion').on('shown.bs.modal', function () {
     function actualizarValorNeto() {
         const formaPago = document.getElementById('id_formaPago').value;
         const selectedText = tasaInteres.options[tasaInteres.selectedIndex].text;
+        const selectedValue = tasaInteres.value;
+        const [valor, descripcion] = selectedValue.split('|');
+
         const valorBruto = parseInt(document.getElementById("id_valorBruto").value.replace(/\D/g, '')) || 0;
         const cuotas = parseInt(document.getElementById("id_cuotas").value) || 0;
         const valorCuota = parseInt(document.getElementById("id_valorCuotas").value.replace(/\D/g, '')) || 0;
@@ -734,7 +774,13 @@ $('#creacion').on('shown.bs.modal', function () {
             let valorNeto = valorCuota * cuotas;
 
             // Si es crédito producto, sumar el anticipo al total
-            if (selectedText.includes("CREDITO PRODUCTO")) {
+            if (
+                descripcion &&
+                (
+                    descripcion.includes("CREDITO -") ||
+                    descripcion.includes("CREDITO PRODUCTO")
+                )
+            ) {
                 const anticipo = parseInt(inputAnticipo.value.replace(/\D/g, '')) || 0;
                 valorNeto += anticipo;
             }
