@@ -20,40 +20,43 @@
 
                 <div class="card-body">
                     <div class="row g-3">
+
+                        <div class="row g-3">
+                        
+                            <div class="col-md-6">
+                                <label class="form-label">Nombre:</label>
+                                <input type="text" class="form-control" value="{{ objCoohoperativito.nombre }}" readonly>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Apellido:</label>
+                                <input type="text" class="form-control" value="{{ objCoohoperativito.apellido }}" readonly>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Tipo Documento:</label>
+                                <input type="text" class="form-control" value="{{ objCoohoperativito.tipoDocumento }}" readonly>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Número Documento:</label>
+                                <input type="text" class="form-control" value="{{ objCoohoperativito.numDocumento }}" readonly>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha Nacimiento:</label>
+                                <input type="text" class="form-control" value="{{ objCoohoperativito.fechaNacimiento|date:'d/m/Y' }}" readonly>
+                            </div>
+                        </div>
+                        
                         <div class="col-md-6">
                             <label class="form-label">Fecha Ingreso:</label>
                             <input type="text" class="form-control" value="{{ objCoohoperativito.fechaIngreso|date:'d/m/Y' }}" readonly>
                         </div>
 
-
                         <div class="col-md-6">
-                            <label class="form-label">Nombre:</label>
-                            <input type="text" class="form-control" value="{{ objCoohoperativito.nombre }}" readonly>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Apellido:</label>
-                            <input type="text" class="form-control" value="{{ objCoohoperativito.apellido }}" readonly>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Tipo Documento:</label>
-                            <input type="text" class="form-control" value="{{ objCoohoperativito.tipoDocumento }}" readonly>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Número Documento:</label>
-                            <input type="text" class="form-control" value="{{ objCoohoperativito.numDocumento }}" readonly>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Fecha Nacimiento:</label>
-                            <input type="text" class="form-control" value="{{ objCoohoperativito.fechaNacimiento|date:'d/m/Y' }}" readonly>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <label class="form-label">Último Mes Cobro:</label>
-                            <input type="text" class="form-control" value="{{ objCoohoperativito.ultimoMes }}" readonly>
+                            <label class="form-label">Primer Mes Cobro:</label>
+                            <input type="text" class="form-control" value="{{ objCoohoperativito.primerMes }}" readonly>
                         </div>
 
                         <div class="col-md-6">
@@ -62,9 +65,11 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Primer Mes Cobro:</label>
-                            <input type="text" class="form-control" value="{{ objCoohoperativito.primerMes }}" readonly>
+                            <label class="form-label">Último Mes Cobro:</label>
+                            <input type="text" class="form-control" value="{{ objCoohoperativito.ultimoMes }}" readonly>
                         </div>
+
+
 
                         {% if objCoohoperativito.anulado %}
                             <div class="col-md-6">

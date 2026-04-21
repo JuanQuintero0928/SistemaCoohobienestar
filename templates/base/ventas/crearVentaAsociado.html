@@ -376,9 +376,16 @@ $('#creacion').on('shown.bs.modal', function () {
     })
     
     tasaInteres.addEventListener('change', () => {
-        const selectedText = tasaInteres.options[tasaInteres.selectedIndex].text;
+        const selectedValue = tasaInteres.value;
+        const [valor, descripcion] = selectedValue.split('|');
 
-        if (selectedText.includes("CREDITO PRODUCTO")) {
+        if (
+            descripcion &&
+            (
+                descripcion.includes("CREDITO -") ||
+                descripcion.includes("CREDITO PRODUCTO")
+            )
+        ) {
             contenedorAnticipo.classList.remove('d-none');
             contenedorFormaPagoAnticipo.classList.remove('d-none');
             contenedorPorcentajeAnticipo.classList.remove('d-none');
