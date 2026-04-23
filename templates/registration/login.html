@@ -1,67 +1,690 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es" data-bs-theme="light">
+
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Coohobienestar</title>
-  <!-- Google Font: Source Sans Pro -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-  
-  <link rel="icon" href="{% static 'img/icons/logo.png' %}" type="image/png" />
-  <link rel="stylesheet" href="{% static 'lib/startbootstrap-sb-admin-gh-pages/css/adminlte.min.css' %}">
+    {% include 'estructura/head.html' %}
+    <title>Coohobienestar - Iniciar Sesión</title>
+
+    <style>
+        /* ============================================================
+           LOGIN - Estilos cooperativo profesional
+           Adaptado de stylesPropios.css para login頁面
+        ============================================================ */
+
+        :root {
+            --coho-green-primary: #1da063;
+            --coho-green-light: #20c997;
+            --coho-green-dark: #146c43;
+            --coho-green-rgb: 25, 135, 84;
+            --coho-gray-light: #4e5257;
+            --coho-gray-dark: #343a40;
+        }
+
+        /* Fondo con gradiente cooperativo */
+        .login-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #146c43 0%, #198754 40%, #20c997 100%);
+            background-attachment: fixed;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Patrón geométrico overlay */
+        .login-page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                radial-gradient(circle at 20% 80%, rgba(255,255,255,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.06) 0%, transparent 50%),
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zm0-30V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Card principal */
+        .login-box {
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            z-index: 1;
+            padding: 1rem;
+        }
+
+        .login-card {
+            background: var(--bs-body-bg);
+            /* border: 1px solid var(--bs-border-color); */
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: cardEntrar 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+        }
+
+        @keyframes cardEntrar {
+            from {
+                opacity: 0;
+                transform: translateY(24px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Header del card */
+        .login-card-header {
+            background: linear-gradient(
+                0deg,
+                #0f4a25 10%,
+                #146c43 100%
+                );
+            padding: 2rem 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        [data-bs-theme="dark"] .login-card-header {
+            background: linear-gradient(
+                0deg,
+                var(--coho-gray-dark) 10%,
+                var(--coho-gray-light) 100%
+                );
+        }
+
+        .login-card-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: linear-gradient(to top, var(--bs-body-bg), transparent);
+        }
+
+        /* Logo */
+        .login-logo {
+            width: 72px;
+            height: 72px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+            animation: pulseLogo 3s ease-in-out infinite;
+        }
+
+        @keyframes pulseLogo {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.04); }
+        }
+
+        .login-titulo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            margin-top: 0.75rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-subtitulo {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.85);
+            margin-top: 0.25rem;
+        }
+
+        /* Cuerpo del card */
+        .login-card-body {
+            padding: 2rem 1.75rem;
+        }
+
+        /* Grupo de input con ícono */
+        .input-group-login {
+            position: relative;
+            margin-bottom: 1.25rem;
+        }
+
+        .input-group-login .form-control {
+            padding-left: 2.75rem;
+            height: 48px;
+            font-size: 1rem;
+            border-radius: 0.5rem;
+            background-color: var(--coho-input-bg);
+            color: var(--coho-input-color);
+            border-color: var(--coho-input-border);
+            transition: all 0.2s ease;
+        }
+
+        .input-group-login .form-control:focus {
+            border-color: var(--coho-green-primary);
+            box-shadow: 0 0 0 0.25rem rgba(var(--coho-green-rgb), 0.2);
+            background-color: var(--coho-input-bg);
+            color: var(--coho-input-color);
+        }
+
+        .input-group-login .form-control::placeholder {
+            color: var(--bs-secondary-color);
+            opacity: 0.7;
+        }
+
+        /* Îcono dentro del input */
+        .input-icon {
+            position: absolute;
+            left: 0.875rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--bs-secondary-color);
+            font-size: 1.1rem;
+            pointer-events: none;
+            transition: color 0.2s ease;
+            z-index: 10;
+        }
+
+        .input-group-login .form-control:focus ~ .input-icon,
+        .input-group-login .form-control:not(:placeholder-shown) ~ .input-icon {
+            color: var(--coho-green-primary);
+        }
+
+        /* Toggle password visibility */
+        .password-toggle {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--bs-secondary-color);
+            cursor: pointer;
+            padding: 0.25rem;
+            font-size: 1rem;
+            transition: color 0.2s ease;
+            z-index: 20;
+        }
+
+        .password-toggle:hover {
+            color: var(--coho-green-primary);
+        }
+
+        /* Checkbox "Recordarme" */
+        .form-check-login {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-check-login .form-check-input {
+            cursor: pointer;
+        }
+
+        .form-check-login .form-check-label {
+            cursor: pointer;
+            color: var(--bs-body-color);
+            font-size: 0.9rem;
+        }
+
+        .form-check-login .form-check-input:checked {
+            background-color: var(--coho-green-primary);
+            border-color: var(--coho-green-primary);
+        }
+
+        .form-check-login .form-check-input:focus {
+            box-shadow: 0 0 0 0.25rem rgba(var(--coho-green-rgb), 0.2);
+        }
+
+        /* Botón de acceso */
+        .btn-login {
+            width: 100%;
+            height: 48px;
+            font-size: 1rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--coho-green-primary) 0%, var(--coho-green-dark) 100%);
+            border: none;
+            border-radius: 0.5rem;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-login:hover {
+            background: linear-gradient(135deg, var(--coho-green-dark) 0%, var(--coho-green-primary) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(var(--coho-green-rgb), 0.35);
+        }
+
+        .btn-login:hover::before {
+            left: 100%;
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Loading spinner */
+        .btn-login {
+            position: relative;
+        }
+
+        .btn-login .spinner-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+
+        .btn-login.loading .spinner-container {
+            display: flex;
+        }
+
+        .btn-login .spinner-border {
+            width: 1.25rem;
+            height: 1.25rem;
+            border-width: 2px;
+        }
+
+        .btn-login.loading .btn-text {
+            visibility: hidden;
+        }
+
+        /* Enlace "¿Olvidó contraseña?" */
+        .login-links {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--bs-border-color);
+        }
+
+        .login-links a {
+            color: var(--coho-green-primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
+        }
+
+        .login-links a:hover {
+            color: var(--coho-green-dark);
+            text-decoration: underline;
+        }
+
+        /* Mensajes de alerta */
+        .login-alert {
+            border-radius: 0.5rem;
+            padding: 0.875rem 1rem;
+            margin-bottom: 1.25rem;
+            font-size: 0.9rem;
+            animation: alertAnim 0.3s ease;
+            display: flex;
+            align-items: center;
+            border: 1px solid transparent;
+        }
+
+        .login-alert .alert-icon {
+            flex-shrink: 0;
+            width: 1.25rem;
+            height: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-right: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .login-alert.alert-success {
+            background: rgba(25, 135, 84, 0.1);
+            border-color: rgba(25, 135, 84, 0.25);
+            color: #146c43;
+        }
+        .login-alert.alert-success .alert-icon {
+            background: #146c43;
+            color: white;
+        }
+
+        .login-alert.alert-error,
+        .login-alert.alert-danger {
+            background: rgba(220, 53, 69, 0.1);
+            border-color: rgba(220, 53, 69, 0.25);
+            color: #b02a37;
+        }
+        .login-alert.alert-error .alert-icon,
+        .login-alert.alert-danger .alert-icon {
+            background: #dc3545;
+            color: white;
+        }
+
+        .login-alert.alert-warning {
+            background: rgba(255, 193, 7, 0.15);
+            border-color: rgba(255, 193, 7, 0.35);
+            color: #7c6610;
+        }
+        .login-alert.alert-warning .alert-icon {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .login-alert.alert-info {
+            background: rgba(13, 110, 253, 0.1);
+            border-color: rgba(13, 110, 253, 0.25);
+            color: #0a58ca;
+        }
+        .login-alert.alert-info .alert-icon {
+            background: #0d6efd;
+            color: white;
+        }
+
+        [data-bs-theme="dark"] .login-alert.alert-success {
+            background: rgba(25, 135, 84, 0.2);
+            border-color: rgba(25, 135, 84, 0.4);
+            color: #75c9a1;
+        }
+        [data-bs-theme="dark"] .login-alert.alert-success .alert-icon {
+            background: #20c997;
+            color: #212529;
+        }
+
+        [data-bs-theme="dark"] .login-alert.alert-error,
+        [data-bs-theme="dark"] .login-alert.alert-danger {
+            background: rgba(220, 53, 69, 0.2);
+            border-color: rgba(220, 53, 69, 0.4);
+            color: #ea868f;
+        }
+        [data-bs-theme="dark"] .login-alert.alert-error .alert-icon,
+        [data-bs-theme="dark"] .login-alert.alert-danger .alert-icon {
+            background: #dc3545;
+            color: white;
+        }
+
+        [data-bs-theme="dark"] .login-alert.alert-warning {
+            background: rgba(255, 193, 7, 0.2);
+            border-color: rgba(255, 193, 7, 0.4);
+            color: #ffda6a;
+        }
+        [data-bs-theme="dark"] .login-alert.alert-warning .alert-icon {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        [data-bs-theme="dark"] .login-alert.alert-info {
+            background: rgba(13, 110, 253, 0.2);
+            border-color: rgba(13, 110, 253, 0.4);
+            color: #6ea8fe;
+        }
+        [data-bs-theme="dark"] .login-alert.alert-info .alert-icon {
+            background: #0d6efd;
+            color: white;
+        }
+
+        @keyframes alertAnim {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Footer institucional */
+        .login-footer {
+            text-align: center;
+            padding: 1.25rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-footer a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+        }
+
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-box {
+                padding: 0.75rem;
+            }
+
+            .login-card-body {
+                padding: 1.5rem 1.25rem;
+            }
+
+            .login-logo {
+                width: 60px;
+                height: 60px;
+            }
+
+            .login-titulo {
+                font-size: 1.25rem;
+            }
+        }
+
+        /* Transiciones suaves para el theme */
+        .login-card,
+        .login-card-header,
+        .login-card-body,
+        .form-control,
+        .form-check-label,
+        .login-links a,
+        .login-links {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        /* Dark mode ajustes */
+        [data-bs-theme="dark"] .login-page {
+            background: linear-gradient(135deg, #0f2f1a 0%, #145c32 40%, #1a3d28 100%);
+        }
+
+        [data-bs-theme="dark"] .login-page::before {
+            background-image:
+                radial-gradient(circle at 20% 80%, rgba(255,255,255,0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.04) 0%, transparent 50%),
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zm0-30V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        [data-bs-theme="dark"] .input-group-login .form-control {
+            background-color: #2b3035;
+            color: #dee2e6;
+            border-color: #495057;
+        }
+
+        [data-bs-theme="dark"] .input-group-login .form-control:focus {
+            background-color: #2b3035;
+            color: #dee2e6;
+            border-color: var(--coho-green-light);
+        }
+
+        [data-bs-theme="dark"] .input-icon {
+            color: #adb5bd;
+        }
+
+        [data-bs-theme="dark"] .login-links {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        [data-bs-theme="dark"] .login-footer {
+            color: rgba(255, 255, 255, 0.6);
+        }
+    </style>
 </head>
-<body class="hold-transition login-page">
-<div class="login-box">
-  {% if messages %}
-    {% for message in messages %}
-        <div class="alert alert-danger text-center">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
-  <!-- /.login-logo -->
-  <div class="card card-outline card-primary">
-    <div class="card-header text-center d-flex align-items-center justify-content-center">
-        <!-- Logo -->
-        <img src="{% static 'img/icons/logo.png' %}" alt="Logo" style="height: 50px; margin-right: 10px;">
-        <!-- Texto -->
-        <p class="h1 mb-0"><b>Coohobienestar</b></p>
+
+<body>
+    <div class="login-page">
+        <div class="login-box">
+            <!-- Mensajes de Django -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="login-alert alert-{{ message.tags }}" role="alert">
+                        <span class="alert-icon">
+                            {% if message.tags == 'success' %}<i class="bi bi-check-lg"></i>
+                            {% elif message.tags == 'error' or message.tags == 'danger' %}<i class="bi bi-x-lg"></i>
+                            {% elif message.tags == 'warning' %}<i class="bi bi-exclamation-lg"></i>
+                            {% else %}<i class="bi bi-info-lg"></i>{% endif %}
+                        </span>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Card de Login -->
+            <div class="login-card">
+                <!-- Header con logo -->
+                <div class="login-card-header">
+                    <img src="{% static 'img/icons/logo_v2.png' %}"
+                         alt="Coohobienestar"
+                         class="login-logo">
+                    <h1 class="login-titulo">Coohobienestar</h1>
+                    <p class="login-subtitulo">Sistema de Gestión Cooperativa</p>
+                </div>
+
+                <!-- Cuerpo del formulario -->
+                <div class="login-card-body">
+                    <form method="post" id="loginForm">
+                        {% csrf_token %}
+
+                        <!-- Username -->
+                        <div class="input-group-login">
+                            <input type="text"
+                                   class="form-control"
+                                   name="username"
+                                   id="username"
+                                   placeholder="Nombre de usuario"
+                                   required
+                                   autocomplete="username"
+                                   value="">
+                            <i class="bi bi-person input-icon"></i>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="input-group-login">
+                            <input type="password"
+                                   class="form-control"
+                                   name="password"
+                                   id="password"
+                                   placeholder="Contraseña"
+                                   required
+                                   autocomplete="current-password">
+                            <i class="bi bi-lock input-icon"></i>
+                            <button type="button"
+                                    class="password-toggle"
+                                    id="togglePassword"
+                                    aria-label="Mostrar contraseña">
+                                <i class="bi bi-eye-fill"></i>
+                            </button>
+                        </div>
+
+                        <!-- Recordarme -->
+                        <div class="form-check-login">
+                            <input type="checkbox"
+                                   class="form-check-input"
+                                   name="remember_me"
+                                   id="remember_me">
+                            <label class="form-check-label" for="remember_me">
+                                Recordarme
+                            </label>
+                        </div>
+
+                        <!-- Botón submit -->
+                        <button type="submit" class="btn btn-primary btn-login" id="submitBtn">
+                            <span class="spinner-container">
+                                <span class="spinner-border spinner-border-light" role="status" aria-hidden="true"></span>
+                            </span>
+                            <span class="btn-text">Iniciar Sesión</span>
+                        </button>
+
+                        <!-- Link olvidados -->
+                        <div class="login-links">
+                            <a href="#" onclick="event.preventDefault(); alert('Funcionalidad en desarrollo');">
+                                ¿Olvidó su contraseña?
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Footer institucional -->
+            <div class="login-footer">
+                <p class="mb-1">&copy; 2026 Coohobienestar. Todos los derechos reservados.</p>
+                <p class="mb-0">Sistema de Gestión Cooperativa</p>
+            </div>
+        </div>
     </div>
 
-    <div class="card-body">
-      <form method="post">
-        {% csrf_token %}
-        {% comment %} {{ form.as_p }} {% endcomment %}
-        
-        <div class="input-group mb-3">
-          <input type="text" class="form-control" name="username" placeholder="Nombre Usuario">
-          <div class="input-group-append">
-            <div class="input-group-text">
-              <i class="fa-solid fa-user"></i>
-            </div>
-          </div>
-        </div>
-        <div class="input-group mb-3">
-          <input type="password" class="form-control" name="password" placeholder="Password">
-          <div class="input-group-append">
-            <div class="input-group-text">
-              <span class="fas fa-lock"></span>
-            </div>
-          </div>
-        </div>
+    <!-- Scripts propios del login -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle mostrar/ocultar contraseña
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
 
-        <!-- /.col -->
-        <button type="submit" class="btn btn-primary btn-block">Acceder</button>
-        
-        <!-- /.col -->
-      </form>
-    </div>
-      
-    <!-- /.card-body -->
-  </div>
-  <!-- /.card -->
-</div>
-<!-- /.login-box -->
+            if (togglePassword && passwordInput) {
+                togglePassword.addEventListener('click', function() {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
 
+                    // Cambiar ícono
+                    const icon = togglePassword.querySelector('i');
+                    if (type === 'text') {
+                        icon.classList.remove('bi-eye-fill');
+                        icon.classList.add('bi-eye-slash-fill');
+                    } else {
+                        icon.classList.remove('bi-eye-slash-fill');
+                        icon.classList.add('bi-eye-fill');
+                    }
+                });
+            }
+
+            // Loading state en submit
+            const loginForm = document.getElementById('loginForm');
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (loginForm && submitBtn) {
+                loginForm.addEventListener('submit', function() {
+                    submitBtn.classList.add('loading');
+                    submitBtn.disabled = true;
+                });
+            }
+
+            // Preservar theme preference
+            const theme = localStorage.getItem('coho-theme') ||
+                       (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-bs-theme', theme);
+        });
+
+        // Permitir Submit con Enter en cualquier campo
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const form = e.target.closest('form');
+                if (form) {
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn && !submitBtn.disabled) {
+                        submitBtn.click();
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>

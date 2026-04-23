@@ -158,6 +158,37 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'usuarios.UsuarioAsociado'
 
+# Rate Limiting Configuration
+# Try Redis first, fall back to local memory cache
+try:
+    REDIS_URL = env('REDIS_URL', default=None)
+    if REDIS_URL:
+        CACHES = {
+            'default': {
+                'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+                'LOCATION': REDIS_URL,
+            }
+        }
+    else:
+        CACHES = {
+            'default': {
+                'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+                'LOCATION': 'unique-snowflake',
+            }
+        }
+except Exception:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'unique-snowflake',
+        }
+    }
+
+# Authentication Backends - Rate Limited for admin login
+AUTHENTICATION_BACKENDS = [
+    'usuarios.backends.RateLimitedAdminBackend',
+]
+
 SESSION_COOKIE_AGE = 3600
 
 SESSION_SAVE_EVERY_REQUEST = True

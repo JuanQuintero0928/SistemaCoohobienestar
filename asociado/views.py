@@ -739,10 +739,11 @@ class Beneficiarios(DetailView):
         beneficiarios = Beneficiario.objects.filter(
             asociado=self.object.pk
         ).select_related("parentesco", "paisRepatriacion").order_by("-estadoRegistro")
+        cuenta_beneficiarios_activos = beneficiarios.filter(estadoRegistro=True).count()
         context.update(
             {
                 "query": beneficiarios,
-                "cuenta": beneficiarios.count(),
+                "cuenta": cuenta_beneficiarios_activos,
                 "updateAsociado": "yes",
                 "pkAsociado": self.object.pk,
                 "vista": 2,
